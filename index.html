@@ -337,7 +337,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
   <div class="modal-box">
     <div class="pm-header"><div class="pm-name" id="pm-name"></div><div class="pm-desc" id="pm-desc"></div></div>
     <div class="pm-body">
-      <div class="pm-prices"><div class="pm-price-card"><div class="pm-price-label">Costo</div><div class="pm-price-val" id="pm-cost-val"></div></div><div class="pm-price-card"><div class="pm-price-label">Precio venta</div><div class="pm-price-val" style="color:var(--g600)" id="pm-price-val"></div></div></div>
+      <div class="pm-prices"><div class="pm-price-card" style="display:none"><div class="pm-price-label">Costo</div><div class="pm-price-val" id="pm-cost-val"></div></div><div class="pm-price-card" style="grid-column:span 2"><div class="pm-price-label">Precio venta</div><div class="pm-price-val" style="color:var(--g600)" id="pm-price-val"></div></div></div>
       <div class="pm-stock-section">
         <div class="pm-stock-label">Stock actual</div>
         <div class="pm-stock-ctrl">
@@ -347,6 +347,10 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
         </div>
         <div style="text-align:center;margin-top:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tm)">
           <span id="pm-sell-label-mini" style="display:none">A vender: <span id="pm-sell-qty-display" style="color:var(--b600)">0</span></span>
+        </div>
+        <div id="pm-sale-total-wrap" style="display:none;text-align:center;margin-top:10px;background:var(--g50);border:1.5px solid var(--g100);border-radius:var(--rmd);padding:10px 16px">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--g600);margin-bottom:2px">Total de venta</div>
+          <div id="pm-sale-total-val" style="font-size:22px;font-weight:700;color:var(--g600)">$0.00</div>
         </div>
       </div>
       <div class="pm-sell-section">
@@ -548,6 +552,7 @@ function openPM(id){
   document.getElementById('pm-sell-qty-display').textContent=0;
   document.getElementById('pm-confirm-qty').textContent=0;
   document.getElementById('pm-sell-label-mini').style.display='none';
+  document.getElementById('pm-sale-total-wrap').style.display='none';
   document.getElementById('pm-overlay').classList.add('open');
 }
 function closePM(){document.getElementById('pm-overlay').classList.remove('open');activePid=null;}
@@ -562,10 +567,19 @@ function changeSellQty(delta){
   document.getElementById('pm-sell-qty-display').textContent = newQty;
   document.getElementById('pm-confirm-qty').textContent = newQty;
   document.getElementById('pm-sell-label-mini').style.display = newQty>0?'inline':'none';
+  const totalWrap = document.getElementById('pm-sale-total-wrap');
+  if(newQty > 0){
+    document.getElementById('pm-sale-total-val').textContent = fmt(p.price * newQty);
+    totalWrap.style.display = 'block';
+  } else {
+    totalWrap.style.display = 'none';
+  }
 }
 
 async function registerSale(){
   const p=products.find(x=>x.id===activePid); if(!p)return;
+  const user=firebase.auth().currentUser;
+  const sellerEmail=user?user.email:'Desconocido';
   const qty=parseInt(document.getElementById('pm-sell-qty-display').textContent)||0;
   if(isNaN(qty)||qty<=0){showToast('Selecciona al menos 1 unidad con el botón −','ti-alert-circle');return;}
   if(qty>p.stock){showToast('Stock insuficiente','ti-alert-circle');return;}
@@ -575,6 +589,7 @@ async function registerSale(){
     batch.update(db.collection("productos").doc(p.id), { stock: firebase.firestore.FieldValue.increment(-qty) });
     batch.set(db.collection("ventas").doc(), {
       productName: p.name, qty, costTotal: +(p.cost*qty).toFixed(2), total: +(p.price*qty).toFixed(2),
+      seller: sellerEmail,
       date: new Date().toLocaleDateString('es'), timestamp: Date.now()
     });
     await batch.commit();
@@ -582,7 +597,8 @@ async function registerSale(){
     document.getElementById('pm-sell-qty-display').textContent=0;
     document.getElementById('pm-confirm-qty').textContent=0;
     document.getElementById('pm-sell-label-mini').style.display='none';
-    showToast('Venta registrada','ti-shopping-cart');
+    document.getElementById('pm-sale-total-wrap').style.display='none';
+    showToast(`Venta registrada por ${sellerEmail.split('@')[0]}`,'ti-shopping-cart');
   } catch(e){ showToast('Error en la venta','ti-alert-circle'); }
 }
 
@@ -641,9 +657,10 @@ function renderStats(){
   
   const body=document.getElementById('sales-table-body');
   if(!sales.length){body.innerHTML=`<div class="sales-empty">Sin ventas registradas</div>`;}
-  else { body.innerHTML=`<table class="sales-table"><thead><tr><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Ingreso</th><th>Ganancia</th><th></th></tr></thead><tbody>${sales.map(v=>{
+  else { body.innerHTML=`<table class="sales-table"><thead><tr><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Ingreso</th><th>Ganancia</th><th>Vendedor</th><th></th></tr></thead><tbody>${sales.map(v=>{
     const g=+(v.total-v.costTotal).toFixed(2);
-    return `<tr><td>${v.date}</td><td>${esc(v.productName)}</td><td>${v.qty}</td><td>${fmt(v.total)}</td><td style="color:${g>=0?'var(--g600)':'var(--r600)'}">${fmt(g)}</td><td><button onclick="deleteSale('${v.id}')" style="background:none;border:none;cursor:pointer;color:var(--r600);padding:4px 8px;border-radius:6px;font-size:16px"><i class="ti ti-trash"></i></button></td></tr>`;
+    const seller=v.seller?v.seller.split('@')[0]:'—';
+    return `<tr><td>${v.date}</td><td>${esc(v.productName)}</td><td>${v.qty}</td><td>${fmt(v.total)}</td><td style="color:${g>=0?'var(--g600)':'var(--r600)'}">${fmt(g)}</td><td style="font-size:12px;color:var(--ts)">${esc(seller)}</td><td><button onclick="deleteSale('${v.id}')" style="background:none;border:none;cursor:pointer;color:var(--r600);padding:4px 8px;border-radius:6px;font-size:16px"><i class="ti ti-trash"></i></button></td></tr>`;
   }).join('')}</tbody></table>`; }
   renderDeletedSales();
 }
@@ -653,9 +670,10 @@ function renderDeletedSales(){
   const body=document.getElementById('deleted-sales-table-body');
   if(!deletedSales.length){wrap.style.display='none';return;}
   wrap.style.display='block';
-  body.innerHTML=`<table class="sales-table"><thead><tr><th>Eliminada</th><th>Producto</th><th>Cant.</th><th>Ingreso</th><th>Ganancia</th><th></th></tr></thead><tbody>${deletedSales.map(v=>{
+  body.innerHTML=`<table class="sales-table"><thead><tr><th>Eliminada</th><th>Producto</th><th>Cant.</th><th>Ingreso</th><th>Ganancia</th><th>Vendedor</th><th></th></tr></thead><tbody>${deletedSales.map(v=>{
     const g=+(v.total-v.costTotal).toFixed(2);
-    return `<tr style="opacity:.75"><td>${v.deletedDate||v.date}</td><td>${esc(v.productName)}</td><td>${v.qty}</td><td>${fmt(v.total)}</td><td style="color:${g>=0?'var(--g600)':'var(--r600)'}">${fmt(g)}</td><td><button onclick="restoreSale('${v.id}')" title="Restaurar" style="background:none;border:none;cursor:pointer;color:var(--g600);padding:4px 8px;border-radius:6px;font-size:16px"><i class="ti ti-restore"></i></button></td></tr>`;
+    const seller=v.seller?v.seller.split('@')[0]:'—';
+    return `<tr style="opacity:.75"><td>${v.deletedDate||v.date}</td><td>${esc(v.productName)}</td><td>${v.qty}</td><td>${fmt(v.total)}</td><td style="color:${g>=0?'var(--g600)':'var(--r600)'}">${fmt(g)}</td><td style="font-size:12px;color:var(--ts)">${esc(seller)}</td><td><button onclick="restoreSale('${v.id}')" title="Restaurar" style="background:none;border:none;cursor:pointer;color:var(--g600);padding:4px 8px;border-radius:6px;font-size:16px"><i class="ti ti-restore"></i></button></td></tr>`;
   }).join('')}</tbody></table>`;
 }
 
