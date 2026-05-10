@@ -22,27 +22,12 @@
 }
 html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;background:linear-gradient(145deg,#daeffe 0%,#e8f8ff 40%,#f0f8ff 100%);color:var(--tp);font-size:15px;line-height:1.5}
 
-/* ── AUTH OVERLAY ── */
-#auth-overlay{
-  position:fixed;inset:0;z-index:200;
-  background:linear-gradient(145deg,#c8e8fa 0%,#daf3ff 50%,#eaf8ff 100%);
-  display:flex;align-items:center;justify-content:center;padding:20px;
-}
-.auth-card{
-  background:#fff;border-radius:24px;width:100%;max-width:400px;
-  box-shadow:0 20px 60px rgba(15,63,99,.18);overflow:hidden;
-  animation:authIn .35s cubic-bezier(.34,1.56,.64,1);
-}
+/* AUTH */
+#auth-overlay{position:fixed;inset:0;z-index:200;background:linear-gradient(145deg,#c8e8fa 0%,#daf3ff 50%,#eaf8ff 100%);display:flex;align-items:center;justify-content:center;padding:20px;}
+.auth-card{background:#fff;border-radius:24px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(15,63,99,.18);overflow:hidden;animation:authIn .35s cubic-bezier(.34,1.56,.64,1);}
 @keyframes authIn{from{opacity:0;transform:scale(.92) translateY(16px)}to{opacity:1;transform:scale(1) translateY(0)}}
-.auth-header{
-  background:linear-gradient(135deg,var(--b400),var(--s400));
-  padding:32px 32px 28px;text-align:center;
-}
-.auth-logo{
-  width:58px;height:58px;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.35);
-  border-radius:16px;display:flex;align-items:center;justify-content:center;
-  margin:0 auto 14px;font-size:28px;color:#fff;
-}
+.auth-header{background:linear-gradient(135deg,var(--b400),var(--s400));padding:32px 32px 28px;text-align:center;}
+.auth-logo{width:58px;height:58px;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.35);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:28px;color:#fff;}
 .auth-title{font-size:22px;font-weight:700;color:#fff;letter-spacing:-.4px}
 .auth-sub{font-size:13px;color:rgba(255,255,255,.78);margin-top:4px}
 .auth-body{padding:30px 32px}
@@ -50,40 +35,18 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .auth-field label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--tm);margin-bottom:6px}
 .auth-input-wrap{position:relative}
 .auth-input-wrap i{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:17px;color:var(--b300);pointer-events:none}
-.auth-field input{
-  width:100%;background:var(--b50);border:1.5px solid var(--b100);
-  border-radius:var(--rsm);padding:11px 13px 11px 40px;
-  font-size:14px;font-family:inherit;color:var(--tp);outline:none;
-  transition:border-color var(--tr),box-shadow var(--tr);
-}
+.auth-field input{width:100%;background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:11px 13px 11px 40px;font-size:14px;font-family:inherit;color:var(--tp);outline:none;transition:border-color var(--tr),box-shadow var(--tr);}
 .auth-field input::placeholder{color:var(--tm)}
 .auth-field input:focus{border-color:var(--b400);box-shadow:0 0 0 3px rgba(74,168,232,.13);background:#fff}
-.auth-error{
-  font-size:12px;font-weight:600;color:var(--r600);
-  background:var(--r50);border:1px solid var(--r100);
-  border-radius:var(--rsm);padding:9px 13px;margin-bottom:16px;
-  display:none;align-items:center;gap:7px;
-}
+.auth-error{font-size:12px;font-weight:600;color:var(--r600);background:var(--r50);border:1px solid var(--r100);border-radius:var(--rsm);padding:9px 13px;margin-bottom:16px;display:none;align-items:center;gap:7px;}
 .auth-error.show{display:flex}
 .auth-error i{font-size:15px;flex-shrink:0}
-.btn-auth{
-  width:100%;padding:13px;
-  background:linear-gradient(135deg,var(--b400),var(--s400));
-  color:#fff;border:none;border-radius:var(--rp);
-  font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  box-shadow:0 4px 16px rgba(74,168,232,.38);
-  transition:opacity var(--tr),transform var(--tr);
-}
-.btn-auth:hover{opacity:.9}
-.btn-auth:active{transform:scale(.97)}
-.btn-auth:disabled{opacity:.55;cursor:not-allowed}
-.btn-auth i{font-size:18px}
+.btn-auth{width:100%;padding:13px;background:linear-gradient(135deg,var(--b400),var(--s400));color:#fff;border:none;border-radius:var(--rp);font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 16px rgba(74,168,232,.38);transition:opacity var(--tr),transform var(--tr);}
+.btn-auth:hover{opacity:.9}.btn-auth:active{transform:scale(.97)}.btn-auth:disabled{opacity:.55;cursor:not-allowed}.btn-auth i{font-size:18px}
 .auth-spinner{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
 @keyframes spin{to{transform:rotate(360deg)}}
-.auth-footer{text-align:center;padding:0 32px 24px;font-size:12px;color:var(--tm)}
 
-/* ── APP ── */
+/* APP */
 .app{max-width:1120px;margin:0 auto;padding:28px 18px 60px}
 .header{background:linear-gradient(135deg,var(--b400),var(--s400));border-radius:var(--rlg);padding:26px 30px;margin-bottom:22px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 6px 30px rgba(74,168,232,.3)}
 .header h1{font-size:23px;font-weight:700;color:#fff;letter-spacing:-.4px;display:flex;align-items:center;gap:10px}
@@ -97,16 +60,25 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .save-dot.error{background:#f87171}
 .btn-logout{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.28);color:#fff;font-size:12px;font-weight:600;padding:6px 14px;border-radius:var(--rp);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;transition:background var(--tr)}
 .btn-logout:hover{background:rgba(255,255,255,.25)}
-.tabs{display:flex;gap:5px;margin-bottom:20px;background:var(--wh);border-radius:var(--rp);padding:5px;width:fit-content;border:1px solid var(--b100);box-shadow:var(--sc)}
-.tab-btn{padding:9px 22px;border:none;border-radius:var(--rp);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:7px;transition:background var(--tr),color var(--tr),box-shadow var(--tr);color:var(--tm);background:none}
+
+/* TABS */
+.tabs-group{margin-bottom:10px}
+.tabs-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--tm);margin-bottom:5px;padding-left:4px}
+.tabs{display:flex;gap:5px;background:var(--wh);border-radius:var(--rp);padding:5px;width:fit-content;border:1px solid var(--b100);box-shadow:var(--sc);margin-bottom:0}
+.tabs-group+.tabs-group{margin-top:8px}
+.tabs-group:last-of-type{margin-bottom:20px}
+.tab-btn{padding:9px 20px;border:none;border-radius:var(--rp);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:7px;transition:background var(--tr),color var(--tr),box-shadow var(--tr);color:var(--tm);background:none}
 .tab-btn.active{background:linear-gradient(135deg,var(--b400),var(--s400));color:#fff;box-shadow:0 3px 12px rgba(74,168,232,.3)}
 .tab-content{display:none}.tab-content.active{display:block}
+
+/* CARDS / PANELS */
 .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
 .stat-card{background:var(--wh);border-radius:var(--rmd);padding:17px 19px;border:1px solid var(--b100);box-shadow:var(--sc);transition:var(--tr)}
 .stat-card:hover{box-shadow:var(--sh);transform:translateY(-1px)}
 .stat-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:9px;font-size:19px}
 .si-blue{background:var(--b50);color:var(--b500)}
 .si-orange{background:var(--w50);color:var(--w600)}
+.si-green{background:var(--g50);color:var(--g600)}
 .stat-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--tm)}
 .stat-value{font-size:24px;font-weight:700;color:var(--b600);margin-top:2px;letter-spacing:-.4px}
 .main-grid{display:grid;grid-template-columns:360px 1fr;gap:20px;align-items:start}
@@ -117,7 +89,8 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .psub{font-size:11px;color:var(--tm)}
 .form-body{padding:19px 21px;display:flex;flex-direction:column;gap:13px}
 .field label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--tm);margin-bottom:5px}
-.field input,.field textarea{width:100%;background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:9px 13px;font-size:14px;font-family:inherit;color:var(--tp);outline:none;transition:border-color var(--tr),box-shadow var(--tr)}
+.field input,.field textarea,.field select{width:100%;background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:9px 13px;font-size:14px;font-family:inherit;color:var(--tp);outline:none;transition:border-color var(--tr),box-shadow var(--tr)}
+.field select{cursor:pointer}
 .field textarea{resize:none;height:66px;line-height:1.5}
 .field-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
 .btn-add{width:100%;padding:12px;background:linear-gradient(135deg,var(--b400),var(--s400));color:#fff;border:none;border-radius:var(--rp);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 14px rgba(74,168,232,.35)}
@@ -140,18 +113,20 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .product-card:hover{border-color:var(--b300);box-shadow:0 3px 14px rgba(74,168,232,.13);transform:translateY(-1px)}
 .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:9px}
 .card-name{font-size:14px;font-weight:700;color:var(--tp);line-height:1.3}
-.card-desc{font-size:12px;color:var(--ts);margin-top:2px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
 .card-badges{display:flex;gap:5px;margin-top:9px;flex-wrap:wrap}
 .badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:var(--rp);display:inline-flex;align-items:center;gap:3px}
-.badge-cost{background:var(--w50);color:var(--w600);border:1px solid var(--w100)}
 .badge-price{background:var(--g50);color:var(--g600);border:1px solid var(--g100)}
 .badge-ok{background:var(--b50);color:var(--b600);border:1px solid var(--b100)}
 .badge-low{background:var(--w50);color:var(--w600)}
 .badge-empty{background:var(--r50);color:var(--r600)}
+.badge-exsal{background:#e8f0fe;color:#1a56c4;border:1px solid #b8d0f8}
+.badge-cdb{background:#fce8ff;color:#8b1ac4;border:1px solid #e0b8f8}
 .card-actions{display:flex;gap:5px;flex-shrink:0}
 .btn-icon{width:29px;height:29px;background:none;border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:background var(--tr),color var(--tr);color:var(--tm)}
 .btn-icon:hover{background:rgba(255,255,255,.8);color:var(--b600)}
 .btn-del-sm:hover{background:var(--r50)!important;color:var(--r600)!important}
+
+/* MODALS */
 .overlay{display:none;position:fixed;inset:0;background:rgba(15,63,99,.4);backdrop-filter:blur(5px);z-index:100;align-items:center;justify-content:center;padding:20px}
 .overlay.open{display:flex}
 .modal-box{background:#fff;border-radius:var(--rlg);width:100%;max-width:460px;box-shadow:0 18px 60px rgba(15,63,99,.22);animation:mIn .22s ease;overflow:hidden}
@@ -174,9 +149,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .pm-sell-section{background:var(--b50);border:1px solid var(--b100);border-radius:var(--rmd);padding:14px 16px;margin-bottom:14px}
 .pm-sell-label{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--tm);margin-bottom:10px;display:flex;align-items:center;gap:5px}
 .pm-sell-row{display:flex;align-items:center;gap:10px}
-.pm-sell-input{flex:1;background:#fff;border:1.5px solid var(--b200);border-radius:var(--rsm);padding:9px 13px;font-size:14px;outline:none}
 .btn-sell{padding:9px 18px;background:linear-gradient(135deg,var(--b400),var(--s400));color:#fff;border:none;border-radius:var(--rp);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;}
-.pm-margin{font-size:12.5px;color:var(--tm);text-align:center;margin-bottom:18px}
 .pm-footer{display:flex;gap:10px;justify-content:flex-end}
 .btn-secondary{padding:9px 20px;background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rp);font-size:13px;font-weight:600;color:var(--ts);cursor:pointer}
 .btn-danger{padding:9px 18px;background:none;border:1.5px solid var(--r100);border-radius:var(--rp);font-size:13px;font-weight:600;color:var(--r600);cursor:pointer;display:flex;align-items:center;gap:5px}
@@ -185,6 +158,8 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .del-body p{font-size:13px;color:var(--ts);margin-bottom:20px;}
 .del-actions{display:flex;gap:10px;justify-content:flex-end}
 .btn-confirm-del{padding:10px 20px;background:var(--r600);border:none;border-radius:var(--rp);font-size:13px;font-weight:700;color:#fff;cursor:pointer}
+
+/* STATS / FINANZAS */
 .fin-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
 .fin-card{background:var(--wh);border-radius:var(--rmd);padding:17px 19px;border:1px solid var(--b100);box-shadow:var(--sc);}
 .fin-label{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--tm)}
@@ -198,36 +173,28 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .sales-table th{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--tm);padding:10px 16px;text-align:left;border-bottom:1px solid var(--b50);background:var(--b50)}
 .sales-table td{font-size:13px;color:var(--tp);padding:11px 16px;border-bottom:1px solid var(--b50)}
 .sales-empty{text-align:center;padding:44px 20px;color:var(--tm)}
-.top-prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
-.top-card{background:var(--wh);border-radius:var(--rlg);border:1px solid var(--b100);box-shadow:var(--sc);overflow:hidden}
-.top-card-hd{padding:14px 18px;border-bottom:1px solid var(--b50);display:flex;align-items:center;gap:8px}
-.top-card-title{font-size:14px;font-weight:700;color:var(--tp)}
-.top-list{padding:10px 12px;display:flex;flex-direction:column;gap:6px}
-.top-item{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--b50);border-radius:var(--rsm)}
-.top-item-name{font-size:13px;font-weight:600;color:var(--tp)}
-.top-item-val{font-size:13px;font-weight:700;color:var(--b600)}
-.top-empty{text-align:center;padding:20px;font-size:13px;color:var(--tm)}
-.toast{position:fixed;bottom:26px;right:26px;background:var(--b600);color:#fff;padding:11px 20px;border-radius:var(--rp);font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;box-shadow:0 6px 24px rgba(15,63,99,.25);opacity:0;transform:translateY(12px);transition:opacity .25s ease,transform .25s ease;z-index:300;pointer-events:none}
-.toast.show{opacity:1;transform:translateY(0)}
-@media(max-width:800px){
-  .main-grid{grid-template-columns:1fr}
-  .stats-row{grid-template-columns:1fr 1fr}
-  .stats-row .stat-card:last-child{grid-column:span 2}
-  .fin-grid{grid-template-columns:1fr 1fr}
-  .top-prod-grid{grid-template-columns:1fr}
-  .header{flex-direction:column;gap:10px;align-items:flex-start}
-}
 
-/* ── EDIT MODAL ── */
+/* EDIT MODAL */
 #edit-overlay .modal-box{max-width:480px}
 .edit-body{padding:22px 24px}
 .edit-body .field{margin-bottom:12px}
 .edit-body .field label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--tm);margin-bottom:5px}
 .edit-body .field input,.edit-body .field textarea{width:100%;background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:9px 13px;font-size:14px;font-family:inherit;color:var(--tp);outline:none;transition:border-color var(--tr)}
-.edit-body .field input:focus,.edit-body .field textarea:focus{border-color:var(--b400);box-shadow:0 0 0 3px rgba(74,168,232,.13);background:#fff}
+.edit-body .field input:focus{border-color:var(--b400);box-shadow:0 0 0 3px rgba(74,168,232,.13);background:#fff}
 .edit-body .field textarea{resize:none;height:60px}
 .edit-footer{display:flex;gap:10px;justify-content:flex-end;padding:0 24px 20px}
 .btn-save{padding:10px 22px;background:linear-gradient(135deg,var(--b400),var(--s400));color:#fff;border:none;border-radius:var(--rp);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px}
+
+.toast{position:fixed;bottom:26px;right:26px;background:var(--b600);color:#fff;padding:11px 20px;border-radius:var(--rp);font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;box-shadow:0 6px 24px rgba(15,63,99,.25);opacity:0;transform:translateY(12px);transition:opacity .25s ease,transform .25s ease;z-index:300;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+@media(max-width:900px){
+  .tabs{flex-wrap:wrap}
+  .main-grid{grid-template-columns:1fr}
+  .stats-row{grid-template-columns:1fr 1fr}
+  .stats-row .stat-card:last-child{grid-column:span 2}
+  .fin-grid{grid-template-columns:1fr 1fr}
+  .header{flex-direction:column;gap:10px;align-items:flex-start}
+}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -235,6 +202,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 </head>
 <body>
 
+<!-- AUTH -->
 <div id="auth-overlay">
   <div class="auth-card">
     <div class="auth-header">
@@ -246,17 +214,11 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       <div class="auth-error" id="auth-error"><i class="ti ti-alert-circle"></i><span id="auth-error-text"></span></div>
       <div class="auth-field">
         <label>Correo Electrónico</label>
-        <div class="auth-input-wrap">
-          <i class="ti ti-mail"></i>
-          <input type="email" id="auth-email" placeholder="usuario@correo.com">
-        </div>
+        <div class="auth-input-wrap"><i class="ti ti-mail"></i><input type="email" id="auth-email" placeholder="usuario@correo.com"></div>
       </div>
       <div class="auth-field">
         <label>Contraseña</label>
-        <div class="auth-input-wrap">
-          <i class="ti ti-key"></i>
-          <input type="password" id="auth-pass" placeholder="••••••••">
-        </div>
+        <div class="auth-input-wrap"><i class="ti ti-key"></i><input type="password" id="auth-pass" placeholder="••••••••"></div>
       </div>
       <button class="btn-auth" id="btn-auth" onclick="handleAuth('login')">
         <span id="btn-auth-label"><i class="ti ti-login"></i>Ingresar al Inventario</span>
@@ -274,76 +236,205 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     </div>
     <div class="header-right">
       <div class="save-pill" id="save-pill"><div class="save-dot" id="save-dot"></div><span id="save-text">Conectando...</span></div>
-      <span class="header-badge" id="header-badge">0 productos</span>
+      <span class="header-badge" id="header-badge">0 prod.</span>
       <button class="btn-logout" onclick="logout()"><i class="ti ti-logout"></i>Salir</button>
     </div>
   </div>
 
-  <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('inventario',this)"><i class="ti ti-clipboard-list"></i>Inventario</button>
-    <button class="tab-btn" onclick="switchTab('estadisticas',this)"><i class="ti ti-chart-bar"></i>Estadísticas</button>
+  <!-- GRUPO TABS: INVENTARIO -->
+  <div class="tabs-group">
+    <div class="tabs-label">Inventario</div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('inv-exsal',this)"><i class="ti ti-clipboard-list"></i>EXSAL</button>
+      <button class="tab-btn" onclick="switchTab('inv-cdb',this)"><i class="ti ti-clipboard-list"></i>CDB</button>
+      <button class="tab-btn" onclick="switchTab('inv-total',this)"><i class="ti ti-layers-intersect"></i>Total</button>
+    </div>
   </div>
 
-  <div class="tab-content active" id="tab-inventario">
+  <!-- GRUPO TABS: ESTADÍSTICAS -->
+  <div class="tabs-group">
+    <div class="tabs-label">Estadísticas</div>
+    <div class="tabs">
+      <button class="tab-btn" onclick="switchTab('stats-exsal',this)"><i class="ti ti-chart-bar"></i>EXSAL</button>
+      <button class="tab-btn" onclick="switchTab('stats-cdb',this)"><i class="ti ti-chart-bar"></i>CDB</button>
+      <button class="tab-btn" onclick="switchTab('stats-total',this)"><i class="ti ti-chart-pie"></i>Total</button>
+    </div>
+  </div>
+
+  <!-- ═══ INVENTARIO EXSAL ═══ -->
+  <div class="tab-content active" id="tab-inv-exsal">
     <div class="stats-row">
-      <div class="stat-card"><div class="stat-icon si-blue"><i class="ti ti-box"></i></div><div class="stat-label">Productos</div><div class="stat-value" id="si-total">0</div></div>
-      <div class="stat-card"><div class="stat-icon si-blue"><i class="ti ti-stack"></i></div><div class="stat-label">Stock total</div><div class="stat-value" id="si-stock">0</div></div>
-      <div class="stat-card"><div class="stat-icon si-orange"><i class="ti ti-tag"></i></div><div class="stat-label">Valor total en venta</div><div class="stat-value" id="si-valor-venta">$0.00</div></div>
+      <div class="stat-card"><div class="stat-icon si-blue"><i class="ti ti-box"></i></div><div class="stat-label">Productos EXSAL</div><div class="stat-value" id="exsal-si-total">0</div></div>
+      <div class="stat-card"><div class="stat-icon si-blue"><i class="ti ti-stack"></i></div><div class="stat-label">Stock EXSAL</div><div class="stat-value" id="exsal-si-stock">0</div></div>
+      <div class="stat-card"><div class="stat-icon si-orange"><i class="ti ti-tag"></i></div><div class="stat-label">Valor en venta (EXSAL)</div><div class="stat-value" id="exsal-si-valor-venta">$0.00</div></div>
     </div>
     <div class="main-grid">
       <div class="panel">
-        <div class="panel-hd"><div class="phd-icon"><i class="ti ti-circle-plus"></i></div><div><div class="ptitle">Nuevo producto</div><div class="psub">Completa todos los campos</div></div></div>
+        <div class="panel-hd"><div class="phd-icon"><i class="ti ti-circle-plus"></i></div><div><div class="ptitle">Nuevo producto · EXSAL</div><div class="psub">Se agrega automáticamente a EXSAL</div></div></div>
         <div class="form-body">
-          <div class="field"><label>Nombre</label><input type="text" id="f-name" placeholder="Ej. Cable multifilar 1m" maxlength="80" autocomplete="off"></div>
-          <div class="field"><label>Descripción</label><textarea id="f-desc" placeholder="Breve descripción..."></textarea></div>
+          <div class="field"><label>Nombre</label><input type="text" id="exsal-f-name" placeholder="Ej. Cable multifilar 1m" maxlength="80" autocomplete="off"></div>
+          <div class="field"><label>Descripción</label><textarea id="exsal-f-desc" placeholder="Breve descripción..."></textarea></div>
           <div class="field-row3">
-            <div class="field"><label>Costo ($)</label><input type="number" id="f-cost" placeholder="0.00" min="0" step="0.01"></div>
-            <div class="field"><label>Precio ($)</label><input type="number" id="f-price" placeholder="0.00" min="0" step="0.01"></div>
-            <div class="field"><label>Stock</label><input type="number" id="f-stock" placeholder="0" min="0" step="1"></div>
+            <div class="field"><label>Costo ($)</label><input type="number" id="exsal-f-cost" placeholder="0.00" min="0" step="0.01"></div>
+            <div class="field"><label>Precio ($)</label><input type="number" id="exsal-f-price" placeholder="0.00" min="0" step="0.01"></div>
+            <div class="field"><label>Stock</label><input type="number" id="exsal-f-stock" placeholder="0" min="0" step="1"></div>
           </div>
-          <button class="btn-add" onclick="addProduct()"><i class="ti ti-plus"></i>Agregar producto</button>
-          <div class="form-error" id="form-error"></div>
+          <button class="btn-add" onclick="addProduct('exsal')"><i class="ti ti-plus"></i>Agregar a EXSAL</button>
+          <div class="form-error" id="exsal-form-error"></div>
         </div>
       </div>
       <div class="panel">
-        <div class="list-controls"><div class="search-wrap"><i class="ti ti-search"></i><input type="text" id="search" placeholder="Buscar producto..." oninput="renderList()"></div></div>
-        <div class="list-meta"><span class="list-count" id="list-count"></span><button class="sort-btn" onclick="toggleSort()"><i class="ti ti-arrows-sort"></i><span id="sort-label">Más recientes</span></button></div>
-        <div class="list-area" id="list-area"></div>
+        <div class="list-controls"><div class="search-wrap"><i class="ti ti-search"></i><input type="text" id="exsal-search" placeholder="Buscar producto..." oninput="renderList('exsal')"></div></div>
+        <div class="list-meta"><span class="list-count" id="exsal-list-count"></span><button class="sort-btn" onclick="toggleSort('exsal')"><i class="ti ti-arrows-sort"></i><span id="exsal-sort-label">Más recientes</span></button></div>
+        <div class="list-area" id="exsal-list-area"></div>
       </div>
     </div>
   </div>
 
-  <div class="tab-content" id="tab-estadisticas">
-    <div class="fin-grid" style="grid-template-columns:repeat(4,1fr)">
-      <div class="fin-card"><div class="fin-label">Ventas totales</div><div class="fin-value fv-blue" id="fs-ventas">$0.00</div></div>
-      <div class="fin-card"><div class="fin-label">Costos totales</div><div class="fin-value fv-orange" id="fs-costos">$0.00</div></div>
-      <div class="fin-card"><div class="fin-label">Ganancia neta</div><div class="fin-value fv-green" id="fs-ganancia">$0.00</div></div>
-      <div class="fin-card"><div class="fin-label">Unidades vendidas</div><div class="fin-value fv-blue" id="fs-units">0</div></div>
-      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Valor inventario (a costo)</div><div class="fin-value fv-orange" id="si-valor">$0.00</div></div>
-      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Valor inventario (precio venta)</div><div class="fin-value fv-green" id="si-valor-venta-stats">$0.00</div></div>
+  <!-- ═══ INVENTARIO CDB ═══ -->
+  <div class="tab-content" id="tab-inv-cdb">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-icon si-blue"><i class="ti ti-box"></i></div><div class="stat-label">Productos CDB</div><div class="stat-value" id="cdb-si-total">0</div></div>
+      <div class="stat-card"><div class="stat-icon si-blue"><i class="ti ti-stack"></i></div><div class="stat-label">Stock CDB</div><div class="stat-value" id="cdb-si-stock">0</div></div>
+      <div class="stat-card"><div class="stat-icon si-orange"><i class="ti ti-tag"></i></div><div class="stat-label">Valor en venta (CDB)</div><div class="stat-value" id="cdb-si-valor-venta">$0.00</div></div>
     </div>
-    <div class="sales-wrap">
-      <div class="sales-hd"><div class="shd-title"><i class="ti ti-receipt"></i>Historial de ventas</div><button class="btn-clr" onclick="clearSales()"><i class="ti ti-trash"></i>Borrar historial</button></div>
-      <div id="sales-table-body"></div>
-    </div>
-    <div class="sales-wrap" id="deleted-sales-wrap" style="margin-top:20px;display:none">
-      <div class="sales-hd"><div class="shd-title"><i class="ti ti-history"></i>Ventas eliminadas</div><button class="btn-clr" onclick="clearDeletedSales()"><i class="ti ti-trash"></i>Limpiar todo</button></div>
-      <div id="deleted-sales-table-body"></div>
+    <div class="main-grid">
+      <div class="panel">
+        <div class="panel-hd"><div class="phd-icon"><i class="ti ti-circle-plus"></i></div><div><div class="ptitle">Nuevo producto · CDB</div><div class="psub">Se agrega automáticamente a CDB</div></div></div>
+        <div class="form-body">
+          <div class="field"><label>Nombre</label><input type="text" id="cdb-f-name" placeholder="Ej. Cable multifilar 1m" maxlength="80" autocomplete="off"></div>
+          <div class="field"><label>Descripción</label><textarea id="cdb-f-desc" placeholder="Breve descripción..."></textarea></div>
+          <div class="field-row3">
+            <div class="field"><label>Costo ($)</label><input type="number" id="cdb-f-cost" placeholder="0.00" min="0" step="0.01"></div>
+            <div class="field"><label>Precio ($)</label><input type="number" id="cdb-f-price" placeholder="0.00" min="0" step="0.01"></div>
+            <div class="field"><label>Stock</label><input type="number" id="cdb-f-stock" placeholder="0" min="0" step="1"></div>
+          </div>
+          <button class="btn-add" onclick="addProduct('cdb')"><i class="ti ti-plus"></i>Agregar a CDB</button>
+          <div class="form-error" id="cdb-form-error"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="list-controls"><div class="search-wrap"><i class="ti ti-search"></i><input type="text" id="cdb-search" placeholder="Buscar producto..." oninput="renderList('cdb')"></div></div>
+        <div class="list-meta"><span class="list-count" id="cdb-list-count"></span><button class="sort-btn" onclick="toggleSort('cdb')"><i class="ti ti-arrows-sort"></i><span id="cdb-sort-label">Más recientes</span></button></div>
+        <div class="list-area" id="cdb-list-area"></div>
+      </div>
     </div>
   </div>
-</div>
 
+  <!-- ═══ INVENTARIO TOTAL ═══ -->
+  <div class="tab-content" id="tab-inv-total">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-icon si-blue"><i class="ti ti-box"></i></div><div class="stat-label">Total productos</div><div class="stat-value" id="total-si-total">0</div></div>
+      <div class="stat-card"><div class="stat-icon si-blue"><i class="ti ti-stack"></i></div><div class="stat-label">Stock total</div><div class="stat-value" id="total-si-stock">0</div></div>
+      <div class="stat-card"><div class="stat-icon si-orange"><i class="ti ti-tag"></i></div><div class="stat-label">Valor total en venta</div><div class="stat-value" id="total-si-valor-venta">$0.00</div></div>
+    </div>
+    <div class="main-grid">
+      <div class="panel">
+        <div class="panel-hd"><div class="phd-icon"><i class="ti ti-circle-plus"></i></div><div><div class="ptitle">Nuevo producto</div><div class="psub">Elige la sucursal destino</div></div></div>
+        <div class="form-body">
+          <div class="field">
+            <label>Sucursal</label>
+            <select id="total-f-sucursal">
+              <option value="exsal">EXSAL</option>
+              <option value="cdb">CDB</option>
+            </select>
+          </div>
+          <div class="field"><label>Nombre</label><input type="text" id="total-f-name" placeholder="Ej. Cable multifilar 1m" maxlength="80" autocomplete="off"></div>
+          <div class="field"><label>Descripción</label><textarea id="total-f-desc" placeholder="Breve descripción..."></textarea></div>
+          <div class="field-row3">
+            <div class="field"><label>Costo ($)</label><input type="number" id="total-f-cost" placeholder="0.00" min="0" step="0.01"></div>
+            <div class="field"><label>Precio ($)</label><input type="number" id="total-f-price" placeholder="0.00" min="0" step="0.01"></div>
+            <div class="field"><label>Stock</label><input type="number" id="total-f-stock" placeholder="0" min="0" step="1"></div>
+          </div>
+          <button class="btn-add" onclick="addProductTotal()"><i class="ti ti-plus"></i>Agregar producto</button>
+          <div class="form-error" id="total-form-error"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="list-controls"><div class="search-wrap"><i class="ti ti-search"></i><input type="text" id="total-search" placeholder="Buscar producto..." oninput="renderList('total')"></div></div>
+        <div class="list-meta"><span class="list-count" id="total-list-count"></span><button class="sort-btn" onclick="toggleSort('total')"><i class="ti ti-arrows-sort"></i><span id="total-sort-label">Más recientes</span></button></div>
+        <div class="list-area" id="total-list-area"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ESTADÍSTICAS EXSAL ═══ -->
+  <div class="tab-content" id="tab-stats-exsal">
+    <div class="fin-grid">
+      <div class="fin-card"><div class="fin-label">Ventas EXSAL</div><div class="fin-value fv-blue" id="exsal-fs-ventas">$0.00</div></div>
+      <div class="fin-card"><div class="fin-label">Costos EXSAL</div><div class="fin-value fv-orange" id="exsal-fs-costos">$0.00</div></div>
+      <div class="fin-card"><div class="fin-label">Ganancia EXSAL</div><div class="fin-value fv-green" id="exsal-fs-ganancia">$0.00</div></div>
+      <div class="fin-card"><div class="fin-label">Unidades vendidas</div><div class="fin-value fv-blue" id="exsal-fs-units">0</div></div>
+      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Valor inventario EXSAL (a costo)</div><div class="fin-value fv-orange" id="exsal-si-valor">$0.00</div></div>
+      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Valor inventario EXSAL (precio venta)</div><div class="fin-value fv-green" id="exsal-si-valor-venta-stats">$0.00</div></div>
+    </div>
+    <div class="sales-wrap">
+      <div class="sales-hd"><div class="shd-title"><i class="ti ti-receipt"></i>Historial de ventas · EXSAL</div><button class="btn-clr" onclick="clearSales('exsal')"><i class="ti ti-trash"></i>Borrar historial</button></div>
+      <div id="exsal-sales-table-body"></div>
+    </div>
+    <div class="sales-wrap" id="exsal-deleted-sales-wrap" style="margin-top:20px;display:none">
+      <div class="sales-hd"><div class="shd-title"><i class="ti ti-history"></i>Ventas eliminadas · EXSAL</div><button class="btn-clr" onclick="clearDeletedSales('exsal')"><i class="ti ti-trash"></i>Limpiar todo</button></div>
+      <div id="exsal-deleted-sales-table-body"></div>
+    </div>
+  </div>
+
+  <!-- ═══ ESTADÍSTICAS CDB ═══ -->
+  <div class="tab-content" id="tab-stats-cdb">
+    <div class="fin-grid">
+      <div class="fin-card"><div class="fin-label">Ventas CDB</div><div class="fin-value fv-blue" id="cdb-fs-ventas">$0.00</div></div>
+      <div class="fin-card"><div class="fin-label">Costos CDB</div><div class="fin-value fv-orange" id="cdb-fs-costos">$0.00</div></div>
+      <div class="fin-card"><div class="fin-label">Ganancia CDB</div><div class="fin-value fv-green" id="cdb-fs-ganancia">$0.00</div></div>
+      <div class="fin-card"><div class="fin-label">Unidades vendidas</div><div class="fin-value fv-blue" id="cdb-fs-units">0</div></div>
+      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Valor inventario CDB (a costo)</div><div class="fin-value fv-orange" id="cdb-si-valor">$0.00</div></div>
+      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Valor inventario CDB (precio venta)</div><div class="fin-value fv-green" id="cdb-si-valor-venta-stats">$0.00</div></div>
+    </div>
+    <div class="sales-wrap">
+      <div class="sales-hd"><div class="shd-title"><i class="ti ti-receipt"></i>Historial de ventas · CDB</div><button class="btn-clr" onclick="clearSales('cdb')"><i class="ti ti-trash"></i>Borrar historial</button></div>
+      <div id="cdb-sales-table-body"></div>
+    </div>
+    <div class="sales-wrap" id="cdb-deleted-sales-wrap" style="margin-top:20px;display:none">
+      <div class="sales-hd"><div class="shd-title"><i class="ti ti-history"></i>Ventas eliminadas · CDB</div><button class="btn-clr" onclick="clearDeletedSales('cdb')"><i class="ti ti-trash"></i>Limpiar todo</button></div>
+      <div id="cdb-deleted-sales-table-body"></div>
+    </div>
+  </div>
+
+  <!-- ═══ ESTADÍSTICAS TOTAL ═══ -->
+  <div class="tab-content" id="tab-stats-total">
+    <div class="fin-grid">
+      <div class="fin-card"><div class="fin-label">Ventas totales</div><div class="fin-value fv-blue" id="tot-fs-ventas">$0.00</div></div>
+      <div class="fin-card"><div class="fin-label">Costos totales</div><div class="fin-value fv-orange" id="tot-fs-costos">$0.00</div></div>
+      <div class="fin-card"><div class="fin-label">Ganancia neta</div><div class="fin-value fv-green" id="tot-fs-ganancia">$0.00</div></div>
+      <div class="fin-card"><div class="fin-label">Unidades vendidas</div><div class="fin-value fv-blue" id="tot-fs-units">0</div></div>
+      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Valor inventario total (a costo)</div><div class="fin-value fv-orange" id="tot-si-valor">$0.00</div></div>
+      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Valor inventario total (precio venta)</div><div class="fin-value fv-green" id="tot-si-valor-venta-stats">$0.00</div></div>
+    </div>
+    <div class="sales-wrap">
+      <div class="sales-hd"><div class="shd-title"><i class="ti ti-receipt"></i>Historial de ventas · Total</div></div>
+      <div id="tot-sales-table-body"></div>
+    </div>
+    <div class="sales-wrap" id="tot-deleted-sales-wrap" style="margin-top:20px;display:none">
+      <div class="sales-hd"><div class="shd-title"><i class="ti ti-history"></i>Ventas eliminadas · Total</div></div>
+      <div id="tot-deleted-sales-table-body"></div>
+    </div>
+  </div>
+
+</div><!-- /.app -->
+
+<!-- MODAL: PRODUCTO -->
 <div class="overlay" id="pm-overlay">
   <div class="modal-box">
     <div class="pm-header"><div class="pm-name" id="pm-name"></div><div class="pm-desc" id="pm-desc"></div></div>
     <div class="pm-body">
-      <div class="pm-prices"><div class="pm-price-card" style="display:none"><div class="pm-price-label">Costo</div><div class="pm-price-val" id="pm-cost-val"></div></div><div class="pm-price-card" style="grid-column:span 2"><div class="pm-price-label">Precio venta</div><div class="pm-price-val" style="color:var(--g600)" id="pm-price-val"></div></div></div>
+      <div class="pm-prices">
+        <div class="pm-price-card" style="display:none"><div class="pm-price-label">Costo</div><div class="pm-price-val" id="pm-cost-val"></div></div>
+        <div class="pm-price-card" style="grid-column:span 2"><div class="pm-price-label">Precio venta</div><div class="pm-price-val" style="color:var(--g600)" id="pm-price-val"></div></div>
+      </div>
       <div class="pm-stock-section">
-        <div class="pm-stock-label">Stock actual</div>
+        <div class="pm-stock-label">Stock actual <span id="pm-stock-sucursal-label" style="font-weight:400;text-transform:none;letter-spacing:0"></span></div>
         <div class="pm-stock-ctrl">
-          <button class="stock-btn stock-btn-minus" onclick="changeSellQty(-1)" title="Quitar de venta"><i class="ti ti-minus"></i></button>
+          <button class="stock-btn stock-btn-minus" onclick="changeSellQty(-1)"><i class="ti ti-minus"></i></button>
           <div class="stock-number" id="pm-stock-num">0</div>
-          <button class="stock-btn stock-btn-plus" onclick="changeSellQty(1)" title="Agregar a venta"><i class="ti ti-plus"></i></button>
+          <button class="stock-btn stock-btn-plus" onclick="changeSellQty(1)"><i class="ti ti-plus"></i></button>
         </div>
         <div style="text-align:center;margin-top:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tm)">
           <span id="pm-sell-label-mini" style="display:none">A vender: <span id="pm-sell-qty-display" style="color:var(--b600)">0</span></span>
@@ -359,25 +450,42 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
           <button class="btn-sell" onclick="registerSale()" style="width:100%;justify-content:center"><i class="ti ti-check"></i>Confirmar venta (<span id="pm-confirm-qty">0</span> uds.)</button>
         </div>
       </div>
-      <div class="pm-footer"><button class="btn-danger" onclick="confirmDeleteFromModal()"><i class="ti ti-trash"></i>Eliminar</button><button class="btn-secondary" onclick="openEditModal()"><i class="ti ti-pencil"></i>Editar</button><button class="btn-secondary" onclick="closePM()">Cerrar</button></div>
+      <div class="pm-footer">
+        <button class="btn-danger" onclick="confirmDeleteFromModal()"><i class="ti ti-trash"></i>Eliminar</button>
+        <button class="btn-secondary" onclick="openEditModal()"><i class="ti ti-pencil"></i>Editar</button>
+        <button class="btn-secondary" onclick="closePM()">Cerrar</button>
+      </div>
     </div>
   </div>
 </div>
 
+<!-- MODAL: CONFIRMAR ELIMINACIÓN -->
 <div class="overlay" id="del-overlay">
-  <div class="modal-box"><div class="del-body"><h3>¿Eliminar producto?</h3><p id="del-text"></p><div class="del-actions"><button class="btn-secondary" onclick="closeDelModal()">Cancelar</button><button class="btn-confirm-del" id="del-confirm-btn">Eliminar</button></div></div></div>
+  <div class="modal-box">
+    <div class="del-body">
+      <h3>¿Eliminar producto?</h3><p id="del-text"></p>
+      <div class="del-actions">
+        <button class="btn-secondary" onclick="closeDelModal()">Cancelar</button>
+        <button class="btn-confirm-del" id="del-confirm-btn">Eliminar</button>
+      </div>
+    </div>
+  </div>
 </div>
 
+<!-- MODAL: EDITAR -->
 <div class="overlay" id="edit-overlay">
   <div class="modal-box">
     <div class="pm-header"><div class="pm-name">Editar producto</div><div class="pm-desc">Modifica los datos y guarda</div></div>
     <div class="edit-body">
       <div class="field"><label>Nombre</label><input type="text" id="edit-name" maxlength="80" autocomplete="off"></div>
       <div class="field"><label>Descripción</label><textarea id="edit-desc" placeholder="Breve descripción..."></textarea></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
         <div class="field"><label>Costo ($)</label><input type="number" id="edit-cost" min="0" step="0.01"></div>
         <div class="field"><label>Precio ($)</label><input type="number" id="edit-price" min="0" step="0.01"></div>
-        <div class="field"><label>Stock</label><input type="number" id="edit-stock" min="0" step="1"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:4px">
+        <div class="field"><label>Stock EXSAL</label><input type="number" id="edit-stock-exsal" min="0" step="1"></div>
+        <div class="field"><label>Stock CDB</label><input type="number" id="edit-stock-cdb" min="0" step="1"></div>
       </div>
       <div class="form-error" id="edit-error"></div>
     </div>
@@ -391,350 +499,340 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 <div class="toast" id="toast"></div>
 
 <script>
-// 1. CONFIGURACIÓN PRINCIPAL
-const firebaseConfig = {
-  apiKey: "AIzaSyBrcUAuy-X43Rq8i_RJ7VUy97siQ90_gqQ",
-  authDomain: "pico-6c040.firebaseapp.com",
-  projectId: "pico-6c040",
-  storageBucket: "pico-6c040.firebasestorage.app",
-  messagingSenderId: "566388158042",
-  appId: "1:566388158042:web:0642d5d533a9f59cd2b263",
-  measurementId: "G-EN9QFLSHM8"
-};
-
+// ── FIREBASE ──
+const firebaseConfig={apiKey:"AIzaSyBrcUAuy-X43Rq8i_RJ7VUy97siQ90_gqQ",authDomain:"pico-6c040.firebaseapp.com",projectId:"pico-6c040",storageBucket:"pico-6c040.firebasestorage.app",messagingSenderId:"566388158042",appId:"1:566388158042:web:0642d5d533a9f59cd2b263",measurementId:"G-EN9QFLSHM8"};
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
+const db=firebase.firestore(), auth=firebase.auth();
 
-let products=[], sales=[], deletedSales=[], sortAsc=false, activePid=null;
-let unsubProd = null, unsubSales = null;
+// ── ESTADO ──
+let products=[], sales=[], deletedSales=[];
+let sortAsc={exsal:false,cdb:false,total:false};
+let activePid=null, activeSucursal=null;
+let unsubProd=null, unsubSales=null, unsubDeleted=null;
 
-// 2. LÓGICA DE AUTENTICACIÓN
-async function handleAuth(type) {
-  const email = document.getElementById('auth-email').value.trim();
-  const pass = document.getElementById('auth-pass').value;
-  const errBox = document.getElementById('auth-error');
-  const btn = document.getElementById('btn-auth');
-  const label = document.getElementById('btn-auth-label');
-  const spinner = document.getElementById('auth-spinner');
-
-  if (!email || !pass) {
-    errBox.classList.add('show');
-    document.getElementById('auth-error-text').textContent = 'Completa todos los campos.';
-    return;
-  }
+// ── AUTH ──
+async function handleAuth(type){
+  const email=document.getElementById('auth-email').value.trim();
+  const pass=document.getElementById('auth-pass').value;
+  const errBox=document.getElementById('auth-error');
+  const btn=document.getElementById('btn-auth');
+  const label=document.getElementById('btn-auth-label');
+  const spinner=document.getElementById('auth-spinner');
+  if(!email||!pass){errBox.classList.add('show');document.getElementById('auth-error-text').textContent='Completa todos los campos.';return;}
   errBox.classList.remove('show');
-  btn.disabled = true; label.style.display = 'none'; spinner.style.display = 'block';
-
-  try {
-    if (type === 'login') {
-      await auth.signInWithEmailAndPassword(email, pass);
-    }
-  } catch (e) {
-    errBox.classList.add('show');
-    document.getElementById('auth-error-text').textContent = 'Credenciales inválidas.';
-    btn.disabled = false; label.style.display = 'flex'; spinner.style.display = 'none';
+  btn.disabled=true;label.style.display='none';spinner.style.display='block';
+  try{
+    if(type==='login') await auth.signInWithEmailAndPassword(email,pass);
+  }catch(e){
+    errBox.classList.add('show');document.getElementById('auth-error-text').textContent='Credenciales inválidas.';
+    btn.disabled=false;label.style.display='flex';spinner.style.display='none';
   }
 }
+function logout(){auth.signOut();}
 
-function logout() { auth.signOut(); }
-
-auth.onAuthStateChanged(user => {
-  const overlay = document.getElementById('auth-overlay');
-  if (user) {
-    overlay.style.display = 'none';
+auth.onAuthStateChanged(user=>{
+  const overlay=document.getElementById('auth-overlay');
+  if(user){
+    overlay.style.display='none';
     startListeners();
-  } else {
-    overlay.style.display = 'flex';
-    if(unsubProd) unsubProd(); if(unsubSales) unsubSales();
-    products = []; sales = []; 
-    renderList(); updateInvStats(); renderStats();
-    document.getElementById('auth-pass').value = '';
-    const btn = document.getElementById('btn-auth');
-    btn.disabled = false; 
-    document.getElementById('btn-auth-label').style.display = 'flex'; 
-    document.getElementById('auth-spinner').style.display = 'none';
+  }else{
+    overlay.style.display='flex';
+    if(unsubProd)unsubProd();if(unsubSales)unsubSales();if(unsubDeleted)unsubDeleted();
+    products=[];sales=[];deletedSales=[];
+    renderAllLists();updateAllInvStats();renderAllStats();renderAllDeletedSales();
+    document.getElementById('auth-pass').value='';
+    const btn=document.getElementById('btn-auth');
+    btn.disabled=false;document.getElementById('btn-auth-label').style.display='flex';document.getElementById('auth-spinner').style.display='none';
   }
 });
 
-// 3. LISTENERS (TIEMPO REAL CON COLECCIONES)
-function startListeners() {
+// ── LISTENERS ──
+function startListeners(){
   setSave('saving','Sincronizando...');
-  
-  unsubProd = db.collection("productos").onSnapshot(snapshot => {
-    products = [];
-    snapshot.forEach(doc => { products.push({ id: doc.id, ...doc.data() }); });
-    renderList(); updateInvStats();
+  unsubProd=db.collection("productos").onSnapshot(snap=>{
+    products=[];
+    snap.forEach(doc=>products.push({id:doc.id,...doc.data()}));
+    renderAllLists();updateAllInvStats();
     setSave('ok','Sincronizado ✓');
-    // If modal is open, refresh the real stock number from Firestore
-    if(activePid){
+    if(activePid&&activeSucursal){
       const ap=products.find(x=>x.id===activePid);
-      if(ap) document.getElementById('pm-stock-num').textContent=ap.stock;
+      if(ap) document.getElementById('pm-stock-num').textContent=getStock(ap,activeSucursal);
     }
-  }, e => { setSave('error','Error de conexión'); });
+  },()=>setSave('error','Error de conexión'));
 
-  unsubSales = db.collection("ventas").orderBy("timestamp", "desc").onSnapshot(snapshot => {
-    sales = [];
-    snapshot.forEach(doc => { sales.push({ id: doc.id, ...doc.data() }); });
-    if(document.getElementById('tab-estadisticas').classList.contains('active')) renderStats();
+  unsubSales=db.collection("ventas").orderBy("timestamp","desc").onSnapshot(snap=>{
+    sales=[];snap.forEach(doc=>sales.push({id:doc.id,...doc.data()}));
+    renderAllStats();
   });
 
-  db.collection("ventas-eliminadas").orderBy("deletedAt", "desc").onSnapshot(snapshot => {
-    deletedSales = [];
-    snapshot.forEach(doc => { deletedSales.push({ id: doc.id, ...doc.data() }); });
-    if(document.getElementById('tab-estadisticas').classList.contains('active')) renderDeletedSales();
+  unsubDeleted=db.collection("ventas-eliminadas").orderBy("deletedAt","desc").onSnapshot(snap=>{
+    deletedSales=[];snap.forEach(doc=>deletedSales.push({id:doc.id,...doc.data()}));
+    renderAllDeletedSales();
   });
 }
 
-// 4. FUNCIONES DE INTERFAZ Y DATOS
+// ── HELPERS ──
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function fmt(n){return '$'+parseFloat(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmt(n){return '$'+parseFloat(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function setSave(state,txt){
-  const dot=document.getElementById('save-dot'); const t=document.getElementById('save-text');
-  dot.className='save-dot'+(state==='saving'?' saving':state==='error'?' error':''); t.textContent=txt;
+  const dot=document.getElementById('save-dot'),t=document.getElementById('save-text');
+  dot.className='save-dot'+(state==='saving'?' saving':state==='error'?' error':'');t.textContent=txt;
 }
 function showToast(msg,icon='ti-check'){
   const t=document.getElementById('toast');
   t.innerHTML=`<i class="ti ${icon}"></i>${msg}`;
-  t.classList.add('show'); clearTimeout(t._t);
+  t.classList.add('show');clearTimeout(t._t);
   t._t=setTimeout(()=>t.classList.remove('show'),2800);
 }
+function getStock(p,suc){
+  const exsal=p.stockExsal!==undefined?p.stockExsal:(p.stock_exsal||0);
+  const cdb=p.stockCdb!==undefined?p.stockCdb:(p.stock_cdb||0);
+  if(suc==='exsal') return exsal;
+  if(suc==='cdb')   return cdb;
+  return exsal+cdb;
+}
 
+// ── TABS ──
 function switchTab(name,btn){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
-  btn.classList.add('active'); document.getElementById('tab-'+name).classList.add('active');
-  if(name==='estadisticas') renderStats();
+  btn.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name.startsWith('stats-'))renderAllStats();
 }
 
-async function addProduct(){
-  const name=document.getElementById('f-name').value.trim();
-  const desc=document.getElementById('f-desc').value.trim();
-  const cv=document.getElementById('f-cost').value;
-  const pv=document.getElementById('f-price').value;
-  const sv=document.getElementById('f-stock').value;
-  const err=document.getElementById('form-error');
+// ── INVENTARIO STATS ──
+function updateAllInvStats(){
+  const exsalStock=products.reduce((s,p)=>s+getStock(p,'exsal'),0);
+  const exsalVenta=products.reduce((s,p)=>s+(p.price*getStock(p,'exsal')),0);
+  const exsalCosto=products.reduce((s,p)=>s+(p.cost*getStock(p,'exsal')),0);
+  document.getElementById('exsal-si-total').textContent=products.filter(p=>getStock(p,'exsal')>0).length;
+  document.getElementById('exsal-si-stock').textContent=exsalStock.toLocaleString('es');
+  document.getElementById('exsal-si-valor-venta').textContent=fmt(exsalVenta);
+  document.getElementById('exsal-si-valor').textContent=fmt(exsalCosto);
+  document.getElementById('exsal-si-valor-venta-stats').textContent=fmt(exsalVenta);
+
+  const cdbStock=products.reduce((s,p)=>s+getStock(p,'cdb'),0);
+  const cdbVenta=products.reduce((s,p)=>s+(p.price*getStock(p,'cdb')),0);
+  const cdbCosto=products.reduce((s,p)=>s+(p.cost*getStock(p,'cdb')),0);
+  document.getElementById('cdb-si-total').textContent=products.filter(p=>getStock(p,'cdb')>0).length;
+  document.getElementById('cdb-si-stock').textContent=cdbStock.toLocaleString('es');
+  document.getElementById('cdb-si-valor-venta').textContent=fmt(cdbVenta);
+  document.getElementById('cdb-si-valor').textContent=fmt(cdbCosto);
+  document.getElementById('cdb-si-valor-venta-stats').textContent=fmt(cdbVenta);
+
+  const totStock=exsalStock+cdbStock;
+  const totVenta=exsalVenta+cdbVenta;
+  const totCosto=exsalCosto+cdbCosto;
+  document.getElementById('total-si-total').textContent=products.length;
+  document.getElementById('total-si-stock').textContent=totStock.toLocaleString('es');
+  document.getElementById('total-si-valor-venta').textContent=fmt(totVenta);
+  document.getElementById('tot-si-valor').textContent=fmt(totCosto);
+  document.getElementById('tot-si-valor-venta-stats').textContent=fmt(totVenta);
+
+  document.getElementById('header-badge').textContent=products.length+' prod.';
+}
+
+// ── LISTAS ──
+function renderAllLists(){renderList('exsal');renderList('cdb');renderList('total');}
+
+function toggleSort(suc){
+  sortAsc[suc]=!sortAsc[suc];
+  document.getElementById(suc+'-sort-label').textContent=sortAsc[suc]?'Más antiguos':'Más recientes';
+  renderList(suc);
+}
+
+function renderList(suc){
+  const q=document.getElementById(suc+'-search').value.toLowerCase().trim();
+  let list=[...products];
+
+  // Filtrar: EXSAL muestra productos con stockExsal; CDB muestra productos con stockCdb
+  // Se usa (||0)>=0 para incluir productos aunque el campo sea 0, excluyendo los que no tienen el campo
+  if(suc==='exsal') list=list.filter(p=>'stockExsal' in p || 'stock_exsal' in p);
+  if(suc==='cdb')   list=list.filter(p=>'stockCdb' in p || 'stock_cdb' in p);
+
+  list.sort((a,b)=>sortAsc[suc]?a.createdAt-b.createdAt:b.createdAt-a.createdAt);
+  if(q) list=list.filter(p=>p.name.toLowerCase().includes(q)||(p.desc&&p.desc.toLowerCase().includes(q)));
+
+  const area=document.getElementById(suc+'-list-area');
+  const cnt=document.getElementById(suc+'-list-count');
+
+  if(!list.length){
+    cnt.textContent='';
+    area.innerHTML=`<div class="empty-state"><div class="empty-icon"><i class="ti ${q?'ti-search-off':'ti-inbox'}"></i></div><p>${q?'Sin resultados':'Sin productos aún.'}</p></div>`;
+    return;
+  }
+  cnt.textContent=list.length+' producto'+(list.length!==1?'s':'');
+  area.innerHTML=list.map(p=>{
+    const stock=getStock(p,suc);
+    let sc,sl;
+    if(stock===0){sc='badge-empty';sl='Sin stock';}
+    else if(stock<=5){sc='badge-low';sl=stock+' bajo';}
+    else{sc='badge-ok';sl=stock+' en stock';}
+    const cardBg=stock===0?'background:#fff5f5;border-color:var(--r100)':'';
+    // En Total mostrar badges por sucursal
+    let sucBadges='';
+    if(suc==='total'){
+      if('stockExsal' in p||'stock_exsal' in p) sucBadges+=`<span class="badge badge-exsal">EXSAL: ${getStock(p,'exsal')}</span>`;
+      if('stockCdb' in p||'stock_cdb' in p)   sucBadges+=`<span class="badge badge-cdb">CDB: ${getStock(p,'cdb')}</span>`;
+    }
+    return `<div class="product-card" onclick="openPM('${p.id}','${suc}')" style="${cardBg}">
+      <div class="card-top"><div style="flex:1"><div class="card-name">${esc(p.name)}</div></div>
+      <div class="card-actions"><button class="btn-icon btn-del-sm" onclick="event.stopPropagation();confirmDeleteDirect('${p.id}')"><i class="ti ti-trash"></i></button></div></div>
+      <div class="card-badges"><span class="badge ${sc}">${sl}</span><span class="badge badge-price">Precio ${fmt(p.price)}</span>${sucBadges}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── AGREGAR PRODUCTOS ──
+async function addProduct(suc){
+  const pre=suc+'-f-';
+  const name=document.getElementById(pre+'name').value.trim();
+  const desc=document.getElementById(pre+'desc').value.trim();
+  const cv=document.getElementById(pre+'cost').value;
+  const pv=document.getElementById(pre+'price').value;
+  const sv=document.getElementById(pre+'stock').value;
+  const err=document.getElementById(suc+'-form-error');
   if(!name){err.textContent='El nombre es obligatorio.';return;}
-  const cost=parseFloat(cv); if(cv===''||isNaN(cost)||cost<0){err.textContent='Ingresa un costo válido.';return;}
-  const price=parseFloat(pv); if(pv===''||isNaN(price)||price<0){err.textContent='Ingresa un precio válido.';return;}
-  const stock=parseInt(sv); if(sv===''||isNaN(stock)||stock<0){err.textContent='Ingresa un stock válido.';return;}
+  const cost=parseFloat(cv);if(cv===''||isNaN(cost)||cost<0){err.textContent='Ingresa un costo válido.';return;}
+  const price=parseFloat(pv);if(pv===''||isNaN(price)||price<0){err.textContent='Ingresa un precio válido.';return;}
+  const stock=parseInt(sv);if(sv===''||isNaN(stock)||stock<0){err.textContent='Ingresa un stock válido.';return;}
   err.textContent='';
-  
-  try {
-    await db.collection("productos").add({ name, desc, cost, price, stock, createdAt: Date.now() });
-    ['f-name','f-desc','f-cost','f-price','f-stock'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('f-name').focus(); showToast('Producto agregado','ti-circle-check');
-  } catch(e) { showToast('Error al guardar','ti-alert-circle'); }
+  const data={name,desc,cost,price,stockExsal:0,stockCdb:0,createdAt:Date.now()};
+  if(suc==='exsal') data.stockExsal=stock;
+  else data.stockCdb=stock;
+  try{
+    await db.collection("productos").add(data);
+    [pre+'name',pre+'desc',pre+'cost',pre+'price',pre+'stock'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById(pre+'name').focus();
+    showToast('Producto agregado a '+suc.toUpperCase(),'ti-circle-check');
+  }catch(e){showToast('Error al guardar','ti-alert-circle');}
 }
 
+async function addProductTotal(){
+  const suc=document.getElementById('total-f-sucursal').value;
+  const name=document.getElementById('total-f-name').value.trim();
+  const desc=document.getElementById('total-f-desc').value.trim();
+  const cv=document.getElementById('total-f-cost').value;
+  const pv=document.getElementById('total-f-price').value;
+  const sv=document.getElementById('total-f-stock').value;
+  const err=document.getElementById('total-form-error');
+  if(!name){err.textContent='El nombre es obligatorio.';return;}
+  const cost=parseFloat(cv);if(cv===''||isNaN(cost)||cost<0){err.textContent='Ingresa un costo válido.';return;}
+  const price=parseFloat(pv);if(pv===''||isNaN(price)||price<0){err.textContent='Ingresa un precio válido.';return;}
+  const stock=parseInt(sv);if(sv===''||isNaN(stock)||stock<0){err.textContent='Ingresa un stock válido.';return;}
+  err.textContent='';
+  const data={name,desc,cost,price,stockExsal:0,stockCdb:0,createdAt:Date.now()};
+  if(suc==='exsal') data.stockExsal=stock; else data.stockCdb=stock;
+  try{
+    await db.collection("productos").add(data);
+    ['total-f-name','total-f-desc','total-f-cost','total-f-price','total-f-stock'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('total-f-name').focus();
+    showToast('Producto agregado a '+suc.toUpperCase(),'ti-circle-check');
+  }catch(e){showToast('Error al guardar','ti-alert-circle');}
+}
+
+// ── ELIMINAR PRODUCTO ──
 function openDelModal(id,onConfirm){
-  const p=products.find(x=>x.id===id); if(!p)return;
+  const p=products.find(x=>x.id===id);if(!p)return;
   document.getElementById('del-text').textContent=`Vas a eliminar "${p.name}".`;
   document.getElementById('del-confirm-btn').onclick=onConfirm;
   document.getElementById('del-overlay').classList.add('open');
 }
 function closeDelModal(){document.getElementById('del-overlay').classList.remove('open');}
 async function doDelete(id){
-  try{ await db.collection("productos").doc(id).delete(); closeDelModal(); showToast('Producto eliminado','ti-trash'); }
-  catch(e){ showToast('Error al eliminar','ti-alert-circle'); }
+  try{await db.collection("productos").doc(id).delete();closeDelModal();showToast('Producto eliminado','ti-trash');}
+  catch(e){showToast('Error al eliminar','ti-alert-circle');}
 }
-function confirmDeleteDirect(id){openDelModal(id,()=>{doDelete(id);});}
+function confirmDeleteDirect(id){openDelModal(id,()=>doDelete(id));}
 function confirmDeleteFromModal(){openDelModal(activePid,()=>{doDelete(activePid);closePM();});}
 
-function openPM(id){
-  const p=products.find(x=>x.id===id); if(!p)return;
-  activePid=id;
+// ── MODAL PRODUCTO ──
+function openPM(id,suc){
+  const p=products.find(x=>x.id===id);if(!p)return;
+  activePid=id;activeSucursal=suc;
   document.getElementById('pm-name').textContent=p.name;
   document.getElementById('pm-desc').textContent=p.desc||'';
   document.getElementById('pm-cost-val').textContent=fmt(p.cost);
   document.getElementById('pm-price-val').textContent=fmt(p.price);
-  document.getElementById('pm-stock-num').textContent=p.stock;
+  document.getElementById('pm-stock-num').textContent=getStock(p,suc);
+  document.getElementById('pm-stock-sucursal-label').textContent=suc==='total'?'(Total)':suc==='exsal'?'· EXSAL':'· CDB';
   document.getElementById('pm-sell-qty-display').textContent=0;
   document.getElementById('pm-confirm-qty').textContent=0;
   document.getElementById('pm-sell-label-mini').style.display='none';
   document.getElementById('pm-sale-total-wrap').style.display='none';
   document.getElementById('pm-overlay').classList.add('open');
 }
-function closePM(){document.getElementById('pm-overlay').classList.remove('open');activePid=null;}
+function closePM(){document.getElementById('pm-overlay').classList.remove('open');activePid=null;activeSucursal=null;}
 
 function changeSellQty(delta){
-  // +/- buttons: change qty to sell. Stock display stays fixed.
-  const p=products.find(x=>x.id===activePid); if(!p)return;
-  const curQty = parseInt(document.getElementById('pm-sell-qty-display').textContent)||0;
-  const newQty = curQty + delta;
-  if(newQty < 0){return;}
-  if(newQty > p.stock){showToast('Sin stock suficiente','ti-alert-circle');return;}
-  document.getElementById('pm-sell-qty-display').textContent = newQty;
-  document.getElementById('pm-confirm-qty').textContent = newQty;
-  document.getElementById('pm-sell-label-mini').style.display = newQty>0?'inline':'none';
-  const totalWrap = document.getElementById('pm-sale-total-wrap');
-  if(newQty > 0){
-    document.getElementById('pm-sale-total-val').textContent = fmt(p.price * newQty);
-    totalWrap.style.display = 'block';
-  } else {
-    totalWrap.style.display = 'none';
-  }
+  const p=products.find(x=>x.id===activePid);if(!p)return;
+  const curQty=parseInt(document.getElementById('pm-sell-qty-display').textContent)||0;
+  const newQty=curQty+delta;
+  if(newQty<0)return;
+  if(newQty>getStock(p,activeSucursal)){showToast('Sin stock suficiente','ti-alert-circle');return;}
+  document.getElementById('pm-sell-qty-display').textContent=newQty;
+  document.getElementById('pm-confirm-qty').textContent=newQty;
+  document.getElementById('pm-sell-label-mini').style.display=newQty>0?'inline':'none';
+  const tw=document.getElementById('pm-sale-total-wrap');
+  if(newQty>0){document.getElementById('pm-sale-total-val').textContent=fmt(p.price*newQty);tw.style.display='block';}
+  else tw.style.display='none';
 }
 
 async function registerSale(){
-  const p=products.find(x=>x.id===activePid); if(!p)return;
+  const p=products.find(x=>x.id===activePid);if(!p)return;
   const user=firebase.auth().currentUser;
   const sellerEmail=user?user.email:'Desconocido';
   const qty=parseInt(document.getElementById('pm-sell-qty-display').textContent)||0;
-  if(isNaN(qty)||qty<=0){showToast('Selecciona al menos 1 unidad con el botón −','ti-alert-circle');return;}
-  if(qty>p.stock){showToast('Stock insuficiente','ti-alert-circle');return;}
-  
-  try {
-    const batch = db.batch();
-    batch.update(db.collection("productos").doc(p.id), { stock: firebase.firestore.FieldValue.increment(-qty) });
-    batch.set(db.collection("ventas").doc(), {
-      productName: p.name, qty, costTotal: +(p.cost*qty).toFixed(2), total: +(p.price*qty).toFixed(2),
-      seller: sellerEmail,
-      date: new Date().toLocaleDateString('es'), timestamp: Date.now()
+  if(isNaN(qty)||qty<=0){showToast('Selecciona al menos 1 unidad','ti-alert-circle');return;}
+  if(qty>getStock(p,activeSucursal)){showToast('Stock insuficiente','ti-alert-circle');return;}
+
+  let stockUpdate={};
+  if(activeSucursal==='exsal'){
+    stockUpdate={stockExsal:firebase.firestore.FieldValue.increment(-qty)};
+  } else if(activeSucursal==='cdb'){
+    stockUpdate={stockCdb:firebase.firestore.FieldValue.increment(-qty)};
+  } else {
+    // Total: descontar de EXSAL primero, luego CDB
+    const fromExsal=Math.min(qty,getStock(p,'exsal'));
+    const fromCdb=qty-fromExsal;
+    if(fromExsal>0) stockUpdate.stockExsal=firebase.firestore.FieldValue.increment(-fromExsal);
+    if(fromCdb>0)   stockUpdate.stockCdb=firebase.firestore.FieldValue.increment(-fromCdb);
+  }
+
+  try{
+    const batch=db.batch();
+    batch.update(db.collection("productos").doc(p.id),stockUpdate);
+    batch.set(db.collection("ventas").doc(),{
+      productName:p.name,qty,
+      costTotal:+(p.cost*qty).toFixed(2),
+      total:+(p.price*qty).toFixed(2),
+      seller:sellerEmail,
+      sucursal:activeSucursal==='total'?'total':activeSucursal,
+      date:new Date().toLocaleDateString('es'),
+      timestamp:Date.now()
     });
     await batch.commit();
-    // Reset qty counter but keep modal open
     document.getElementById('pm-sell-qty-display').textContent=0;
     document.getElementById('pm-confirm-qty').textContent=0;
     document.getElementById('pm-sell-label-mini').style.display='none';
     document.getElementById('pm-sale-total-wrap').style.display='none';
-    showToast(`Venta registrada por ${sellerEmail.split('@')[0]}`,'ti-shopping-cart');
-  } catch(e){ showToast('Error en la venta','ti-alert-circle'); }
+    showToast(`Venta registrada · ${sellerEmail.split('@')[0]}`,'ti-shopping-cart');
+  }catch(e){showToast('Error en la venta','ti-alert-circle');}
 }
 
 document.getElementById('pm-overlay').addEventListener('click',e=>{if(e.target.id==='pm-overlay')closePM();});
 document.getElementById('del-overlay').addEventListener('click',e=>{if(e.target.id==='del-overlay')closeDelModal();});
 
-function toggleSort(){sortAsc=!sortAsc; document.getElementById('sort-label').textContent=sortAsc?'Más antiguos':'Más recientes'; renderList();}
-
-function renderList(){
-  const q=document.getElementById('search').value.toLowerCase().trim();
-  let list=[...products];
-  list.sort((a,b) => sortAsc ? a.createdAt - b.createdAt : b.createdAt - a.createdAt);
-  if(q) list=list.filter(p=>p.name.toLowerCase().includes(q)||(p.desc&&p.desc.toLowerCase().includes(q)));
-  
-  const area=document.getElementById('list-area'); const cnt=document.getElementById('list-count');
-  if(!list.length){
-    cnt.textContent='';
-    area.innerHTML=`<div class="empty-state"><div class="empty-icon"><i class="ti ${q?'ti-search-off':'ti-inbox'}"></i></div><p>${q?`Sin resultados`:'Sin productos aún.'}</p></div>`;
-    return;
-  }
-  cnt.textContent=list.length+' producto'+(list.length!==1?'s':'');
-  area.innerHTML=list.map(p=>{
-    let sc,sl;
-    if(p.stock===0){sc='badge-empty';sl='Sin stock';}
-    else if(p.stock<=5){sc='badge-low';sl=p.stock+' bajo';}
-    else{sc='badge-ok';sl=p.stock+' en stock';}
-    // Alerta visual de stock bajo (si es 0 se pone rojo transparente)
-    const cardBg = p.stock === 0 ? 'background:#fff5f5;border-color:var(--r100)' : '';
-    return `<div class="product-card" onclick="openPM('${p.id}')" style="${cardBg}">
-      <div class="card-top"><div style="flex:1"><div class="card-name">${esc(p.name)}</div></div><div class="card-actions"><button class="btn-icon btn-del-sm" onclick="event.stopPropagation();confirmDeleteDirect('${p.id}')"><i class="ti ti-trash"></i></button></div></div>
-      <div class="card-badges"><span class="badge ${sc}">${sl}</span><span class="badge badge-price">Precio ${fmt(p.price)}</span></div>
-    </div>`;
-  }).join('');
-}
-
-function updateInvStats(){
-  document.getElementById('si-total').textContent=products.length;
-  document.getElementById('si-stock').textContent=products.reduce((s,p)=>s+p.stock,0).toLocaleString('es');
-  const costoTotal=products.reduce((s,p)=>s+(p.cost*p.stock),0);
-  const ventaTotal=products.reduce((s,p)=>s+(p.price*p.stock),0);
-  // Inventario tab: valor a precio de venta
-  document.getElementById('si-valor-venta').textContent=fmt(ventaTotal);
-  // Stats tab: ambos valores
-  document.getElementById('si-valor').textContent=fmt(costoTotal);
-  const vs=document.getElementById('si-valor-venta-stats'); if(vs) vs.textContent=fmt(ventaTotal);
-  document.getElementById('header-badge').textContent=products.length+' prod.';
-}
-
-function renderStats(){
-  const totalV=sales.reduce((s,v)=>s+v.total,0); const totalC=sales.reduce((s,v)=>s+v.costTotal,0);
-  document.getElementById('fs-ventas').textContent=fmt(totalV);
-  document.getElementById('fs-costos').textContent=fmt(totalC);
-  document.getElementById('fs-ganancia').textContent=fmt(totalV-totalC);
-  document.getElementById('fs-units').textContent=sales.reduce((s,v)=>s+v.qty,0);
-  updateInvStats();
-  
-  const body=document.getElementById('sales-table-body');
-  if(!sales.length){body.innerHTML=`<div class="sales-empty">Sin ventas registradas</div>`;}
-  else { body.innerHTML=`<table class="sales-table"><thead><tr><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Ingreso</th><th>Ganancia</th><th>Vendedor</th><th></th></tr></thead><tbody>${sales.map(v=>{
-    const g=+(v.total-v.costTotal).toFixed(2);
-    const seller=v.seller?v.seller.split('@')[0]:'—';
-    return `<tr><td>${v.date}</td><td>${esc(v.productName)}</td><td>${v.qty}</td><td>${fmt(v.total)}</td><td style="color:${g>=0?'var(--g600)':'var(--r600)'}">${fmt(g)}</td><td style="font-size:12px;color:var(--ts)">${esc(seller)}</td><td><button onclick="deleteSale('${v.id}')" style="background:none;border:none;cursor:pointer;color:var(--r600);padding:4px 8px;border-radius:6px;font-size:16px"><i class="ti ti-trash"></i></button></td></tr>`;
-  }).join('')}</tbody></table>`; }
-  renderDeletedSales();
-}
-
-function renderDeletedSales(){
-  const wrap=document.getElementById('deleted-sales-wrap');
-  const body=document.getElementById('deleted-sales-table-body');
-  if(!deletedSales.length){wrap.style.display='none';return;}
-  wrap.style.display='block';
-  body.innerHTML=`<table class="sales-table"><thead><tr><th>Eliminada</th><th>Producto</th><th>Cant.</th><th>Ingreso</th><th>Ganancia</th><th>Vendedor</th><th></th></tr></thead><tbody>${deletedSales.map(v=>{
-    const g=+(v.total-v.costTotal).toFixed(2);
-    const seller=v.seller?v.seller.split('@')[0]:'—';
-    return `<tr style="opacity:.75"><td>${v.deletedDate||v.date}</td><td>${esc(v.productName)}</td><td>${v.qty}</td><td>${fmt(v.total)}</td><td style="color:${g>=0?'var(--g600)':'var(--r600)'}">${fmt(g)}</td><td style="font-size:12px;color:var(--ts)">${esc(seller)}</td><td><button onclick="restoreSale('${v.id}')" title="Restaurar" style="background:none;border:none;cursor:pointer;color:var(--g600);padding:4px 8px;border-radius:6px;font-size:16px"><i class="ti ti-restore"></i></button></td></tr>`;
-  }).join('')}</tbody></table>`;
-}
-
-async function deleteSale(id){
-  if(!confirm('¿Eliminar esta venta?'))return;
-  try{
-    const doc=await db.collection("ventas").doc(id).get();
-    if(!doc.exists){showToast('Venta no encontrada','ti-alert-circle');return;}
-    const data={...doc.data(), deletedAt:Date.now(), deletedDate:new Date().toLocaleDateString('es')};
-    const batch=db.batch();
-    batch.set(db.collection("ventas-eliminadas").doc(id), data);
-    batch.delete(db.collection("ventas").doc(id));
-    await batch.commit();
-    showToast('Venta eliminada (restaurable)','ti-trash');
-  }
-  catch(e){ showToast('Error al eliminar','ti-alert-circle'); }
-}
-
-async function restoreSale(id){
-  try{
-    const doc=await db.collection("ventas-eliminadas").doc(id).get();
-    if(!doc.exists){showToast('No encontrada','ti-alert-circle');return;}
-    const data={...doc.data()};
-    delete data.deletedAt; delete data.deletedDate;
-    const batch=db.batch();
-    batch.set(db.collection("ventas").doc(id), data);
-    batch.delete(db.collection("ventas-eliminadas").doc(id));
-    await batch.commit();
-    showToast('Venta restaurada','ti-restore');
-  }
-  catch(e){ showToast('Error al restaurar','ti-alert-circle'); }
-}
-
-async function clearDeletedSales(){
-  if(!deletedSales.length||!confirm('¿Borrar permanentemente el historial de eliminadas?'))return;
-  try{
-    const batch=db.batch();
-    deletedSales.forEach(v=>batch.delete(db.collection("ventas-eliminadas").doc(v.id)));
-    await batch.commit();
-    showToast('Historial de eliminadas borrado','ti-trash');
-  }catch(e){ showToast('Error al limpiar','ti-alert-circle'); }
-}
-
-async function clearSales(){
-  if(!sales.length || !confirm('¿Borrar TODO el historial?'))return;
-  setSave('saving','Borrando...');
-  try {
-    const batch = db.batch();
-    sales.forEach(v => batch.delete(db.collection("ventas").doc(v.id)));
-    await batch.commit();
-    showToast('Historial borrado','ti-trash'); setSave('ok','Sincronizado ✓');
-  } catch(e) { setSave('error','Error al borrar'); }
-}
-
+// ── EDITAR PRODUCTO ──
 function openEditModal(){
-  const p=products.find(x=>x.id===activePid); if(!p)return;
+  const p=products.find(x=>x.id===activePid);if(!p)return;
   document.getElementById('edit-name').value=p.name;
   document.getElementById('edit-desc').value=p.desc||'';
   document.getElementById('edit-cost').value=p.cost;
   document.getElementById('edit-price').value=p.price;
-  document.getElementById('edit-stock').value=p.stock;
+  document.getElementById('edit-stock-exsal').value=getStock(p,'exsal');
+  document.getElementById('edit-stock-cdb').value=getStock(p,'cdb');
   document.getElementById('edit-error').textContent='';
   document.getElementById('edit-overlay').classList.add('open');
 }
@@ -744,26 +842,137 @@ async function saveEdit(){
   const desc=document.getElementById('edit-desc').value.trim();
   const cost=parseFloat(document.getElementById('edit-cost').value);
   const price=parseFloat(document.getElementById('edit-price').value);
-  const stock=parseInt(document.getElementById('edit-stock').value);
+  const stockExsal=parseInt(document.getElementById('edit-stock-exsal').value);
+  const stockCdb=parseInt(document.getElementById('edit-stock-cdb').value);
   const err=document.getElementById('edit-error');
   if(!name){err.textContent='El nombre es obligatorio.';return;}
   if(isNaN(cost)||cost<0){err.textContent='Costo inválido.';return;}
   if(isNaN(price)||price<0){err.textContent='Precio inválido.';return;}
-  if(isNaN(stock)||stock<0){err.textContent='Stock inválido.';return;}
+  if(isNaN(stockExsal)||stockExsal<0){err.textContent='Stock EXSAL inválido.';return;}
+  if(isNaN(stockCdb)||stockCdb<0){err.textContent='Stock CDB inválido.';return;}
   err.textContent='';
   try{
-    await db.collection("productos").doc(activePid).update({name,desc,cost,price,stock});
+    await db.collection("productos").doc(activePid).update({name,desc,cost,price,stockExsal,stockCdb});
     closeEditModal();
-    // Refresh modal header and prices with new data
     document.getElementById('pm-name').textContent=name;
     document.getElementById('pm-desc').textContent=desc;
     document.getElementById('pm-cost-val').textContent=fmt(cost);
     document.getElementById('pm-price-val').textContent=fmt(price);
-    document.getElementById('pm-stock-num').textContent=stock;
+    const s=activeSucursal==='exsal'?stockExsal:activeSucursal==='cdb'?stockCdb:stockExsal+stockCdb;
+    document.getElementById('pm-stock-num').textContent=s;
     showToast('Producto actualizado','ti-circle-check');
   }catch(e){showToast('Error al guardar','ti-alert-circle');}
 }
 document.getElementById('edit-overlay').addEventListener('click',e=>{if(e.target.id==='edit-overlay')closeEditModal();});
+
+// ── ESTADÍSTICAS ──
+function renderAllStats(){
+  renderStats('exsal');
+  renderStats('cdb');
+  renderStats('total');
+}
+
+function renderStats(suc){
+  const filtered=suc==='total'?sales:sales.filter(v=>(v.sucursal||'exsal')===suc);
+  const totalV=filtered.reduce((s,v)=>s+v.total,0);
+  const totalC=filtered.reduce((s,v)=>s+v.costTotal,0);
+  const pfx=suc==='total'?'tot':suc;
+  document.getElementById(pfx+'-fs-ventas').textContent=fmt(totalV);
+  document.getElementById(pfx+'-fs-costos').textContent=fmt(totalC);
+  document.getElementById(pfx+'-fs-ganancia').textContent=fmt(totalV-totalC);
+  document.getElementById(pfx+'-fs-units').textContent=filtered.reduce((s,v)=>s+v.qty,0);
+  const body=document.getElementById(pfx+'-sales-table-body');
+  if(!filtered.length){body.innerHTML=`<div class="sales-empty">Sin ventas registradas</div>`;return;}
+  const showSuc=suc==='total';
+  body.innerHTML=`<table class="sales-table"><thead><tr><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Ingreso</th><th>Ganancia</th><th>Vendedor</th>${showSuc?'<th>Sucursal</th>':''}<th></th></tr></thead><tbody>${
+    filtered.map(v=>{
+      const g=+(v.total-v.costTotal).toFixed(2);
+      const seller=v.seller?v.seller.split('@')[0]:'—';
+      const sc=v.sucursal||'exsal';
+      const sucCell=showSuc?`<td><span class="badge ${sc==='cdb'?'badge-cdb':'badge-exsal'}">${sc.toUpperCase()}</span></td>`:'';
+      return `<tr><td>${v.date}</td><td>${esc(v.productName)}</td><td>${v.qty}</td><td>${fmt(v.total)}</td><td style="color:${g>=0?'var(--g600)':'var(--r600)'}">${fmt(g)}</td><td style="font-size:12px;color:var(--ts)">${esc(seller)}</td>${sucCell}<td><button onclick="deleteSale('${v.id}')" style="background:none;border:none;cursor:pointer;color:var(--r600);padding:4px 8px;border-radius:6px;font-size:16px"><i class="ti ti-trash"></i></button></td></tr>`;
+    }).join('')
+  }</tbody></table>`;
+}
+
+function renderAllDeletedSales(){
+  renderDeletedSales('exsal');
+  renderDeletedSales('cdb');
+  renderDeletedSales('total');
+}
+
+function renderDeletedSales(suc){
+  const pfx=suc==='total'?'tot':suc;
+  const wrap=document.getElementById(pfx+'-deleted-sales-wrap');
+  const body=document.getElementById(pfx+'-deleted-sales-table-body');
+  const filtered=suc==='total'?deletedSales:deletedSales.filter(v=>(v.sucursal||'exsal')===suc);
+  if(!filtered.length){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  const showSuc=suc==='total';
+  body.innerHTML=`<table class="sales-table"><thead><tr><th>Eliminada</th><th>Producto</th><th>Cant.</th><th>Ingreso</th><th>Ganancia</th><th>Vendedor</th>${showSuc?'<th>Sucursal</th>':''}<th></th></tr></thead><tbody>${
+    filtered.map(v=>{
+      const g=+(v.total-v.costTotal).toFixed(2);
+      const seller=v.seller?v.seller.split('@')[0]:'—';
+      const sc=v.sucursal||'exsal';
+      const sucCell=showSuc?`<td><span class="badge ${sc==='cdb'?'badge-cdb':'badge-exsal'}">${sc.toUpperCase()}</span></td>`:'';
+      return `<tr style="opacity:.75"><td>${v.deletedDate||v.date}</td><td>${esc(v.productName)}</td><td>${v.qty}</td><td>${fmt(v.total)}</td><td style="color:${g>=0?'var(--g600)':'var(--r600)'}">${fmt(g)}</td><td style="font-size:12px;color:var(--ts)">${esc(seller)}</td>${sucCell}<td><button onclick="restoreSale('${v.id}')" title="Restaurar" style="background:none;border:none;cursor:pointer;color:var(--g600);padding:4px 8px;border-radius:6px;font-size:16px"><i class="ti ti-restore"></i></button></td></tr>`;
+    }).join('')
+  }</tbody></table>`;
+}
+
+// ── VENTAS: ELIMINAR / RESTAURAR / LIMPIAR ──
+async function deleteSale(id){
+  if(!confirm('¿Eliminar esta venta?'))return;
+  try{
+    const doc=await db.collection("ventas").doc(id).get();
+    if(!doc.exists){showToast('Venta no encontrada','ti-alert-circle');return;}
+    const data={...doc.data(),deletedAt:Date.now(),deletedDate:new Date().toLocaleDateString('es')};
+    const batch=db.batch();
+    batch.set(db.collection("ventas-eliminadas").doc(id),data);
+    batch.delete(db.collection("ventas").doc(id));
+    await batch.commit();
+    showToast('Venta eliminada (restaurable)','ti-trash');
+  }catch(e){showToast('Error al eliminar','ti-alert-circle');}
+}
+
+async function restoreSale(id){
+  try{
+    const doc=await db.collection("ventas-eliminadas").doc(id).get();
+    if(!doc.exists){showToast('No encontrada','ti-alert-circle');return;}
+    const data={...doc.data()};
+    delete data.deletedAt;delete data.deletedDate;
+    const batch=db.batch();
+    batch.set(db.collection("ventas").doc(id),data);
+    batch.delete(db.collection("ventas-eliminadas").doc(id));
+    await batch.commit();
+    showToast('Venta restaurada','ti-restore');
+  }catch(e){showToast('Error al restaurar','ti-alert-circle');}
+}
+
+async function clearDeletedSales(suc){
+  const filtered=suc==='total'?deletedSales:deletedSales.filter(v=>(v.sucursal||'exsal')===suc);
+  if(!filtered.length||!confirm('¿Borrar permanentemente el historial de eliminadas?'))return;
+  try{
+    const batch=db.batch();
+    filtered.forEach(v=>batch.delete(db.collection("ventas-eliminadas").doc(v.id)));
+    await batch.commit();
+    showToast('Historial de eliminadas borrado','ti-trash');
+  }catch(e){showToast('Error al limpiar','ti-alert-circle');}
+}
+
+async function clearSales(suc){
+  const filtered=suc==='total'?sales:sales.filter(v=>(v.sucursal||'exsal')===suc);
+  if(!filtered.length||!confirm('¿Borrar TODO el historial de '+suc.toUpperCase()+'?'))return;
+  setSave('saving','Borrando...');
+  try{
+    const batch=db.batch();
+    filtered.forEach(v=>batch.delete(db.collection("ventas").doc(v.id)));
+    await batch.commit();
+    showToast('Historial borrado','ti-trash');setSave('ok','Sincronizado ✓');
+  }catch(e){setSave('error','Error al borrar');}
+}
+
+
 </script>
 </body>
 </html>
