@@ -701,6 +701,7 @@ async function addProduct(suc){
   const data={name,desc,cost,price,stockExsal:0,stockCdb:0,createdAt:Date.now()};
   if(suc==='exsal') data.stockExsal=stock;
   else data.stockCdb=stock;
+  data.stock=data.stockExsal+data.stockCdb;
   try{
     await db.collection("productos").add(data);
     [pre+'name',pre+'desc',pre+'cost',pre+'price',pre+'stock'].forEach(id=>document.getElementById(id).value='');
@@ -724,6 +725,7 @@ async function addProductTotal(){
   err.textContent='';
   const data={name,desc,cost,price,stockExsal:0,stockCdb:0,createdAt:Date.now()};
   if(suc==='exsal') data.stockExsal=stock; else data.stockCdb=stock;
+  data.stock=data.stockExsal+data.stockCdb;
   try{
     await db.collection("productos").add(data);
     ['total-f-name','total-f-desc','total-f-cost','total-f-price','total-f-stock'].forEach(id=>document.getElementById(id).value='');
@@ -802,6 +804,7 @@ async function registerSale(){
 
   try{
     const batch=db.batch();
+    stockUpdate.stock=firebase.firestore.FieldValue.increment(-qty);
     batch.update(db.collection("productos").doc(p.id),stockUpdate);
     batch.set(db.collection("ventas").doc(),{
       productName:p.name,qty,
@@ -852,7 +855,7 @@ async function saveEdit(){
   if(isNaN(stockCdb)||stockCdb<0){err.textContent='Stock CDB inválido.';return;}
   err.textContent='';
   try{
-    await db.collection("productos").doc(activePid).update({name,desc,cost,price,stockExsal,stockCdb});
+    await db.collection("productos").doc(activePid).update({name,desc,cost,price,stockExsal,stockCdb,stock:stockExsal+stockCdb});
     closeEditModal();
     document.getElementById('pm-name').textContent=name;
     document.getElementById('pm-desc').textContent=desc;
