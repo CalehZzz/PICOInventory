@@ -20,8 +20,7 @@
   --sc:0 2px 16px rgba(30,100,160,.08);--sh:0 4px 24px rgba(30,100,160,.14);
   --tr:.2s ease
 }
-  
-html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;background:linear-gradient(145deg,#daeffe 0%,#e8f8ff 40%,#f0f8ff 100%);color:var(--tp);font-size:15px;line-height:1.5; touch-action: manipulation}
+html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;background:linear-gradient(145deg,#daeffe 0%,#e8f8ff 40%,#f0f8ff 100%);color:var(--tp);font-size:15px;line-height:1.5}
 
 /* AUTH */
 #auth-overlay{position:fixed;inset:0;z-index:200;background:linear-gradient(145deg,#c8e8fa 0%,#daf3ff 50%,#eaf8ff 100%);display:flex;align-items:center;justify-content:center;padding:20px;}
@@ -224,6 +223,71 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
   .fin-grid{grid-template-columns:1fr 1fr}
   .header{flex-direction:column;gap:10px;align-items:flex-start}
 }
+
+/* ── PIN OVERLAY ── */
+.pin-overlay{position:fixed;inset:0;z-index:150;background:rgba(15,63,99,.52);backdrop-filter:blur(7px);display:none;align-items:center;justify-content:center;padding:20px}
+.pin-overlay.open{display:flex}
+.pin-card{background:#fff;border-radius:24px;width:100%;max-width:340px;box-shadow:0 20px 60px rgba(15,63,99,.24);overflow:hidden;animation:authIn .3s cubic-bezier(.34,1.56,.64,1)}
+.pin-header{background:linear-gradient(135deg,var(--b400),var(--s400));padding:26px 24px 22px;text-align:center}
+.pin-logo{width:50px;height:50px;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.35);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:24px;color:#fff}
+.pin-title{font-size:18px;font-weight:700;color:#fff;letter-spacing:-.3px}
+.pin-sub{font-size:12px;color:rgba(255,255,255,.78);margin-top:3px}
+.pin-body{padding:24px}
+.pin-dots{display:flex;justify-content:center;gap:10px;margin-bottom:16px}
+.pin-dot{width:52px;height:56px;background:var(--b50);border:2px solid var(--b100);border-radius:12px;text-align:center;font-size:24px;font-weight:700;color:var(--tp);outline:none;font-family:inherit;-webkit-text-security:disc;transition:border-color var(--tr),box-shadow var(--tr)}
+.pin-dot:focus{border-color:var(--b400);box-shadow:0 0 0 3px rgba(74,168,232,.15);background:#fff}
+.pin-error{font-size:12px;font-weight:600;color:var(--r600);text-align:center;min-height:16px;margin-bottom:12px;background:var(--r50);border-radius:8px;padding:6px 10px;display:none}
+.pin-error.show{display:block}
+.btn-pin{width:100%;padding:13px;background:linear-gradient(135deg,var(--b400),var(--s400));color:#fff;border:none;border-radius:var(--rp);font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 16px rgba(74,168,232,.35);transition:opacity var(--tr)}
+.btn-pin:hover{opacity:.9}.btn-pin:active{transform:scale(.97)}
+.btn-pin-cancel{width:100%;margin-top:8px;padding:10px;background:none;border:none;font-size:13px;color:var(--tm);cursor:pointer;font-family:inherit;border-radius:var(--rp);transition:background var(--tr)}
+.btn-pin-cancel:hover{background:var(--b50)}
+/* Lock button in stats tabs label area */
+.stats-tabs-label-wrap{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.btn-lock-stats{background:none;border:1.5px solid var(--b100);border-radius:var(--rp);font-size:11px;font-weight:600;color:var(--tm);padding:3px 10px;cursor:pointer;font-family:inherit;display:none;align-items:center;gap:4px;transition:background var(--tr),color var(--tr)}
+.btn-lock-stats.visible{display:flex}
+.btn-lock-stats:hover{background:var(--r50);border-color:var(--r100);color:var(--r600)}
+/* ── MONTHLY REDESIGN ── */
+.mensual-header-bar{background:var(--wh);border-radius:var(--rmd);border:1px solid var(--b100);box-shadow:var(--sc);padding:16px 20px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.mensual-select-wrap{position:relative;min-width:200px}
+.mensual-layout{display:grid;grid-template-columns:1fr 300px;gap:18px;align-items:start}
+.mensual-metrics{}
+.mensual-kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mensual-kpi{border-radius:var(--rmd);padding:16px 18px;border:1px solid var(--b100);display:flex;flex-direction:column;gap:4px;transition:transform var(--tr),box-shadow var(--tr)}
+.mensual-kpi:hover{transform:translateY(-1px);box-shadow:var(--sh)}
+.mk-blue{background:linear-gradient(135deg,var(--b50),#dbeafe);border-color:var(--b200)}
+.mk-orange{background:linear-gradient(135deg,var(--w50),#fef3c7);border-color:var(--w100)}
+.mk-green{background:linear-gradient(135deg,var(--g50),#d1fae5);border-color:var(--g100)}
+.mk-neutral{background:var(--wh);border-color:var(--b100)}
+.mk-icon{font-size:20px;margin-bottom:2px}
+.mk-blue .mk-icon{color:var(--b500)}
+.mk-orange .mk-icon{color:var(--w600)}
+.mk-green .mk-icon{color:var(--g600)}
+.mk-neutral .mk-icon{color:var(--b400)}
+.mk-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--tm)}
+.mk-value{font-size:22px;font-weight:700;color:var(--tp);letter-spacing:-.4px}
+.mk-blue .mk-value{color:var(--b600)}
+.mk-orange .mk-value{color:var(--w600)}
+.mk-green .mk-value{color:var(--g600)}
+/* Top 5 panel */
+.mensual-top5-panel{background:var(--wh);border-radius:var(--rlg);border:1px solid var(--b100);box-shadow:var(--sc);overflow:hidden;position:sticky;top:16px}
+.mensual-top5-hd{padding:14px 18px;border-bottom:1px solid var(--b50);display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--tp)}
+.lb-item{display:flex;align-items:center;gap:12px;padding:13px 18px;border-bottom:1px solid var(--b50);transition:background var(--tr)}
+.lb-item:last-child{border:none}
+.lb-item:hover{background:var(--b50)}
+.lb-rank{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;color:#fff}
+.lb-r1{background:linear-gradient(135deg,#fbbf24,#d97706)}
+.lb-r2{background:linear-gradient(135deg,#94a3b8,#475569)}
+.lb-r3{background:linear-gradient(135deg,#c97b3a,#92400e)}
+.lb-rx{background:var(--b100);color:var(--ts)}
+.lb-body{flex:1;min-width:0}
+.lb-name{font-size:13px;font-weight:600;color:var(--tp);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-meta{font-size:11px;color:var(--tm);margin-top:2px}
+.lb-pct-pill{background:var(--b50);border:1px solid var(--b100);color:var(--b600);font-size:12px;font-weight:700;padding:3px 9px;border-radius:var(--rp);flex-shrink:0}
+.lb-r1+.lb-body~.lb-pct-pill,.lb-pct-pill-gold{background:#fef3c7;border-color:#fde68a;color:#d97706}
+.mensual-empty{display:flex;flex-direction:column;align-items:center;gap:8px;padding:36px 20px;color:var(--tm);font-size:13px}
+.mensual-empty i{font-size:32px;color:var(--b200)}
+@media(max-width:900px){.mensual-layout{grid-template-columns:1fr}.mensual-top5-panel{position:static}.mensual-header-bar{flex-direction:column;align-items:flex-start}.mensual-select-wrap{width:100%}}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -284,11 +348,15 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 
   <!-- GRUPO TABS: ESTADÍSTICAS -->
   <div class="tabs-group">
-    <div class="tabs-label">Estadísticas</div>
+    <div class="stats-tabs-label-wrap">
+      <div class="tabs-label">Estadísticas</div>
+      <button class="btn-lock-stats" id="btn-lock-stats" onclick="lockStats()"><i class="ti ti-lock"></i>Bloquear</button>
+    </div>
     <div class="tabs">
       <button class="tab-btn" onclick="switchTab('stats-exsal',this)"><i class="ti ti-chart-bar"></i>EXSAL</button>
       <button class="tab-btn" onclick="switchTab('stats-cdb',this)"><i class="ti ti-chart-bar"></i>CDB</button>
       <button class="tab-btn" onclick="switchTab('stats-total',this)"><i class="ti ti-chart-pie"></i>Total</button>
+      <button class="tab-btn" onclick="switchTab('stats-mensual',this)"><i class="ti ti-calendar-stats"></i>Mensual</button>
     </div>
   </div>
 
@@ -448,6 +516,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       <div class="fin-card"><div class="fin-label">Unidades vendidas</div><div class="fin-value fv-blue" id="tot-fs-units">0</div></div>
       <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Valor inventario total (a costo)</div><div class="fin-value fv-orange" id="tot-si-valor">$0.00</div></div>
       <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Valor inventario total (precio venta)</div><div class="fin-value fv-green" id="tot-si-valor-venta-stats">$0.00</div></div>
+      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Ventas totales − Costos totales</div><div class="fin-value" id="tot-fs-costos-menos-ventas" style="color:var(--r600)">$0.00</div></div>
     </div>
     <div class="sales-wrap">
       <div class="sales-hd"><div class="shd-title"><i class="ti ti-receipt"></i>Historial de ventas · Total</div></div>
@@ -461,6 +530,80 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     <div class="sales-wrap" id="tot-deleted-sales-wrap" style="margin-top:20px;display:none">
       <div class="sales-hd"><div class="shd-title"><i class="ti ti-history"></i>Ventas eliminadas · Total</div></div>
       <div id="tot-deleted-sales-table-body"></div>
+    </div>
+  </div>
+
+  <!-- ═══ ESTADÍSTICAS MENSUALES ═══ -->
+  <div class="tab-content" id="tab-stats-mensual">
+
+    <!-- Selector de mes -->
+    <div class="mensual-header-bar">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="phd-icon"><i class="ti ti-calendar-stats"></i></div>
+        <div>
+          <div style="font-size:16px;font-weight:700;color:var(--tp)">Reporte Mensual</div>
+          <div style="font-size:11px;color:var(--tm)">Selecciona el mes a analizar</div>
+        </div>
+      </div>
+      <div class="mensual-select-wrap">
+        <i class="ti ti-calendar" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--b300);pointer-events:none"></i>
+        <select id="mensual-month-select" onchange="renderMonthlyStats()" style="width:100%;background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rp);padding:9px 13px 9px 34px;font-size:13px;font-family:inherit;color:var(--tp);outline:none;cursor:pointer;appearance:none">
+          <option value="">Sin datos aún</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Layout 2 columnas -->
+    <div class="mensual-layout">
+
+      <!-- Columna izquierda: métricas -->
+      <div class="mensual-metrics">
+        <div class="mensual-kpi-grid">
+          <div class="mensual-kpi mk-blue">
+            <div class="mk-icon"><i class="ti ti-trending-up"></i></div>
+            <div class="mk-label">Ventas del mes</div>
+            <div class="mk-value" id="mensual-ventas">$0.00</div>
+          </div>
+          <div class="mensual-kpi mk-orange">
+            <div class="mk-icon"><i class="ti ti-receipt"></i></div>
+            <div class="mk-label">Costos del mes</div>
+            <div class="mk-value" id="mensual-costos">$0.00</div>
+          </div>
+          <div class="mensual-kpi mk-green">
+            <div class="mk-icon"><i class="ti ti-coin"></i></div>
+            <div class="mk-label">Ganancia neta</div>
+            <div class="mk-value" id="mensual-ganancia">$0.00</div>
+          </div>
+          <div class="mensual-kpi mk-neutral">
+            <div class="mk-icon"><i class="ti ti-packages"></i></div>
+            <div class="mk-label">Unidades vendidas</div>
+            <div class="mk-value" id="mensual-units">0</div>
+          </div>
+          <div class="mensual-kpi mk-neutral">
+            <div class="mk-icon"><i class="ti ti-list-check"></i></div>
+            <div class="mk-label">Transacciones</div>
+            <div class="mk-value" id="mensual-transacciones">0</div>
+          </div>
+          <div class="mensual-kpi mk-green">
+            <div class="mk-icon"><i class="ti ti-chart-bar"></i></div>
+            <div class="mk-label">Promedio por compra</div>
+            <div class="mk-value" id="mensual-avg">$0.00</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna derecha: top 5 -->
+      <div class="mensual-top5-panel">
+        <div class="mensual-top5-hd">
+          <i class="ti ti-trophy" style="color:#d97706;font-size:17px"></i>
+          <span>Top 5 más vendidos</span>
+          <span style="font-size:11px;font-weight:400;color:var(--tm);margin-left:auto">% de stock vendido</span>
+        </div>
+        <div id="mensual-top5">
+          <div class="mensual-empty"><i class="ti ti-chart-bar-off"></i><span>Sin ventas en este período</span></div>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -569,6 +712,28 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
   </div>
 </div>
 
+<!-- PIN OVERLAY: ESTADÍSTICAS -->
+<div class="pin-overlay" id="pin-overlay">
+  <div class="pin-card">
+    <div class="pin-header">
+      <div class="pin-logo"><i class="ti ti-lock-access"></i></div>
+      <div class="pin-title">Área Restringida</div>
+      <div class="pin-sub">Ingresa el PIN de 4 dígitos para acceder</div>
+    </div>
+    <div class="pin-body">
+      <div class="pin-dots">
+        <input class="pin-dot" type="password" id="pin-d1" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off">
+        <input class="pin-dot" type="password" id="pin-d2" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off">
+        <input class="pin-dot" type="password" id="pin-d3" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off">
+        <input class="pin-dot" type="password" id="pin-d4" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off">
+      </div>
+      <div class="pin-error" id="pin-error"></div>
+      <button class="btn-pin" onclick="verifyStatsPin()"><i class="ti ti-lock-open"></i>Desbloquear estadísticas</button>
+      <button class="btn-pin-cancel" onclick="closePinOverlay()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -582,6 +747,67 @@ let products=[], sales=[], deletedSales=[];
 let sortAsc={exsal:false,cdb:false,total:false};
 let activePid=null, activeSucursal=null;
 let unsubProd=null, unsubSales=null, unsubDeleted=null;
+
+// ── PIN ESTADÍSTICAS ──
+const STATS_PIN_HASH='5a4b2cdca6b0563f5ffd50bcee78bd2a12e0547d9eeef0a1ea8d6ba6f7ce5094';
+let statsUnlocked=false, pendingStatsTab=null;
+
+async function verifyStatsPin(){
+  const pin=['pin-d1','pin-d2','pin-d3','pin-d4'].map(id=>document.getElementById(id).value).join('');
+  const errEl=document.getElementById('pin-error');
+  if(pin.length<4){errEl.textContent='Ingresa los 4 dígitos.';errEl.classList.add('show');return;}
+  const enc=new TextEncoder();
+  const buf=await crypto.subtle.digest('SHA-256',enc.encode(pin));
+  const hex=Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  if(hex===STATS_PIN_HASH){
+    statsUnlocked=true;
+    closePinOverlay();
+    document.getElementById('btn-lock-stats').classList.add('visible');
+    if(pendingStatsTab){doSwitchTab(pendingStatsTab.name,pendingStatsTab.btn);pendingStatsTab=null;}
+  }else{
+    errEl.textContent='PIN incorrecto. Intenta de nuevo.';errEl.classList.add('show');
+    ['pin-d1','pin-d2','pin-d3','pin-d4'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('pin-d1').focus();
+  }
+}
+
+function closePinOverlay(){
+  document.getElementById('pin-overlay').classList.remove('open');
+  ['pin-d1','pin-d2','pin-d3','pin-d4'].forEach(id=>document.getElementById(id).value='');
+  const errEl=document.getElementById('pin-error');
+  errEl.textContent='';errEl.classList.remove('show');
+  pendingStatsTab=null;
+}
+
+function lockStats(){
+  statsUnlocked=false;
+  document.getElementById('btn-lock-stats').classList.remove('visible');
+  // Si está en una pestaña de estadísticas, volver a inventario
+  const activeStatsTab=document.querySelector('.tab-content.active[id^="tab-stats-"]');
+  if(activeStatsTab){
+    const firstInvBtn=document.querySelector('.tab-btn');
+    doSwitchTab('inv-exsal',firstInvBtn);
+  }
+  showToast('Estadísticas bloqueadas','ti-lock');
+}
+
+// Auto-avance en PIN inputs
+document.addEventListener('DOMContentLoaded',()=>{
+  const pinIds=['pin-d1','pin-d2','pin-d3','pin-d4'];
+  pinIds.forEach((id,i)=>{
+    const el=document.getElementById(id);
+    el.addEventListener('input',()=>{
+      el.value=el.value.replace(/\D/g,'');
+      if(el.value&&i<pinIds.length-1) document.getElementById(pinIds[i+1]).focus();
+      if(el.value&&i===pinIds.length-1) verifyStatsPin();
+    });
+    el.addEventListener('keydown',e=>{
+      if(e.key==='Backspace'&&!el.value&&i>0) document.getElementById(pinIds[i-1]).focus();
+      if(e.key==='Enter') verifyStatsPin();
+    });
+  });
+  document.getElementById('pin-overlay').addEventListener('click',e=>{if(e.target.id==='pin-overlay')closePinOverlay();});
+});
 
 // ── AUTH ──
 async function handleAuth(type){
@@ -666,12 +892,22 @@ function getStock(p,suc){
 }
 
 // ── TABS ──
-function switchTab(name,btn){
+function doSwitchTab(name,btn){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('tab-'+name).classList.add('active');
   if(name.startsWith('stats-'))renderAllStats();
+}
+function switchTab(name,btn){
+  if(name.startsWith('stats-')&&!statsUnlocked){
+    pendingStatsTab={name,btn};
+    const ov=document.getElementById('pin-overlay');
+    ov.classList.add('open');
+    setTimeout(()=>document.getElementById('pin-d1').focus(),80);
+    return;
+  }
+  doSwitchTab(name,btn);
 }
 
 // ── INVENTARIO STATS ──
@@ -724,7 +960,11 @@ function renderList(suc){
   if(suc==='exsal') list=list.filter(p=>'stockExsal' in p || 'stock_exsal' in p);
   if(suc==='cdb')   list=list.filter(p=>'stockCdb' in p || 'stock_cdb' in p);
 
-  list.sort((a,b)=>sortAsc[suc]?a.createdAt-b.createdAt:b.createdAt-a.createdAt);
+  list.sort((a,b)=>{
+    const sa=getStock(a,suc), sb=getStock(b,suc);
+    if((sa===0)!==(sb===0)) return sa===0?1:-1;
+    return sortAsc[suc]?a.createdAt-b.createdAt:b.createdAt-a.createdAt;
+  });
   if(q) list=list.filter(p=>p.name.toLowerCase().includes(q)||(p.desc&&p.desc.toLowerCase().includes(q)));
 
   const area=document.getElementById(suc+'-list-area');
@@ -943,6 +1183,85 @@ function renderAllStats(){
   renderStats('exsal');
   renderStats('cdb');
   renderStats('total');
+  renderMonthlyStats();
+}
+
+function populateMonthSelector(){
+  const sel=document.getElementById('mensual-month-select');
+  if(!sel)return;
+  const monthNames=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  // Recoger meses únicos que tienen ventas
+  const seen=new Set();
+  sales.forEach(v=>{
+    if(!v.timestamp)return;
+    const d=new Date(v.timestamp);
+    seen.add(d.getFullYear()+'-'+String(d.getMonth()).padStart(2,'0'));
+  });
+  // Añadir mes actual aunque no tenga ventas
+  const now=new Date();
+  seen.add(now.getFullYear()+'-'+String(now.getMonth()).padStart(2,'0'));
+  const sorted=[...seen].sort((a,b)=>b.localeCompare(a));
+  const currentVal=sel.value;
+  sel.innerHTML=sorted.map(key=>{
+    const [y,m]=key.split('-');
+    return `<option value="${key}">${monthNames[+m]} ${y}</option>`;
+  }).join('');
+  // Restaurar selección o dejar el más reciente
+  if(currentVal&&sorted.includes(currentVal)) sel.value=currentVal;
+}
+
+function renderMonthlyStats(){
+  populateMonthSelector();
+  const sel=document.getElementById('mensual-month-select');
+  const val=sel?sel.value:'';
+  const monthNames=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  let selMonth,selYear;
+  if(val){
+    const [y,m]=val.split('-');
+    selMonth=+m; selYear=+y;
+  }else{
+    const now=new Date(); selMonth=now.getMonth(); selYear=now.getFullYear();
+  }
+  const monthly=sales.filter(v=>{
+    if(!v.timestamp)return false;
+    const d=new Date(v.timestamp);
+    return d.getMonth()===selMonth&&d.getFullYear()===selYear;
+  });
+  const totalV=monthly.reduce((s,v)=>s+v.total,0);
+  const totalC=monthly.reduce((s,v)=>s+v.costTotal,0);
+  const totalUnits=monthly.reduce((s,v)=>s+v.qty,0);
+  const numTx=monthly.length;
+  document.getElementById('mensual-ventas').textContent=fmt(totalV);
+  document.getElementById('mensual-costos').textContent=fmt(totalC);
+  document.getElementById('mensual-ganancia').textContent=fmt(totalV-totalC);
+  document.getElementById('mensual-units').textContent=totalUnits;
+  document.getElementById('mensual-transacciones').textContent=numTx;
+  document.getElementById('mensual-avg').textContent=fmt(numTx>0?totalV/numTx:0);
+  // Top 5 con nuevo diseño
+  const byProd={};
+  monthly.forEach(v=>{byProd[v.productName]=(byProd[v.productName]||0)+v.qty;});
+  const sorted=Object.entries(byProd).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const top5El=document.getElementById('mensual-top5');
+  if(!sorted.length){
+    top5El.innerHTML='<div class="mensual-empty"><i class="ti ti-chart-bar-off"></i><span>Sin ventas en '+monthNames[selMonth]+' '+selYear+'</span></div>';
+    return;
+  }
+  const rankCls=['lb-r1','lb-r2','lb-r3','lb-rx','lb-rx'];
+  top5El.innerHTML=sorted.map(([name,qty],i)=>{
+    const prod=products.find(p=>p.name===name);
+    const curStock=prod?(getStock(prod,'exsal')+getStock(prod,'cdb')):0;
+    const initStock=curStock+qty;
+    const ratio=initStock>0?Math.round((qty/initStock)*100):0;
+    const pillClass=i===0?'lb-pct-pill lb-pct-pill-gold':'lb-pct-pill';
+    return `<div class="lb-item">
+      <div class="lb-rank ${rankCls[i]}">${i+1}</div>
+      <div class="lb-body">
+        <div class="lb-name">${esc(name)}</div>
+        <div class="lb-meta">${qty} vendidos · ${initStock} stock inicial est.</div>
+      </div>
+      <div class="${pillClass}">${ratio}%</div>
+    </div>`;
+  }).join('');
 }
 
 // ── SELECCIÓN PARA FACTURA ──
@@ -975,6 +1294,14 @@ function renderStats(suc){
   document.getElementById(pfx+'-fs-costos').textContent=fmt(totalC);
   document.getElementById(pfx+'-fs-ganancia').textContent=fmt(totalV-totalC);
   document.getElementById(pfx+'-fs-units').textContent=filtered.reduce((s,v)=>s+v.qty,0);
+  // Valor empresa y costos-ventas: solo en Total
+  if(suc==='total'){
+    const invCosto=products.reduce((s,p)=>s+p.cost*(getStock(p,'exsal')+getStock(p,'cdb')),0);
+    const diff=totalV-totalC-invCosto;
+    const diffEl=document.getElementById('tot-fs-costos-menos-ventas');
+    diffEl.textContent=fmt(diff);
+    diffEl.style.color=diff>=0?'var(--g600)':'var(--r600)';
+  }
   const body=document.getElementById(pfx+'-sales-table-body');
   if(!filtered.length){body.innerHTML=`<div class="sales-empty">Sin ventas registradas</div>`;return;}
   const showSuc=suc==='total';
