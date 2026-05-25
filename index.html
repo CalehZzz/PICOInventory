@@ -288,6 +288,28 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .mensual-empty{display:flex;flex-direction:column;align-items:center;gap:8px;padding:36px 20px;color:var(--tm);font-size:13px}
 .mensual-empty i{font-size:32px;color:var(--b200)}
 @media(max-width:900px){.mensual-layout{grid-template-columns:1fr}.mensual-top5-panel{position:static}.mensual-header-bar{flex-direction:column;align-items:flex-start}.mensual-select-wrap{width:100%}}
+
+/* ── PEDIDOS ── */
+.pedidos-filter-bar{background:var(--wh);border-radius:var(--rmd);border:1px solid var(--b100);box-shadow:var(--sc);padding:13px 18px;margin-bottom:18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pedidos-filter-bar .search-wrap{flex:1;min-width:200px}
+.filter-select{background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rp);padding:8px 14px;font-size:13px;font-family:inherit;color:var(--tp);outline:none;cursor:pointer}
+.pedidos-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.pedidos-wrap{background:var(--wh);border-radius:var(--rlg);border:1px solid var(--b100);box-shadow:var(--sc);overflow:hidden}
+.pedidos-hd{padding:16px 20px;border-bottom:1px solid var(--b50);display:flex;align-items:center;justify-content:space-between}
+.pedidos-table{width:100%;border-collapse:collapse}
+.pedidos-table th{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--tm);padding:10px 14px;text-align:left;border-bottom:1px solid var(--b50);background:var(--b50)}
+.pedidos-table td{font-size:13px;color:var(--tp);padding:10px 14px;border-bottom:1px solid var(--b50);vertical-align:top}
+.pedidos-table tr:last-child td{border-bottom:none}
+.pedidos-table tr:hover td{background:var(--b50)}
+.pedidos-empty{text-align:center;padding:44px 20px;color:var(--tm)}
+.status-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:var(--rp);display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.status-pending{background:var(--w50);color:var(--w600);border:1px solid var(--w100)}
+.status-delivered{background:var(--g50);color:var(--g600);border:1px solid var(--g100)}
+.status-cancelled{background:var(--r50);color:var(--r600);border:1px solid var(--r100)}
+.pedido-items{display:flex;flex-direction:column;gap:3px}
+.pedido-item-row{font-size:12px;color:var(--ts)}
+.pedido-code{font-size:11px;font-weight:700;color:var(--b600);background:var(--b50);border:1px solid var(--b100);border-radius:6px;padding:2px 8px;display:inline-block}
+@media(max-width:900px){.pedidos-stats-row{grid-template-columns:1fr 1fr}.pedidos-filter-bar{flex-direction:column;align-items:stretch}}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -357,6 +379,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       <button class="tab-btn" onclick="switchTab('stats-cdb',this)"><i class="ti ti-chart-bar"></i>CDB</button>
       <button class="tab-btn" onclick="switchTab('stats-total',this)"><i class="ti ti-chart-pie"></i>Total</button>
       <button class="tab-btn" onclick="switchTab('stats-mensual',this)"><i class="ti ti-calendar-stats"></i>Mensual</button>
+      <button class="tab-btn" onclick="switchTab('stats-pedidos',this)"><i class="ti ti-shopping-bag"></i>Pedidos</button>
     </div>
   </div>
 
@@ -607,6 +630,45 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     </div>
   </div>
 
+  <!-- ═══ PEDIDOS ═══ -->
+  <div class="tab-content" id="tab-stats-pedidos">
+
+    <!-- KPIs de pedidos -->
+    <div class="pedidos-stats-row">
+      <div class="fin-card"><div class="fin-label">Pedidos entregados</div><div class="fin-value fv-green" id="ped-count-delivered">0</div></div>
+      <div class="fin-card"><div class="fin-label">Pedidos pendientes</div><div class="fin-value fv-orange" id="ped-count-pending">0</div></div>
+      <div class="fin-card"><div class="fin-label">Pedidos cancelados</div><div class="fin-value" id="ped-count-cancelled" style="color:var(--r600)">0</div></div>
+      <div class="fin-card"><div class="fin-label">Ingresos por pedidos</div><div class="fin-value fv-blue" id="ped-total-ingresos">$0.00</div></div>
+      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Costos por pedidos (entregados)</div><div class="fin-value fv-orange" id="ped-total-costos">$0.00</div></div>
+      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Ganancia por pedidos</div><div class="fin-value fv-green" id="ped-total-ganancia">$0.00</div></div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="pedidos-filter-bar">
+      <div class="search-wrap" style="flex:1;min-width:200px"><i class="ti ti-search"></i><input type="text" id="ped-search" placeholder="Buscar por nombre, código o producto..." oninput="renderPedidos()"></div>
+      <select class="filter-select" id="ped-filter-status" onchange="renderPedidos()">
+        <option value="">Todos los estados</option>
+        <option value="pending">Pendientes</option>
+        <option value="delivered">Entregados</option>
+        <option value="cancelled">Cancelados</option>
+      </select>
+      <select class="filter-select" id="ped-filter-suc" onchange="renderPedidos()">
+        <option value="">Todas las sucursales</option>
+        <option value="exsal">EXSAL</option>
+        <option value="cdb">CDB</option>
+      </select>
+    </div>
+
+    <!-- Tabla -->
+    <div class="pedidos-wrap">
+      <div class="pedidos-hd">
+        <div class="shd-title"><i class="ti ti-shopping-bag"></i>Historial de pedidos</div>
+        <span class="list-count" id="ped-list-count"></span>
+      </div>
+      <div id="pedidos-table-body"></div>
+    </div>
+  </div>
+
 </div><!-- /.app -->
 
 <!-- MODAL: PRODUCTO -->
@@ -743,10 +805,10 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore(), auth=firebase.auth();
 
 // ── ESTADO ──
-let products=[], sales=[], deletedSales=[];
+let products=[], sales=[], deletedSales=[], orders=[];
 let sortAsc={exsal:false,cdb:false,total:false};
 let activePid=null, activeSucursal=null;
-let unsubProd=null, unsubSales=null, unsubDeleted=null;
+let unsubProd=null, unsubSales=null, unsubDeleted=null, unsubOrders=null;
 
 // ── PIN ESTADÍSTICAS ──
 const STATS_PIN_HASH='5a4b2cdca6b0563f5ffd50bcee78bd2a12e0547d9eeef0a1ea8d6ba6f7ce5094';
@@ -782,7 +844,6 @@ function closePinOverlay(){
 function lockStats(){
   statsUnlocked=false;
   document.getElementById('btn-lock-stats').classList.remove('visible');
-  // Si está en una pestaña de estadísticas, volver a inventario
   const activeStatsTab=document.querySelector('.tab-content.active[id^="tab-stats-"]');
   if(activeStatsTab){
     const firstInvBtn=document.querySelector('.tab-btn');
@@ -836,8 +897,8 @@ auth.onAuthStateChanged(user=>{
     startListeners();
   }else{
     overlay.style.display='flex';
-    if(unsubProd)unsubProd();if(unsubSales)unsubSales();if(unsubDeleted)unsubDeleted();
-    products=[];sales=[];deletedSales=[];
+    if(unsubProd)unsubProd();if(unsubSales)unsubSales();if(unsubDeleted)unsubDeleted();if(unsubOrders)unsubOrders();
+    products=[];sales=[];deletedSales=[];orders=[];
     renderAllLists();updateAllInvStats();renderAllStats();renderAllDeletedSales();
     document.getElementById('auth-pass').value='';
     const btn=document.getElementById('btn-auth');
@@ -867,6 +928,12 @@ function startListeners(){
   unsubDeleted=db.collection("ventas-eliminadas").orderBy("deletedAt","desc").onSnapshot(snap=>{
     deletedSales=[];snap.forEach(doc=>deletedSales.push({id:doc.id,...doc.data()}));
     renderAllDeletedSales();
+  });
+
+  unsubOrders=db.collection("pedidos").orderBy("createdAt","desc").onSnapshot(snap=>{
+    orders=[];snap.forEach(doc=>orders.push({id:doc.id,...doc.data()}));
+    renderPedidos();
+    renderPedidosKpis();
   });
 }
 
@@ -1184,6 +1251,7 @@ function renderAllStats(){
   renderStats('cdb');
   renderStats('total');
   renderMonthlyStats();
+  renderPedidos();
 }
 
 function populateMonthSelector(){
@@ -1640,6 +1708,87 @@ const productosHtml = ventasSel.map((v, i) => {
     document.getElementById('fact-sending').classList.remove('show');
     document.querySelector('.btn-gen-pdf').disabled=false;
   }
+}
+
+// ── PEDIDOS ──
+function getOrderCost(order){
+  // Si ya tiene costTotal congelado (guardado al momento de entregar), usarlo directamente
+  if(typeof order.costTotal === 'number') return order.costTotal;
+  // Si no, calcular en vivo desde el inventario (pedidos aún no entregados)
+  let cost=0;
+  (order.items||[]).forEach(item=>{
+    const prod=products.find(p=>p.id===item.id||p.name===item.name);
+    const unitCost=prod?prod.cost:0;
+    cost+=unitCost*(item.qty||1);
+  });
+  return cost;
+}
+
+function renderPedidosKpis(){
+  const delivered=orders.filter(o=>o.status==='delivered');
+  const pending=orders.filter(o=>o.status==='pending');
+  const cancelled=orders.filter(o=>o.status==='cancelled');
+  const ingresos=delivered.reduce((s,o)=>s+(o.total||0),0);
+  const costos=delivered.reduce((s,o)=>s+getOrderCost(o),0);
+  document.getElementById('ped-count-delivered').textContent=delivered.length;
+  document.getElementById('ped-count-pending').textContent=pending.length;
+  document.getElementById('ped-count-cancelled').textContent=cancelled.length;
+  document.getElementById('ped-total-ingresos').textContent=fmt(ingresos);
+  document.getElementById('ped-total-costos').textContent=fmt(costos);
+  document.getElementById('ped-total-ganancia').textContent=fmt(ingresos-costos);
+}
+
+function renderPedidos(){
+  renderPedidosKpis();
+  const q=(document.getElementById('ped-search').value||'').toLowerCase().trim();
+  const filterStatus=document.getElementById('ped-filter-status').value;
+  const filterSuc=document.getElementById('ped-filter-suc').value;
+
+  let list=[...orders];
+  if(filterStatus) list=list.filter(o=>o.status===filterStatus);
+  if(filterSuc) list=list.filter(o=>(o.sucursal||'cdb')===filterSuc);
+  if(q) list=list.filter(o=>{
+    const nameMatch=(o.name||'').toLowerCase().includes(q);
+    const codeMatch=(o.code||'').toLowerCase().includes(q);
+    const itemMatch=(o.items||[]).some(i=>(i.name||'').toLowerCase().includes(q));
+    const emailMatch=(o.email||'').toLowerCase().includes(q);
+    return nameMatch||codeMatch||itemMatch||emailMatch;
+  });
+
+  document.getElementById('ped-list-count').textContent=list.length+' pedido'+(list.length!==1?'s':'');
+
+  const body=document.getElementById('pedidos-table-body');
+  if(!list.length){
+    body.innerHTML=`<div class="pedidos-empty"><div class="empty-icon"><i class="ti ti-shopping-bag-x"></i></div><p>Sin pedidos que mostrar</p></div>`;
+    return;
+  }
+
+  const statusLabel={pending:'Pendiente',delivered:'Entregado',cancelled:'Cancelado'};
+  const statusClass={pending:'status-pending',delivered:'status-delivered',cancelled:'status-cancelled'};
+  const statusIcon={pending:'ti-clock',delivered:'ti-circle-check',cancelled:'ti-circle-x'};
+
+  body.innerHTML=`<table class="pedidos-table"><thead><tr>
+    <th>Código</th><th>Cliente</th><th>Productos</th><th>Total</th><th>Ganancia</th><th>Sucursal</th><th>Estado</th><th>Fecha</th>
+  </tr></thead><tbody>${list.map(o=>{
+    const suc=(o.sucursal||'cdb').toUpperCase();
+    const sucClass=suc==='CDB'?'badge-cdb':'badge-exsal';
+    const st=o.status||'pending';
+    const items=(o.items||[]).map(i=>`<div class="pedido-item-row"><i class="ti ti-point" style="font-size:10px"></i> ${esc(i.name)} ×${i.qty||1} — ${fmt(i.price*(i.qty||1))}</div>`).join('');
+    const cost=getOrderCost(o);
+    const ganancia=st==='delivered'?(o.total||0)-cost:null;
+    const gananciaCell=ganancia!==null?`<span style="color:${ganancia>=0?'var(--g600)':'var(--r600)'}">${fmt(ganancia)}</span>`:`<span style="color:var(--tm);font-size:11px">—</span>`;
+    const createdAt=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate().toLocaleDateString('es'):o.createdAt||'—';
+    return `<tr>
+      <td><span class="pedido-code">${esc(o.code||'—')}</span></td>
+      <td><div style="font-weight:600">${esc(o.name||'—')}</div><div style="font-size:11px;color:var(--tm)">${esc(o.email||'')}</div></td>
+      <td><div class="pedido-items">${items||'<span style="color:var(--tm);font-size:11px">Sin items</span>'}</div></td>
+      <td style="font-weight:700">${fmt(o.total||0)}</td>
+      <td>${gananciaCell}</td>
+      <td><span class="badge ${sucClass}">${suc}</span></td>
+      <td><span class="status-badge ${statusClass[st]||'status-pending'}"><i class="ti ${statusIcon[st]||'ti-clock'}"></i>${statusLabel[st]||st}</span></td>
+      <td style="font-size:12px;color:var(--tm);white-space:nowrap">${createdAt}</td>
+    </tr>`;
+  }).join('')}</tbody></table>`;
 }
 
 </script>
