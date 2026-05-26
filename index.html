@@ -951,8 +951,8 @@ function showToast(msg,icon='ti-check'){
   t._t=setTimeout(()=>t.classList.remove('show'),2800);
 }
 function getStock(p,suc){
-  const exsal=p.stockExsal!==undefined?p.stockExsal:(p.stock_exsal||0);
-  const cdb=p.stockCdb!==undefined?p.stockCdb:(p.stock_cdb||0);
+  const exsal=p.stockExsal||0;
+  const cdb=p.stockCdb||0;
   if(suc==='exsal') return exsal;
   if(suc==='cdb')   return cdb;
   return exsal+cdb;
@@ -982,7 +982,7 @@ function updateAllInvStats(){
   const exsalStock=products.reduce((s,p)=>s+getStock(p,'exsal'),0);
   const exsalVenta=products.reduce((s,p)=>s+(p.price*getStock(p,'exsal')),0);
   const exsalCosto=products.reduce((s,p)=>s+(p.cost*getStock(p,'exsal')),0);
-  document.getElementById('exsal-si-total').textContent=products.filter(p=>getStock(p,'exsal')>0).length;
+  document.getElementById('exsal-si-total').textContent=products.length;
   document.getElementById('exsal-si-stock').textContent=exsalStock.toLocaleString('es');
   document.getElementById('exsal-si-valor-venta').textContent=fmt(exsalVenta);
   document.getElementById('exsal-si-valor').textContent=fmt(exsalCosto);
@@ -991,7 +991,7 @@ function updateAllInvStats(){
   const cdbStock=products.reduce((s,p)=>s+getStock(p,'cdb'),0);
   const cdbVenta=products.reduce((s,p)=>s+(p.price*getStock(p,'cdb')),0);
   const cdbCosto=products.reduce((s,p)=>s+(p.cost*getStock(p,'cdb')),0);
-  document.getElementById('cdb-si-total').textContent=products.filter(p=>getStock(p,'cdb')>0).length;
+  document.getElementById('cdb-si-total').textContent=products.length;
   document.getElementById('cdb-si-stock').textContent=cdbStock.toLocaleString('es');
   document.getElementById('cdb-si-valor-venta').textContent=fmt(cdbVenta);
   document.getElementById('cdb-si-valor').textContent=fmt(cdbCosto);
@@ -1021,11 +1021,8 @@ function toggleSort(suc){
 function renderList(suc){
   const q=document.getElementById(suc+'-search').value.toLowerCase().trim();
   let list=[...products];
-
-  // Filtrar: EXSAL muestra productos con stockExsal; CDB muestra productos con stockCdb
-  // Se usa (||0)>=0 para incluir productos aunque el campo sea 0, excluyendo los que no tienen el campo
-  if(suc==='exsal') list=list.filter(p=>'stockExsal' in p || 'stock_exsal' in p);
-  if(suc==='cdb')   list=list.filter(p=>'stockCdb' in p || 'stock_cdb' in p);
+  // Mostrar todos los productos en EXSAL y CDB (sin filtrar por campo presente)
+  // Los productos con stock 0 aparecen en rojo
 
   list.sort((a,b)=>{
     const sa=getStock(a,suc), sb=getStock(b,suc);
@@ -1053,8 +1050,8 @@ function renderList(suc){
     // En Total mostrar badges por sucursal
     let sucBadges='';
     if(suc==='total'){
-      if('stockExsal' in p||'stock_exsal' in p) sucBadges+=`<span class="badge badge-exsal">EXSAL: ${getStock(p,'exsal')}</span>`;
-      if('stockCdb' in p||'stock_cdb' in p)   sucBadges+=`<span class="badge badge-cdb">CDB: ${getStock(p,'cdb')}</span>`;
+      sucBadges+=`<span class="badge badge-exsal">EXSAL: ${getStock(p,'exsal')}</span>`;
+      sucBadges+=`<span class="badge badge-cdb">CDB: ${getStock(p,'cdb')}</span>`;
     }
     return `<div class="product-card" onclick="openPM('${p.id}','${suc}')" style="${cardBg}">
       <div class="card-top"><div style="flex:1"><div class="card-name">${esc(p.name)}</div></div>
@@ -1714,11 +1711,13 @@ const productosHtml = ventasSel.map((v, i) => {
 function getOrderCost(order){
   // Si ya tiene costTotal congelado (guardado al momento de entregar), usarlo directamente
   if(typeof order.costTotal === 'number') return order.costTotal;
-  // Si no, calcular en vivo desde el inventario (pedidos aún no entregados)
+  // Calcular en vivo desde los items (usar itemCost guardado en el item, o buscar en inventario)
   let cost=0;
   (order.items||[]).forEach(item=>{
-    const prod=products.find(p=>p.id===item.id||p.name===item.name);
-    const unitCost=prod?prod.cost:0;
+    const unitCost=typeof item.cost==='number'?item.cost:(()=>{
+      const prod=products.find(p=>p.id===item.id||p.name===item.name);
+      return prod?prod.cost:0;
+    })();
     cost+=unitCost*(item.qty||1);
   });
   return cost;
@@ -1736,6 +1735,87 @@ function renderPedidosKpis(){
   document.getElementById('ped-total-ingresos').textContent=fmt(ingresos);
   document.getElementById('ped-total-costos').textContent=fmt(costos);
   document.getElementById('ped-total-ganancia').textContent=fmt(ingresos-costos);
+}
+
+// Entregar pedido: descuenta stock + crea registros en "ventas" (igual que registerSale)
+async function deliverOrder(orderId){
+  const order=orders.find(o=>o.id===orderId);
+  if(!order||order.status==='delivered'){showToast('Pedido ya entregado','ti-alert-circle');return;}
+  if(!confirm('¿Marcar este pedido como entregado y descontar stock?'))return;
+
+  const user=firebase.auth().currentUser;
+  const sellerEmail=user?user.email:'Desconocido';
+  const suc=order.sucursal||'exsal';
+  const batch=db.batch();
+  let costTotal=0;
+
+  for(const item of (order.items||[])){
+    const qty=item.qty||1;
+    const prod=products.find(p=>p.id===item.id||p.name===item.name);
+    const unitCost=prod?prod.cost:(item.cost||0);
+    const unitPrice=item.price||(prod?prod.price:0);
+    costTotal+=unitCost*qty;
+
+    // Descontar stock igual que registerSale
+    if(prod){
+      let stockUpdate={};
+      if(suc==='exsal'){
+        stockUpdate={stockExsal:firebase.firestore.FieldValue.increment(-qty)};
+      } else if(suc==='cdb'){
+        stockUpdate={stockCdb:firebase.firestore.FieldValue.increment(-qty)};
+      } else {
+        const fromExsal=Math.min(qty,getStock(prod,'exsal'));
+        const fromCdb=qty-fromExsal;
+        if(fromExsal>0) stockUpdate.stockExsal=firebase.firestore.FieldValue.increment(-fromExsal);
+        if(fromCdb>0)   stockUpdate.stockCdb=firebase.firestore.FieldValue.increment(-fromCdb);
+      }
+      batch.update(db.collection('productos').doc(prod.id),stockUpdate);
+    }
+
+    // Crear registro en "ventas" igual que registerSale
+    batch.set(db.collection('ventas').doc(),{
+      orderNumber:'PED-'+Date.now().toString().slice(-6)+'-'+Math.random().toString(36).slice(-3),
+      productName:item.name,
+      qty,
+      costTotal:+(unitCost*qty).toFixed(2),
+      total:+(unitPrice*qty).toFixed(2),
+      seller:sellerEmail,
+      sucursal:suc,
+      date:new Date().toLocaleDateString('es'),
+      timestamp:Date.now(),
+      fromOrder:orderId
+    });
+  }
+
+  // Actualizar estado del pedido y congelar costTotal
+  batch.update(db.collection('pedidos').doc(orderId),{
+    status:'delivered',
+    costTotal:+costTotal.toFixed(2),
+    deliveredAt:Date.now(),
+    deliveredBy:sellerEmail
+  });
+
+  try{
+    await batch.commit();
+    showToast('Pedido entregado · stock descontado','ti-circle-check');
+  }catch(e){
+    console.error(e);
+    showToast('Error al entregar pedido','ti-alert-circle');
+  }
+}
+
+// Borrar pedido individual
+async function deleteOrder(orderId){
+  const order=orders.find(o=>o.id===orderId);
+  if(!order)return;
+  const label=order.code||order.name||orderId;
+  if(!confirm(`¿Eliminar el pedido "${label}"? Esta acción no se puede deshacer.`))return;
+  try{
+    await db.collection('pedidos').doc(orderId).delete();
+    showToast('Pedido eliminado','ti-trash');
+  }catch(e){
+    showToast('Error al eliminar pedido','ti-alert-circle');
+  }
 }
 
 function renderPedidos(){
@@ -1768,25 +1848,33 @@ function renderPedidos(){
   const statusIcon={pending:'ti-clock',delivered:'ti-circle-check',cancelled:'ti-circle-x'};
 
   body.innerHTML=`<table class="pedidos-table"><thead><tr>
-    <th>Código</th><th>Cliente</th><th>Productos</th><th>Total</th><th>Ganancia</th><th>Sucursal</th><th>Estado</th><th>Fecha</th>
+    <th>Código</th><th>Cliente</th><th>Productos</th><th>Total</th><th>Ganancia</th><th>Sucursal</th><th>Estado</th><th>Fecha</th><th></th>
   </tr></thead><tbody>${list.map(o=>{
-    const suc=(o.sucursal||'cdb').toUpperCase();
-    const sucClass=suc==='CDB'?'badge-cdb':'badge-exsal';
+    const sucRaw=(o.sucursal||'cdb');
+    const sucLabel=sucRaw.toUpperCase();
+    const sucClass=sucRaw==='cdb'?'badge-cdb':'badge-exsal';
     const st=o.status||'pending';
     const items=(o.items||[]).map(i=>`<div class="pedido-item-row"><i class="ti ti-point" style="font-size:10px"></i> ${esc(i.name)} ×${i.qty||1} — ${fmt(i.price*(i.qty||1))}</div>`).join('');
     const cost=getOrderCost(o);
     const ganancia=st==='delivered'?(o.total||0)-cost:null;
     const gananciaCell=ganancia!==null?`<span style="color:${ganancia>=0?'var(--g600)':'var(--r600)'}">${fmt(ganancia)}</span>`:`<span style="color:var(--tm);font-size:11px">—</span>`;
     const createdAt=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate().toLocaleDateString('es'):o.createdAt||'—';
+    const deliverBtn=st==='pending'?`<button onclick="deliverOrder('${o.id}')" title="Marcar como entregado" style="background:var(--g50);border:1.5px solid var(--g100);color:var(--g600);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:700;display:flex;align-items:center;gap:4px;white-space:nowrap"><i class="ti ti-check"></i>Entregar</button>`:'';
     return `<tr>
       <td><span class="pedido-code">${esc(o.code||'—')}</span></td>
       <td><div style="font-weight:600">${esc(o.name||'—')}</div><div style="font-size:11px;color:var(--tm)">${esc(o.email||'')}</div></td>
       <td><div class="pedido-items">${items||'<span style="color:var(--tm);font-size:11px">Sin items</span>'}</div></td>
       <td style="font-weight:700">${fmt(o.total||0)}</td>
       <td>${gananciaCell}</td>
-      <td><span class="badge ${sucClass}">${suc}</span></td>
+      <td><span class="badge ${sucClass}">${sucLabel}</span></td>
       <td><span class="status-badge ${statusClass[st]||'status-pending'}"><i class="ti ${statusIcon[st]||'ti-clock'}"></i>${statusLabel[st]||st}</span></td>
       <td style="font-size:12px;color:var(--tm);white-space:nowrap">${createdAt}</td>
+      <td style="white-space:nowrap">
+        <div style="display:flex;gap:6px;align-items:center">
+          ${deliverBtn}
+          <button onclick="deleteOrder('${o.id}')" title="Eliminar pedido" style="background:none;border:1.5px solid var(--r100);color:var(--r600);border-radius:8px;padding:5px 8px;cursor:pointer;font-size:14px;display:flex;align-items:center"><i class="ti ti-trash"></i></button>
+        </div>
+      </td>
     </tr>`;
   }).join('')}</tbody></table>`;
 }
