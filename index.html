@@ -984,7 +984,7 @@ let restockPendingData=null;
 
 // ── PAGINACIÓN ──
 const PROD_PAGE_SIZE=20;
-const SALES_LIMIT=50;
+const SALES_LIMIT=2000;
 const ORDERS_LIMIT=30;
 const RESTOCK_LIMIT=25;
 const DELETED_LIMIT=15;
@@ -1006,9 +1006,10 @@ async function verifyStatsPin(){
   const hex=Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
   if(hex===STATS_PIN_HASH){
     statsUnlocked=true;
+    const tabToOpen=pendingStatsTab;
     closePinOverlay();
     document.getElementById('btn-lock-stats').classList.add('visible');
-    if(pendingStatsTab){doSwitchTab(pendingStatsTab.name,pendingStatsTab.btn);pendingStatsTab=null;}
+    if(tabToOpen){doSwitchTab(tabToOpen.name,tabToOpen.btn);}
   }else{
     errEl.textContent='PIN incorrecto. Intenta de nuevo.';errEl.classList.add('show');
     ['pin-d1','pin-d2','pin-d3','pin-d4'].forEach(id=>document.getElementById(id).value='');
@@ -1111,15 +1112,12 @@ function startListeners(){
     }
   },()=>setSave('error','Error de conexión'));
 
-  // Ventas: solo las últimas SALES_LIMIT, el resto se carga bajo demanda
-  unsubSales=db.collection("ventas").orderBy("timestamp","desc").limit(SALES_LIMIT).onSnapshot(snap=>{
-    const fresh=[];
-    snap.forEach(doc=>fresh.push({id:doc.id,...doc.data()}));
-    salesLastVisible=snap.docs[snap.docs.length-1]||null;
-    salesAllLoaded=snap.docs.length<SALES_LIMIT;
-    const freshIds=new Set(fresh.map(s=>s.id));
-    salesExtra=salesExtra.filter(s=>!freshIds.has(s.id));
-    sales=[...fresh,...salesExtra];
+  // Ventas: sin límite para estadísticas siempre correctas
+  unsubSales=db.collection("ventas").orderBy("timestamp","desc").onSnapshot(snap=>{
+    sales=[];
+    snap.forEach(doc=>sales.push({id:doc.id,...doc.data()}));
+    salesAllLoaded=true;
+    salesExtra=[];
     renderAllStats();
   });
 
