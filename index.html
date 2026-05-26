@@ -1711,13 +1711,18 @@ const productosHtml = ventasSel.map((v, i) => {
 function getOrderCost(order){
   // Si ya tiene costTotal congelado (guardado al momento de entregar), usarlo directamente
   if(typeof order.costTotal === 'number') return order.costTotal;
-  // Calcular en vivo desde los items (usar itemCost guardado en el item, o buscar en inventario)
+  // Calcular desde el costo guardado en cada item (congelado al crear el pedido)
   let cost=0;
   (order.items||[]).forEach(item=>{
-    const unitCost=typeof item.cost==='number'?item.cost:(()=>{
+    // item.cost es el mas confiable (guardado en el momento del pedido)
+    // si no existe (pedidos viejos), buscar en inventario local
+    let unitCost=0;
+    if(typeof item.cost==='number'){
+      unitCost=item.cost;
+    } else {
       const prod=products.find(p=>p.id===item.id||p.name===item.name);
-      return prod?prod.cost:0;
-    })();
+      unitCost=prod?prod.cost:0;
+    }
     cost+=unitCost*(item.qty||1);
   });
   return cost;
@@ -1752,11 +1757,12 @@ async function deliverOrder(orderId){
   for(const item of (order.items||[])){
     const qty=item.qty||1;
     const prod=products.find(p=>p.id===item.id||p.name===item.name);
-    const unitCost=prod?prod.cost:(item.cost||0);
-    const unitPrice=item.price||(prod?prod.price:0);
+    // Priorizar costo/precio guardado en el item al momento del pedido; usar producto en vivo como fallback
+    const unitCost=typeof item.cost==='number'?item.cost:(prod?prod.cost:0);
+    const unitPrice=typeof item.price==='number'?item.price:(prod?prod.price:0);
     costTotal+=unitCost*qty;
 
-    // Descontar stock igual que registerSale
+    // Descontar stock
     if(prod){
       let stockUpdate={};
       if(suc==='exsal'){
@@ -1770,9 +1776,15 @@ async function deliverOrder(orderId){
         if(fromCdb>0)   stockUpdate.stockCdb=firebase.firestore.FieldValue.increment(-fromCdb);
       }
       batch.update(db.collection('productos').doc(prod.id),stockUpdate);
+    } else if(item.id){
+      // Producto no en cache local pero tenemos su id: descontar directo
+      let stockUpdate={};
+      if(suc==='exsal') stockUpdate={stockExsal:firebase.firestore.FieldValue.increment(-qty)};
+      else if(suc==='cdb') stockUpdate={stockCdb:firebase.firestore.FieldValue.increment(-qty)};
+      if(Object.keys(stockUpdate).length) batch.update(db.collection('productos').doc(item.id),stockUpdate);
     }
 
-    // Crear registro en "ventas" igual que registerSale
+    // Crear registro en "ventas" — siempre, aunque el producto no este en cache
     batch.set(db.collection('ventas').doc(),{
       orderNumber:'PED-'+Date.now().toString().slice(-6)+'-'+Math.random().toString(36).slice(-3),
       productName:item.name,
