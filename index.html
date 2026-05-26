@@ -215,8 +215,48 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .fact-sending.show{display:block}
 .emailjs-note{font-size:11px;color:var(--tm);margin-top:10px;text-align:center;line-height:1.5}
 
-@media(max-width:900px){
-  .tabs{flex-wrap:wrap}
+/* ── RESTOCK ── */
+.restock-layout{display:grid;grid-template-columns:420px 1fr;gap:20px;align-items:start}
+@media(max-width:900px){.restock-layout{grid-template-columns:1fr}}
+.restock-product-wrap{display:flex;flex-direction:column;gap:0}
+.restock-product-list{background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rsm);max-height:180px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--b200) transparent}
+.restock-product-list::-webkit-scrollbar{width:4px}
+.restock-product-list::-webkit-scrollbar-thumb{background:var(--b200);border-radius:4px}
+.restock-prod-item{padding:9px 13px;cursor:pointer;font-size:13px;font-weight:500;color:var(--tp);border-bottom:1px solid var(--b100);transition:background var(--tr);display:flex;align-items:center;gap:8px}
+.restock-prod-item:last-child{border:none}
+.restock-prod-item:hover{background:var(--b100)}
+.restock-prod-item.selected{background:linear-gradient(135deg,var(--b50),#dbeafe);color:var(--b600);font-weight:700}
+.restock-empty-msg{padding:16px 13px;font-size:12px;color:var(--tm);text-align:center}
+.restock-selected-pill{display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--b50),#dbeafe);border:1.5px solid var(--b200);border-radius:var(--rp);padding:7px 14px;font-size:13px;font-weight:600;color:var(--b600);margin-top:6px}
+.restock-pill-clear{background:none;border:none;cursor:pointer;color:var(--b300);display:flex;align-items:center;margin-left:auto;font-size:15px;transition:color var(--tr)}
+.restock-pill-clear:hover{color:var(--r600)}
+.restock-info-box{background:var(--b50);border:1px solid var(--b100);border-radius:var(--rmd);padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.restock-info-row{display:flex;justify-content:space-between;align-items:center;font-size:13px}
+.restock-info-label{color:var(--tm);font-weight:500}
+.restock-info-val{font-weight:700;color:var(--tp)}
+.restock-calc-box{background:linear-gradient(135deg,var(--b50),#dbeafe);border:1.5px solid var(--b200);border-radius:var(--rmd);padding:14px 16px;margin:12px 0 10px;display:flex;flex-direction:column;gap:7px}
+.restock-calc-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--b500);display:flex;align-items:center;gap:5px;margin-bottom:4px}
+.restock-calc-row{display:flex;justify-content:space-between;font-size:13px;color:var(--tp)}
+.restock-calc-divider{border-top:1px solid var(--b200);padding-top:7px;font-weight:600}
+.restock-calc-result{background:linear-gradient(135deg,var(--g50),#d1fae5);border:1.5px solid var(--g100);border-radius:var(--rsm);padding:8px 10px;font-weight:700;color:var(--g600);font-size:14px;margin-top:3px}
+/* Historial de restock */
+.restock-hist-card{background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rmd);padding:12px 14px;animation:fadeIn .2s ease;transition:box-shadow var(--tr)}
+.restock-hist-card:hover{box-shadow:0 3px 14px rgba(74,168,232,.13)}
+.rhc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}
+.rhc-name{font-size:14px;font-weight:700;color:var(--tp)}
+.rhc-date{font-size:11px;color:var(--tm);white-space:nowrap}
+.rhc-badges{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.rhc-costs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rhc-cost-box{border-radius:var(--rsm);padding:8px 10px;text-align:center}
+.rhc-cost-old{background:var(--w50);border:1px solid var(--w100)}
+.rhc-cost-new{background:var(--g50);border:1px solid var(--g100)}
+.rhc-cost-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tm);margin-bottom:2px}
+.rhc-cost-val{font-size:16px;font-weight:700}
+.rhc-cost-old .rhc-cost-val{color:var(--w600)}
+.rhc-cost-new .rhc-cost-val{color:var(--g600)}
+
+@media(max-width:900px){.restock-layout{grid-template-columns:1fr}}
+
   .main-grid{grid-template-columns:1fr}
   .stats-row{grid-template-columns:1fr 1fr}
   .stats-row .stat-card:last-child{grid-column:span 2}
@@ -225,8 +265,8 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 }
 
 /* ── PIN OVERLAY ── */
-.pin-overlay{position:fixed;inset:0;z-index:150;background:rgba(15,63,99,.52);backdrop-filter:blur(7px);display:none;align-items:center;justify-content:center;padding:20px}
-.pin-overlay.open{display:flex}
+.pin-overlay{position:fixed;inset:0;z-index:150;background:rgba(15,63,99,.52);backdrop-filter:blur(7px);display:none;padding:20px}
+.pin-overlay.open{display:flex;align-items:center;justify-content:center}
 .pin-card{background:#fff;border-radius:24px;width:100%;max-width:340px;box-shadow:0 20px 60px rgba(15,63,99,.24);overflow:hidden;animation:authIn .3s cubic-bezier(.34,1.56,.64,1)}
 .pin-header{background:linear-gradient(135deg,var(--b400),var(--s400));padding:26px 24px 22px;text-align:center}
 .pin-logo{width:50px;height:50px;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.35);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:24px;color:#fff}
@@ -365,6 +405,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       <button class="tab-btn active" onclick="switchTab('inv-exsal',this)"><i class="ti ti-clipboard-list"></i>EXSAL</button>
       <button class="tab-btn" onclick="switchTab('inv-cdb',this)"><i class="ti ti-clipboard-list"></i>CDB</button>
       <button class="tab-btn" onclick="switchTab('inv-total',this)"><i class="ti ti-layers-intersect"></i>Total</button>
+      <button class="tab-btn" onclick="switchTab('inv-restock',this)"><i class="ti ti-package-import"></i>Restock</button>
     </div>
   </div>
 
@@ -476,6 +517,96 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
         <div class="list-controls"><div class="search-wrap"><i class="ti ti-search"></i><input type="text" id="total-search" placeholder="Buscar producto..." oninput="renderList('total')"></div></div>
         <div class="list-meta"><span class="list-count" id="total-list-count"></span><button class="sort-btn" onclick="toggleSort('total')"><i class="ti ti-arrows-sort"></i><span id="total-sort-label">Más recientes</span></button></div>
         <div class="list-area" id="total-list-area"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ RESTOCK ═══ -->
+  <div class="tab-content" id="tab-inv-restock">
+    <!-- Formulario Restock -->
+    <div class="restock-layout">
+      <div class="panel">
+        <div class="panel-hd"><div class="phd-icon"><i class="ti ti-package-import"></i></div><div><div class="ptitle">Agregar Stock</div><div class="psub">Calcula el costo promedio ponderado</div></div></div>
+        <div class="form-body">
+
+          <!-- Buscador/selector de producto -->
+          <div class="field">
+            <label>Producto</label>
+            <div class="restock-product-wrap">
+              <div class="search-wrap" style="margin-bottom:6px">
+                <i class="ti ti-search"></i>
+                <input type="text" id="restock-search" placeholder="Buscar producto..." oninput="filterRestockProducts()" autocomplete="off">
+              </div>
+              <div class="restock-product-list" id="restock-product-list">
+                <div class="restock-empty-msg">Cargando productos...</div>
+              </div>
+              <input type="hidden" id="restock-pid">
+              <div class="restock-selected-pill" id="restock-selected-pill" style="display:none">
+                <i class="ti ti-box"></i><span id="restock-selected-name"></span>
+                <button onclick="clearRestockProduct()" class="restock-pill-clear"><i class="ti ti-x"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sucursal -->
+          <div class="field" id="restock-suc-field" style="display:none">
+            <label>Sucursal</label>
+            <select id="restock-sucursal" onchange="updateRestockPreview()">
+              <option value="exsal">EXSAL</option>
+              <option value="cdb">CDB</option>
+            </select>
+          </div>
+
+          <!-- Info del producto seleccionado -->
+          <div class="restock-info-box" id="restock-info-box" style="display:none">
+            <div class="restock-info-row"><span class="restock-info-label">Stock actual</span><span class="restock-info-val" id="ri-stock">—</span></div>
+            <div class="restock-info-row"><span class="restock-info-label">Costo actual</span><span class="restock-info-val" id="ri-cost">—</span></div>
+            <div class="restock-info-row"><span class="restock-info-label">Costo total actual</span><span class="restock-info-val" id="ri-total-cost">—</span></div>
+          </div>
+
+          <!-- Datos del paquete -->
+          <div id="restock-pkg-fields" style="display:none">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+              <div class="field">
+                <label>Costo del paquete ($)</label>
+                <input type="number" id="restock-pkg-cost" placeholder="0.00" min="0" step="0.01" oninput="updateRestockPreview()">
+              </div>
+              <div class="field">
+                <label>Unidades del paquete</label>
+                <input type="number" id="restock-pkg-qty" placeholder="0" min="1" step="1" oninput="updateRestockPreview()">
+              </div>
+            </div>
+
+            <!-- Preview del cálculo -->
+            <div class="restock-calc-box" id="restock-calc-box" style="display:none">
+              <div class="restock-calc-title"><i class="ti ti-calculator"></i>Cálculo de costo promedio</div>
+              <div class="restock-calc-row"><span>Costo total actual</span><span id="rc-total-actual">$0.00</span></div>
+              <div class="restock-calc-row"><span>+ Costo del paquete</span><span id="rc-pkg-cost">$0.00</span></div>
+              <div class="restock-calc-row restock-calc-divider"><span>= Gran total</span><span id="rc-gran-total">$0.00</span></div>
+              <div class="restock-calc-row"><span>Stock actual + nuevas unidades</span><span id="rc-total-units">0</span></div>
+              <div class="restock-calc-row restock-calc-result"><span>Nuevo costo promedio</span><span id="rc-new-cost">$0.00</span></div>
+            </div>
+
+            <div class="form-error" id="restock-form-error"></div>
+            <button class="btn-add" id="restock-confirm-btn" onclick="abrirRestockConfirm()" style="display:none"><i class="ti ti-package-import"></i>Confirmar Restock</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Historial de Restock -->
+      <div class="panel">
+        <div class="panel-hd"><div class="phd-icon" style="background:linear-gradient(135deg,var(--g600),#22c55e)"><i class="ti ti-history"></i></div><div><div class="ptitle">Historial de Restock</div><div class="psub">Todos los reabastecimientos realizados</div></div></div>
+        <div class="list-controls">
+          <div class="search-wrap">
+            <i class="ti ti-search"></i>
+            <input type="text" id="restock-hist-search" placeholder="Buscar en historial..." oninput="renderRestockHistory()">
+          </div>
+        </div>
+        <div class="list-meta">
+          <span class="list-count" id="restock-hist-count"></span>
+          <button class="btn-clr" onclick="clearRestockHistory()" style="font-size:11px;padding:4px 12px"><i class="ti ti-trash"></i>Borrar todo</button>
+        </div>
+        <div class="list-area" id="restock-hist-area" style="max-height:520px"></div>
       </div>
     </div>
   </div>
@@ -774,6 +905,39 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
   </div>
 </div>
 
+<!-- MODAL: RESTOCK CONFIRMACIÓN -->
+<div class="overlay" id="restock-confirm-overlay">
+  <div class="modal-box" style="max-width:440px">
+    <div class="pm-header" style="background:linear-gradient(135deg,var(--g600),#22c55e)">
+      <div class="pm-name"><i class="ti ti-package-import" style="margin-right:8px"></i>Confirmar Restock</div>
+      <div class="pm-desc" id="rc-modal-product-name"></div>
+    </div>
+    <div class="pm-body" style="padding:24px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px">
+        <div class="pm-price-card" style="border-color:var(--w100);background:var(--w50)">
+          <div class="pm-price-label" style="color:var(--w600)">Costo anterior</div>
+          <div class="pm-price-val" id="rc-modal-old-cost" style="color:var(--w600)">$0.00</div>
+        </div>
+        <div class="pm-price-card" style="border-color:var(--g100);background:var(--g50)">
+          <div class="pm-price-label" style="color:var(--g600)">Nuevo costo promedio</div>
+          <div class="pm-price-val" id="rc-modal-new-cost" style="color:var(--g600)">$0.00</div>
+        </div>
+      </div>
+      <div class="restock-info-box" style="margin-bottom:18px">
+        <div class="restock-info-row"><span class="restock-info-label">Sucursal</span><span class="restock-info-val" id="rc-modal-suc">—</span></div>
+        <div class="restock-info-row"><span class="restock-info-label">Stock anterior</span><span class="restock-info-val" id="rc-modal-old-stock">—</span></div>
+        <div class="restock-info-row"><span class="restock-info-label">Unidades añadidas</span><span class="restock-info-val" id="rc-modal-added">—</span></div>
+        <div class="restock-info-row"><span class="restock-info-label">Nuevo stock total</span><span class="restock-info-val" id="rc-modal-new-stock" style="font-weight:700;color:var(--g600)">—</span></div>
+        <div class="restock-info-row"><span class="restock-info-label">Costo del paquete</span><span class="restock-info-val" id="rc-modal-pkg-cost">—</span></div>
+      </div>
+      <div class="pm-footer">
+        <button class="btn-secondary" onclick="cerrarRestockConfirm()">Cancelar</button>
+        <button class="btn-save" style="background:linear-gradient(135deg,var(--g600),#22c55e)" onclick="ejecutarRestock()"><i class="ti ti-check"></i>Confirmar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- PIN OVERLAY: ESTADÍSTICAS -->
 <div class="pin-overlay" id="pin-overlay">
   <div class="pin-card">
@@ -809,6 +973,8 @@ let products=[], sales=[], deletedSales=[], orders=[];
 let sortAsc={exsal:false,cdb:false,total:false};
 let activePid=null, activeSucursal=null;
 let unsubProd=null, unsubSales=null, unsubDeleted=null, unsubOrders=null;
+let restockHistory=[], unsubRestock=null;
+let restockPendingData=null;
 
 // ── PIN ESTADÍSTICAS ──
 const STATS_PIN_HASH='5a4b2cdca6b0563f5ffd50bcee78bd2a12e0547d9eeef0a1ea8d6ba6f7ce5094';
@@ -897,7 +1063,7 @@ auth.onAuthStateChanged(user=>{
     startListeners();
   }else{
     overlay.style.display='flex';
-    if(unsubProd)unsubProd();if(unsubSales)unsubSales();if(unsubDeleted)unsubDeleted();if(unsubOrders)unsubOrders();
+    if(unsubProd)unsubProd();if(unsubSales)unsubSales();if(unsubDeleted)unsubDeleted();if(unsubOrders)unsubOrders();if(unsubRestock)unsubRestock();
     products=[];sales=[];deletedSales=[];orders=[];
     renderAllLists();updateAllInvStats();renderAllStats();renderAllDeletedSales();
     document.getElementById('auth-pass').value='';
@@ -914,6 +1080,7 @@ function startListeners(){
     snap.forEach(doc=>products.push({id:doc.id,...doc.data()}));
     renderAllLists();updateAllInvStats();
     setSave('ok','Sincronizado ✓');
+    renderRestockProductList();
     if(activePid&&activeSucursal){
       const ap=products.find(x=>x.id===activePid);
       if(ap) document.getElementById('pm-stock-num').textContent=getStock(ap,activeSucursal);
@@ -934,6 +1101,12 @@ function startListeners(){
     orders=[];snap.forEach(doc=>orders.push({id:doc.id,...doc.data()}));
     renderPedidos();
     renderPedidosKpis();
+  });
+
+  unsubRestock=db.collection("restock-historial").orderBy("timestamp","desc").onSnapshot(snap=>{
+    restockHistory=[];snap.forEach(doc=>restockHistory.push({id:doc.id,...doc.data()}));
+    renderRestockHistory();
+    renderRestockProductList();
   });
 }
 
@@ -1891,6 +2064,223 @@ function renderPedidos(){
   }).join('')}</tbody></table>`;
 }
 
+// ── RESTOCK ──
+function renderRestockProductList(){
+  const q=(document.getElementById('restock-search')||{value:''}).value.toLowerCase().trim();
+  const list=q?products.filter(p=>p.name.toLowerCase().includes(q)):products;
+  const area=document.getElementById('restock-product-list');
+  if(!area)return;
+  const selectedPid=document.getElementById('restock-pid').value;
+  if(!list.length){
+    area.innerHTML=`<div class="restock-empty-msg">${q?'Sin resultados para "'+q+'"':'Sin productos disponibles.'}</div>`;
+    return;
+  }
+  area.innerHTML=list.map(p=>`
+    <div class="restock-prod-item ${p.id===selectedPid?'selected':''}" onclick="selectRestockProduct('${p.id}')">
+      <i class="ti ti-box" style="font-size:13px;color:var(--b300);flex-shrink:0"></i>
+      <span>${esc(p.name)}</span>
+    </div>
+  `).join('');
+}
+
+function filterRestockProducts(){
+  renderRestockProductList();
+}
+
+function selectRestockProduct(pid){
+  const p=products.find(x=>x.id===pid);
+  if(!p)return;
+  document.getElementById('restock-pid').value=pid;
+  document.getElementById('restock-selected-name').textContent=p.name;
+  document.getElementById('restock-selected-pill').style.display='flex';
+  document.getElementById('restock-product-list').style.display='none';
+  document.getElementById('restock-search').style.display='none';
+  document.getElementById('restock-suc-field').style.display='block';
+  document.getElementById('restock-pkg-fields').style.display='block';
+  document.getElementById('restock-info-box').style.display='flex';
+  document.getElementById('restock-form-error').textContent='';
+  updateRestockPreview();
+}
+
+function clearRestockProduct(){
+  document.getElementById('restock-pid').value='';
+  document.getElementById('restock-selected-pill').style.display='none';
+  document.getElementById('restock-product-list').style.display='block';
+  document.getElementById('restock-search').style.display='block';
+  document.getElementById('restock-search').value='';
+  document.getElementById('restock-suc-field').style.display='none';
+  document.getElementById('restock-pkg-fields').style.display='none';
+  document.getElementById('restock-info-box').style.display='none';
+  document.getElementById('restock-calc-box').style.display='none';
+  document.getElementById('restock-confirm-btn').style.display='none';
+  document.getElementById('restock-pkg-cost').value='';
+  document.getElementById('restock-pkg-qty').value='';
+  renderRestockProductList();
+}
+
+function updateRestockPreview(){
+  const pid=document.getElementById('restock-pid').value;
+  const p=products.find(x=>x.id===pid);
+  if(!p)return;
+
+  const suc=document.getElementById('restock-sucursal').value;
+  const stockActual=suc==='exsal'?(p.stockExsal||0):(p.stockCdb||0);
+  const costoActual=p.cost||0;
+  const costoTotalActual=costoActual*stockActual;
+
+  document.getElementById('ri-stock').textContent=stockActual+' uds.';
+  document.getElementById('ri-cost').textContent=fmt(costoActual);
+  document.getElementById('ri-total-cost').textContent=fmt(costoTotalActual);
+
+  const pkgCostVal=document.getElementById('restock-pkg-cost').value;
+  const pkgQtyVal=document.getElementById('restock-pkg-qty').value;
+  const pkgCost=parseFloat(pkgCostVal);
+  const pkgQty=parseInt(pkgQtyVal);
+
+  const calcBox=document.getElementById('restock-calc-box');
+  const confirmBtn=document.getElementById('restock-confirm-btn');
+
+  if(pkgCostVal===''||isNaN(pkgCost)||pkgCost<0||pkgQtyVal===''||isNaN(pkgQty)||pkgQty<1){
+    calcBox.style.display='none';
+    confirmBtn.style.display='none';
+    return;
+  }
+
+  const granTotal=costoTotalActual+pkgCost;
+  const totalUnidades=stockActual+pkgQty;
+  const nuevoCosto=granTotal/totalUnidades;
+
+  document.getElementById('rc-total-actual').textContent=fmt(costoTotalActual);
+  document.getElementById('rc-pkg-cost').textContent=fmt(pkgCost);
+  document.getElementById('rc-gran-total').textContent=fmt(granTotal);
+  document.getElementById('rc-total-units').textContent=totalUnidades+' uds.';
+  document.getElementById('rc-new-cost').textContent=fmt(nuevoCosto);
+
+  calcBox.style.display='flex';
+  calcBox.style.flexDirection='column';
+  confirmBtn.style.display='flex';
+}
+
+function abrirRestockConfirm(){
+  const pid=document.getElementById('restock-pid').value;
+  const p=products.find(x=>x.id===pid);
+  if(!p){document.getElementById('restock-form-error').textContent='Selecciona un producto.';return;}
+  const suc=document.getElementById('restock-sucursal').value;
+  const pkgCost=parseFloat(document.getElementById('restock-pkg-cost').value);
+  const pkgQty=parseInt(document.getElementById('restock-pkg-qty').value);
+  if(isNaN(pkgCost)||pkgCost<0){document.getElementById('restock-form-error').textContent='Ingresa un costo de paquete válido.';return;}
+  if(isNaN(pkgQty)||pkgQty<1){document.getElementById('restock-form-error').textContent='Ingresa una cantidad de unidades válida.';return;}
+
+  const stockActual=suc==='exsal'?(p.stockExsal||0):(p.stockCdb||0);
+  const costoActual=p.cost||0;
+  const costoTotalActual=costoActual*stockActual;
+  const granTotal=costoTotalActual+pkgCost;
+  const totalUnidades=stockActual+pkgQty;
+  const nuevoCosto=granTotal/totalUnidades;
+
+  restockPendingData={pid,p,suc,pkgCost,pkgQty,stockActual,costoActual,nuevoCosto,totalUnidades};
+
+  document.getElementById('rc-modal-product-name').textContent=p.name+' · '+suc.toUpperCase();
+  document.getElementById('rc-modal-old-cost').textContent=fmt(costoActual);
+  document.getElementById('rc-modal-new-cost').textContent=fmt(nuevoCosto);
+  document.getElementById('rc-modal-suc').textContent=suc.toUpperCase();
+  document.getElementById('rc-modal-old-stock').textContent=stockActual+' uds.';
+  document.getElementById('rc-modal-added').textContent='+'+pkgQty+' uds.';
+  document.getElementById('rc-modal-new-stock').textContent=totalUnidades+' uds.';
+  document.getElementById('rc-modal-pkg-cost').textContent=fmt(pkgCost);
+
+  document.getElementById('restock-confirm-overlay').classList.add('open');
+}
+
+function cerrarRestockConfirm(){
+  document.getElementById('restock-confirm-overlay').classList.remove('open');
+  restockPendingData=null;
+}
+
+async function ejecutarRestock(){
+  if(!restockPendingData)return;
+  const{pid,p,suc,pkgCost,pkgQty,stockActual,costoActual,nuevoCosto,totalUnidades}=restockPendingData;
+
+  const updateData={cost:+nuevoCosto.toFixed(4)};
+  if(suc==='exsal') updateData.stockExsal=totalUnidades;
+  else updateData.stockCdb=totalUnidades;
+
+  const histRecord={
+    productId:pid,
+    productName:p.name,
+    sucursal:suc,
+    costoAnterior:+costoActual.toFixed(4),
+    costoNuevo:+nuevoCosto.toFixed(4),
+    stockAnterior:stockActual,
+    unidadesAgregadas:pkgQty,
+    stockNuevo:totalUnidades,
+    costoPaquete:+pkgCost.toFixed(2),
+    timestamp:Date.now(),
+    fecha:new Date().toLocaleDateString('es-SV')
+  };
+
+  try{
+    const batch=db.batch();
+    batch.update(db.collection('productos').doc(pid),updateData);
+    batch.set(db.collection('restock-historial').doc(),histRecord);
+    await batch.commit();
+    cerrarRestockConfirm();
+    clearRestockProduct();
+    showToast('Restock aplicado · '+p.name,'ti-package-import');
+  }catch(e){
+    console.error(e);
+    showToast('Error al aplicar restock','ti-alert-circle');
+  }
+}
+
+function renderRestockHistory(){
+  const q=(document.getElementById('restock-hist-search')||{value:''}).value.toLowerCase().trim();
+  let list=[...restockHistory];
+  if(q) list=list.filter(r=>(r.productName||'').toLowerCase().includes(q)||(r.sucursal||'').toLowerCase().includes(q));
+  const area=document.getElementById('restock-hist-area');
+  const cnt=document.getElementById('restock-hist-count');
+  if(!area)return;
+  cnt.textContent=list.length+' registro'+(list.length!==1?'s':'');
+  if(!list.length){
+    area.innerHTML=`<div class="empty-state"><div class="empty-icon"><i class="ti ti-history"></i></div><p>${q?'Sin resultados':'Sin restocks registrados.'}</p></div>`;
+    return;
+  }
+  const sucClass={exsal:'badge-exsal',cdb:'badge-cdb'};
+  area.innerHTML=list.map(r=>{
+    const diff=r.costoNuevo-r.costoAnterior;
+    const diffSign=diff>=0?'+':'';
+    const diffColor=diff>=0?'var(--g600)':'var(--r600)';
+    return `<div class="restock-hist-card">
+      <div class="rhc-top">
+        <div class="rhc-name">${esc(r.productName||'—')}</div>
+        <div class="rhc-date">${r.fecha||'—'}</div>
+      </div>
+      <div class="rhc-badges">
+        <span class="badge ${sucClass[r.sucursal]||'badge-ok'}">${(r.sucursal||'').toUpperCase()}</span>
+        <span class="badge badge-ok"><i class="ti ti-stack" style="font-size:10px"></i>${r.stockAnterior} → ${r.stockNuevo} uds.</span>
+        <span class="badge" style="background:var(--b50);border:1px solid var(--b100);color:${diffColor}">Δ ${diffSign}${fmt(diff)}</span>
+      </div>
+      <div class="rhc-costs">
+        <div class="rhc-cost-box rhc-cost-old"><div class="rhc-cost-label">Costo anterior</div><div class="rhc-cost-val">${fmt(r.costoAnterior)}</div></div>
+        <div class="rhc-cost-box rhc-cost-new"><div class="rhc-cost-label">Nuevo costo</div><div class="rhc-cost-val">${fmt(r.costoNuevo)}</div></div>
+      </div>
+      <div style="font-size:11px;color:var(--tm);margin-top:8px;display:flex;gap:12px">
+        <span><i class="ti ti-plus" style="font-size:10px"></i> +${r.unidadesAgregadas} uds. · Paquete: ${fmt(r.costoPaquete)}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function clearRestockHistory(){
+  if(!restockHistory.length)return;
+  if(!confirm('¿Eliminar todo el historial de restock? Esta acción no se puede deshacer.'))return;
+  try{
+    const batch=db.batch();
+    restockHistory.forEach(r=>batch.delete(db.collection('restock-historial').doc(r.id)));
+    await batch.commit();
+    showToast('Historial de restock borrado','ti-trash');
+  }catch(e){showToast('Error al borrar historial','ti-alert-circle');}
+}
+
 </script>
-</body>
-</html>
+</body></html>
