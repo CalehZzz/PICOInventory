@@ -127,8 +127,8 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .btn-del-sm:hover{background:var(--r50)!important;color:var(--r600)!important}
 
 /* MODALS */
-.overlay{display:none;position:fixed;inset:0;background:rgba(15,63,99,.4);backdrop-filter:blur(5px);z-index:100;align-items:center;justify-content:center;padding:20px}
-.overlay.open{display:flex}
+.overlay{display:none;position:fixed;inset:0;background:rgba(15,63,99,.4);backdrop-filter:blur(5px);z-index:100;padding:20px}
+.overlay.open{display:flex;align-items:center;justify-content:center}
 .modal-box{background:#fff;border-radius:var(--rlg);width:100%;max-width:460px;box-shadow:0 18px 60px rgba(15,63,99,.22);animation:mIn .22s ease;overflow:hidden}
 @keyframes mIn{from{opacity:0;transform:scale(.95) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
 .pm-header{background:linear-gradient(135deg,var(--b400),var(--s400));padding:22px 24px 20px}
@@ -265,9 +265,9 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 }
 
 /* ── PIN OVERLAY ── */
-.pin-overlay{position:fixed;inset:0;z-index:150;background:rgba(15,63,99,.52);backdrop-filter:blur(7px);display:none;padding:20px}
-.pin-overlay.open{display:flex;align-items:center;justify-content:center}
-.pin-card{background:#fff;border-radius:24px;width:100%;max-width:340px;box-shadow:0 20px 60px rgba(15,63,99,.24);overflow:hidden;animation:authIn .3s cubic-bezier(.34,1.56,.64,1)}
+.pin-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:150;background:rgba(15,63,99,.52);backdrop-filter:blur(7px);padding:20px;display:none}
+.pin-card{background:#fff;border-radius:24px;width:100%;max-width:340px;box-shadow:0 20px 60px rgba(15,63,99,.24);overflow:hidden}
+.pin-overlay.open .pin-card{animation:authIn .3s cubic-bezier(.34,1.56,.64,1)}
 .pin-header{background:linear-gradient(135deg,var(--b400),var(--s400));padding:26px 24px 22px;text-align:center}
 .pin-logo{width:50px;height:50px;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.35);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:24px;color:#fff}
 .pin-title{font-size:18px;font-weight:700;color:#fff;letter-spacing:-.3px}
@@ -939,7 +939,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 </div>
 
 <!-- PIN OVERLAY: ESTADÍSTICAS -->
-<div class="pin-overlay" id="pin-overlay">
+<div class="pin-overlay" id="pin-overlay" style="display:none">
   <div class="pin-card">
     <div class="pin-header">
       <div class="pin-logo"><i class="ti ti-lock-access"></i></div>
@@ -1000,7 +1000,9 @@ async function verifyStatsPin(){
 }
 
 function closePinOverlay(){
-  document.getElementById('pin-overlay').classList.remove('open');
+  const ov=document.getElementById('pin-overlay');
+  ov.style.cssText='display:none;';
+  ov.classList.remove('open');
   ['pin-d1','pin-d2','pin-d3','pin-d4'].forEach(id=>document.getElementById(id).value='');
   const errEl=document.getElementById('pin-error');
   errEl.textContent='';errEl.classList.remove('show');
@@ -1143,6 +1145,7 @@ function switchTab(name,btn){
   if(name.startsWith('stats-')&&!statsUnlocked){
     pendingStatsTab={name,btn};
     const ov=document.getElementById('pin-overlay');
+    ov.style.cssText='display:flex;align-items:center;justify-content:center;position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;background:rgba(15,63,99,.52);backdrop-filter:blur(7px);padding:20px;';
     ov.classList.add('open');
     setTimeout(()=>document.getElementById('pin-d1').focus(),80);
     return;
