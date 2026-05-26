@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+button,input,select,textarea,a,.tab-btn,.btn-add,.btn-auth,.btn-logout,.product-card,.stat-card{touch-action:manipulation}
 :root{
   --b50:#e8f4fd;--b100:#c5e3f9;--b200:#92c9f4;--b300:#5db0ec;--b400:#4aa8e8;--b500:#2196d4;--b600:#1776b0;--b700:#0f5a8a;
   --s400:#30b8e8;
@@ -185,6 +186,11 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .edit-footer{display:flex;gap:10px;justify-content:flex-end;padding:0 24px 20px}
 .btn-save{padding:10px 22px;background:linear-gradient(135deg,var(--b400),var(--s400));color:#fff;border:none;border-radius:var(--rp);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px}
 
+.btn-load-more{background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rp);font-size:13px;font-weight:600;color:var(--b600);padding:8px 22px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;transition:background var(--tr),box-shadow var(--tr);touch-action:manipulation}
+.btn-load-more:hover{background:var(--b100);box-shadow:0 2px 8px rgba(74,168,232,.15)}
+.btn-load-more:disabled{opacity:.5;cursor:not-allowed}
+.load-more-row{text-align:center;padding:14px 0 6px}
+.list-sentinel{height:2px;width:100%}
 .toast{position:fixed;bottom:26px;right:26px;background:var(--b600);color:#fff;padding:11px 20px;border-radius:var(--rp);font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;box-shadow:0 6px 24px rgba(15,63,99,.25);opacity:0;transform:translateY(12px);transition:opacity .25s ease,transform .25s ease;z-index:300;pointer-events:none}
 .toast.show{opacity:1;transform:translateY(0)}
 
@@ -447,7 +453,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
         </div>
       </div>
       <div class="panel">
-        <div class="list-controls"><div class="search-wrap"><i class="ti ti-search"></i><input type="text" id="exsal-search" placeholder="Buscar producto..." oninput="renderList('exsal')"></div></div>
+        <div class="list-controls"><div class="search-wrap"><i class="ti ti-search"></i><input type="text" id="exsal-search" placeholder="Buscar producto..." oninput="searchList('exsal')"></div></div>
         <div class="list-meta"><span class="list-count" id="exsal-list-count"></span><button class="sort-btn" onclick="toggleSort('exsal')"><i class="ti ti-arrows-sort"></i><span id="exsal-sort-label">Más recientes</span></button></div>
         <div class="list-area" id="exsal-list-area"></div>
       </div>
@@ -477,7 +483,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
         </div>
       </div>
       <div class="panel">
-        <div class="list-controls"><div class="search-wrap"><i class="ti ti-search"></i><input type="text" id="cdb-search" placeholder="Buscar producto..." oninput="renderList('cdb')"></div></div>
+        <div class="list-controls"><div class="search-wrap"><i class="ti ti-search"></i><input type="text" id="cdb-search" placeholder="Buscar producto..." oninput="searchList('cdb')"></div></div>
         <div class="list-meta"><span class="list-count" id="cdb-list-count"></span><button class="sort-btn" onclick="toggleSort('cdb')"><i class="ti ti-arrows-sort"></i><span id="cdb-sort-label">Más recientes</span></button></div>
         <div class="list-area" id="cdb-list-area"></div>
       </div>
@@ -514,7 +520,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
         </div>
       </div>
       <div class="panel">
-        <div class="list-controls"><div class="search-wrap"><i class="ti ti-search"></i><input type="text" id="total-search" placeholder="Buscar producto..." oninput="renderList('total')"></div></div>
+        <div class="list-controls"><div class="search-wrap"><i class="ti ti-search"></i><input type="text" id="total-search" placeholder="Buscar producto..." oninput="searchList('total')"></div></div>
         <div class="list-meta"><span class="list-count" id="total-list-count"></span><button class="sort-btn" onclick="toggleSort('total')"><i class="ti ti-arrows-sort"></i><span id="total-sort-label">Más recientes</span></button></div>
         <div class="list-area" id="total-list-area"></div>
       </div>
@@ -976,6 +982,17 @@ let unsubProd=null, unsubSales=null, unsubDeleted=null, unsubOrders=null;
 let restockHistory=[], unsubRestock=null;
 let restockPendingData=null;
 
+// ── PAGINACIÓN ──
+const PROD_PAGE_SIZE=20;
+const SALES_LIMIT=50;
+const ORDERS_LIMIT=30;
+const RESTOCK_LIMIT=25;
+const DELETED_LIMIT=15;
+let prodPage={exsal:1,cdb:1,total:1};
+let salesExtra=[],salesLastVisible=null,salesAllLoaded=false;
+let ordersExtra=[],ordersLastVisible=null,ordersAllLoaded=false;
+let restockExtra=[],restockLastVisible=null,restockAllLoaded=false;
+
 // ── PIN ESTADÍSTICAS ──
 const STATS_PIN_HASH='5a4b2cdca6b0563f5ffd50bcee78bd2a12e0547d9eeef0a1ea8d6ba6f7ce5094';
 let statsUnlocked=false, pendingStatsTab=null;
@@ -1067,6 +1084,10 @@ auth.onAuthStateChanged(user=>{
     overlay.style.display='flex';
     if(unsubProd)unsubProd();if(unsubSales)unsubSales();if(unsubDeleted)unsubDeleted();if(unsubOrders)unsubOrders();if(unsubRestock)unsubRestock();
     products=[];sales=[];deletedSales=[];orders=[];
+    salesExtra=[];ordersExtra=[];restockExtra=[];
+    salesLastVisible=null;ordersLastVisible=null;restockLastVisible=null;
+    salesAllLoaded=false;ordersAllLoaded=false;restockAllLoaded=false;
+    prodPage={exsal:1,cdb:1,total:1};
     renderAllLists();updateAllInvStats();renderAllStats();renderAllDeletedSales();
     document.getElementById('auth-pass').value='';
     const btn=document.getElementById('btn-auth');
@@ -1077,6 +1098,7 @@ auth.onAuthStateChanged(user=>{
 // ── LISTENERS ──
 function startListeners(){
   setSave('saving','Sincronizando...');
+  // Productos: sin límite, necesario para todo el inventario
   unsubProd=db.collection("productos").onSnapshot(snap=>{
     products=[];
     snap.forEach(doc=>products.push({id:doc.id,...doc.data()}));
@@ -1089,26 +1111,46 @@ function startListeners(){
     }
   },()=>setSave('error','Error de conexión'));
 
-  unsubSales=db.collection("ventas").orderBy("timestamp","desc").onSnapshot(snap=>{
-    sales=[];snap.forEach(doc=>sales.push({id:doc.id,...doc.data()}));
+  // Ventas: solo las últimas SALES_LIMIT, el resto se carga bajo demanda
+  unsubSales=db.collection("ventas").orderBy("timestamp","desc").limit(SALES_LIMIT).onSnapshot(snap=>{
+    const fresh=[];
+    snap.forEach(doc=>fresh.push({id:doc.id,...doc.data()}));
+    salesLastVisible=snap.docs[snap.docs.length-1]||null;
+    salesAllLoaded=snap.docs.length<SALES_LIMIT;
+    const freshIds=new Set(fresh.map(s=>s.id));
+    salesExtra=salesExtra.filter(s=>!freshIds.has(s.id));
+    sales=[...fresh,...salesExtra];
     renderAllStats();
   });
 
-  unsubDeleted=db.collection("ventas-eliminadas").orderBy("deletedAt","desc").onSnapshot(snap=>{
+  // Ventas eliminadas: limitado, no necesita tiempo real completo
+  unsubDeleted=db.collection("ventas-eliminadas").orderBy("deletedAt","desc").limit(DELETED_LIMIT).onSnapshot(snap=>{
     deletedSales=[];snap.forEach(doc=>deletedSales.push({id:doc.id,...doc.data()}));
     renderAllDeletedSales();
   });
 
-  unsubOrders=db.collection("pedidos").orderBy("createdAt","desc").onSnapshot(snap=>{
-    orders=[];snap.forEach(doc=>orders.push({id:doc.id,...doc.data()}));
-    renderPedidos();
-    renderPedidosKpis();
+  // Pedidos: solo los últimos ORDERS_LIMIT
+  unsubOrders=db.collection("pedidos").orderBy("createdAt","desc").limit(ORDERS_LIMIT).onSnapshot(snap=>{
+    const fresh=[];
+    snap.forEach(doc=>fresh.push({id:doc.id,...doc.data()}));
+    ordersLastVisible=snap.docs[snap.docs.length-1]||null;
+    ordersAllLoaded=snap.docs.length<ORDERS_LIMIT;
+    const freshIds=new Set(fresh.map(o=>o.id));
+    ordersExtra=ordersExtra.filter(o=>!freshIds.has(o.id));
+    orders=[...fresh,...ordersExtra];
+    renderPedidos();renderPedidosKpis();
   });
 
-  unsubRestock=db.collection("restock-historial").orderBy("timestamp","desc").onSnapshot(snap=>{
-    restockHistory=[];snap.forEach(doc=>restockHistory.push({id:doc.id,...doc.data()}));
-    renderRestockHistory();
-    renderRestockProductList();
+  // Restock historial: solo los últimos RESTOCK_LIMIT
+  unsubRestock=db.collection("restock-historial").orderBy("timestamp","desc").limit(RESTOCK_LIMIT).onSnapshot(snap=>{
+    const fresh=[];
+    snap.forEach(doc=>fresh.push({id:doc.id,...doc.data()}));
+    restockLastVisible=snap.docs[snap.docs.length-1]||null;
+    restockAllLoaded=snap.docs.length<RESTOCK_LIMIT;
+    const freshIds=new Set(fresh.map(r=>r.id));
+    restockExtra=restockExtra.filter(r=>!freshIds.has(r.id));
+    restockHistory=[...fresh,...restockExtra];
+    renderRestockHistory();renderRestockProductList();
   });
 }
 
@@ -1188,8 +1230,11 @@ function updateAllInvStats(){
 // ── LISTAS ──
 function renderAllLists(){renderList('exsal');renderList('cdb');renderList('total');}
 
+function searchList(suc){prodPage[suc]=1;renderList(suc);}
+
 function toggleSort(suc){
   sortAsc[suc]=!sortAsc[suc];
+  prodPage[suc]=1;
   document.getElementById(suc+'-sort-label').textContent=sortAsc[suc]?'Más antiguos':'Más recientes';
   renderList(suc);
 }
@@ -1197,8 +1242,6 @@ function toggleSort(suc){
 function renderList(suc){
   const q=document.getElementById(suc+'-search').value.toLowerCase().trim();
   let list=[...products];
-  // Mostrar todos los productos en EXSAL y CDB (sin filtrar por campo presente)
-  // Los productos con stock 0 aparecen en rojo
 
   list.sort((a,b)=>{
     const sa=getStock(a,suc), sb=getStock(b,suc);
@@ -1215,15 +1258,21 @@ function renderList(suc){
     area.innerHTML=`<div class="empty-state"><div class="empty-icon"><i class="ti ${q?'ti-search-off':'ti-inbox'}"></i></div><p>${q?'Sin resultados':'Sin productos aún.'}</p></div>`;
     return;
   }
-  cnt.textContent=list.length+' producto'+(list.length!==1?'s':'');
-  area.innerHTML=list.map(p=>{
+
+  // Paginación virtual: mostrar solo PROD_PAGE_SIZE * página actual
+  const page=prodPage[suc]||1;
+  const visible=list.slice(0,page*PROD_PAGE_SIZE);
+  const hasMore=visible.length<list.length;
+
+  cnt.textContent=list.length+' producto'+(list.length!==1?'s':'')+(hasMore?' · mostrando '+visible.length:'');
+
+  const cardHtml=visible.map(p=>{
     const stock=getStock(p,suc);
     let sc,sl;
     if(stock===0){sc='badge-empty';sl='Sin stock';}
     else if(stock<=5){sc='badge-low';sl=stock+' bajo';}
     else{sc='badge-ok';sl=stock+' en stock';}
     const cardBg=stock===0?'background:#fff5f5;border-color:var(--r100)':'';
-    // En Total mostrar badges por sucursal
     let sucBadges='';
     if(suc==='total'){
       sucBadges+=`<span class="badge badge-exsal">EXSAL: ${getStock(p,'exsal')}</span>`;
@@ -1235,6 +1284,23 @@ function renderList(suc){
       <div class="card-badges"><span class="badge ${sc}">${sl}</span><span class="badge badge-price">Precio ${fmt(p.price)}</span>${sucBadges}</div>
     </div>`;
   }).join('');
+
+  area.innerHTML=cardHtml+(hasMore?`<div class="list-sentinel" id="${suc}-sentinel"></div>`:'');
+
+  // IntersectionObserver: carga más al llegar al final
+  if(hasMore){
+    const sentinel=document.getElementById(suc+'-sentinel');
+    if(sentinel){
+      const obs=new IntersectionObserver(entries=>{
+        if(entries[0].isIntersecting){
+          obs.disconnect();
+          prodPage[suc]=(prodPage[suc]||1)+1;
+          renderList(suc);
+        }
+      },{root:area,rootMargin:'0px 0px 80px 0px',threshold:0});
+      obs.observe(sentinel);
+    }
+  }
 }
 
 // ── AGREGAR PRODUCTOS ──
