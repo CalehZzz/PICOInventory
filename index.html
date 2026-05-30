@@ -1817,7 +1817,6 @@ async function deleteSale(id){
     showToast('Venta eliminada · stock reintegrado','ti-trash');
   }catch(e){showToast('Error al eliminar','ti-alert-circle');}
 }
-}
 
 async function restoreSale(id){
   try{
@@ -1840,7 +1839,6 @@ async function restoreSale(id){
     await batch.commit();
     showToast('Venta restaurada · stock descontado','ti-restore');
   }catch(e){showToast('Error al restaurar','ti-alert-circle');}
-}
 }
 
 async function clearDeletedSales(suc){
