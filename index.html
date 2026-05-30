@@ -128,9 +128,9 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .btn-del-sm:hover{background:var(--r50)!important;color:var(--r600)!important}
 
 /* MODALS */
-.overlay{display:none;position:fixed;inset:0;background:rgba(15,63,99,.4);backdrop-filter:blur(5px);z-index:100;padding:20px}
-.overlay.open{display:flex;align-items:center;justify-content:center}
-.modal-box{background:#fff;border-radius:var(--rlg);width:100%;max-width:460px;box-shadow:0 18px 60px rgba(15,63,99,.22);animation:mIn .22s ease;overflow:hidden}
+.overlay{display:none;position:fixed;inset:0;background:rgba(15,63,99,.4);backdrop-filter:blur(5px);z-index:100;padding:20px;overflow-y:auto}
+.overlay.open{display:flex;align-items:flex-start;justify-content:center}
+.modal-box{background:#fff;border-radius:var(--rlg);width:100%;max-width:460px;box-shadow:0 18px 60px rgba(15,63,99,.22);animation:mIn .22s ease;overflow:hidden;max-height:calc(100vh - 40px);overflow-y:auto;margin:auto}
 @keyframes mIn{from{opacity:0;transform:scale(.95) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
 .pm-header{background:linear-gradient(135deg,var(--b400),var(--s400));padding:22px 24px 20px}
 .pm-name{font-size:19px;font-weight:700;color:#fff;letter-spacing:-.3px}
@@ -637,7 +637,6 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
         </div>
         <div class="list-meta">
           <span class="list-count" id="restock-hist-count"></span>
-          <button class="btn-clr" onclick="clearRestockHistory()" style="font-size:11px;padding:4px 12px"><i class="ti ti-trash"></i>Borrar todo</button>
         </div>
         <div class="list-area" id="restock-hist-area" style="max-height:520px"></div>
       </div>
@@ -1797,31 +1796,51 @@ function renderDeletedSales(suc){
 
 // ── VENTAS: ELIMINAR / RESTAURAR / LIMPIAR ──
 async function deleteSale(id){
-  if(!confirm('¿Eliminar esta venta?'))return;
+  if(!confirm('¿Eliminar esta venta? El stock del producto será reintegrado.'))return;
   try{
     const doc=await db.collection("ventas").doc(id).get();
     if(!doc.exists){showToast('Venta no encontrada','ti-alert-circle');return;}
-    const data={...doc.data(),deletedAt:Date.now(),deletedDate:new Date().toLocaleDateString('es')};
+    const venta=doc.data();
+    const data={...venta,deletedAt:Date.now(),deletedDate:new Date().toLocaleDateString('es')};
     const batch=db.batch();
     batch.set(db.collection("ventas-eliminadas").doc(id),data);
     batch.delete(db.collection("ventas").doc(id));
+    // Reintegrar stock al producto
+    const suc=venta.sucursal||'exsal';
+    const prod=products.find(p=>p.name===venta.productName);
+    if(prod){
+      const stockField=suc==='cdb'?'stockCdb':'stockExsal';
+      const currentStock=prod[stockField]||0;
+      batch.update(db.collection("productos").doc(prod.id),{[stockField]:currentStock+venta.qty});
+    }
     await batch.commit();
-    showToast('Venta eliminada (restaurable)','ti-trash');
+    showToast('Venta eliminada · stock reintegrado','ti-trash');
   }catch(e){showToast('Error al eliminar','ti-alert-circle');}
+}
 }
 
 async function restoreSale(id){
   try{
     const doc=await db.collection("ventas-eliminadas").doc(id).get();
     if(!doc.exists){showToast('No encontrada','ti-alert-circle');return;}
-    const data={...doc.data()};
-    delete data.deletedAt;delete data.deletedDate;
+    const venta={...doc.data()};
+    delete venta.deletedAt;delete venta.deletedDate;
     const batch=db.batch();
-    batch.set(db.collection("ventas").doc(id),data);
+    batch.set(db.collection("ventas").doc(id),venta);
     batch.delete(db.collection("ventas-eliminadas").doc(id));
+    // Descontar stock nuevamente al restaurar
+    const suc=venta.sucursal||'exsal';
+    const prod=products.find(p=>p.name===venta.productName);
+    if(prod){
+      const stockField=suc==='cdb'?'stockCdb':'stockExsal';
+      const currentStock=prod[stockField]||0;
+      const newStock=Math.max(0,currentStock-venta.qty);
+      batch.update(db.collection("productos").doc(prod.id),{[stockField]:newStock});
+    }
     await batch.commit();
-    showToast('Venta restaurada','ti-restore');
+    showToast('Venta restaurada · stock descontado','ti-restore');
   }catch(e){showToast('Error al restaurar','ti-alert-circle');}
+}
 }
 
 async function clearDeletedSales(suc){
