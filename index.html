@@ -654,7 +654,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Valor inventario EXSAL (precio venta)</div><div class="fin-value fv-green" id="exsal-si-valor-venta-stats">$0.00</div></div>
     </div>
     <div class="sales-wrap">
-      <div class="sales-hd"><div class="shd-title"><i class="ti ti-receipt"></i>Historial de ventas · EXSAL</div><button class="btn-clr" onclick="clearSales('exsal')"><i class="ti ti-trash"></i>Borrar historial</button></div>
+      <div class="sales-hd"><div class="shd-title"><i class="ti ti-receipt"></i>Historial de ventas · EXSAL</div></div>
       <div class="inv-sel-bar" id="exsal-sel-bar">
         <span class="inv-sel-count"><i class="ti ti-checkbox"></i><span id="exsal-sel-count">0</span> seleccionadas</span>
         <button class="btn-inv" onclick="abrirModalFactura('exsal')"><i class="ti ti-file-invoice"></i>Generar Factura</button>
@@ -679,7 +679,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Valor inventario CDB (precio venta)</div><div class="fin-value fv-green" id="cdb-si-valor-venta-stats">$0.00</div></div>
     </div>
     <div class="sales-wrap">
-      <div class="sales-hd"><div class="shd-title"><i class="ti ti-receipt"></i>Historial de ventas · CDB</div><button class="btn-clr" onclick="clearSales('cdb')"><i class="ti ti-trash"></i>Borrar historial</button></div>
+      <div class="sales-hd"><div class="shd-title"><i class="ti ti-receipt"></i>Historial de ventas · CDB</div></div>
       <div class="inv-sel-bar" id="cdb-sel-bar">
         <span class="inv-sel-count"><i class="ti ti-checkbox"></i><span id="cdb-sel-count">0</span> seleccionadas</span>
         <button class="btn-inv" onclick="abrirModalFactura('cdb')"><i class="ti ti-file-invoice"></i>Generar Factura</button>
@@ -2123,7 +2123,8 @@ function renderPedidosKpis(){
   const delivered=orders.filter(o=>o.status==='delivered');
   const pending=orders.filter(o=>o.status==='pending');
   const cancelled=orders.filter(o=>o.status==='cancelled');
-  const ingresos=delivered.reduce((s,o)=>s+(o.total||0),0);
+  // Ingresos: usar totalConDescuento si existe (precio real cobrado), sino total original
+  const ingresos=delivered.reduce((s,o)=>s+(typeof o.totalConDescuento==='number'?o.totalConDescuento:(o.total||0)),0);
   const costos=delivered.reduce((s,o)=>s+getOrderCost(o),0);
   document.getElementById('ped-count-delivered').textContent=delivered.length;
   document.getElementById('ped-count-pending').textContent=pending.length;
@@ -2131,6 +2132,32 @@ function renderPedidosKpis(){
   document.getElementById('ped-total-ingresos').textContent=fmt(ingresos);
   document.getElementById('ped-total-costos').textContent=fmt(costos);
   document.getElementById('ped-total-ganancia').textContent=fmt(ingresos-costos);
+}
+
+// Aplicar / quitar descuento a un pedido pendiente desde la tabla de pedidos
+async function applyOrderDiscount(orderId, selectEl){
+  const discountId=selectEl.value;
+  let update={};
+  if(!discountId){
+    // Quitar descuento
+    update={discountId:null,discountName:null,discountPct:null,totalConDescuento:null};
+  } else {
+    const desc=descuentos.find(d=>d.id===discountId);
+    if(!desc)return;
+    const order=orders.find(o=>o.id===orderId);
+    if(!order)return;
+    const pct=desc.porcentaje;
+    const totalOriginal=order.total||0;
+    const totalConDescuento=+(totalOriginal*(1-pct/100)).toFixed(2);
+    update={discountId,discountName:desc.nombre,discountPct:pct,totalConDescuento};
+  }
+  try{
+    await db.collection('pedidos').doc(orderId).update(update);
+    showToast(discountId?'Descuento aplicado al pedido':'Descuento eliminado','ti-ticket-off');
+  }catch(e){
+    console.error(e);
+    showToast('Error al actualizar descuento','ti-alert-circle');
+  }
 }
 
 // Entregar pedido: descuenta stock + crea registros en "ventas" (igual que registerSale)
@@ -2175,25 +2202,34 @@ async function deliverOrder(orderId){
       if(Object.keys(stockUpdate).length) batch.update(db.collection('productos').doc(item.id),stockUpdate);
     }
 
+    // Calcular total del item aplicando descuento proporcional si existe
+    const discFactor=order.discountPct?((100-order.discountPct)/100):1;
+    const itemTotal=+(unitPrice*qty*discFactor).toFixed(2);
+
     // Crear registro en "ventas" — siempre, aunque el producto no este en cache
     batch.set(db.collection('ventas').doc(),{
       orderNumber:'PED-'+Date.now().toString().slice(-6)+'-'+Math.random().toString(36).slice(-3),
       productName:item.name,
       qty,
       costTotal:+(unitCost*qty).toFixed(2),
-      total:+(unitPrice*qty).toFixed(2),
+      total:itemTotal,
       seller:sellerEmail,
       sucursal:suc,
       date:new Date().toLocaleDateString('es'),
       timestamp:Date.now(),
-      fromOrder:orderId
+      fromOrder:orderId,
+      ...(order.discountPct?{discountName:order.discountName,discountPct:order.discountPct}:{})
     });
   }
+
+  // Total efectivo considerando descuento
+  const totalEfectivo=typeof order.totalConDescuento==='number'?order.totalConDescuento:(order.total||0);
 
   // Actualizar estado del pedido y congelar costTotal
   batch.update(db.collection('pedidos').doc(orderId),{
     status:'delivered',
     costTotal:+costTotal.toFixed(2),
+    totalConDescuento:+totalEfectivo.toFixed(2),
     deliveredAt:Date.now(),
     deliveredBy:sellerEmail
   });
@@ -2251,7 +2287,7 @@ function renderPedidos(){
   const statusIcon={pending:'ti-clock',delivered:'ti-circle-check',cancelled:'ti-circle-x'};
 
   body.innerHTML=`<table class="pedidos-table"><thead><tr>
-    <th>Código</th><th>Cliente</th><th>Productos</th><th>Total</th><th>Ganancia</th><th>Sucursal</th><th>Estado</th><th>Fecha</th><th></th>
+    <th>Código</th><th>Cliente</th><th>Productos</th><th>Total</th><th>Descuento</th><th>Ganancia</th><th>Sucursal</th><th>Estado</th><th>Fecha</th><th></th>
   </tr></thead><tbody>${list.map(o=>{
     const sucRaw=(o.sucursal||'cdb');
     const sucLabel=sucRaw.toUpperCase();
@@ -2259,15 +2295,37 @@ function renderPedidos(){
     const st=o.status||'pending';
     const items=(o.items||[]).map(i=>`<div class="pedido-item-row"><i class="ti ti-point" style="font-size:10px"></i> ${esc(i.name)} ×${i.qty||1} — ${fmt(i.price*(i.qty||1))}</div>`).join('');
     const cost=getOrderCost(o);
-    const ganancia=st==='delivered'?(o.total||0)-cost:null;
+    // Total efectivo: si hay descuento guardado usar totalConDescuento, sino total original
+    const totalEfectivo=typeof o.totalConDescuento==='number'?o.totalConDescuento:(o.total||0);
+    const ganancia=st==='delivered'?totalEfectivo-cost:null;
     const gananciaCell=ganancia!==null?`<span style="color:${ganancia>=0?'var(--g600)':'var(--r600)'}">${fmt(ganancia)}</span>`:`<span style="color:var(--tm);font-size:11px">—</span>`;
     const createdAt=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate().toLocaleDateString('es'):o.createdAt||'—';
     const deliverBtn=st==='pending'?`<button onclick="deliverOrder('${o.id}')" title="Marcar como entregado" style="background:var(--g50);border:1.5px solid var(--g100);color:var(--g600);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:700;display:flex;align-items:center;gap:4px;white-space:nowrap"><i class="ti ti-check"></i>Entregar</button>`:'';
+    // Selector de descuento (solo en pedidos pendientes o para ver el aplicado)
+    const discOpts=descuentos.map(d=>`<option value="${d.id}" data-pct="${d.porcentaje}" ${o.discountId===d.id?'selected':''}>${esc(d.nombre)} (${d.porcentaje}%)</option>`).join('');
+    const selectedPct=o.discountId&&o.discountPct?o.discountPct:0;
+    const totalOriginal=o.total||0;
+    const discountCell=st==='pending'
+      ?`<div style="display:flex;flex-direction:column;gap:4px">
+          <select onchange="applyOrderDiscount('${o.id}',this)" style="background:var(--b50);border:1.5px solid var(--b100);border-radius:7px;padding:4px 8px;font-size:12px;font-family:inherit;color:var(--tp);cursor:pointer;max-width:160px">
+            <option value="" ${!o.discountId?'selected':''}>Sin descuento</option>
+            ${discOpts}
+          </select>
+          ${o.discountId?`<span style="font-size:11px;color:var(--w600);font-weight:700">−${selectedPct}% → ${fmt(totalEfectivo)}</span>`:''}
+        </div>`
+      :o.discountId
+        ?`<span class="badge badge-descuento"><i class="ti ti-ticket-off"></i>${esc(o.discountName||'')} −${selectedPct}%</span>`
+        :`<span style="color:var(--tm);font-size:11px">—</span>`;
     return `<tr>
       <td><span class="pedido-code">${esc(o.code||'—')}</span></td>
       <td><div style="font-weight:600">${esc(o.name||'—')}</div><div style="font-size:11px;color:var(--tm)">${esc(o.email||'')}</div></td>
       <td><div class="pedido-items">${items||'<span style="color:var(--tm);font-size:11px">Sin items</span>'}</div></td>
-      <td style="font-weight:700">${fmt(o.total||0)}</td>
+      <td style="font-weight:700">
+        ${o.discountId&&typeof o.totalConDescuento==='number'
+          ?`<div style="font-size:11px;color:var(--tm);text-decoration:line-through">${fmt(totalOriginal)}</div><div style="color:var(--g600);font-weight:700">${fmt(totalEfectivo)}</div>`
+          :fmt(totalOriginal)}
+      </td>
+      <td>${discountCell}</td>
       <td>${gananciaCell}</td>
       <td><span class="badge ${sucClass}">${sucLabel}</span></td>
       <td><span class="status-badge ${statusClass[st]||'status-pending'}"><i class="ti ${statusIcon[st]||'ti-clock'}"></i>${statusLabel[st]||st}</span></td>
