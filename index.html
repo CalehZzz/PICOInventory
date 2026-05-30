@@ -470,10 +470,31 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
         <div class="form-body">
           <div class="field"><label>Nombre</label><input type="text" id="exsal-f-name" placeholder="Ej. Cable multifilar 1m" maxlength="80" autocomplete="off"></div>
           <div class="field"><label>Descripción</label><textarea id="exsal-f-desc" placeholder="Breve descripción..."></textarea></div>
+          <div class="field">
+            <label><i class="ti ti-photo" style="margin-right:4px;font-size:12px"></i>URL de imagen <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
+            <div style="position:relative">
+              <input type="url" id="exsal-f-imageurl" placeholder="https://ejemplo.com/imagen.jpg" autocomplete="off" oninput="previewImg('exsal')" style="padding-right:38px">
+              <div id="exsal-f-imgpreview" style="display:none;margin-top:6px;border-radius:8px;overflow:hidden;border:1.5px solid var(--b100);background:var(--b50);height:72px;display:none;align-items:center;justify-content:center">
+                <img id="exsal-f-imgthumb" src="" alt="Preview" style="height:70px;width:100%;object-fit:contain">
+              </div>
+            </div>
+          </div>
           <div class="field-row3">
             <div class="field"><label>Costo ($)</label><input type="number" id="exsal-f-cost" placeholder="0.00" min="0" step="0.01"></div>
             <div class="field"><label>Precio ($)</label><input type="number" id="exsal-f-price" placeholder="0.00" min="0" step="0.01"></div>
             <div class="field"><label>Stock</label><input type="number" id="exsal-f-stock" placeholder="0" min="0" step="1"></div>
+          </div>
+          <label class="variant-check-wrap" style="display:flex;align-items:flex-start;gap:10px;background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none">
+            <input type="checkbox" id="exsal-f-variants" style="margin-top:2px;width:15px;height:15px;accent-color:var(--b400);flex-shrink:0;cursor:pointer">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--tp)">Producto con variantes</div>
+              <div style="font-size:11px;color:var(--tm);margin-top:1px">Activa si hay variantes del mismo producto (ej: Resistencia 1k, 2k, 1M…). Comparten imagen base.</div>
+            </div>
+          </label>
+          <div id="exsal-f-variants-wrap" style="display:none;flex-direction:column;gap:8px;background:var(--b50);border:1.5px solid var(--b200);border-radius:var(--rsm);padding:12px 13px">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--b500);margin-bottom:4px"><i class="ti ti-layers-subtract" style="margin-right:4px"></i>Variantes a agregar</div>
+            <div id="exsal-variants-list" style="display:flex;flex-direction:column;gap:6px"></div>
+            <button type="button" onclick="addVariantRow('exsal')" style="background:none;border:1.5px dashed var(--b300);border-radius:var(--rsm);padding:7px;font-size:12px;font-weight:600;color:var(--b500);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;font-family:inherit"><i class="ti ti-plus"></i>Añadir variante</button>
           </div>
           <button class="btn-add" onclick="addProduct('exsal')"><i class="ti ti-plus"></i>Agregar a EXSAL</button>
           <div class="form-error" id="exsal-form-error"></div>
@@ -500,10 +521,31 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
         <div class="form-body">
           <div class="field"><label>Nombre</label><input type="text" id="cdb-f-name" placeholder="Ej. Cable multifilar 1m" maxlength="80" autocomplete="off"></div>
           <div class="field"><label>Descripción</label><textarea id="cdb-f-desc" placeholder="Breve descripción..."></textarea></div>
+          <div class="field">
+            <label><i class="ti ti-photo" style="margin-right:4px;font-size:12px"></i>URL de imagen <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
+            <div style="position:relative">
+              <input type="url" id="cdb-f-imageurl" placeholder="https://ejemplo.com/imagen.jpg" autocomplete="off" oninput="previewImg('cdb')" style="padding-right:38px">
+              <div id="cdb-f-imgpreview" style="display:none;margin-top:6px;border-radius:8px;overflow:hidden;border:1.5px solid var(--b100);background:var(--b50);height:72px;display:none;align-items:center;justify-content:center">
+                <img id="cdb-f-imgthumb" src="" alt="Preview" style="height:70px;width:100%;object-fit:contain">
+              </div>
+            </div>
+          </div>
           <div class="field-row3">
             <div class="field"><label>Costo ($)</label><input type="number" id="cdb-f-cost" placeholder="0.00" min="0" step="0.01"></div>
             <div class="field"><label>Precio ($)</label><input type="number" id="cdb-f-price" placeholder="0.00" min="0" step="0.01"></div>
             <div class="field"><label>Stock</label><input type="number" id="cdb-f-stock" placeholder="0" min="0" step="1"></div>
+          </div>
+          <label class="variant-check-wrap" style="display:flex;align-items:flex-start;gap:10px;background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none">
+            <input type="checkbox" id="cdb-f-variants" style="margin-top:2px;width:15px;height:15px;accent-color:var(--b400);flex-shrink:0;cursor:pointer">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--tp)">Producto con variantes</div>
+              <div style="font-size:11px;color:var(--tm);margin-top:1px">Activa si hay variantes del mismo producto (ej: Resistencia 1k, 2k, 1M…). Comparten imagen base.</div>
+            </div>
+          </label>
+          <div id="cdb-f-variants-wrap" style="display:none;flex-direction:column;gap:8px;background:var(--b50);border:1.5px solid var(--b200);border-radius:var(--rsm);padding:12px 13px">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--b500);margin-bottom:4px"><i class="ti ti-layers-subtract" style="margin-right:4px"></i>Variantes a agregar</div>
+            <div id="cdb-variants-list" style="display:flex;flex-direction:column;gap:6px"></div>
+            <button type="button" onclick="addVariantRow('cdb')" style="background:none;border:1.5px dashed var(--b300);border-radius:var(--rsm);padding:7px;font-size:12px;font-weight:600;color:var(--b500);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;font-family:inherit"><i class="ti ti-plus"></i>Añadir variante</button>
           </div>
           <button class="btn-add" onclick="addProduct('cdb')"><i class="ti ti-plus"></i>Agregar a CDB</button>
           <div class="form-error" id="cdb-form-error"></div>
@@ -537,10 +579,31 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
           </div>
           <div class="field"><label>Nombre</label><input type="text" id="total-f-name" placeholder="Ej. Cable multifilar 1m" maxlength="80" autocomplete="off"></div>
           <div class="field"><label>Descripción</label><textarea id="total-f-desc" placeholder="Breve descripción..."></textarea></div>
+          <div class="field">
+            <label><i class="ti ti-photo" style="margin-right:4px;font-size:12px"></i>URL de imagen <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
+            <div style="position:relative">
+              <input type="url" id="total-f-imageurl" placeholder="https://ejemplo.com/imagen.jpg" autocomplete="off" oninput="previewImg('total')" style="padding-right:38px">
+              <div id="total-f-imgpreview" style="display:none;margin-top:6px;border-radius:8px;overflow:hidden;border:1.5px solid var(--b100);background:var(--b50);height:72px;display:none;align-items:center;justify-content:center">
+                <img id="total-f-imgthumb" src="" alt="Preview" style="height:70px;width:100%;object-fit:contain">
+              </div>
+            </div>
+          </div>
           <div class="field-row3">
             <div class="field"><label>Costo ($)</label><input type="number" id="total-f-cost" placeholder="0.00" min="0" step="0.01"></div>
             <div class="field"><label>Precio ($)</label><input type="number" id="total-f-price" placeholder="0.00" min="0" step="0.01"></div>
             <div class="field"><label>Stock</label><input type="number" id="total-f-stock" placeholder="0" min="0" step="1"></div>
+          </div>
+          <label class="variant-check-wrap" style="display:flex;align-items:flex-start;gap:10px;background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none">
+            <input type="checkbox" id="total-f-variants" style="margin-top:2px;width:15px;height:15px;accent-color:var(--b400);flex-shrink:0;cursor:pointer">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--tp)">Producto con variantes</div>
+              <div style="font-size:11px;color:var(--tm);margin-top:1px">Activa si hay variantes del mismo producto (ej: Resistencia 1k, 2k, 1M…). Comparten imagen base.</div>
+            </div>
+          </label>
+          <div id="total-f-variants-wrap" style="display:none;flex-direction:column;gap:8px;background:var(--b50);border:1.5px solid var(--b200);border-radius:var(--rsm);padding:12px 13px">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--b500);margin-bottom:4px"><i class="ti ti-layers-subtract" style="margin-right:4px"></i>Variantes a agregar</div>
+            <div id="total-variants-list" style="display:flex;flex-direction:column;gap:6px"></div>
+            <button type="button" onclick="addVariantRow('total')" style="background:none;border:1.5px dashed var(--b300);border-radius:var(--rsm);padding:7px;font-size:12px;font-weight:600;color:var(--b500);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;font-family:inherit"><i class="ti ti-plus"></i>Añadir variante</button>
           </div>
           <button class="btn-add" onclick="addProductTotal()"><i class="ti ti-plus"></i>Agregar producto</button>
           <div class="form-error" id="total-form-error"></div>
@@ -926,6 +989,13 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     <div class="edit-body">
       <div class="field"><label>Nombre</label><input type="text" id="edit-name" maxlength="80" autocomplete="off"></div>
       <div class="field"><label>Descripción</label><textarea id="edit-desc" placeholder="Breve descripción..."></textarea></div>
+      <div class="field">
+        <label><i class="ti ti-photo" style="margin-right:4px;font-size:12px"></i>URL de imagen <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
+        <input type="url" id="edit-imageurl" placeholder="https://ejemplo.com/imagen.jpg" autocomplete="off" oninput="previewEditImg()">
+        <div id="edit-imgpreview" style="display:none;margin-top:6px;border-radius:8px;overflow:hidden;border:1.5px solid var(--b100);background:var(--b50);height:72px;align-items:center;justify-content:center">
+          <img id="edit-imgthumb" src="" alt="Preview" style="height:70px;width:100%;object-fit:contain">
+        </div>
+      </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
         <div class="field"><label>Costo ($)</label><input type="number" id="edit-cost" min="0" step="0.01"></div>
         <div class="field"><label>Precio ($)</label><input type="number" id="edit-price" min="0" step="0.01"></div>
@@ -1344,7 +1414,8 @@ function renderList(suc){
       sucBadges+=`<span class="badge badge-cdb">CDB: ${getStock(p,'cdb')}</span>`;
     }
     return `<div class="product-card" onclick="openPM('${p.id}','${suc}')" style="${cardBg}">
-      <div class="card-top"><div style="flex:1"><div class="card-name">${esc(p.name)}</div></div>
+      <div class="card-top">${p.imageUrl?`<img src="${esc(p.imageUrl)}" alt="" style="width:42px;height:42px;object-fit:contain;border-radius:6px;border:1px solid var(--b100);background:var(--b50);flex-shrink:0;margin-right:2px" onerror="this.style.display='none'">`:''}
+      <div style="flex:1"><div class="card-name">${esc(p.name)}</div></div>
       <div class="card-actions"><button class="btn-icon btn-del-sm" onclick="event.stopPropagation();confirmDeleteDirect('${p.id}')"><i class="ti ti-trash"></i></button></div></div>
       <div class="card-badges"><span class="badge ${sc}">${sl}</span><span class="badge badge-price">Precio ${fmt(p.price)}</span>${sucBadges}</div>
     </div>`;
@@ -1368,52 +1439,173 @@ function renderList(suc){
   }
 }
 
+// ── VARIANTES: HELPERS ──
+function previewImg(suc){
+  const url=(document.getElementById(suc+'-f-imageurl')||{value:''}).value.trim();
+  const prev=document.getElementById(suc+'-f-imgpreview');
+  const thumb=document.getElementById(suc+'-f-imgthumb');
+  if(!prev||!thumb)return;
+  if(url){prev.style.display='flex';thumb.src=url;thumb.onerror=()=>{prev.style.display='none';};}
+  else{prev.style.display='none';thumb.src='';}
+}
+function previewEditImg(){
+  const url=(document.getElementById('edit-imageurl')||{value:''}).value.trim();
+  const prev=document.getElementById('edit-imgpreview');
+  const thumb=document.getElementById('edit-imgthumb');
+  if(!prev||!thumb)return;
+  if(url){prev.style.display='flex';thumb.src=url;thumb.onerror=()=>{prev.style.display='none';};}
+  else{prev.style.display='none';thumb.src='';}
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  ['exsal','cdb','total'].forEach(suc=>{
+    const cb=document.getElementById(suc+'-f-variants');
+    const wrap=document.getElementById(suc+'-f-variants-wrap');
+    if(cb&&wrap){
+      cb.addEventListener('change',()=>{
+        wrap.style.display=cb.checked?'flex':'none';
+        if(cb.checked&&document.getElementById(suc+'-variants-list').children.length===0){
+          addVariantRow(suc);
+        }
+      });
+    }
+  });
+});
+
+let variantCounters={exsal:0,cdb:0,total:0};
+function addVariantRow(suc){
+  const list=document.getElementById(suc+'-variants-list');
+  if(!list)return;
+  const idx=variantCounters[suc]++;
+  const row=document.createElement('div');
+  row.id=suc+'-vrow-'+idx;
+  row.style.cssText='display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center';
+  row.innerHTML=`<input type="text" placeholder="Ej. 1k, 10k, 1M…" maxlength="40" autocomplete="off"
+    style="background:var(--wh);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:8px 11px;font-size:13px;font-family:inherit;color:var(--tp);outline:none;width:100%">
+    <button type="button" onclick="removeVariantRow('${suc}','${suc}-vrow-${idx}')"
+      style="width:28px;height:28px;background:var(--r50);border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--r600);flex-shrink:0">
+      <i class="ti ti-x" style="font-size:13px"></i>
+    </button>`;
+  list.appendChild(row);
+  row.querySelector('input').focus();
+}
+function removeVariantRow(suc,rowId){
+  const row=document.getElementById(rowId);
+  if(row)row.remove();
+}
+function getVariantSuffixes(suc){
+  const list=document.getElementById(suc+'-variants-list');
+  if(!list)return[];
+  return [...list.querySelectorAll('input')].map(i=>i.value.trim()).filter(Boolean);
+}
+
 // ── AGREGAR PRODUCTOS ──
 async function addProduct(suc){
   const pre=suc+'-f-';
   const name=document.getElementById(pre+'name').value.trim();
   const desc=document.getElementById(pre+'desc').value.trim();
+  const imageUrl=(document.getElementById(pre+'imageurl')||{value:''}).value.trim();
   const cv=document.getElementById(pre+'cost').value;
   const pv=document.getElementById(pre+'price').value;
   const sv=document.getElementById(pre+'stock').value;
   const err=document.getElementById(suc+'-form-error');
+  const hasVariants=(document.getElementById(pre+'variants')||{checked:false}).checked;
   if(!name){err.textContent='El nombre es obligatorio.';return;}
   const cost=parseFloat(cv);if(cv===''||isNaN(cost)||cost<0){err.textContent='Ingresa un costo válido.';return;}
   const price=parseFloat(pv);if(pv===''||isNaN(price)||price<0){err.textContent='Ingresa un precio válido.';return;}
   const stock=parseInt(sv);if(sv===''||isNaN(stock)||stock<0){err.textContent='Ingresa un stock válido.';return;}
   err.textContent='';
-  const data={name,desc,cost,price,stockExsal:0,stockCdb:0,createdAt:Date.now()};
-  if(suc==='exsal') data.stockExsal=stock;
-  else data.stockCdb=stock;
-  try{
-    await db.collection("productos").add(data);
-    [pre+'name',pre+'desc',pre+'cost',pre+'price',pre+'stock'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById(pre+'name').focus();
-    showToast('Producto agregado a '+suc.toUpperCase(),'ti-circle-check');
-  }catch(e){showToast('Error al guardar','ti-alert-circle');}
+
+  if(hasVariants){
+    // Modo variantes: crear un producto por cada variante
+    const suffixes=getVariantSuffixes(suc);
+    if(!suffixes.length){err.textContent='Agrega al menos una variante o desmarca la casilla.';return;}
+    try{
+      const batch=db.batch();
+      suffixes.forEach(sfx=>{
+        const vname=name+' '+sfx;
+        const data={name:vname,desc,cost,price,stockExsal:0,stockCdb:0,createdAt:Date.now()};
+        if(imageUrl) data.imageUrl=imageUrl;
+        if(suc==='exsal') data.stockExsal=stock;
+        else data.stockCdb=stock;
+        batch.set(db.collection("productos").doc(),data);
+      });
+      await batch.commit();
+      [pre+'name',pre+'desc',pre+'imageurl',pre+'cost',pre+'price',pre+'stock'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+      const cb=document.getElementById(pre+'variants');if(cb)cb.checked=false;
+      const wrap=document.getElementById(pre+'variants-wrap');if(wrap)wrap.style.display='none';
+      const list=document.getElementById(suc+'-variants-list');if(list)list.innerHTML='';
+      variantCounters[suc]=0;
+      previewImg(suc);
+      document.getElementById(pre+'name').focus();
+      showToast(suffixes.length+' variantes de "'+name+'" agregadas','ti-layers-subtract');
+    }catch(e){showToast('Error al guardar','ti-alert-circle');}
+  } else {
+    // Modo normal: un solo producto
+    const data={name,desc,cost,price,stockExsal:0,stockCdb:0,createdAt:Date.now()};
+    if(imageUrl) data.imageUrl=imageUrl;
+    if(suc==='exsal') data.stockExsal=stock;
+    else data.stockCdb=stock;
+    try{
+      await db.collection("productos").add(data);
+      [pre+'name',pre+'desc',pre+'imageurl',pre+'cost',pre+'price',pre+'stock'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+      previewImg(suc);
+      document.getElementById(pre+'name').focus();
+      showToast('Producto agregado a '+suc.toUpperCase(),'ti-circle-check');
+    }catch(e){showToast('Error al guardar','ti-alert-circle');}
+  }
 }
 
 async function addProductTotal(){
   const suc=document.getElementById('total-f-sucursal').value;
   const name=document.getElementById('total-f-name').value.trim();
   const desc=document.getElementById('total-f-desc').value.trim();
+  const imageUrl=(document.getElementById('total-f-imageurl')||{value:''}).value.trim();
   const cv=document.getElementById('total-f-cost').value;
   const pv=document.getElementById('total-f-price').value;
   const sv=document.getElementById('total-f-stock').value;
   const err=document.getElementById('total-form-error');
+  const hasVariants=(document.getElementById('total-f-variants')||{checked:false}).checked;
   if(!name){err.textContent='El nombre es obligatorio.';return;}
   const cost=parseFloat(cv);if(cv===''||isNaN(cost)||cost<0){err.textContent='Ingresa un costo válido.';return;}
   const price=parseFloat(pv);if(pv===''||isNaN(price)||price<0){err.textContent='Ingresa un precio válido.';return;}
   const stock=parseInt(sv);if(sv===''||isNaN(stock)||stock<0){err.textContent='Ingresa un stock válido.';return;}
   err.textContent='';
-  const data={name,desc,cost,price,stockExsal:0,stockCdb:0,createdAt:Date.now()};
-  if(suc==='exsal'){data.stockExsal=stock;}else{data.stockCdb=stock;}
-  try{
-    await db.collection("productos").add(data);
-    ['total-f-name','total-f-desc','total-f-cost','total-f-price','total-f-stock'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('total-f-name').focus();
-    showToast('Producto agregado a '+suc.toUpperCase(),'ti-circle-check');
-  }catch(e){showToast('Error al guardar','ti-alert-circle');}
+
+  if(hasVariants){
+    const suffixes=getVariantSuffixes('total');
+    if(!suffixes.length){err.textContent='Agrega al menos una variante o desmarca la casilla.';return;}
+    try{
+      const batch=db.batch();
+      suffixes.forEach(sfx=>{
+        const vname=name+' '+sfx;
+        const data={name:vname,desc,cost,price,stockExsal:0,stockCdb:0,createdAt:Date.now()};
+        if(imageUrl) data.imageUrl=imageUrl;
+        if(suc==='exsal'){data.stockExsal=stock;}else{data.stockCdb=stock;}
+        batch.set(db.collection("productos").doc(),data);
+      });
+      await batch.commit();
+      ['total-f-name','total-f-desc','total-f-imageurl','total-f-cost','total-f-price','total-f-stock'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+      const cb=document.getElementById('total-f-variants');if(cb)cb.checked=false;
+      const wrap=document.getElementById('total-f-variants-wrap');if(wrap)wrap.style.display='none';
+      const list=document.getElementById('total-variants-list');if(list)list.innerHTML='';
+      variantCounters['total']=0;
+      previewImg('total');
+      document.getElementById('total-f-name').focus();
+      showToast(suffixes.length+' variantes de "'+name+'" agregadas','ti-layers-subtract');
+    }catch(e){showToast('Error al guardar','ti-alert-circle');}
+  } else {
+    const data={name,desc,cost,price,stockExsal:0,stockCdb:0,createdAt:Date.now()};
+    if(imageUrl) data.imageUrl=imageUrl;
+    if(suc==='exsal'){data.stockExsal=stock;}else{data.stockCdb=stock;}
+    try{
+      await db.collection("productos").add(data);
+      ['total-f-name','total-f-desc','total-f-imageurl','total-f-cost','total-f-price','total-f-stock'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+      previewImg('total');
+      document.getElementById('total-f-name').focus();
+      showToast('Producto agregado a '+suc.toUpperCase(),'ti-circle-check');
+    }catch(e){showToast('Error al guardar','ti-alert-circle');}
+  }
 }
 
 // ── ELIMINAR PRODUCTO ──
@@ -1445,6 +1637,17 @@ function openPM(id,suc){
   document.getElementById('pm-confirm-qty').textContent=0;
   document.getElementById('pm-sell-label-mini').style.display='none';
   document.getElementById('pm-sale-total-wrap').style.display='none';
+  // Imagen del producto en el modal
+  let imgEl=document.getElementById('pm-product-img');
+  if(!imgEl){
+    imgEl=document.createElement('img');imgEl.id='pm-product-img';
+    imgEl.style.cssText='width:100%;max-height:140px;object-fit:contain;border-radius:10px;border:1.5px solid var(--b100);background:var(--b50);display:block;margin-bottom:14px';
+    imgEl.onerror=()=>{imgEl.style.display='none';};
+    const pmBody=document.querySelector('#pm-overlay .pm-body');
+    pmBody.insertBefore(imgEl,pmBody.firstChild);
+  }
+  if(p.imageUrl){imgEl.src=p.imageUrl;imgEl.style.display='block';}
+  else{imgEl.style.display='none';}
   // Reset discount
   const dsel=document.getElementById('pm-discount-select');
   if(dsel) dsel.value='';
@@ -1575,17 +1778,24 @@ function openEditModal(){
   const p=products.find(x=>x.id===activePid);if(!p)return;
   document.getElementById('edit-name').value=p.name;
   document.getElementById('edit-desc').value=p.desc||'';
+  document.getElementById('edit-imageurl').value=p.imageUrl||'';
   document.getElementById('edit-cost').value=p.cost;
   document.getElementById('edit-price').value=p.price;
   document.getElementById('edit-stock-exsal').value=getStock(p,'exsal');
   document.getElementById('edit-stock-cdb').value=getStock(p,'cdb');
   document.getElementById('edit-error').textContent='';
+  // Mostrar preview si hay imagen
+  const prev=document.getElementById('edit-imgpreview');
+  const thumb=document.getElementById('edit-imgthumb');
+  if(p.imageUrl){prev.style.display='flex';thumb.src=p.imageUrl;thumb.onerror=()=>{prev.style.display='none';};}
+  else{prev.style.display='none';if(thumb)thumb.src='';}
   document.getElementById('edit-overlay').classList.add('open');
 }
 function closeEditModal(){document.getElementById('edit-overlay').classList.remove('open');}
 async function saveEdit(){
   const name=document.getElementById('edit-name').value.trim();
   const desc=document.getElementById('edit-desc').value.trim();
+  const imageUrl=document.getElementById('edit-imageurl').value.trim();
   const cost=parseFloat(document.getElementById('edit-cost').value);
   const price=parseFloat(document.getElementById('edit-price').value);
   const stockExsal=parseInt(document.getElementById('edit-stock-exsal').value);
@@ -1597,8 +1807,11 @@ async function saveEdit(){
   if(isNaN(stockExsal)||stockExsal<0){err.textContent='Stock EXSAL inválido.';return;}
   if(isNaN(stockCdb)||stockCdb<0){err.textContent='Stock CDB inválido.';return;}
   err.textContent='';
+  const updateData={name,desc,cost,price,stockExsal,stockCdb};
+  if(imageUrl) updateData.imageUrl=imageUrl;
+  else updateData.imageUrl=firebase.firestore.FieldValue.delete();
   try{
-    await db.collection("productos").doc(activePid).update({name,desc,cost,price,stockExsal,stockCdb});
+    await db.collection("productos").doc(activePid).update(updateData);
     closeEditModal();
     document.getElementById('pm-name').textContent=name;
     document.getElementById('pm-desc').textContent=desc;
