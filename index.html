@@ -270,6 +270,32 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
   .header{flex-direction:column;gap:10px;align-items:flex-start}
 }
 
+/* ── DESCUENTOS ── */
+.descuentos-layout{display:grid;grid-template-columns:360px 1fr;gap:20px;align-items:start}
+@media(max-width:900px){.descuentos-layout{grid-template-columns:1fr}}
+.desc-card{background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rmd);padding:13px 15px;display:flex;align-items:center;justify-content:space-between;gap:10px;animation:fadeIn .22s ease;transition:border-color var(--tr),box-shadow var(--tr)}
+.desc-card:hover{border-color:var(--b300);box-shadow:0 3px 14px rgba(74,168,232,.13)}
+.desc-card-info{flex:1;min-width:0}
+.desc-card-name{font-size:14px;font-weight:700;color:var(--tp)}
+.desc-card-pct{font-size:22px;font-weight:700;color:var(--b600);margin-top:2px;letter-spacing:-.5px}
+.desc-card-actions{display:flex;gap:5px;flex-shrink:0}
+.badge-desc{background:linear-gradient(135deg,var(--b50),#dbeafe);color:var(--b600);border:1px solid var(--b200)}
+.badge-nodesc{background:var(--g50);color:var(--g600);border:1px solid var(--g100)}
+
+/* Selector de descuento en modal de venta */
+.pm-discount-section{background:var(--b50);border:1px solid var(--b100);border-radius:var(--rmd);padding:13px 16px;margin-bottom:12px}
+.pm-discount-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tm);margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.pm-discount-select{width:100%;background:#fff;border:1.5px solid var(--b100);border-radius:var(--rsm);padding:9px 13px;font-size:13px;font-family:inherit;color:var(--tp);outline:none;cursor:pointer;transition:border-color var(--tr)}
+.pm-discount-select:focus{border-color:var(--b400);box-shadow:0 0 0 3px rgba(74,168,232,.13)}
+.pm-discount-preview{margin-top:8px;background:linear-gradient(135deg,var(--w50),#fef3c7);border:1.5px solid var(--w100);border-radius:var(--rsm);padding:8px 12px;display:none}
+.pm-discount-preview.show{display:flex;align-items:center;justify-content:space-between}
+.pm-discount-orig{font-size:12px;color:var(--tm);text-decoration:line-through}
+.pm-discount-final{font-size:16px;font-weight:700;color:var(--w600)}
+.pm-discount-badge{font-size:11px;font-weight:700;background:var(--w600);color:#fff;padding:2px 8px;border-radius:var(--rp)}
+
+/* Columna descuento en tabla de ventas */
+.badge-descuento{background:var(--w50);color:var(--w600);border:1px solid var(--w100)}
+
 /* ── PIN OVERLAY ── */
 .pin-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:150;background:rgba(15,63,99,.52);backdrop-filter:blur(7px);padding:20px;display:none}
 .pin-card{background:#fff;border-radius:24px;width:100%;max-width:340px;box-shadow:0 20px 60px rgba(15,63,99,.24);overflow:hidden}
@@ -412,6 +438,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       <button class="tab-btn" onclick="switchTab('inv-cdb',this)"><i class="ti ti-clipboard-list"></i>CDB</button>
       <button class="tab-btn" onclick="switchTab('inv-total',this)"><i class="ti ti-layers-intersect"></i>Total</button>
       <button class="tab-btn" onclick="switchTab('inv-restock',this)"><i class="ti ti-package-import"></i>Restock</button>
+      <button class="tab-btn" onclick="switchTab('inv-descuentos',this)"><i class="ti ti-ticket-off"></i>Descuentos</button>
     </div>
   </div>
 
@@ -806,6 +833,25 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     </div>
   </div>
 
+  <!-- ═══ DESCUENTOS ═══ -->
+  <div class="tab-content" id="tab-inv-descuentos">
+    <div class="descuentos-layout">
+      <div class="panel">
+        <div class="panel-hd"><div class="phd-icon" style="background:linear-gradient(135deg,var(--w600),#f59e0b)"><i class="ti ti-ticket-off"></i></div><div><div class="ptitle">Crear descuento</div><div class="psub">Define un porcentaje de descuento</div></div></div>
+        <div class="form-body">
+          <div class="field"><label>Nombre del descuento</label><input type="text" id="desc-f-name" placeholder="Ej. Descuento empleado, Promo 10%" maxlength="60" autocomplete="off"></div>
+          <div class="field"><label>Porcentaje (%)</label><input type="number" id="desc-f-pct" placeholder="Ej. 10" min="1" max="99" step="1"></div>
+          <button class="btn-add" style="background:linear-gradient(135deg,var(--w600),#f59e0b);box-shadow:0 4px 14px rgba(181,106,0,.3)" onclick="addDescuento()"><i class="ti ti-plus"></i>Agregar descuento</button>
+          <div class="form-error" id="desc-form-error"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="list-meta" style="padding:13px 15px 10px"><span class="list-count" id="desc-list-count"></span></div>
+        <div class="list-area" id="desc-list-area" style="max-height:400px"></div>
+      </div>
+    </div>
+  </div>
+
 </div><!-- /.app -->
 
 <!-- MODAL: PRODUCTO -->
@@ -829,7 +875,21 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
         </div>
         <div id="pm-sale-total-wrap" style="display:none;text-align:center;margin-top:10px;background:var(--g50);border:1.5px solid var(--g100);border-radius:var(--rmd);padding:10px 16px">
           <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--g600);margin-bottom:2px">Total de venta</div>
+          <div id="pm-sale-total-orig" style="font-size:13px;color:var(--tm);text-decoration:line-through;display:none"></div>
           <div id="pm-sale-total-val" style="font-size:22px;font-weight:700;color:var(--g600)">$0.00</div>
+        </div>
+      </div>
+      <div class="pm-discount-section">
+        <div class="pm-discount-label"><i class="ti ti-ticket-off"></i>Descuento</div>
+        <select class="pm-discount-select" id="pm-discount-select" onchange="onDiscountChange()">
+          <option value="">Sin descuento</option>
+        </select>
+        <div class="pm-discount-preview" id="pm-discount-preview">
+          <div>
+            <div class="pm-discount-orig" id="pm-discount-orig-val">$0.00</div>
+            <div class="pm-discount-final" id="pm-discount-final-val">$0.00</div>
+          </div>
+          <span class="pm-discount-badge" id="pm-discount-badge-txt">-0%</span>
         </div>
       </div>
       <div class="pm-sell-section">
@@ -975,11 +1035,11 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore(), auth=firebase.auth();
 
 // ── ESTADO ──
-let products=[], sales=[], deletedSales=[], orders=[];
+let products=[], sales=[], deletedSales=[], orders=[], descuentos=[];
 let sortAsc={exsal:false,cdb:false,total:false};
 let activePid=null, activeSucursal=null;
-let unsubProd=null, unsubSales=null, unsubDeleted=null, unsubOrders=null;
-let restockHistory=[], unsubRestock=null;
+let unsubProd=null, unsubSales=null, unsubDeleted=null, unsubOrders=null, unsubRestock=null, unsubDescuentos=null;
+let restockHistory=[];
 let restockPendingData=null;
 
 // ── PAGINACIÓN ──
@@ -1083,8 +1143,8 @@ auth.onAuthStateChanged(user=>{
     startListeners();
   }else{
     overlay.style.display='flex';
-    if(unsubProd)unsubProd();if(unsubSales)unsubSales();if(unsubDeleted)unsubDeleted();if(unsubOrders)unsubOrders();if(unsubRestock)unsubRestock();
-    products=[];sales=[];deletedSales=[];orders=[];
+    if(unsubProd)unsubProd();if(unsubSales)unsubSales();if(unsubDeleted)unsubDeleted();if(unsubOrders)unsubOrders();if(unsubRestock)unsubRestock();if(unsubDescuentos)unsubDescuentos();
+    products=[];sales=[];deletedSales=[];orders=[];descuentos=[];
     salesExtra=[];ordersExtra=[];restockExtra=[];
     salesLastVisible=null;ordersLastVisible=null;restockLastVisible=null;
     salesAllLoaded=false;ordersAllLoaded=false;restockAllLoaded=false;
@@ -1149,6 +1209,14 @@ function startListeners(){
     restockExtra=restockExtra.filter(r=>!freshIds.has(r.id));
     restockHistory=[...fresh,...restockExtra];
     renderRestockHistory();renderRestockProductList();
+  });
+
+  // Descuentos: colección pequeña, sin límite
+  unsubDescuentos=db.collection("descuentos").orderBy("createdAt","asc").onSnapshot(snap=>{
+    descuentos=[];
+    snap.forEach(doc=>descuentos.push({id:doc.id,...doc.data()}));
+    renderDescuentos();
+    populateDiscountSelect();
   });
 }
 
@@ -1378,6 +1446,11 @@ function openPM(id,suc){
   document.getElementById('pm-confirm-qty').textContent=0;
   document.getElementById('pm-sell-label-mini').style.display='none';
   document.getElementById('pm-sale-total-wrap').style.display='none';
+  // Reset discount
+  const dsel=document.getElementById('pm-discount-select');
+  if(dsel) dsel.value='';
+  const dprev=document.getElementById('pm-discount-preview');
+  if(dprev) dprev.classList.remove('show');
   document.getElementById('pm-overlay').classList.add('open');
 }
 function closePM(){document.getElementById('pm-overlay').classList.remove('open');activePid=null;activeSucursal=null;}
@@ -1392,8 +1465,48 @@ function changeSellQty(delta){
   document.getElementById('pm-confirm-qty').textContent=newQty;
   document.getElementById('pm-sell-label-mini').style.display=newQty>0?'inline':'none';
   const tw=document.getElementById('pm-sale-total-wrap');
-  if(newQty>0){document.getElementById('pm-sale-total-val').textContent=fmt(p.price*newQty);tw.style.display='block';}
-  else tw.style.display='none';
+  if(newQty>0){
+    const discPct=getSelectedDiscountPct();
+    const origTotal=p.price*newQty;
+    const finalTotal=origTotal*(1-discPct/100);
+    const origEl=document.getElementById('pm-sale-total-orig');
+    if(discPct>0){origEl.textContent=fmt(origTotal);origEl.style.display='block';}
+    else origEl.style.display='none';
+    document.getElementById('pm-sale-total-val').textContent=fmt(finalTotal);
+    tw.style.display='block';
+  } else tw.style.display='none';
+}
+
+function getSelectedDiscountPct(){
+  const sel=document.getElementById('pm-discount-select');
+  if(!sel||!sel.value) return 0;
+  const d=descuentos.find(x=>x.id===sel.value);
+  return d?d.porcentaje:0;
+}
+
+function onDiscountChange(){
+  const p=products.find(x=>x.id===activePid);if(!p)return;
+  const pct=getSelectedDiscountPct();
+  const sel=document.getElementById('pm-discount-select');
+  const prev=document.getElementById('pm-discount-preview');
+  if(pct>0&&sel.value){
+    document.getElementById('pm-discount-orig-val').textContent=fmt(p.price);
+    document.getElementById('pm-discount-final-val').textContent=fmt(p.price*(1-pct/100));
+    document.getElementById('pm-discount-badge-txt').textContent='-'+pct+'%';
+    prev.classList.add('show');
+  } else {
+    prev.classList.remove('show');
+  }
+  // Refresh total with discount
+  const qty=parseInt(document.getElementById('pm-sell-qty-display').textContent)||0;
+  if(qty>0){
+    const origTotal=p.price*qty;
+    const finalTotal=origTotal*(1-pct/100);
+    const origEl=document.getElementById('pm-sale-total-orig');
+    if(pct>0){origEl.textContent=fmt(origTotal);origEl.style.display='block';}
+    else origEl.style.display='none';
+    document.getElementById('pm-sale-total-val').textContent=fmt(finalTotal);
+  }
 }
 
 async function registerSale(){
@@ -1404,13 +1517,21 @@ async function registerSale(){
   if(isNaN(qty)||qty<=0){showToast('Selecciona al menos 1 unidad','ti-alert-circle');return;}
   if(qty>getStock(p,activeSucursal)){showToast('Stock insuficiente','ti-alert-circle');return;}
 
+  // Discount
+  const discPct=getSelectedDiscountPct();
+  const selDisc=document.getElementById('pm-discount-select');
+  const discId=selDisc&&selDisc.value?selDisc.value:'';
+  const discObj=discId?descuentos.find(x=>x.id===discId):null;
+  const discNombre=discObj?discObj.nombre:'';
+  const totalSinDescuento=+(p.price*qty).toFixed(2);
+  const totalConDescuento=+(totalSinDescuento*(1-discPct/100)).toFixed(2);
+
   let stockUpdate={};
   if(activeSucursal==='exsal'){
     stockUpdate={stockExsal:firebase.firestore.FieldValue.increment(-qty)};
   } else if(activeSucursal==='cdb'){
     stockUpdate={stockCdb:firebase.firestore.FieldValue.increment(-qty)};
   } else {
-    // Total: descontar de EXSAL primero, luego CDB
     const fromExsal=Math.min(qty,getStock(p,'exsal'));
     const fromCdb=qty-fromExsal;
     if(fromExsal>0) stockUpdate.stockExsal=firebase.firestore.FieldValue.increment(-fromExsal);
@@ -1420,21 +1541,30 @@ async function registerSale(){
   try{
     const batch=db.batch();
     batch.update(db.collection("productos").doc(p.id),stockUpdate);
-    batch.set(db.collection("ventas").doc(),{
+    const saleData={
       orderNumber:'ORD-'+Date.now().toString().slice(-6),productName:p.name,qty,
       costTotal:+(p.cost*qty).toFixed(2),
-      total:+(p.price*qty).toFixed(2),
+      total:totalConDescuento,
       seller:sellerEmail,
       sucursal:activeSucursal==='total'?'total':activeSucursal,
       date:new Date().toLocaleDateString('es'),
       timestamp:Date.now()
-    });
+    };
+    if(discPct>0){
+      saleData.descuentoAplicado={nombre:discNombre,porcentaje:discPct,totalSinDescuento};
+    }
+    batch.set(db.collection("ventas").doc(),saleData);
     await batch.commit();
     document.getElementById('pm-sell-qty-display').textContent=0;
     document.getElementById('pm-confirm-qty').textContent=0;
     document.getElementById('pm-sell-label-mini').style.display='none';
     document.getElementById('pm-sale-total-wrap').style.display='none';
-    showToast(`Venta registrada · ${sellerEmail.split('@')[0]}`,'ti-shopping-cart');
+    const dsel=document.getElementById('pm-discount-select');
+    if(dsel) dsel.value='';
+    const dprev=document.getElementById('pm-discount-preview');
+    if(dprev) dprev.classList.remove('show');
+    const discMsg=discPct>0?` · -${discPct}% ${discNombre}`:'';
+    showToast(`Venta registrada · ${sellerEmail.split('@')[0]}${discMsg}`,'ti-shopping-cart');
   }catch(e){showToast('Error en la venta','ti-alert-circle');}
 }
 
@@ -1612,7 +1742,7 @@ function renderStats(suc){
   const showSuc=suc==='total';
   body.innerHTML=`<table class="sales-table"><thead><tr>
     <th style="width:32px"></th>
-    <th>Orden</th><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Ingreso</th><th>Ganancia</th><th>Vendedor</th>
+    <th>Orden</th><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Ingreso</th><th>Desc.</th><th>Ganancia</th><th>Vendedor</th>
     ${showSuc?'<th>Sucursal</th>':''}<th></th>
   </tr></thead><tbody>${
     filtered.map((v,i)=>{
@@ -1622,11 +1752,15 @@ function renderStats(suc){
       const sucCell=showSuc?`<td><span class="badge ${sc==='cdb'?'badge-cdb':'badge-exsal'}">${sc.toUpperCase()}</span></td>`:'';
       const orderNum=v.orderNumber||('ORD-'+(String(v.timestamp||Date.now()).slice(-6)));
       const checked=selectedSales[suc].has(v.id)?'checked':'';
+      const discCell=v.descuentoAplicado
+        ?`<td><span class="badge badge-descuento">-${v.descuentoAplicado.porcentaje}%</span></td>`
+        :`<td><span style="font-size:11px;color:var(--tm)">—</span></td>`;
       return `<tr class="sale-row-select">
         <td style="padding:8px 6px 8px 14px"><input type="checkbox" class="sale-cb" ${checked} onchange="toggleSaleSelect('${v.id}','${suc}',this)" onclick="event.stopPropagation()"></td>
         <td style="font-size:11px;color:var(--tm);font-weight:700">${orderNum}</td>
         <td>${v.date}</td><td>${esc(v.productName)}</td><td>${v.qty}</td>
         <td>${fmt(v.total)}</td>
+        ${discCell}
         <td style="color:${g>=0?'var(--g600)':'var(--r600)'}">${fmt(g)}</td>
         <td style="font-size:12px;color:var(--ts)">${esc(seller)}</td>
         ${sucCell}
@@ -2337,8 +2471,63 @@ function renderRestockHistory(){
     </div>`;
   }).join('');
 }
+// ── DESCUENTOS ──
+async function addDescuento(){
+  const name=document.getElementById('desc-f-name').value.trim();
+  const pctStr=document.getElementById('desc-f-pct').value;
+  const err=document.getElementById('desc-form-error');
+  if(!name){err.textContent='El nombre es obligatorio.';return;}
+  const pct=parseInt(pctStr);
+  if(pctStr===''||isNaN(pct)||pct<1||pct>99){err.textContent='Ingresa un porcentaje entre 1 y 99.';return;}
+  err.textContent='';
+  try{
+    await db.collection('descuentos').add({nombre:name,porcentaje:pct,createdAt:Date.now()});
+    document.getElementById('desc-f-name').value='';
+    document.getElementById('desc-f-pct').value='';
+    showToast('Descuento "'+name+'" creado','ti-ticket-off');
+  }catch(e){err.textContent='Error al guardar el descuento.';}
+}
 
-async function clearRestockHistory(){
+async function deleteDescuento(id){
+  if(!confirm('¿Eliminar este descuento?'))return;
+  try{
+    await db.collection('descuentos').doc(id).delete();
+    showToast('Descuento eliminado','ti-trash');
+  }catch(e){showToast('Error al eliminar','ti-alert-circle');}
+}
+
+function renderDescuentos(){
+  const area=document.getElementById('desc-list-area');
+  const cnt=document.getElementById('desc-list-count');
+  if(!area)return;
+  cnt.textContent=descuentos.length+' descuento'+(descuentos.length!==1?'s':'');
+  if(!descuentos.length){
+    area.innerHTML=`<div class="empty-state"><div class="empty-icon"><i class="ti ti-ticket-off"></i></div><p>No hay descuentos creados aún.</p></div>`;
+    return;
+  }
+  area.innerHTML=descuentos.map(d=>`
+    <div class="desc-card">
+      <div class="desc-card-info">
+        <div class="desc-card-name">${esc(d.nombre)}</div>
+        <div class="desc-card-pct">${d.porcentaje}% <span style="font-size:13px;font-weight:500;color:var(--tm)">de descuento</span></div>
+      </div>
+      <div class="desc-card-actions">
+        <button class="btn-icon btn-del-sm" onclick="deleteDescuento('${d.id}')"><i class="ti ti-trash"></i></button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function populateDiscountSelect(){
+  const sel=document.getElementById('pm-discount-select');
+  if(!sel)return;
+  const currentVal=sel.value;
+  sel.innerHTML='<option value="">Sin descuento</option>'+
+    descuentos.map(d=>`<option value="${d.id}">${esc(d.nombre)} (${d.porcentaje}%)</option>`).join('');
+  if(currentVal) sel.value=currentVal;
+}
+
+
   if(!restockHistory.length)return;
   if(!confirm('¿Eliminar todo el historial de restock? Esta acción no se puede deshacer.'))return;
   try{
