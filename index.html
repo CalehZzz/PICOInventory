@@ -2528,6 +2528,7 @@ function populateDiscountSelect(){
 }
 
 
+async function clearRestockHistory(){
   if(!restockHistory.length)return;
   if(!confirm('¿Eliminar todo el historial de restock? Esta acción no se puede deshacer.'))return;
   try{
