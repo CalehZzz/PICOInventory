@@ -160,6 +160,37 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .del-actions{display:flex;gap:10px;justify-content:flex-end}
 .btn-confirm-del{padding:10px 20px;background:var(--r600);border:none;border-radius:var(--rp);font-size:13px;font-weight:700;color:#fff;cursor:pointer}
 
+/* ── SELECTOR MES EN STATS ── */
+.stats-month-bar{background:var(--wh);border-radius:var(--rmd);border:1px solid var(--b100);box-shadow:var(--sc);padding:13px 18px;margin-bottom:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.stats-month-bar .smb-icon{width:30px;height:30px;background:linear-gradient(135deg,var(--b400),var(--s400));border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;flex-shrink:0}
+.stats-month-bar label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--tm);white-space:nowrap}
+.smb-select-wrap{position:relative;flex:1;min-width:160px;max-width:220px}
+.smb-select-wrap i{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--b300);pointer-events:none}
+.smb-select{width:100%;background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rp);padding:8px 12px 8px 30px;font-size:13px;font-family:inherit;color:var(--tp);outline:none;cursor:pointer;appearance:none}
+.smb-select:focus{border-color:var(--b400)}
+.btn-smb-load{padding:8px 18px;background:linear-gradient(135deg,var(--b400),var(--s400));color:#fff;border:none;border-radius:var(--rp);font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 3px 10px rgba(74,168,232,.28);transition:opacity var(--tr),transform var(--tr)}
+.btn-smb-load:hover{opacity:.9}.btn-smb-load:active{transform:scale(.97)}
+.smb-status{font-size:11px;color:var(--tm);font-weight:600;margin-left:auto;display:flex;align-items:center;gap:5px}
+.smb-dot{width:7px;height:7px;border-radius:50%;background:var(--g600);flex-shrink:0}
+.smb-dot.loading{background:#fbbf24;animation:pulse 1s infinite}
+/* ── GASTOS ── */
+.gastos-grid{display:grid;grid-template-columns:340px 1fr;gap:18px;margin-top:22px;align-items:start}
+.gasto-form-panel{background:var(--wh);border-radius:var(--rlg);border:1px solid var(--b100);box-shadow:var(--sc);overflow:hidden}
+.gasto-list-panel{background:var(--wh);border-radius:var(--rlg);border:1px solid var(--b100);box-shadow:var(--sc);overflow:hidden}
+.gasto-card{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--b50);animation:fadeIn .2s ease}
+.gasto-card:last-child{border-bottom:none}
+.gasto-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--r50),#fee2e2);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--r600);flex-shrink:0}
+.gasto-info{flex:1;min-width:0}
+.gasto-nombre{font-size:13px;font-weight:700;color:var(--tp);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gasto-meta{font-size:11px;color:var(--tm);margin-top:1px}
+.gasto-monto{font-size:15px;font-weight:700;color:var(--r600);white-space:nowrap}
+.gasto-suc-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:var(--rp)}
+.gs-exsal{background:#e8f0fe;color:#1a56c4;border:1px solid #b8d0f8}
+.gs-cdb{background:#fce8ff;color:#8b1ac4;border:1px solid #e0b8f8}
+.gs-general{background:var(--b50);color:var(--b600);border:1px solid var(--b100)}
+.fin-card-gasto{background:linear-gradient(135deg,var(--r50),#fff5f5);border-color:#fca5a5}
+.fin-card-gasto .fin-label{color:#b91c1c}
+.fin-card-gasto .fin-value{color:var(--r600)}
 /* STATS / FINANZAS */
 .fin-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
 .fin-card{background:var(--wh);border-radius:var(--rmd);padding:17px 19px;border:1px solid var(--b100);box-shadow:var(--sc);}
@@ -708,11 +739,24 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 
   <!-- ═══ ESTADÍSTICAS EXSAL ═══ -->
   <div class="tab-content" id="tab-stats-exsal">
+    <!-- Selector de mes -->
+    <div class="stats-month-bar">
+      <div class="smb-icon"><i class="ti ti-calendar-stats"></i></div>
+      <label>Mes</label>
+      <div class="smb-select-wrap">
+        <i class="ti ti-calendar"></i>
+        <select id="exsal-month-select" class="smb-select" onchange="onStatsMonthChange('exsal')"></select>
+      </div>
+      <button class="btn-smb-load" onclick="loadStatsMonth('exsal')"><i class="ti ti-refresh"></i>Cargar</button>
+      <div class="smb-status" id="exsal-smb-status"><div class="smb-dot" id="exsal-smb-dot"></div><span id="exsal-smb-txt">Selecciona un mes</span></div>
+    </div>
     <div class="fin-grid">
       <div class="fin-card"><div class="fin-label">Ventas EXSAL</div><div class="fin-value fv-blue" id="exsal-fs-ventas">$0.00</div></div>
       <div class="fin-card"><div class="fin-label">Costos EXSAL</div><div class="fin-value fv-orange" id="exsal-fs-costos">$0.00</div></div>
       <div class="fin-card"><div class="fin-label">Ganancia EXSAL</div><div class="fin-value fv-green" id="exsal-fs-ganancia">$0.00</div></div>
       <div class="fin-card"><div class="fin-label">Unidades vendidas</div><div class="fin-value fv-blue" id="exsal-fs-units">0</div></div>
+      <div class="fin-card fin-card-gasto"><div class="fin-label">Gastos EXSAL</div><div class="fin-value" id="exsal-fs-gastos">$0.00</div></div>
+      <div class="fin-card"><div class="fin-label">Ganancia real (−gastos)</div><div class="fin-value fv-green" id="exsal-fs-ganancia-real">$0.00</div></div>
       <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Valor inventario EXSAL (a costo)</div><div class="fin-value fv-orange" id="exsal-si-valor">$0.00</div></div>
       <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Valor inventario EXSAL (precio venta)</div><div class="fin-value fv-green" id="exsal-si-valor-venta-stats">$0.00</div></div>
     </div>
@@ -723,7 +767,23 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
         <button class="btn-inv" onclick="abrirModalFactura('exsal')"><i class="ti ti-file-invoice"></i>Generar Factura</button>
         <button class="btn-inv-ghost" onclick="deselectAll('exsal')">Deseleccionar todo</button>
       </div>
-      <div id="exsal-sales-table-body"></div>
+      <div id="exsal-sales-table-body"><div class="sales-empty">Selecciona un mes y presiona Cargar</div></div>
+    </div>
+    <!-- Gastos EXSAL del mes -->
+    <div class="gastos-grid">
+      <div class="gasto-form-panel">
+        <div class="panel-hd"><div class="phd-icon" style="background:linear-gradient(135deg,var(--r600),#f87171)"><i class="ti ti-minus"></i></div><div><div class="ptitle">Registrar Gasto</div><div class="psub">Gastos operativos del mes · EXSAL</div></div></div>
+        <div class="form-body">
+          <div class="field"><label>Nombre del gasto</label><input type="text" id="exsal-gasto-nombre" placeholder="Ej. Renta, servicios, transporte..." maxlength="80" autocomplete="off"></div>
+          <div class="field"><label>Monto ($)</label><input type="number" id="exsal-gasto-monto" placeholder="0.00" min="0" step="0.01"></div>
+          <button class="btn-add" style="background:linear-gradient(135deg,var(--r600),#f87171);box-shadow:0 4px 14px rgba(220,38,38,.3)" onclick="addGasto('exsal')"><i class="ti ti-plus"></i>Agregar Gasto</button>
+          <div class="form-error" id="exsal-gasto-error"></div>
+        </div>
+      </div>
+      <div class="gasto-list-panel">
+        <div class="panel-hd"><div class="phd-icon" style="background:linear-gradient(135deg,var(--r600),#f87171)"><i class="ti ti-list"></i></div><div><div class="ptitle">Gastos del mes</div><div class="psub" id="exsal-gastos-periodo">—</div></div></div>
+        <div id="exsal-gastos-list"><div class="sales-empty">Sin gastos este mes</div></div>
+      </div>
     </div>
     <div class="sales-wrap" id="exsal-deleted-sales-wrap" style="margin-top:20px;display:none">
       <div class="sales-hd"><div class="shd-title"><i class="ti ti-history"></i>Ventas eliminadas · EXSAL</div><button class="btn-clr" onclick="clearDeletedSales('exsal')"><i class="ti ti-trash"></i>Limpiar todo</button></div>
@@ -733,11 +793,24 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 
   <!-- ═══ ESTADÍSTICAS CDB ═══ -->
   <div class="tab-content" id="tab-stats-cdb">
+    <!-- Selector de mes -->
+    <div class="stats-month-bar">
+      <div class="smb-icon"><i class="ti ti-calendar-stats"></i></div>
+      <label>Mes</label>
+      <div class="smb-select-wrap">
+        <i class="ti ti-calendar"></i>
+        <select id="cdb-month-select" class="smb-select" onchange="onStatsMonthChange('cdb')"></select>
+      </div>
+      <button class="btn-smb-load" onclick="loadStatsMonth('cdb')"><i class="ti ti-refresh"></i>Cargar</button>
+      <div class="smb-status" id="cdb-smb-status"><div class="smb-dot" id="cdb-smb-dot"></div><span id="cdb-smb-txt">Selecciona un mes</span></div>
+    </div>
     <div class="fin-grid">
       <div class="fin-card"><div class="fin-label">Ventas CDB</div><div class="fin-value fv-blue" id="cdb-fs-ventas">$0.00</div></div>
       <div class="fin-card"><div class="fin-label">Costos CDB</div><div class="fin-value fv-orange" id="cdb-fs-costos">$0.00</div></div>
       <div class="fin-card"><div class="fin-label">Ganancia CDB</div><div class="fin-value fv-green" id="cdb-fs-ganancia">$0.00</div></div>
       <div class="fin-card"><div class="fin-label">Unidades vendidas</div><div class="fin-value fv-blue" id="cdb-fs-units">0</div></div>
+      <div class="fin-card fin-card-gasto"><div class="fin-label">Gastos CDB</div><div class="fin-value" id="cdb-fs-gastos">$0.00</div></div>
+      <div class="fin-card"><div class="fin-label">Ganancia real (−gastos)</div><div class="fin-value fv-green" id="cdb-fs-ganancia-real">$0.00</div></div>
       <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Valor inventario CDB (a costo)</div><div class="fin-value fv-orange" id="cdb-si-valor">$0.00</div></div>
       <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Valor inventario CDB (precio venta)</div><div class="fin-value fv-green" id="cdb-si-valor-venta-stats">$0.00</div></div>
     </div>
@@ -748,7 +821,23 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
         <button class="btn-inv" onclick="abrirModalFactura('cdb')"><i class="ti ti-file-invoice"></i>Generar Factura</button>
         <button class="btn-inv-ghost" onclick="deselectAll('cdb')">Deseleccionar todo</button>
       </div>
-      <div id="cdb-sales-table-body"></div>
+      <div id="cdb-sales-table-body"><div class="sales-empty">Selecciona un mes y presiona Cargar</div></div>
+    </div>
+    <!-- Gastos CDB del mes -->
+    <div class="gastos-grid">
+      <div class="gasto-form-panel">
+        <div class="panel-hd"><div class="phd-icon" style="background:linear-gradient(135deg,var(--r600),#f87171)"><i class="ti ti-minus"></i></div><div><div class="ptitle">Registrar Gasto</div><div class="psub">Gastos operativos del mes · CDB</div></div></div>
+        <div class="form-body">
+          <div class="field"><label>Nombre del gasto</label><input type="text" id="cdb-gasto-nombre" placeholder="Ej. Renta, servicios, transporte..." maxlength="80" autocomplete="off"></div>
+          <div class="field"><label>Monto ($)</label><input type="number" id="cdb-gasto-monto" placeholder="0.00" min="0" step="0.01"></div>
+          <button class="btn-add" style="background:linear-gradient(135deg,var(--r600),#f87171);box-shadow:0 4px 14px rgba(220,38,38,.3)" onclick="addGasto('cdb')"><i class="ti ti-plus"></i>Agregar Gasto</button>
+          <div class="form-error" id="cdb-gasto-error"></div>
+        </div>
+      </div>
+      <div class="gasto-list-panel">
+        <div class="panel-hd"><div class="phd-icon" style="background:linear-gradient(135deg,var(--r600),#f87171)"><i class="ti ti-list"></i></div><div><div class="ptitle">Gastos del mes</div><div class="psub" id="cdb-gastos-periodo">—</div></div></div>
+        <div id="cdb-gastos-list"><div class="sales-empty">Sin gastos este mes</div></div>
+      </div>
     </div>
     <div class="sales-wrap" id="cdb-deleted-sales-wrap" style="margin-top:20px;display:none">
       <div class="sales-hd"><div class="shd-title"><i class="ti ti-history"></i>Ventas eliminadas · CDB</div><button class="btn-clr" onclick="clearDeletedSales('cdb')"><i class="ti ti-trash"></i>Limpiar todo</button></div>
@@ -758,11 +847,24 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 
   <!-- ═══ ESTADÍSTICAS TOTAL ═══ -->
   <div class="tab-content" id="tab-stats-total">
+    <!-- Selector de mes -->
+    <div class="stats-month-bar">
+      <div class="smb-icon"><i class="ti ti-calendar-stats"></i></div>
+      <label>Mes</label>
+      <div class="smb-select-wrap">
+        <i class="ti ti-calendar"></i>
+        <select id="total-month-select" class="smb-select" onchange="onStatsMonthChange('total')"></select>
+      </div>
+      <button class="btn-smb-load" onclick="loadStatsMonth('total')"><i class="ti ti-refresh"></i>Cargar</button>
+      <div class="smb-status" id="total-smb-status"><div class="smb-dot" id="total-smb-dot"></div><span id="total-smb-txt">Selecciona un mes</span></div>
+    </div>
     <div class="fin-grid">
       <div class="fin-card"><div class="fin-label">Ventas totales</div><div class="fin-value fv-blue" id="tot-fs-ventas">$0.00</div></div>
       <div class="fin-card"><div class="fin-label">Costos totales</div><div class="fin-value fv-orange" id="tot-fs-costos">$0.00</div></div>
       <div class="fin-card"><div class="fin-label">Ganancia neta</div><div class="fin-value fv-green" id="tot-fs-ganancia">$0.00</div></div>
       <div class="fin-card"><div class="fin-label">Unidades vendidas</div><div class="fin-value fv-blue" id="tot-fs-units">0</div></div>
+      <div class="fin-card fin-card-gasto"><div class="fin-label">Gastos totales</div><div class="fin-value" id="tot-fs-gastos">$0.00</div></div>
+      <div class="fin-card"><div class="fin-label">Ganancia real (−gastos)</div><div class="fin-value fv-green" id="tot-fs-ganancia-real">$0.00</div></div>
       <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Valor inventario total (a costo)</div><div class="fin-value fv-orange" id="tot-si-valor">$0.00</div></div>
       <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Valor inventario total (precio venta)</div><div class="fin-value fv-green" id="tot-si-valor-venta-stats">$0.00</div></div>
       <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Ventas totales − Costos totales</div><div class="fin-value" id="tot-fs-costos-menos-ventas" style="color:var(--r600)">$0.00</div></div>
@@ -774,11 +876,43 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
         <button class="btn-inv" onclick="abrirModalFactura('total')"><i class="ti ti-file-invoice"></i>Generar Factura</button>
         <button class="btn-inv-ghost" onclick="deselectAll('total')">Deseleccionar todo</button>
       </div>
-      <div id="tot-sales-table-body"></div>
+      <div id="tot-sales-table-body"><div class="sales-empty">Selecciona un mes y presiona Cargar</div></div>
+    </div>
+    <!-- Gastos Totales del mes -->
+    <div class="gastos-grid">
+      <div class="gasto-form-panel">
+        <div class="panel-hd"><div class="phd-icon" style="background:linear-gradient(135deg,var(--r600),#f87171)"><i class="ti ti-minus"></i></div><div><div class="ptitle">Registrar Gasto</div><div class="psub">Gastos operativos generales</div></div></div>
+        <div class="form-body">
+          <div class="field"><label>Nombre del gasto</label><input type="text" id="total-gasto-nombre" placeholder="Ej. Renta, servicios, transporte..." maxlength="80" autocomplete="off"></div>
+          <div class="field"><label>Monto ($)</label><input type="number" id="total-gasto-monto" placeholder="0.00" min="0" step="0.01"></div>
+          <div class="field"><label>Sucursal</label>
+            <select id="total-gasto-suc" style="width:100%;background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:9px 13px;font-size:14px;font-family:inherit;color:var(--tp);outline:none;cursor:pointer">
+              <option value="general">General (ambas)</option>
+              <option value="exsal">EXSAL</option>
+              <option value="cdb">CDB</option>
+            </select>
+          </div>
+          <button class="btn-add" style="background:linear-gradient(135deg,var(--r600),#f87171);box-shadow:0 4px 14px rgba(220,38,38,.3)" onclick="addGasto('total')"><i class="ti ti-plus"></i>Agregar Gasto</button>
+          <div class="form-error" id="total-gasto-error"></div>
+        </div>
+      </div>
+      <div class="gasto-list-panel">
+        <div class="panel-hd"><div class="phd-icon" style="background:linear-gradient(135deg,var(--r600),#f87171)"><i class="ti ti-list"></i></div><div><div class="ptitle">Gastos del mes</div><div class="psub" id="total-gastos-periodo">—</div></div></div>
+        <div id="total-gastos-list"><div class="sales-empty">Sin gastos este mes</div></div>
+      </div>
     </div>
     <div class="sales-wrap" id="tot-deleted-sales-wrap" style="margin-top:20px;display:none">
       <div class="sales-hd"><div class="shd-title"><i class="ti ti-history"></i>Ventas eliminadas · Total</div></div>
       <div id="tot-deleted-sales-table-body"></div>
+    </div>
+    <!-- Migración (solo usar una vez) -->
+    <div style="margin-top:28px;padding:14px 18px;background:var(--b50);border:1.5px dashed var(--b200);border-radius:var(--rmd);display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <i class="ti ti-database" style="font-size:18px;color:var(--b400)"></i>
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:700;color:var(--tp)">Migración de datos (uso único)</div>
+        <div style="font-size:11px;color:var(--tm);margin-top:2px">Agrega el campo "mes" a ventas históricas para que aparezcan filtradas correctamente. Correr solo una vez.</div>
+      </div>
+      <button onclick="migrarVentasMes()" style="padding:8px 16px;background:var(--wh);border:1.5px solid var(--b200);border-radius:var(--rp);font-size:12px;font-weight:700;color:var(--b600);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px"><i class="ti ti-database-import"></i>Migrar ventas históricas</button>
     </div>
   </div>
 
@@ -1104,21 +1238,23 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore(), auth=firebase.auth();
 
 // ── ESTADO ──
-let products=[], sales=[], deletedSales=[], orders=[], descuentos=[];
+let products=[], sales=[], deletedSales=[], orders=[], descuentos=[], gastos=[];
 let sortAsc={exsal:false,cdb:false,total:false};
 let activePid=null, activeSucursal=null;
-let unsubProd=null, unsubSales=null, unsubDeleted=null, unsubOrders=null, unsubRestock=null, unsubDescuentos=null;
+let unsubProd=null, unsubDeleted=null, unsubOrders=null, unsubRestock=null, unsubDescuentos=null, unsubGastos=null;
 let restockHistory=[];
 let restockPendingData=null;
+// Estado de carga de stats por mes
+let statsLoaded={exsal:false,cdb:false,total:false};
+let statsMonth={exsal:'',cdb:'',total:''};  // mes actualmente cargado en cada tab
+let gastosMes={exsal:'',cdb:'',total:''};   // mes del listener de gastos activo
 
 // ── PAGINACIÓN ──
 const PROD_PAGE_SIZE=20;
-const SALES_LIMIT=2000;
 const ORDERS_LIMIT=30;
 const RESTOCK_LIMIT=25;
 const DELETED_LIMIT=15;
 let prodPage={exsal:1,cdb:1,total:1};
-let salesExtra=[],salesLastVisible=null,salesAllLoaded=false;
 let ordersExtra=[],ordersLastVisible=null,ordersAllLoaded=false;
 let restockExtra=[],restockLastVisible=null,restockAllLoaded=false;
 
@@ -1225,6 +1361,47 @@ auth.onAuthStateChanged(user=>{
   }
 });
 
+// ── HELPERS DE MES ──
+function getMonthKey(ts){
+  const d=ts?new Date(ts):new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()).padStart(2,'0');
+}
+function monthKeyToLabel(key){
+  const monthNames=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const [y,m]=key.split('-');
+  return monthNames[+m]+' '+y;
+}
+function buildMonthOptions(){
+  // Genera los últimos 24 meses + el actual
+  const now=new Date();
+  const keys=[];
+  for(let i=0;i<24;i++){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    keys.push(getMonthKey(d.getTime()));
+  }
+  return keys;
+}
+function populateStatsMonthSelectors(){
+  const now=getMonthKey();
+  const keys=buildMonthOptions();
+  const opts=keys.map(k=>`<option value="${k}">${monthKeyToLabel(k)}</option>`).join('');
+  ['exsal','cdb','total'].forEach(suc=>{
+    const sel=document.getElementById(suc+'-month-select');
+    if(!sel)return;
+    const prev=sel.value;
+    sel.innerHTML=opts;
+    sel.value=(prev&&keys.includes(prev))?prev:now;
+    // también sincronizar el mensual
+  });
+  // Mensual usa su propio selector
+  const msel=document.getElementById('mensual-month-select');
+  if(msel){
+    const prev=msel.value;
+    msel.innerHTML=opts;
+    msel.value=(prev&&keys.includes(prev))?prev:now;
+  }
+}
+
 // ── LISTENERS ──
 function startListeners(){
   setSave('saving','Sincronizando...');
@@ -1240,15 +1417,6 @@ function startListeners(){
       if(ap) document.getElementById('pm-stock-num').textContent=getStock(ap,activeSucursal);
     }
   },()=>setSave('error','Error de conexión'));
-
-  // Ventas: sin límite para estadísticas siempre correctas
-  unsubSales=db.collection("ventas").orderBy("timestamp","desc").onSnapshot(snap=>{
-    sales=[];
-    snap.forEach(doc=>sales.push({id:doc.id,...doc.data()}));
-    salesAllLoaded=true;
-    salesExtra=[];
-    renderAllStats();
-  });
 
   // Ventas eliminadas: limitado, no necesita tiempo real completo
   unsubDeleted=db.collection("ventas-eliminadas").orderBy("deletedAt","desc").limit(DELETED_LIMIT).onSnapshot(snap=>{
@@ -1287,6 +1455,12 @@ function startListeners(){
     renderDescuentos();
     populateDiscountSelect();
   });
+
+  // Inicializar selectores de mes y cargar mes actual automáticamente
+  populateStatsMonthSelectors();
+  const nowKey=getMonthKey();
+  ['exsal','cdb','total'].forEach(suc=>loadStatsMonth(suc,nowKey));
+  renderMonthlyStats();
 }
 
 // ── HELPERS ──
@@ -1750,7 +1924,8 @@ async function registerSale(){
       seller:sellerEmail,
       sucursal:activeSucursal==='total'?'total':activeSucursal,
       date:new Date().toLocaleDateString('es'),
-      timestamp:Date.now()
+      timestamp:Date.now(),
+      mes:getMonthKey()
     };
     if(discPct>0){
       saleData.descuentoAplicado={nombre:discNombre,porcentaje:discPct,totalSinDescuento};
@@ -1826,54 +2001,200 @@ document.getElementById('edit-overlay').addEventListener('click',e=>{if(e.target
 
 // ── ESTADÍSTICAS ──
 function renderAllStats(){
-  renderStats('exsal');
-  renderStats('cdb');
-  renderStats('total');
+  // Ya no llama a renderStats directamente — las stats se cargan por mes on-demand
   renderMonthlyStats();
   renderPedidos();
 }
 
-function populateMonthSelector(){
-  const sel=document.getElementById('mensual-month-select');
-  if(!sel)return;
-  const monthNames=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  // Recoger meses únicos que tienen ventas
-  const seen=new Set();
-  sales.forEach(v=>{
-    if(!v.timestamp)return;
-    const d=new Date(v.timestamp);
-    seen.add(d.getFullYear()+'-'+String(d.getMonth()).padStart(2,'0'));
-  });
-  // Añadir mes actual aunque no tenga ventas
-  const now=new Date();
-  seen.add(now.getFullYear()+'-'+String(now.getMonth()).padStart(2,'0'));
-  const sorted=[...seen].sort((a,b)=>b.localeCompare(a));
-  const currentVal=sel.value;
-  sel.innerHTML=sorted.map(key=>{
-    const [y,m]=key.split('-');
-    return `<option value="${key}">${monthNames[+m]} ${y}</option>`;
-  }).join('');
-  // Restaurar selección o dejar el más reciente
-  if(currentVal&&sorted.includes(currentVal)) sel.value=currentVal;
+// Llamado cuando el usuario cambia el select de mes (marca como no cargado)
+function onStatsMonthChange(suc){
+  statsLoaded[suc]=false;
+  setStatsStatus(suc,'idle');
 }
 
-function renderMonthlyStats(){
+function setStatsStatus(suc,state,extra){
+  const dot=document.getElementById(suc+'-smb-dot');
+  const txt=document.getElementById(suc+'-smb-txt');
+  if(!dot||!txt)return;
+  if(state==='loading'){dot.className='smb-dot loading';txt.textContent='Cargando...';}
+  else if(state==='ok'){dot.className='smb-dot';txt.textContent=extra||'Listo';}
+  else if(state==='error'){dot.className='smb-dot';dot.style.background='var(--r600)';txt.textContent='Error al cargar';}
+  else{dot.className='smb-dot';dot.style.background='';txt.textContent='Selecciona un mes';}
+}
+
+// Carga ventas de un mes específico desde Firestore (get() puntual, no onSnapshot)
+async function loadStatsMonth(suc, forceKey){
+  const sel=document.getElementById(suc+'-month-select');
+  const monthKey=forceKey||(sel?sel.value:getMonthKey());
+  if(!monthKey)return;
+
+  setStatsStatus(suc,'loading');
+
+  try{
+    // Query filtrada por mes — solo lee ventas del mes seleccionado
+    let q=db.collection('ventas').where('mes','==',monthKey);
+    if(suc!=='total') q=q.where('sucursal','==',suc);
+    const snap=await q.orderBy('timestamp','desc').get();
+    const ventasMes=[];
+    snap.forEach(doc=>ventasMes.push({id:doc.id,...doc.data()}));
+
+    // Guardar en sales solo para este contexto
+    if(suc==='total'){
+      sales=ventasMes;
+    } else {
+      // Mantener las ventas del otro suc si ya están cargadas
+      const otherSuc=suc==='exsal'?'cdb':'exsal';
+      const otherSales=sales.filter(v=>(v.sucursal||'exsal')===otherSuc&&statsMonth[otherSuc]===monthKey);
+      sales=[...ventasMes,...otherSales];
+    }
+
+    statsLoaded[suc]=true;
+    statsMonth[suc]=monthKey;
+
+    renderStats(suc);
+    // Cargar gastos del mes para esta sucursal
+    loadGastosMes(suc, monthKey);
+
+    const n=ventasMes.length;
+    setStatsStatus(suc,'ok',`${n} venta${n!==1?'s':''} · ${monthKeyToLabel(monthKey)}`);
+  }catch(e){
+    console.error('Error cargando stats',suc,e);
+    setStatsStatus(suc,'error');
+  }
+}
+
+// ── GASTOS ──
+async function addGasto(suc){
+  const nombre=document.getElementById(suc+'-gasto-nombre').value.trim();
+  const montoStr=document.getElementById(suc+'-gasto-monto').value;
+  const err=document.getElementById(suc+'-gasto-error');
+  if(!nombre){err.textContent='El nombre del gasto es obligatorio.';return;}
+  const monto=parseFloat(montoStr);
+  if(montoStr===''||isNaN(monto)||monto<=0){err.textContent='Ingresa un monto válido mayor a 0.';return;}
+  err.textContent='';
+
+  const sel=document.getElementById(suc+'-month-select');
+  const mes=sel?sel.value:getMonthKey();
+  const sucursal=suc==='total'?(document.getElementById('total-gasto-suc')||{value:'general'}).value:suc;
+
+  try{
+    await db.collection('gastos').add({
+      nombre,monto:+monto.toFixed(2),
+      sucursal,mes,
+      timestamp:Date.now(),
+      date:new Date().toLocaleDateString('es')
+    });
+    document.getElementById(suc+'-gasto-nombre').value='';
+    document.getElementById(suc+'-gasto-monto').value='';
+    showToast('Gasto registrado','ti-minus');
+    // Recargar gastos del mes
+    loadGastosMes(suc,mes);
+  }catch(e){err.textContent='Error al guardar el gasto.';}
+}
+
+async function deleteGasto(id,suc,mes){
+  if(!confirm('¿Eliminar este gasto?'))return;
+  try{
+    await db.collection('gastos').doc(id).delete();
+    showToast('Gasto eliminado','ti-trash');
+    loadGastosMes(suc,mes);
+  }catch(e){showToast('Error al eliminar','ti-alert-circle');}
+}
+
+async function loadGastosMes(suc,mes){
+  if(!mes)return;
+  const listEl=document.getElementById(suc+'-gastos-list');
+  const periodoEl=document.getElementById(suc+'-gastos-periodo');
+  if(!listEl)return;
+
+  try{
+    let q=db.collection('gastos').where('mes','==',mes);
+    // Para EXSAL y CDB: cargar gastos de esa sucursal + generales
+    // Para total: cargar todos
+    if(suc!=='total'){
+      // Usamos dos queries y combinamos (Firestore no soporta OR en where)
+      const [snapSuc,snapGen]=await Promise.all([
+        q.where('sucursal','==',suc).get(),
+        q.where('sucursal','==','general').get()
+      ]);
+      gastos=[];
+      snapSuc.forEach(doc=>gastos.push({id:doc.id,...doc.data()}));
+      snapGen.forEach(doc=>gastos.push({id:doc.id,...doc.data()}));
+    } else {
+      const snap=await q.get();
+      gastos=[];
+      snap.forEach(doc=>gastos.push({id:doc.id,...doc.data()}));
+    }
+    gastos.sort((a,b)=>b.timestamp-a.timestamp);
+
+    if(periodoEl) periodoEl.textContent=monthKeyToLabel(mes);
+
+    const total=gastos.reduce((s,g)=>s+g.monto,0);
+    if(!gastos.length){
+      listEl.innerHTML='<div class="sales-empty">Sin gastos en '+monthKeyToLabel(mes)+'</div>';
+    } else {
+      const sucClass={exsal:'gs-exsal',cdb:'gs-cdb',general:'gs-general'};
+      listEl.innerHTML=gastos.map(g=>`
+        <div class="gasto-card">
+          <div class="gasto-icon"><i class="ti ti-coin-off"></i></div>
+          <div class="gasto-info">
+            <div class="gasto-nombre">${esc(g.nombre)}</div>
+            <div class="gasto-meta">${g.date||'—'} · <span class="gasto-suc-badge ${sucClass[g.sucursal]||'gs-general'}">${(g.sucursal||'general').toUpperCase()}</span></div>
+          </div>
+          <div class="gasto-monto">${fmt(g.monto)}</div>
+          <button onclick="deleteGasto('${g.id}','${suc}','${mes}')" style="background:none;border:none;cursor:pointer;color:var(--r600);padding:4px 8px;font-size:16px;border-radius:6px"><i class="ti ti-trash"></i></button>
+        </div>`).join('')+
+        `<div style="padding:12px 16px;border-top:1.5px dashed var(--r100);display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:12px;font-weight:700;color:var(--tm)">TOTAL GASTOS</span>
+          <span style="font-size:17px;font-weight:700;color:var(--r600)">${fmt(total)}</span>
+        </div>`;
+    }
+    // Actualizar tarjeta de gastos y ganancia real en las stats
+    updateGastosCards(suc,total);
+  }catch(e){console.error('Error cargando gastos',e);}
+}
+
+function updateGastosCards(suc,totalGastos){
+  const pfx=suc==='total'?'tot':suc;
+  const gasEl=document.getElementById(pfx+'-fs-gastos');
+  const realEl=document.getElementById(pfx+'-fs-ganancia-real');
+  if(!gasEl||!realEl)return;
+  gasEl.textContent=fmt(totalGastos);
+  // Calcular ganancia real = ganancia - gastos
+  const gananciaEl=document.getElementById(pfx+'-fs-ganancia');
+  const ganancia=parseFloat((gananciaEl?.textContent||'$0').replace(/[$,]/g,''))||0;
+  const real=ganancia-totalGastos;
+  realEl.textContent=fmt(real);
+  realEl.style.color=real>=0?'var(--g600)':'var(--r600)';
+}
+
+function populateMonthSelector(){
+  // Ahora solo para el selector de Mensual (los de stats los maneja populateStatsMonthSelectors)
+  const sel=document.getElementById('mensual-month-select');
+  if(!sel)return;
+  const keys=buildMonthOptions();
+  const now=getMonthKey();
+  const currentVal=sel.value;
+  sel.innerHTML=keys.map(k=>`<option value="${k}">${monthKeyToLabel(k)}</option>`).join('');
+  sel.value=(currentVal&&keys.includes(currentVal))?currentVal:now;
+}
+
+async function renderMonthlyStats(){
   populateMonthSelector();
   const sel=document.getElementById('mensual-month-select');
-  const val=sel?sel.value:'';
-  const monthNames=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  let selMonth,selYear;
-  if(val){
-    const [y,m]=val.split('-');
-    selMonth=+m; selYear=+y;
-  }else{
-    const now=new Date(); selMonth=now.getMonth(); selYear=now.getFullYear();
-  }
-  const monthly=sales.filter(v=>{
-    if(!v.timestamp)return false;
-    const d=new Date(v.timestamp);
-    return d.getMonth()===selMonth&&d.getFullYear()===selYear;
-  });
+  const monthKey=sel?sel.value:getMonthKey();
+  if(!monthKey)return;
+
+  const [y,m]=monthKey.split('-');
+  const selMonth=+m, selYear=+y;
+
+  // Cargar ventas del mes desde Firestore (get puntual, sin filtro de sucursal para mensual)
+  let monthly=[];
+  try{
+    const snap=await db.collection('ventas').where('mes','==',monthKey).get();
+    snap.forEach(doc=>monthly.push({id:doc.id,...doc.data()}));
+  }catch(e){console.error('Error mensual',e);}
+
   const totalV=monthly.reduce((s,v)=>s+v.total,0);
   const totalC=monthly.reduce((s,v)=>s+v.costTotal,0);
   const totalUnits=monthly.reduce((s,v)=>s+v.qty,0);
@@ -1890,7 +2211,7 @@ function renderMonthlyStats(){
   const sorted=Object.entries(byProd).sort((a,b)=>b[1]-a[1]).slice(0,5);
   const top5El=document.getElementById('mensual-top5');
   if(!sorted.length){
-    top5El.innerHTML='<div class="mensual-empty"><i class="ti ti-chart-bar-off"></i><span>Sin ventas en '+monthNames[selMonth]+' '+selYear+'</span></div>';
+    top5El.innerHTML='<div class="mensual-empty"><i class="ti ti-chart-bar-off"></i><span>Sin ventas en '+monthKeyToLabel(monthKey)+'</span></div>';
     return;
   }
   const rankCls=['lb-r1','lb-r2','lb-r3','lb-rx','lb-rx'];
@@ -1933,13 +2254,16 @@ function deselectAll(suc){
 }
 
 function renderStats(suc){
+  const pfx=suc==='total'?'tot':suc;
   const filtered=suc==='total'?sales:sales.filter(v=>(v.sucursal||'exsal')===suc);
   const totalV=filtered.reduce((s,v)=>s+v.total,0);
   const totalC=filtered.reduce((s,v)=>s+v.costTotal,0);
-  const pfx=suc==='total'?'tot':suc;
   document.getElementById(pfx+'-fs-ventas').textContent=fmt(totalV);
   document.getElementById(pfx+'-fs-costos').textContent=fmt(totalC);
-  document.getElementById(pfx+'-fs-ganancia').textContent=fmt(totalV-totalC);
+  const ganancia=totalV-totalC;
+  document.getElementById(pfx+'-fs-ganancia').textContent=fmt(ganancia);
+  const gananciaEl=document.getElementById(pfx+'-fs-ganancia');
+  if(gananciaEl) gananciaEl.style.color=ganancia>=0?'var(--g600)':'var(--r600)';
   document.getElementById(pfx+'-fs-units').textContent=filtered.reduce((s,v)=>s+v.qty,0);
   // Valor empresa y costos-ventas: solo en Total
   if(suc==='total'){
@@ -1950,7 +2274,7 @@ function renderStats(suc){
     diffEl.style.color=diff>=0?'var(--g600)':'var(--r600)';
   }
   const body=document.getElementById(pfx+'-sales-table-body');
-  if(!filtered.length){body.innerHTML=`<div class="sales-empty">Sin ventas registradas</div>`;return;}
+  if(!filtered.length){body.innerHTML=`<div class="sales-empty">Sin ventas en este período</div>`;return;}
   const showSuc=suc==='total';
   body.innerHTML=`<table class="sales-table"><thead><tr>
     <th style="width:32px"></th>
@@ -2825,6 +3149,34 @@ async function clearRestockHistory(){
     await batch.commit();
     showToast('Historial de restock borrado','ti-trash');
   }catch(e){showToast('Error al borrar historial','ti-alert-circle');}
+}
+
+// ── MIGRACIÓN: agregar campo "mes" a ventas existentes ──
+async function migrarVentasMes(){
+  if(!confirm('Esto agregará el campo "mes" a todas las ventas que no lo tengan.\n\nSolo es necesario correrlo UNA vez. ¿Continuar?'))return;
+  showToast('Iniciando migración...','ti-database');
+  try{
+    const snap=await db.collection('ventas').get();
+    const sinMes=[];
+    snap.forEach(doc=>{
+      const d=doc.data();
+      if(!d.mes) sinMes.push({id:doc.id,ts:d.timestamp});
+    });
+    if(!sinMes.length){showToast('No hay ventas pendientes de migrar ✓','ti-check');return;}
+    // Procesar en batches de 500
+    let count=0;
+    for(let i=0;i<sinMes.length;i+=500){
+      const chunk=sinMes.slice(i,i+500);
+      const batch=db.batch();
+      chunk.forEach(v=>{
+        const mes=getMonthKey(v.ts||Date.now());
+        batch.update(db.collection('ventas').doc(v.id),{mes});
+      });
+      await batch.commit();
+      count+=chunk.length;
+    }
+    showToast(`Migración completa: ${count} venta${count!==1?'s':''} actualizadas ✓`,'ti-check');
+  }catch(e){showToast('Error en migración','ti-alert-circle');console.error(e);}
 }
 
 </script>
