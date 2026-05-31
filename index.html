@@ -482,9 +482,15 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     <div class="tabs">
       <button class="tab-btn" onclick="switchTab('stats-exsal',this)"><i class="ti ti-chart-bar"></i>EXSAL</button>
       <button class="tab-btn" onclick="switchTab('stats-cdb',this)"><i class="ti ti-chart-bar"></i>CDB</button>
-      <button class="tab-btn" onclick="switchTab('stats-total',this)"><i class="ti ti-chart-pie"></i>Total</button>
-      <button class="tab-btn" onclick="switchTab('stats-mensual',this)"><i class="ti ti-calendar-stats"></i>Mensual</button>
       <button class="tab-btn" onclick="switchTab('stats-pedidos',this)"><i class="ti ti-shopping-bag"></i>Pedidos</button>
+    </div>
+  </div>
+  <!-- GRUPO TABS: VENTAS -->
+  <div class="tabs-group">
+    <div class="tabs-label">Ventas</div>
+    <div class="tabs">
+      <button class="tab-btn" onclick="switchTab('ventas-exsal',this)"><i class="ti ti-receipt"></i>Ventas EXSAL</button>
+      <button class="tab-btn" onclick="switchTab('ventas-cdb',this)"><i class="ti ti-receipt"></i>Ventas CDB</button>
     </div>
   </div>
 
@@ -739,49 +745,53 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 
   <!-- ═══ ESTADÍSTICAS EXSAL ═══ -->
   <div class="tab-content" id="tab-stats-exsal">
-    <!-- Selector de mes -->
-    <div class="stats-month-bar">
-      <div class="smb-icon"><i class="ti ti-calendar-stats"></i></div>
-      <label>Mes</label>
-      <div class="smb-select-wrap">
-        <i class="ti ti-calendar"></i>
-        <select id="exsal-month-select" class="smb-select" onchange="onStatsMonthChange('exsal')"></select>
-      </div>
-      <button class="btn-smb-load" onclick="loadStatsMonth('exsal')"><i class="ti ti-refresh"></i>Cargar</button>
-      <div class="smb-status" id="exsal-smb-status"><div class="smb-dot" id="exsal-smb-dot"></div><span id="exsal-smb-txt">Selecciona un mes</span></div>
-    </div>
-    <div class="fin-grid">
-      <div class="fin-card"><div class="fin-label">Ventas EXSAL</div><div class="fin-value fv-blue" id="exsal-fs-ventas">$0.00</div></div>
-      <div class="fin-card"><div class="fin-label">Costos EXSAL</div><div class="fin-value fv-orange" id="exsal-fs-costos">$0.00</div></div>
-      <div class="fin-card"><div class="fin-label">Ganancia EXSAL</div><div class="fin-value fv-green" id="exsal-fs-ganancia">$0.00</div></div>
-      <div class="fin-card"><div class="fin-label">Unidades vendidas</div><div class="fin-value fv-blue" id="exsal-fs-units">0</div></div>
-      <div class="fin-card fin-card-gasto"><div class="fin-label">Gastos EXSAL</div><div class="fin-value" id="exsal-fs-gastos">$0.00</div></div>
-      <div class="fin-card"><div class="fin-label">Ganancia real (−gastos)</div><div class="fin-value fv-green" id="exsal-fs-ganancia-real">$0.00</div></div>
+    <!-- KPIs desde colección estadisticas -->
+    <div class="fin-grid" id="exsal-kpi-grid">
+      <div class="fin-card"><div class="fin-label">Ventas EXSAL (acumulado)</div><div class="fin-value fv-blue" id="exsal-stat-ventas">$0.00</div></div>
+      <div class="fin-card fin-card-gasto"><div class="fin-label">Costos EXSAL (acumulado)</div><div class="fin-value" id="exsal-stat-costos">$0.00</div></div>
+      <div class="fin-card"><div class="fin-label">Ganancia Real (ventas − costos)</div><div class="fin-value fv-green" id="exsal-stat-ganancia">$0.00</div></div>
+      <div class="fin-card"><div class="fin-label">Unidades vendidas</div><div class="fin-value fv-blue" id="exsal-stat-units">0</div></div>
+      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Número de ventas</div><div class="fin-value fv-blue" id="exsal-stat-numventas">0</div></div>
       <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Valor inventario EXSAL (a costo)</div><div class="fin-value fv-orange" id="exsal-si-valor">$0.00</div></div>
-      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Valor inventario EXSAL (precio venta)</div><div class="fin-value fv-green" id="exsal-si-valor-venta-stats">$0.00</div></div>
     </div>
-    <div class="sales-wrap">
-      <div class="sales-hd"><div class="shd-title"><i class="ti ti-receipt"></i>Historial de ventas · EXSAL</div></div>
-      <div class="inv-sel-bar" id="exsal-sel-bar">
-        <span class="inv-sel-count"><i class="ti ti-checkbox"></i><span id="exsal-sel-count">0</span> seleccionadas</span>
-        <button class="btn-inv" onclick="abrirModalFactura('exsal')"><i class="ti ti-file-invoice"></i>Generar Factura</button>
-        <button class="btn-inv-ghost" onclick="deselectAll('exsal')">Deseleccionar todo</button>
+
+    <!-- Top 10 bajo demanda -->
+    <div class="sales-wrap" style="margin-bottom:20px">
+      <div class="sales-hd">
+        <div class="shd-title"><i class="ti ti-trophy"></i>Top 10 más vendidos · EXSAL</div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <div class="smb-select-wrap" style="min-width:160px">
+            <i class="ti ti-calendar"></i>
+            <select id="exsal-top10-month" class="smb-select"></select>
+          </div>
+          <button class="btn-smb-load" onclick="loadTop10('exsal')"><i class="ti ti-chart-bar"></i>Calcular Top 10</button>
+        </div>
       </div>
-      <div id="exsal-sales-table-body"><div class="sales-empty">Selecciona un mes y presiona Cargar</div></div>
+      <div id="exsal-top10-body" style="padding:14px 18px">
+        <div class="mensual-empty"><i class="ti ti-chart-bar-off"></i><span>Presiona "Calcular Top 10" para ver resultados</span></div>
+      </div>
     </div>
-    <!-- Gastos EXSAL del mes -->
+
+    <!-- Gastos EXSAL -->
     <div class="gastos-grid">
       <div class="gasto-form-panel">
-        <div class="panel-hd"><div class="phd-icon" style="background:linear-gradient(135deg,var(--r600),#f87171)"><i class="ti ti-minus"></i></div><div><div class="ptitle">Registrar Gasto</div><div class="psub">Gastos operativos del mes · EXSAL</div></div></div>
+        <div class="panel-hd"><div class="phd-icon" style="background:linear-gradient(135deg,var(--r600),#f87171)"><i class="ti ti-minus"></i></div><div><div class="ptitle">Registrar Gasto</div><div class="psub">Gastos operativos · EXSAL</div></div></div>
         <div class="form-body">
           <div class="field"><label>Nombre del gasto</label><input type="text" id="exsal-gasto-nombre" placeholder="Ej. Renta, servicios, transporte..." maxlength="80" autocomplete="off"></div>
           <div class="field"><label>Monto ($)</label><input type="number" id="exsal-gasto-monto" placeholder="0.00" min="0" step="0.01"></div>
-          <button class="btn-add" style="background:linear-gradient(135deg,var(--r600),#f87171);box-shadow:0 4px 14px rgba(220,38,38,.3)" onclick="addGasto('exsal')"><i class="ti ti-plus"></i>Agregar Gasto</button>
+          <button class="btn-add" style="background:linear-gradient(135deg,var(--r600),#f87171);box-shadow:0 4px 14px rgba(220,38,38,.3)" onclick="addGasto('exsal')"><i class="ti ti-plus"></i>Agregar Gasto EXSAL</button>
           <div class="form-error" id="exsal-gasto-error"></div>
         </div>
       </div>
       <div class="gasto-list-panel">
-        <div class="panel-hd"><div class="phd-icon" style="background:linear-gradient(135deg,var(--r600),#f87171)"><i class="ti ti-list"></i></div><div><div class="ptitle">Gastos del mes</div><div class="psub" id="exsal-gastos-periodo">—</div></div></div>
+        <div class="panel-hd">
+          <div class="phd-icon" style="background:linear-gradient(135deg,var(--r600),#f87171)"><i class="ti ti-list"></i></div>
+          <div><div class="ptitle">Gastos del mes</div><div class="psub" id="exsal-gastos-periodo">—</div></div>
+          <div class="smb-select-wrap" style="min-width:140px;margin-left:auto">
+            <i class="ti ti-calendar"></i>
+            <select id="exsal-gastos-month-select" class="smb-select" onchange="loadGastosMes('exsal',this.value)"></select>
+          </div>
+        </div>
         <div id="exsal-gastos-list"><div class="sales-empty">Sin gastos este mes</div></div>
       </div>
     </div>
@@ -789,53 +799,68 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       <div class="sales-hd"><div class="shd-title"><i class="ti ti-history"></i>Ventas eliminadas · EXSAL</div><button class="btn-clr" onclick="clearDeletedSales('exsal')"><i class="ti ti-trash"></i>Limpiar todo</button></div>
       <div id="exsal-deleted-sales-table-body"></div>
     </div>
+
+    <!-- Historial mensual archivado EXSAL -->
+    <div class="sales-wrap" style="margin-top:20px">
+      <div class="sales-hd">
+        <div class="shd-title"><i class="ti ti-calendar-stats"></i>Historial mensual archivado · EXSAL</div>
+        <button class="btn-smb-load" onclick="loadHistorialMensual('exsal')" style="padding:7px 14px;font-size:12px"><i class="ti ti-refresh"></i>Cargar historial</button>
+      </div>
+      <div id="exsal-historial-mensual-body" style="padding:14px 18px">
+        <div class="mensual-empty"><i class="ti ti-calendar-off"></i><span>Presiona "Cargar historial" para ver meses archivados</span></div>
+      </div>
+    </div>
   </div>
 
   <!-- ═══ ESTADÍSTICAS CDB ═══ -->
   <div class="tab-content" id="tab-stats-cdb">
-    <!-- Selector de mes -->
-    <div class="stats-month-bar">
-      <div class="smb-icon"><i class="ti ti-calendar-stats"></i></div>
-      <label>Mes</label>
-      <div class="smb-select-wrap">
-        <i class="ti ti-calendar"></i>
-        <select id="cdb-month-select" class="smb-select" onchange="onStatsMonthChange('cdb')"></select>
-      </div>
-      <button class="btn-smb-load" onclick="loadStatsMonth('cdb')"><i class="ti ti-refresh"></i>Cargar</button>
-      <div class="smb-status" id="cdb-smb-status"><div class="smb-dot" id="cdb-smb-dot"></div><span id="cdb-smb-txt">Selecciona un mes</span></div>
-    </div>
-    <div class="fin-grid">
-      <div class="fin-card"><div class="fin-label">Ventas CDB</div><div class="fin-value fv-blue" id="cdb-fs-ventas">$0.00</div></div>
-      <div class="fin-card"><div class="fin-label">Costos CDB</div><div class="fin-value fv-orange" id="cdb-fs-costos">$0.00</div></div>
-      <div class="fin-card"><div class="fin-label">Ganancia CDB</div><div class="fin-value fv-green" id="cdb-fs-ganancia">$0.00</div></div>
-      <div class="fin-card"><div class="fin-label">Unidades vendidas</div><div class="fin-value fv-blue" id="cdb-fs-units">0</div></div>
-      <div class="fin-card fin-card-gasto"><div class="fin-label">Gastos CDB</div><div class="fin-value" id="cdb-fs-gastos">$0.00</div></div>
-      <div class="fin-card"><div class="fin-label">Ganancia real (−gastos)</div><div class="fin-value fv-green" id="cdb-fs-ganancia-real">$0.00</div></div>
+    <!-- KPIs desde colección estadisticas -->
+    <div class="fin-grid" id="cdb-kpi-grid">
+      <div class="fin-card"><div class="fin-label">Ventas CDB (acumulado)</div><div class="fin-value fv-blue" id="cdb-stat-ventas">$0.00</div></div>
+      <div class="fin-card fin-card-gasto"><div class="fin-label">Costos CDB (acumulado)</div><div class="fin-value" id="cdb-stat-costos">$0.00</div></div>
+      <div class="fin-card"><div class="fin-label">Ganancia Real (ventas − costos)</div><div class="fin-value fv-green" id="cdb-stat-ganancia">$0.00</div></div>
+      <div class="fin-card"><div class="fin-label">Unidades vendidas</div><div class="fin-value fv-blue" id="cdb-stat-units">0</div></div>
+      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Número de ventas</div><div class="fin-value fv-blue" id="cdb-stat-numventas">0</div></div>
       <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Valor inventario CDB (a costo)</div><div class="fin-value fv-orange" id="cdb-si-valor">$0.00</div></div>
-      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Valor inventario CDB (precio venta)</div><div class="fin-value fv-green" id="cdb-si-valor-venta-stats">$0.00</div></div>
     </div>
-    <div class="sales-wrap">
-      <div class="sales-hd"><div class="shd-title"><i class="ti ti-receipt"></i>Historial de ventas · CDB</div></div>
-      <div class="inv-sel-bar" id="cdb-sel-bar">
-        <span class="inv-sel-count"><i class="ti ti-checkbox"></i><span id="cdb-sel-count">0</span> seleccionadas</span>
-        <button class="btn-inv" onclick="abrirModalFactura('cdb')"><i class="ti ti-file-invoice"></i>Generar Factura</button>
-        <button class="btn-inv-ghost" onclick="deselectAll('cdb')">Deseleccionar todo</button>
+
+    <!-- Top 10 bajo demanda -->
+    <div class="sales-wrap" style="margin-bottom:20px">
+      <div class="sales-hd">
+        <div class="shd-title"><i class="ti ti-trophy"></i>Top 10 más vendidos · CDB</div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <div class="smb-select-wrap" style="min-width:160px">
+            <i class="ti ti-calendar"></i>
+            <select id="cdb-top10-month" class="smb-select"></select>
+          </div>
+          <button class="btn-smb-load" onclick="loadTop10('cdb')"><i class="ti ti-chart-bar"></i>Calcular Top 10</button>
+        </div>
       </div>
-      <div id="cdb-sales-table-body"><div class="sales-empty">Selecciona un mes y presiona Cargar</div></div>
+      <div id="cdb-top10-body" style="padding:14px 18px">
+        <div class="mensual-empty"><i class="ti ti-chart-bar-off"></i><span>Presiona "Calcular Top 10" para ver resultados</span></div>
+      </div>
     </div>
-    <!-- Gastos CDB del mes -->
+
+    <!-- Gastos CDB -->
     <div class="gastos-grid">
       <div class="gasto-form-panel">
-        <div class="panel-hd"><div class="phd-icon" style="background:linear-gradient(135deg,var(--r600),#f87171)"><i class="ti ti-minus"></i></div><div><div class="ptitle">Registrar Gasto</div><div class="psub">Gastos operativos del mes · CDB</div></div></div>
+        <div class="panel-hd"><div class="phd-icon" style="background:linear-gradient(135deg,var(--r600),#f87171)"><i class="ti ti-minus"></i></div><div><div class="ptitle">Registrar Gasto</div><div class="psub">Gastos operativos · CDB</div></div></div>
         <div class="form-body">
           <div class="field"><label>Nombre del gasto</label><input type="text" id="cdb-gasto-nombre" placeholder="Ej. Renta, servicios, transporte..." maxlength="80" autocomplete="off"></div>
           <div class="field"><label>Monto ($)</label><input type="number" id="cdb-gasto-monto" placeholder="0.00" min="0" step="0.01"></div>
-          <button class="btn-add" style="background:linear-gradient(135deg,var(--r600),#f87171);box-shadow:0 4px 14px rgba(220,38,38,.3)" onclick="addGasto('cdb')"><i class="ti ti-plus"></i>Agregar Gasto</button>
+          <button class="btn-add" style="background:linear-gradient(135deg,var(--r600),#f87171);box-shadow:0 4px 14px rgba(220,38,38,.3)" onclick="addGasto('cdb')"><i class="ti ti-plus"></i>Agregar Gasto CDB</button>
           <div class="form-error" id="cdb-gasto-error"></div>
         </div>
       </div>
       <div class="gasto-list-panel">
-        <div class="panel-hd"><div class="phd-icon" style="background:linear-gradient(135deg,var(--r600),#f87171)"><i class="ti ti-list"></i></div><div><div class="ptitle">Gastos del mes</div><div class="psub" id="cdb-gastos-periodo">—</div></div></div>
+        <div class="panel-hd">
+          <div class="phd-icon" style="background:linear-gradient(135deg,var(--r600),#f87171)"><i class="ti ti-list"></i></div>
+          <div><div class="ptitle">Gastos del mes</div><div class="psub" id="cdb-gastos-periodo">—</div></div>
+          <div class="smb-select-wrap" style="min-width:140px;margin-left:auto">
+            <i class="ti ti-calendar"></i>
+            <select id="cdb-gastos-month-select" class="smb-select" onchange="loadGastosMes('cdb',this.value)"></select>
+          </div>
+        </div>
         <div id="cdb-gastos-list"><div class="sales-empty">Sin gastos este mes</div></div>
       </div>
     </div>
@@ -843,150 +868,76 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       <div class="sales-hd"><div class="shd-title"><i class="ti ti-history"></i>Ventas eliminadas · CDB</div><button class="btn-clr" onclick="clearDeletedSales('cdb')"><i class="ti ti-trash"></i>Limpiar todo</button></div>
       <div id="cdb-deleted-sales-table-body"></div>
     </div>
+
+    <!-- Historial mensual archivado CDB -->
+    <div class="sales-wrap" style="margin-top:20px">
+      <div class="sales-hd">
+        <div class="shd-title"><i class="ti ti-calendar-stats"></i>Historial mensual archivado · CDB</div>
+        <button class="btn-smb-load" onclick="loadHistorialMensual('cdb')" style="padding:7px 14px;font-size:12px"><i class="ti ti-refresh"></i>Cargar historial</button>
+      </div>
+      <div id="cdb-historial-mensual-body" style="padding:14px 18px">
+        <div class="mensual-empty"><i class="ti ti-calendar-off"></i><span>Presiona "Cargar historial" para ver meses archivados</span></div>
+      </div>
+    </div>
   </div>
 
-  <!-- ═══ ESTADÍSTICAS TOTAL ═══ -->
-  <div class="tab-content" id="tab-stats-total">
-    <!-- Selector de mes -->
+  <!-- ═══ VENTAS EXSAL ═══ -->
+  <div class="tab-content" id="tab-ventas-exsal">
     <div class="stats-month-bar">
       <div class="smb-icon"><i class="ti ti-calendar-stats"></i></div>
       <label>Mes</label>
       <div class="smb-select-wrap">
         <i class="ti ti-calendar"></i>
-        <select id="total-month-select" class="smb-select" onchange="onStatsMonthChange('total')"></select>
+        <select id="ventas-exsal-month-select" class="smb-select" onchange="onVentasMonthChange('exsal')"></select>
       </div>
-      <button class="btn-smb-load" onclick="loadStatsMonth('total')"><i class="ti ti-refresh"></i>Cargar</button>
-      <div class="smb-status" id="total-smb-status"><div class="smb-dot" id="total-smb-dot"></div><span id="total-smb-txt">Selecciona un mes</span></div>
-    </div>
-    <div class="fin-grid">
-      <div class="fin-card"><div class="fin-label">Ventas totales</div><div class="fin-value fv-blue" id="tot-fs-ventas">$0.00</div></div>
-      <div class="fin-card"><div class="fin-label">Costos totales</div><div class="fin-value fv-orange" id="tot-fs-costos">$0.00</div></div>
-      <div class="fin-card"><div class="fin-label">Ganancia neta</div><div class="fin-value fv-green" id="tot-fs-ganancia">$0.00</div></div>
-      <div class="fin-card"><div class="fin-label">Unidades vendidas</div><div class="fin-value fv-blue" id="tot-fs-units">0</div></div>
-      <div class="fin-card fin-card-gasto"><div class="fin-label">Gastos totales</div><div class="fin-value" id="tot-fs-gastos">$0.00</div></div>
-      <div class="fin-card"><div class="fin-label">Ganancia real (−gastos)</div><div class="fin-value fv-green" id="tot-fs-ganancia-real">$0.00</div></div>
-      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Valor inventario total (a costo)</div><div class="fin-value fv-orange" id="tot-si-valor">$0.00</div></div>
-      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Valor inventario total (precio venta)</div><div class="fin-value fv-green" id="tot-si-valor-venta-stats">$0.00</div></div>
-      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Ventas totales − Costos totales</div><div class="fin-value" id="tot-fs-costos-menos-ventas" style="color:var(--r600)">$0.00</div></div>
+      <button class="btn-smb-load" onclick="loadVentasMes('exsal')"><i class="ti ti-refresh"></i>Cargar</button>
+      <div class="smb-status" id="ventas-exsal-smb-status"><div class="smb-dot" id="ventas-exsal-smb-dot"></div><span id="ventas-exsal-smb-txt">Selecciona un mes</span></div>
     </div>
     <div class="sales-wrap">
-      <div class="sales-hd"><div class="shd-title"><i class="ti ti-receipt"></i>Historial de ventas · Total</div></div>
-      <div class="inv-sel-bar" id="total-sel-bar">
-        <span class="inv-sel-count"><i class="ti ti-checkbox"></i><span id="total-sel-count">0</span> seleccionadas</span>
-        <button class="btn-inv" onclick="abrirModalFactura('total')"><i class="ti ti-file-invoice"></i>Generar Factura</button>
-        <button class="btn-inv-ghost" onclick="deselectAll('total')">Deseleccionar todo</button>
-      </div>
-      <div id="tot-sales-table-body"><div class="sales-empty">Selecciona un mes y presiona Cargar</div></div>
-    </div>
-    <!-- Gastos Totales del mes -->
-    <div class="gastos-grid">
-      <div class="gasto-form-panel">
-        <div class="panel-hd"><div class="phd-icon" style="background:linear-gradient(135deg,var(--r600),#f87171)"><i class="ti ti-minus"></i></div><div><div class="ptitle">Registrar Gasto</div><div class="psub">Gastos operativos generales</div></div></div>
-        <div class="form-body">
-          <div class="field"><label>Nombre del gasto</label><input type="text" id="total-gasto-nombre" placeholder="Ej. Renta, servicios, transporte..." maxlength="80" autocomplete="off"></div>
-          <div class="field"><label>Monto ($)</label><input type="number" id="total-gasto-monto" placeholder="0.00" min="0" step="0.01"></div>
-          <div class="field"><label>Sucursal</label>
-            <select id="total-gasto-suc" style="width:100%;background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:9px 13px;font-size:14px;font-family:inherit;color:var(--tp);outline:none;cursor:pointer">
-              <option value="general">General (ambas)</option>
-              <option value="exsal">EXSAL</option>
-              <option value="cdb">CDB</option>
-            </select>
+      <div class="sales-hd">
+        <div class="shd-title"><i class="ti ti-receipt"></i>Historial de ventas · EXSAL</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="inv-sel-bar" id="exsal-sel-bar" style="border:none;background:none;padding:0">
+            <span class="inv-sel-count"><i class="ti ti-checkbox"></i><span id="exsal-sel-count">0</span> sel.</span>
+            <button class="btn-inv" onclick="abrirModalFactura('exsal')"><i class="ti ti-file-invoice"></i>Factura</button>
+            <button class="btn-inv-ghost" onclick="deselectAll('exsal')">Limpiar</button>
           </div>
-          <button class="btn-add" style="background:linear-gradient(135deg,var(--r600),#f87171);box-shadow:0 4px 14px rgba(220,38,38,.3)" onclick="addGasto('total')"><i class="ti ti-plus"></i>Agregar Gasto</button>
-          <div class="form-error" id="total-gasto-error"></div>
         </div>
       </div>
-      <div class="gasto-list-panel">
-        <div class="panel-hd"><div class="phd-icon" style="background:linear-gradient(135deg,var(--r600),#f87171)"><i class="ti ti-list"></i></div><div><div class="ptitle">Gastos del mes</div><div class="psub" id="total-gastos-periodo">—</div></div></div>
-        <div id="total-gastos-list"><div class="sales-empty">Sin gastos este mes</div></div>
+      <div id="exsal-sales-table-body"><div class="sales-empty">Selecciona un mes y presiona Cargar</div></div>
+      <div id="exsal-sales-load-more-row" class="load-more-row" style="display:none">
+        <button class="btn-load-more" id="exsal-sales-load-more-btn" onclick="loadMoreVentas('exsal')"><i class="ti ti-arrow-down"></i>Cargar más ventas</button>
       </div>
-    </div>
-    <div class="sales-wrap" id="tot-deleted-sales-wrap" style="margin-top:20px;display:none">
-      <div class="sales-hd"><div class="shd-title"><i class="ti ti-history"></i>Ventas eliminadas · Total</div></div>
-      <div id="tot-deleted-sales-table-body"></div>
-    </div>
-    <!-- Migración (solo usar una vez) -->
-    <div style="margin-top:28px;padding:14px 18px;background:var(--b50);border:1.5px dashed var(--b200);border-radius:var(--rmd);display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-      <i class="ti ti-database" style="font-size:18px;color:var(--b400)"></i>
-      <div style="flex:1">
-        <div style="font-size:12px;font-weight:700;color:var(--tp)">Migración de datos (uso único)</div>
-        <div style="font-size:11px;color:var(--tm);margin-top:2px">Agrega el campo "mes" a ventas históricas para que aparezcan filtradas correctamente. Correr solo una vez.</div>
-      </div>
-      <button onclick="migrarVentasMes()" style="padding:8px 16px;background:var(--wh);border:1.5px solid var(--b200);border-radius:var(--rp);font-size:12px;font-weight:700;color:var(--b600);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px"><i class="ti ti-database-import"></i>Migrar ventas históricas</button>
     </div>
   </div>
 
-  <!-- ═══ ESTADÍSTICAS MENSUALES ═══ -->
-  <div class="tab-content" id="tab-stats-mensual">
-
-    <!-- Selector de mes -->
-    <div class="mensual-header-bar">
-      <div style="display:flex;align-items:center;gap:10px">
-        <div class="phd-icon"><i class="ti ti-calendar-stats"></i></div>
-        <div>
-          <div style="font-size:16px;font-weight:700;color:var(--tp)">Reporte Mensual</div>
-          <div style="font-size:11px;color:var(--tm)">Selecciona el mes a analizar</div>
-        </div>
+  <!-- ═══ VENTAS CDB ═══ -->
+  <div class="tab-content" id="tab-ventas-cdb">
+    <div class="stats-month-bar">
+      <div class="smb-icon"><i class="ti ti-calendar-stats"></i></div>
+      <label>Mes</label>
+      <div class="smb-select-wrap">
+        <i class="ti ti-calendar"></i>
+        <select id="ventas-cdb-month-select" class="smb-select" onchange="onVentasMonthChange('cdb')"></select>
       </div>
-      <div class="mensual-select-wrap">
-        <i class="ti ti-calendar" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--b300);pointer-events:none"></i>
-        <select id="mensual-month-select" onchange="renderMonthlyStats()" style="width:100%;background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rp);padding:9px 13px 9px 34px;font-size:13px;font-family:inherit;color:var(--tp);outline:none;cursor:pointer;appearance:none">
-          <option value="">Sin datos aún</option>
-        </select>
-      </div>
+      <button class="btn-smb-load" onclick="loadVentasMes('cdb')"><i class="ti ti-refresh"></i>Cargar</button>
+      <div class="smb-status" id="ventas-cdb-smb-status"><div class="smb-dot" id="ventas-cdb-smb-dot"></div><span id="ventas-cdb-smb-txt">Selecciona un mes</span></div>
     </div>
-
-    <!-- Layout 2 columnas -->
-    <div class="mensual-layout">
-
-      <!-- Columna izquierda: métricas -->
-      <div class="mensual-metrics">
-        <div class="mensual-kpi-grid">
-          <div class="mensual-kpi mk-blue">
-            <div class="mk-icon"><i class="ti ti-trending-up"></i></div>
-            <div class="mk-label">Ventas del mes</div>
-            <div class="mk-value" id="mensual-ventas">$0.00</div>
-          </div>
-          <div class="mensual-kpi mk-orange">
-            <div class="mk-icon"><i class="ti ti-receipt"></i></div>
-            <div class="mk-label">Costos del mes</div>
-            <div class="mk-value" id="mensual-costos">$0.00</div>
-          </div>
-          <div class="mensual-kpi mk-green">
-            <div class="mk-icon"><i class="ti ti-coin"></i></div>
-            <div class="mk-label">Ganancia neta</div>
-            <div class="mk-value" id="mensual-ganancia">$0.00</div>
-          </div>
-          <div class="mensual-kpi mk-neutral">
-            <div class="mk-icon"><i class="ti ti-packages"></i></div>
-            <div class="mk-label">Unidades vendidas</div>
-            <div class="mk-value" id="mensual-units">0</div>
-          </div>
-          <div class="mensual-kpi mk-neutral">
-            <div class="mk-icon"><i class="ti ti-list-check"></i></div>
-            <div class="mk-label">Transacciones</div>
-            <div class="mk-value" id="mensual-transacciones">0</div>
-          </div>
-          <div class="mensual-kpi mk-green">
-            <div class="mk-icon"><i class="ti ti-chart-bar"></i></div>
-            <div class="mk-label">Promedio por compra</div>
-            <div class="mk-value" id="mensual-avg">$0.00</div>
+    <div class="sales-wrap">
+      <div class="sales-hd">
+        <div class="shd-title"><i class="ti ti-receipt"></i>Historial de ventas · CDB</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="inv-sel-bar" id="cdb-sel-bar" style="border:none;background:none;padding:0">
+            <span class="inv-sel-count"><i class="ti ti-checkbox"></i><span id="cdb-sel-count">0</span> sel.</span>
+            <button class="btn-inv" onclick="abrirModalFactura('cdb')"><i class="ti ti-file-invoice"></i>Factura</button>
+            <button class="btn-inv-ghost" onclick="deselectAll('cdb')">Limpiar</button>
           </div>
         </div>
       </div>
-
-      <!-- Columna derecha: top 5 -->
-      <div class="mensual-top5-panel">
-        <div class="mensual-top5-hd">
-          <i class="ti ti-trophy" style="color:#d97706;font-size:17px"></i>
-          <span>Top 5 más vendidos</span>
-          <span style="font-size:11px;font-weight:400;color:var(--tm);margin-left:auto">% de stock vendido</span>
-        </div>
-        <div id="mensual-top5">
-          <div class="mensual-empty"><i class="ti ti-chart-bar-off"></i><span>Sin ventas en este período</span></div>
-        </div>
+      <div id="cdb-sales-table-body"><div class="sales-empty">Selecciona un mes y presiona Cargar</div></div>
+      <div id="cdb-sales-load-more-row" class="load-more-row" style="display:none">
+        <button class="btn-load-more" id="cdb-sales-load-more-btn" onclick="loadMoreVentas('cdb')"><i class="ti ti-arrow-down"></i>Cargar más ventas</button>
       </div>
-
     </div>
   </div>
 
@@ -1138,6 +1089,14 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
         <div class="field"><label>Stock EXSAL</label><input type="number" id="edit-stock-exsal" min="0" step="1"></div>
         <div class="field"><label>Stock CDB</label><input type="number" id="edit-stock-cdb" min="0" step="1"></div>
       </div>
+      <!-- Checkbox: afectar costos en estadisticas -->
+      <label style="display:flex;align-items:flex-start;gap:10px;background:var(--w50);border:1.5px solid var(--w100);border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none;margin-top:4px">
+        <input type="checkbox" id="edit-affect-costos" style="margin-top:2px;width:15px;height:15px;accent-color:var(--b400);flex-shrink:0;cursor:pointer">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--tp)">Afectar costos acumulados en estadísticas</div>
+          <div style="font-size:11px;color:var(--tm);margin-top:1px">Marca si el cambio de costo debe actualizar el campo "costos" de la sede. Se calcula como: (nuevo costo − costo anterior) × stock actual de la sede.</div>
+        </div>
+      </label>
       <div class="form-error" id="edit-error"></div>
     </div>
     <div class="edit-footer">
@@ -1241,13 +1200,17 @@ const db=firebase.firestore(), auth=firebase.auth();
 let products=[], sales=[], deletedSales=[], orders=[], descuentos=[], gastos=[];
 let sortAsc={exsal:false,cdb:false,total:false};
 let activePid=null, activeSucursal=null;
-let unsubProd=null, unsubDeleted=null, unsubOrders=null, unsubRestock=null, unsubDescuentos=null, unsubGastos=null;
+let unsubProd=null, unsubDeleted=null, unsubOrders=null, unsubRestock=null, unsubDescuentos=null, unsubGastos=null, unsubEstadisticas=null;
 let restockHistory=[];
 let restockPendingData=null;
-// Estado de carga de stats por mes
-let statsLoaded={exsal:false,cdb:false,total:false};
-let statsMonth={exsal:'',cdb:'',total:''};  // mes actualmente cargado en cada tab
-let gastosMes={exsal:'',cdb:'',total:''};   // mes del listener de gastos activo
+// Estado de carga de ventas por mes (nuevo apartado ventas)
+let ventasLoaded={exsal:false,cdb:false};
+let ventasMesActual={exsal:'',cdb:''};
+let ventasPaginadas={exsal:[],cdb:[]};       // todas las ventas cargadas del mes
+let ventasShown={exsal:0,cdb:0};             // cuántas se muestran actualmente
+const VENTAS_PAGE_SIZE=10;
+// Estadisticas desde colección (acumulados)
+let estadisticasData={exsal:{ventas:0,costos:0,unidadesVendidas:0,numeroVentas:0},cdb:{ventas:0,costos:0,unidadesVendidas:0,numeroVentas:0}};
 
 // ── PAGINACIÓN ──
 const PROD_PAGE_SIZE=20;
@@ -1381,30 +1344,99 @@ function buildMonthOptions(){
   }
   return keys;
 }
-function populateStatsMonthSelectors(){
-  const now=getMonthKey();
-  const keys=buildMonthOptions();
-  const opts=keys.map(k=>`<option value="${k}">${monthKeyToLabel(k)}</option>`).join('');
-  ['exsal','cdb','total'].forEach(suc=>{
-    const sel=document.getElementById(suc+'-month-select');
-    if(!sel)return;
-    const prev=sel.value;
-    sel.innerHTML=opts;
-    sel.value=(prev&&keys.includes(prev))?prev:now;
-    // también sincronizar el mensual
-  });
-  // Mensual usa su propio selector
-  const msel=document.getElementById('mensual-month-select');
-  if(msel){
-    const prev=msel.value;
-    msel.innerHTML=opts;
-    msel.value=(prev&&keys.includes(prev))?prev:now;
+// populateStatsMonthSelectors replaced by populateVentasMonthSelectors and populateGastosMonthSelectors
+
+// ── INICIALIZAR COLECCIÓN ESTADÍSTICAS (si no existe) ──
+async function ensureEstadisticasInit(){
+  const docsToInit=[
+    {id:'ColegioExsal',data:{'ventas':2.10,'costos':5.33,'unidades vendidas':14,'numero de ventas':1}},
+    {id:'ColegioDonBosco',data:{'ventas':362.20,'costos':346.19,'unidades vendidas':1037,'numero de ventas':296}}
+  ];
+  for(const d of docsToInit){
+    const ref=db.collection('estadisticas').doc(d.id);
+    const snap=await ref.get();
+    if(!snap.exists){
+      await ref.set(d.data);
+      console.log('Inicializado estadisticas/'+d.id);
+    }
+  }
+  // Revisar si hay que hacer reset mensual
+  await checkMonthlyReset();
+}
+
+// ── RESET MENSUAL DE ESTADÍSTICAS ──
+async function checkMonthlyReset(){
+  const mesActual=getMonthKey();
+  try{
+    // Leer el meta-documento que guarda el último mes procesado
+    const metaRef=db.collection('estadisticas').doc('_meta');
+    const metaSnap=await metaRef.get();
+    const lastMes=metaSnap.exists?metaSnap.data().ultimoMes:null;
+
+    if(lastMes===mesActual){
+      // Ya estamos en el mismo mes, nada que hacer
+      return;
+    }
+
+    // Es un mes nuevo → archivar estadísticas actuales y resetear
+    const docs=[
+      {id:'ColegioExsal',suc:'exsal'},
+      {id:'ColegioDonBosco',suc:'cdb'}
+    ];
+
+    for(const d of docs){
+      const ref=db.collection('estadisticas').doc(d.id);
+      const snap=await ref.get();
+      if(!snap.exists) continue;
+      const data=snap.data();
+
+      // Solo archivar si había datos del mes anterior
+      if(lastMes){
+        // Guardar snapshot del mes anterior en estadisticas-historial
+        await db.collection('estadisticas-historial').add({
+          sucursal:d.suc,
+          mes:lastMes,
+          mesLabel:monthKeyToLabel(lastMes),
+          ventas:data.ventas||0,
+          costos:data.costos||0,
+          'unidades vendidas':data['unidades vendidas']||0,
+          'numero de ventas':data['numero de ventas']||0,
+          archivedAt:Date.now()
+        });
+      }
+
+      // Resetear a 0 (pero mantener costos del inventario actual = valor inventario a costo)
+      // Los costos de inventario son parte estructural, no se resetean; solo ventas, unidades, num ventas
+      // Para costos: reseteamos el acumulado de ventas/gastos del mes, pero el valor del inventario
+      // se recalcula dinámicamente en updateAllInvStats(), así que los costos del doc quedan en 0.
+      await ref.update({
+        'ventas':0,
+        'costos':0,
+        'unidades vendidas':0,
+        'numero de ventas':0
+      });
+    }
+
+    // Actualizar el meta con el mes actual
+    await metaRef.set({ultimoMes:mesActual,updatedAt:Date.now()});
+
+    if(lastMes){
+      showToast('Estadísticas archivadas · Inicio de '+monthKeyToLabel(mesActual),'ti-calendar-stats');
+      console.log('Reset mensual completado. Mes anterior:',lastMes,'→ archivado en estadisticas-historial');
+    } else {
+      // Primera vez: solo registrar el mes actual sin resetear
+      await metaRef.set({ultimoMes:mesActual,updatedAt:Date.now()});
+    }
+  }catch(e){
+    console.warn('Error en reset mensual:',e);
   }
 }
 
 // ── LISTENERS ──
 function startListeners(){
   setSave('saving','Sincronizando...');
+  // Inicializar colección estadisticas si no existe
+  ensureEstadisticasInit().catch(e=>console.warn('estadisticas init:',e));
   // Productos: sin límite, necesario para todo el inventario
   unsubProd=db.collection("productos").onSnapshot(snap=>{
     products=[];
@@ -1418,7 +1450,7 @@ function startListeners(){
     }
   },()=>setSave('error','Error de conexión'));
 
-  // Ventas eliminadas: limitado, no necesita tiempo real completo
+  // Ventas eliminadas: limitado
   unsubDeleted=db.collection("ventas-eliminadas").orderBy("deletedAt","desc").limit(DELETED_LIMIT).onSnapshot(snap=>{
     deletedSales=[];snap.forEach(doc=>deletedSales.push({id:doc.id,...doc.data()}));
     renderAllDeletedSales();
@@ -1456,11 +1488,26 @@ function startListeners(){
     populateDiscountSelect();
   });
 
-  // Inicializar selectores de mes y cargar mes actual automáticamente
-  populateStatsMonthSelectors();
-  const nowKey=getMonthKey();
-  ['exsal','cdb','total'].forEach(suc=>loadStatsMonth(suc,nowKey));
-  renderMonthlyStats();
+  // ── ESTADÍSTICAS ACUMULADAS: listener en tiempo real ──
+  unsubEstadisticas=db.collection("estadisticas").onSnapshot(snap=>{
+    snap.forEach(doc=>{
+      const d=doc.data();
+      const key=doc.id==='ColegioExsal'?'exsal':doc.id==='ColegioDonBosco'?'cdb':null;
+      if(!key)return;
+      estadisticasData[key]={
+        ventas:d.ventas||0,
+        costos:d.costos||0,
+        unidadesVendidas:d['unidades vendidas']||0,
+        numeroVentas:d['numero de ventas']||0
+      };
+    });
+    renderEstadisticasKpis('exsal');
+    renderEstadisticasKpis('cdb');
+  },err=>console.error('Error estadisticas listener',err));
+
+  // Inicializar selectores de mes para ventas y gastos
+  populateVentasMonthSelectors();
+  populateGastosMonthSelectors();
 }
 
 // ── HELPERS ──
@@ -1512,8 +1559,9 @@ function updateAllInvStats(){
   document.getElementById('exsal-si-total').textContent=products.length;
   document.getElementById('exsal-si-stock').textContent=exsalStock.toLocaleString('es');
   document.getElementById('exsal-si-valor-venta').textContent=fmt(exsalVenta);
-  document.getElementById('exsal-si-valor').textContent=fmt(exsalCosto);
-  document.getElementById('exsal-si-valor-venta-stats').textContent=fmt(exsalVenta);
+  // Actualizar valor inventario en estadisticas EXSAL
+  const exsalValEl=document.getElementById('exsal-si-valor');
+  if(exsalValEl) exsalValEl.textContent=fmt(exsalCosto);
 
   const cdbStock=products.reduce((s,p)=>s+getStock(p,'cdb'),0);
   const cdbVenta=products.reduce((s,p)=>s+(p.price*getStock(p,'cdb')),0);
@@ -1521,17 +1569,15 @@ function updateAllInvStats(){
   document.getElementById('cdb-si-total').textContent=products.length;
   document.getElementById('cdb-si-stock').textContent=cdbStock.toLocaleString('es');
   document.getElementById('cdb-si-valor-venta').textContent=fmt(cdbVenta);
-  document.getElementById('cdb-si-valor').textContent=fmt(cdbCosto);
-  document.getElementById('cdb-si-valor-venta-stats').textContent=fmt(cdbVenta);
+  // Actualizar valor inventario en estadisticas CDB
+  const cdbValEl=document.getElementById('cdb-si-valor');
+  if(cdbValEl) cdbValEl.textContent=fmt(cdbCosto);
 
   const totStock=exsalStock+cdbStock;
   const totVenta=exsalVenta+cdbVenta;
-  const totCosto=exsalCosto+cdbCosto;
   document.getElementById('total-si-total').textContent=products.length;
   document.getElementById('total-si-stock').textContent=totStock.toLocaleString('es');
   document.getElementById('total-si-valor-venta').textContent=fmt(totVenta);
-  document.getElementById('tot-si-valor').textContent=fmt(totCosto);
-  document.getElementById('tot-si-valor-venta-stats').textContent=fmt(totVenta);
 
   document.getElementById('header-badge').textContent=products.length+' prod.';
 }
@@ -1721,7 +1767,16 @@ async function addProduct(suc){
     if(suc==='exsal') data.stockExsal=stock;
     else data.stockCdb=stock;
     try{
-      await db.collection("productos").add(data);
+      const batch=db.batch();
+      batch.set(db.collection("productos").doc(),data);
+      // Sumar costo inicial a estadisticas de la sede
+      if(stock>0){
+        const statDocId=suc==='exsal'?'ColegioExsal':'ColegioDonBosco';
+        batch.update(db.collection("estadisticas").doc(statDocId),{
+          'costos':firebase.firestore.FieldValue.increment(+(cost*stock).toFixed(4))
+        });
+      }
+      await batch.commit();
       [pre+'name',pre+'desc',pre+'imageurl',pre+'cost',pre+'price',pre+'stock'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
       previewImg(suc);
       document.getElementById(pre+'name').focus();
@@ -1773,7 +1828,16 @@ async function addProductTotal(){
     if(imageUrl) data.imageUrl=imageUrl;
     if(suc==='exsal'){data.stockExsal=stock;}else{data.stockCdb=stock;}
     try{
-      await db.collection("productos").add(data);
+      const batch=db.batch();
+      batch.set(db.collection("productos").doc(),data);
+      // Sumar costo inicial a estadisticas de la sede
+      if(stock>0){
+        const statDocId=suc==='exsal'?'ColegioExsal':'ColegioDonBosco';
+        batch.update(db.collection("estadisticas").doc(statDocId),{
+          'costos':firebase.firestore.FieldValue.increment(+(cost*stock).toFixed(4))
+        });
+      }
+      await batch.commit();
       ['total-f-name','total-f-desc','total-f-imageurl','total-f-cost','total-f-price','total-f-stock'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
       previewImg('total');
       document.getElementById('total-f-name').focus();
@@ -1901,6 +1965,7 @@ async function registerSale(){
   const discNombre=discObj?discObj.nombre:'';
   const totalSinDescuento=+(p.price*qty).toFixed(2);
   const totalConDescuento=+(totalSinDescuento*(1-discPct/100)).toFixed(2);
+  const costoTotal=+(p.cost*qty).toFixed(2);
 
   let stockUpdate={};
   if(activeSucursal==='exsal'){
@@ -1914,12 +1979,16 @@ async function registerSale(){
     if(fromCdb>0)   stockUpdate.stockCdb=firebase.firestore.FieldValue.increment(-fromCdb);
   }
 
+  // Determinar sede para estadisticas
+  const statSuc=activeSucursal==='total'?'exsal':activeSucursal; // 'total' no deberia ocurrir aqui
+  const statDocId=statSuc==='exsal'?'ColegioExsal':'ColegioDonBosco';
+
   try{
     const batch=db.batch();
     batch.update(db.collection("productos").doc(p.id),stockUpdate);
     const saleData={
       orderNumber:'ORD-'+Date.now().toString().slice(-6),productName:p.name,qty,
-      costTotal:+(p.cost*qty).toFixed(2),
+      costTotal:costoTotal,
       total:totalConDescuento,
       seller:sellerEmail,
       sucursal:activeSucursal==='total'?'total':activeSucursal,
@@ -1931,6 +2000,12 @@ async function registerSale(){
       saleData.descuentoAplicado={nombre:discNombre,porcentaje:discPct,totalSinDescuento};
     }
     batch.set(db.collection("ventas").doc(),saleData);
+    // Actualizar estadisticas acumuladas
+    batch.update(db.collection("estadisticas").doc(statDocId),{
+      'ventas':firebase.firestore.FieldValue.increment(totalConDescuento),
+      'unidades vendidas':firebase.firestore.FieldValue.increment(qty),
+      'numero de ventas':firebase.firestore.FieldValue.increment(1)
+    });
     await batch.commit();
     document.getElementById('pm-sell-qty-display').textContent=0;
     document.getElementById('pm-confirm-qty').textContent=0;
@@ -1942,7 +2017,7 @@ async function registerSale(){
     if(dprev) dprev.classList.remove('show');
     const discMsg=discPct>0?` · -${discPct}% ${discNombre}`:'';
     showToast(`Venta registrada · ${sellerEmail.split('@')[0]}${discMsg}`,'ti-shopping-cart');
-  }catch(e){showToast('Error en la venta','ti-alert-circle');}
+  }catch(e){showToast('Error en la venta','ti-alert-circle');console.error(e);}
 }
 
 document.getElementById('pm-overlay').addEventListener('click',e=>{if(e.target.id==='pm-overlay')closePM();});
@@ -1975,6 +2050,7 @@ async function saveEdit(){
   const price=parseFloat(document.getElementById('edit-price').value);
   const stockExsal=parseInt(document.getElementById('edit-stock-exsal').value);
   const stockCdb=parseInt(document.getElementById('edit-stock-cdb').value);
+  const affectCostos=(document.getElementById('edit-affect-costos')||{checked:false}).checked;
   const err=document.getElementById('edit-error');
   if(!name){err.textContent='El nombre es obligatorio.';return;}
   if(isNaN(cost)||cost<0){err.textContent='Costo inválido.';return;}
@@ -1982,11 +2058,32 @@ async function saveEdit(){
   if(isNaN(stockExsal)||stockExsal<0){err.textContent='Stock EXSAL inválido.';return;}
   if(isNaN(stockCdb)||stockCdb<0){err.textContent='Stock CDB inválido.';return;}
   err.textContent='';
+
+  const oldProd=products.find(x=>x.id===activePid);
+  const oldCost=oldProd?oldProd.cost:cost;
+
   const updateData={name,desc,cost,price,stockExsal,stockCdb};
   if(imageUrl) updateData.imageUrl=imageUrl;
   else updateData.imageUrl=firebase.firestore.FieldValue.delete();
   try{
-    await db.collection("productos").doc(activePid).update(updateData);
+    const batch=db.batch();
+    batch.update(db.collection("productos").doc(activePid),updateData);
+    // Si checkbox activado y cambió el costo, afectar estadisticas
+    if(affectCostos&&oldProd&&cost!==oldCost){
+      const diffExsal=+(cost-oldCost).toFixed(4)*stockExsal;
+      const diffCdb=+(cost-oldCost).toFixed(4)*stockCdb;
+      if(stockExsal>0&&diffExsal!==0){
+        batch.update(db.collection("estadisticas").doc('ColegioExsal'),{
+          'costos':firebase.firestore.FieldValue.increment(+diffExsal.toFixed(4))
+        });
+      }
+      if(stockCdb>0&&diffCdb!==0){
+        batch.update(db.collection("estadisticas").doc('ColegioDonBosco'),{
+          'costos':firebase.firestore.FieldValue.increment(+diffCdb.toFixed(4))
+        });
+      }
+    }
+    await batch.commit();
     closeEditModal();
     document.getElementById('pm-name').textContent=name;
     document.getElementById('pm-desc').textContent=desc;
@@ -1994,73 +2091,89 @@ async function saveEdit(){
     document.getElementById('pm-price-val').textContent=fmt(price);
     const s=activeSucursal==='exsal'?stockExsal:activeSucursal==='cdb'?stockCdb:stockExsal+stockCdb;
     document.getElementById('pm-stock-num').textContent=s;
+    // Reset checkbox
+    const cb=document.getElementById('edit-affect-costos');
+    if(cb) cb.checked=false;
     showToast('Producto actualizado','ti-circle-check');
   }catch(e){showToast('Error al guardar','ti-alert-circle');}
 }
 document.getElementById('edit-overlay').addEventListener('click',e=>{if(e.target.id==='edit-overlay')closeEditModal();});
 
-// ── ESTADÍSTICAS ──
+// ── ESTADÍSTICAS (desde colección estadisticas) ──
+function renderEstadisticasKpis(suc){
+  const d=estadisticasData[suc];
+  const ganancia=d.ventas-d.costos;
+  document.getElementById(suc+'-stat-ventas').textContent=fmt(d.ventas);
+  document.getElementById(suc+'-stat-costos').textContent=fmt(d.costos);
+  const gEl=document.getElementById(suc+'-stat-ganancia');
+  gEl.textContent=fmt(ganancia);
+  gEl.style.color=ganancia>=0?'var(--g600)':'var(--r600)';
+  document.getElementById(suc+'-stat-units').textContent=d.unidadesVendidas.toLocaleString('es');
+  document.getElementById(suc+'-stat-numventas').textContent=d.numeroVentas.toLocaleString('es');
+}
+
 function renderAllStats(){
-  // Ya no llama a renderStats directamente — las stats se cargan por mes on-demand
-  renderMonthlyStats();
+  renderEstadisticasKpis('exsal');
+  renderEstadisticasKpis('cdb');
   renderPedidos();
 }
 
-// Llamado cuando el usuario cambia el select de mes (marca como no cargado)
-function onStatsMonthChange(suc){
-  statsLoaded[suc]=false;
-  setStatsStatus(suc,'idle');
-}
-
-function setStatsStatus(suc,state,extra){
-  const dot=document.getElementById(suc+'-smb-dot');
-  const txt=document.getElementById(suc+'-smb-txt');
-  if(!dot||!txt)return;
-  if(state==='loading'){dot.className='smb-dot loading';txt.textContent='Cargando...';}
-  else if(state==='ok'){dot.className='smb-dot';txt.textContent=extra||'Listo';}
-  else if(state==='error'){dot.className='smb-dot';dot.style.background='var(--r600)';txt.textContent='Error al cargar';}
-  else{dot.className='smb-dot';dot.style.background='';txt.textContent='Selecciona un mes';}
-}
-
-// Carga ventas de un mes específico desde Firestore (get() puntual, no onSnapshot)
-async function loadStatsMonth(suc, forceKey){
-  const sel=document.getElementById(suc+'-month-select');
-  const monthKey=forceKey||(sel?sel.value:getMonthKey());
-  if(!monthKey)return;
-
-  setStatsStatus(suc,'loading');
-
+// ── HISTORIAL MENSUAL ARCHIVADO ──
+async function loadHistorialMensual(suc){
+  const bodyEl=document.getElementById(suc+'-historial-mensual-body');
+  if(!bodyEl)return;
+  bodyEl.innerHTML=`<div style="padding:20px;text-align:center;color:var(--tm)"><i class="ti ti-loader" style="font-size:20px;animation:spin .7s linear infinite"></i><div style="margin-top:8px;font-size:13px">Cargando historial...</div></div>`;
   try{
-    // Query filtrada por mes — sin orderBy para evitar índice compuesto, se ordena en memoria
-    let q=db.collection('ventas').where('mes','==',monthKey);
-    if(suc!=='total') q=q.where('sucursal','==',suc);
-    const snap=await q.get();
-    const ventasMes=[];
-    snap.forEach(doc=>ventasMes.push({id:doc.id,...doc.data()}));
-    ventasMes.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
-
-    // Guardar en sales solo para este contexto
-    if(suc==='total'){
-      sales=ventasMes;
-    } else {
-      // Mantener las ventas del otro suc si ya están cargadas
-      const otherSuc=suc==='exsal'?'cdb':'exsal';
-      const otherSales=sales.filter(v=>(v.sucursal||'exsal')===otherSuc&&statsMonth[otherSuc]===monthKey);
-      sales=[...ventasMes,...otherSales];
+    const snap=await db.collection('estadisticas-historial')
+      .where('sucursal','==',suc)
+      .orderBy('archivedAt','desc')
+      .get();
+    const docs=[];
+    snap.forEach(doc=>docs.push({id:doc.id,...doc.data()}));
+    if(!docs.length){
+      bodyEl.innerHTML=`<div class="mensual-empty"><i class="ti ti-calendar-off"></i><span>No hay meses archivados aún para ${suc.toUpperCase()}</span></div>`;
+      return;
     }
-
-    statsLoaded[suc]=true;
-    statsMonth[suc]=monthKey;
-
-    renderStats(suc);
-    // Cargar gastos del mes para esta sucursal
-    loadGastosMes(suc, monthKey);
-
-    const n=ventasMes.length;
-    setStatsStatus(suc,'ok',`${n} venta${n!==1?'s':''} · ${monthKeyToLabel(monthKey)}`);
+    bodyEl.innerHTML=`<div style="display:flex;flex-direction:column;gap:10px;padding:4px 0">
+      ${docs.map(d=>{
+        const ventas=d.ventas||0;
+        const costos=d.costos||0;
+        const ganancia=ventas-costos;
+        return `<div style="background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rmd);padding:14px 18px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="width:28px;height:28px;background:linear-gradient(135deg,var(--b400),var(--s400));border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px"><i class="ti ti-calendar"></i></div>
+              <span style="font-size:15px;font-weight:700;color:var(--tp)">${d.mesLabel||d.mes}</span>
+            </div>
+            <span style="font-size:11px;color:var(--tm)">${d.sucursal?d.sucursal.toUpperCase():''}</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+            <div style="text-align:center;background:var(--wh);border-radius:var(--rsm);padding:8px;border:1px solid var(--b100)">
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tm);margin-bottom:3px">Ventas</div>
+              <div style="font-size:15px;font-weight:700;color:var(--b600)">${fmt(ventas)}</div>
+            </div>
+            <div style="text-align:center;background:var(--wh);border-radius:var(--rsm);padding:8px;border:1px solid var(--b100)">
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tm);margin-bottom:3px">Costos</div>
+              <div style="font-size:15px;font-weight:700;color:var(--r600)">${fmt(costos)}</div>
+            </div>
+            <div style="text-align:center;background:var(--wh);border-radius:var(--rsm);padding:8px;border:1px solid var(--b100)">
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tm);margin-bottom:3px">Ganancia</div>
+              <div style="font-size:15px;font-weight:700;color:${ganancia>=0?'var(--g600)':'var(--r600)'}">${fmt(ganancia)}</div>
+            </div>
+            <div style="text-align:center;background:var(--wh);border-radius:var(--rsm);padding:8px;border:1px solid var(--b100)">
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tm);margin-bottom:3px">Ventas #</div>
+              <div style="font-size:15px;font-weight:700;color:var(--b600)">${(d['numero de ventas']||0).toLocaleString('es')}</div>
+            </div>
+          </div>
+          <div style="margin-top:8px;font-size:11px;color:var(--tm);text-align:right">
+            ${d['unidades vendidas']?d['unidades vendidas'].toLocaleString('es')+' uds. vendidas':''}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
   }catch(e){
-    console.error('Error cargando stats',suc,e);
-    setStatsStatus(suc,'error');
+    console.error(e);
+    bodyEl.innerHTML=`<div class="mensual-empty"><i class="ti ti-alert-circle"></i><span>Error al cargar historial</span></div>`;
   }
 }
 
@@ -2074,29 +2187,42 @@ async function addGasto(suc){
   if(montoStr===''||isNaN(monto)||monto<=0){err.textContent='Ingresa un monto válido mayor a 0.';return;}
   err.textContent='';
 
-  const sel=document.getElementById(suc+'-month-select');
+  // Tomar mes del selector de gastos de la sede
+  const sel=document.getElementById(suc+'-gastos-month-select');
   const mes=sel?sel.value:getMonthKey();
-  const sucursal=suc==='total'?(document.getElementById('total-gasto-suc')||{value:'general'}).value:suc;
+  const statDocId=suc==='exsal'?'ColegioExsal':'ColegioDonBosco';
 
   try{
-    await db.collection('gastos').add({
+    const batch=db.batch();
+    batch.set(db.collection('gastos').doc(),{
       nombre,monto:+monto.toFixed(2),
-      sucursal,mes,
+      sucursal:suc,mes,
       timestamp:Date.now(),
       date:new Date().toLocaleDateString('es')
     });
+    // Sumar a costos acumulados de la sede
+    batch.update(db.collection('estadisticas').doc(statDocId),{
+      'costos':firebase.firestore.FieldValue.increment(+monto.toFixed(2))
+    });
+    await batch.commit();
     document.getElementById(suc+'-gasto-nombre').value='';
     document.getElementById(suc+'-gasto-monto').value='';
     showToast('Gasto registrado','ti-minus');
-    // Recargar gastos del mes
     loadGastosMes(suc,mes);
   }catch(e){err.textContent='Error al guardar el gasto.';}
 }
 
-async function deleteGasto(id,suc,mes){
-  if(!confirm('¿Eliminar este gasto?'))return;
+async function deleteGasto(id,suc,mes,monto){
+  if(!confirm('¿Eliminar este gasto? Se restará de los costos acumulados.'))return;
+  const statDocId=suc==='exsal'?'ColegioExsal':'ColegioDonBosco';
   try{
-    await db.collection('gastos').doc(id).delete();
+    const batch=db.batch();
+    batch.delete(db.collection('gastos').doc(id));
+    // Restar de costos acumulados
+    batch.update(db.collection('estadisticas').doc(statDocId),{
+      'costos':firebase.firestore.FieldValue.increment(-(+parseFloat(monto||0).toFixed(2)))
+    });
+    await batch.commit();
     showToast('Gasto eliminado','ti-trash');
     loadGastosMes(suc,mes);
   }catch(e){showToast('Error al eliminar','ti-alert-circle');}
@@ -2109,185 +2235,154 @@ async function loadGastosMes(suc,mes){
   if(!listEl)return;
 
   try{
-    let q=db.collection('gastos').where('mes','==',mes);
-    // Para EXSAL y CDB: cargar gastos de esa sucursal + generales
-    // Para total: cargar todos
-    if(suc!=='total'){
-      // Dos queries separadas porque Firestore no soporta OR en where
-      const [snapSuc,snapGen]=await Promise.all([
-        db.collection('gastos').where('mes','==',mes).where('sucursal','==',suc).get(),
-        db.collection('gastos').where('mes','==',mes).where('sucursal','==','general').get()
-      ]);
-      gastos=[];
-      snapSuc.forEach(doc=>gastos.push({id:doc.id,...doc.data()}));
-      snapGen.forEach(doc=>gastos.push({id:doc.id,...doc.data()}));
-    } else {
-      const snap=await q.get();
-      gastos=[];
-      snap.forEach(doc=>gastos.push({id:doc.id,...doc.data()}));
-    }
-    gastos.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
+    const snap=await db.collection('gastos').where('mes','==',mes).where('sucursal','==',suc).get();
+    const gs=[];
+    snap.forEach(doc=>gs.push({id:doc.id,...doc.data()}));
+    gs.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
 
     if(periodoEl) periodoEl.textContent=monthKeyToLabel(mes);
 
-    const total=gastos.reduce((s,g)=>s+g.monto,0);
-    if(!gastos.length){
+    const total=gs.reduce((s,g)=>s+g.monto,0);
+    if(!gs.length){
       listEl.innerHTML='<div class="sales-empty">Sin gastos en '+monthKeyToLabel(mes)+'</div>';
     } else {
-      const sucClass={exsal:'gs-exsal',cdb:'gs-cdb',general:'gs-general'};
-      listEl.innerHTML=gastos.map(g=>`
+      listEl.innerHTML=gs.map(g=>`
         <div class="gasto-card">
           <div class="gasto-icon"><i class="ti ti-coin-off"></i></div>
           <div class="gasto-info">
             <div class="gasto-nombre">${esc(g.nombre)}</div>
-            <div class="gasto-meta">${g.date||'—'} · <span class="gasto-suc-badge ${sucClass[g.sucursal]||'gs-general'}">${(g.sucursal||'general').toUpperCase()}</span></div>
+            <div class="gasto-meta">${g.date||'—'}</div>
           </div>
           <div class="gasto-monto">${fmt(g.monto)}</div>
-          <button onclick="deleteGasto('${g.id}','${suc}','${mes}')" style="background:none;border:none;cursor:pointer;color:var(--r600);padding:4px 8px;font-size:16px;border-radius:6px"><i class="ti ti-trash"></i></button>
+          <button onclick="deleteGasto('${g.id}','${suc}','${mes}',${g.monto})" style="background:none;border:none;cursor:pointer;color:var(--r600);padding:4px 8px;font-size:16px;border-radius:6px"><i class="ti ti-trash"></i></button>
         </div>`).join('')+
         `<div style="padding:12px 16px;border-top:1.5px dashed var(--r100);display:flex;justify-content:space-between;align-items:center">
           <span style="font-size:12px;font-weight:700;color:var(--tm)">TOTAL GASTOS</span>
           <span style="font-size:17px;font-weight:700;color:var(--r600)">${fmt(total)}</span>
         </div>`;
     }
-    // Actualizar tarjeta de gastos y ganancia real en las stats
-    updateGastosCards(suc,total);
-  }catch(e){console.error('Error cargando gastos',e);}
+  }catch(e){console.error('Error cargando gastos',e);listEl.innerHTML='<div class="sales-empty">Error al cargar</div>';}
 }
 
-function updateGastosCards(suc,totalGastos){
-  const pfx=suc==='total'?'tot':suc;
-  const gasEl=document.getElementById(pfx+'-fs-gastos');
-  const realEl=document.getElementById(pfx+'-fs-ganancia-real');
-  if(!gasEl||!realEl)return;
-  gasEl.textContent=fmt(totalGastos);
-  // Calcular ganancia real = ganancia - gastos
-  const gananciaEl=document.getElementById(pfx+'-fs-ganancia');
-  const ganancia=parseFloat((gananciaEl?.textContent||'$0').replace(/[$,]/g,''))||0;
-  const real=ganancia-totalGastos;
-  realEl.textContent=fmt(real);
-  realEl.style.color=real>=0?'var(--g600)':'var(--r600)';
-}
-
-function populateMonthSelector(){
-  // Ahora solo para el selector de Mensual (los de stats los maneja populateStatsMonthSelectors)
-  const sel=document.getElementById('mensual-month-select');
-  if(!sel)return;
+function populateVentasMonthSelectors(){
   const keys=buildMonthOptions();
   const now=getMonthKey();
-  const currentVal=sel.value;
-  sel.innerHTML=keys.map(k=>`<option value="${k}">${monthKeyToLabel(k)}</option>`).join('');
-  sel.value=(currentVal&&keys.includes(currentVal))?currentVal:now;
+  const opts=keys.map(k=>`<option value="${k}">${monthKeyToLabel(k)}</option>`).join('');
+  ['exsal','cdb'].forEach(suc=>{
+    const sel=document.getElementById('ventas-'+suc+'-month-select');
+    if(!sel)return;
+    sel.innerHTML=opts;
+    sel.value=now;
+  });
+  // Top10 month selectors in estadisticas tabs
+  ['exsal','cdb'].forEach(suc=>{
+    const sel=document.getElementById(suc+'-top10-month');
+    if(!sel)return;
+    sel.innerHTML=opts;
+    sel.value=now;
+  });
 }
 
-async function renderMonthlyStats(){
-  populateMonthSelector();
-  const sel=document.getElementById('mensual-month-select');
+function populateGastosMonthSelectors(){
+  const keys=buildMonthOptions();
+  const now=getMonthKey();
+  const opts=keys.map(k=>`<option value="${k}">${monthKeyToLabel(k)}</option>`).join('');
+  ['exsal','cdb'].forEach(suc=>{
+    const sel=document.getElementById(suc+'-gastos-month-select');
+    if(!sel)return;
+    sel.innerHTML=opts;
+    sel.value=now;
+    // Auto-carga gastos del mes actual
+    loadGastosMes(suc,now);
+  });
+}
+
+// ── VENTAS: carga paginada por mes ──
+function onVentasMonthChange(suc){
+  ventasLoaded[suc]=false;
+  setVentasStatus(suc,'idle');
+}
+
+function setVentasStatus(suc,state,extra){
+  const dot=document.getElementById('ventas-'+suc+'-smb-dot');
+  const txt=document.getElementById('ventas-'+suc+'-smb-txt');
+  if(!dot||!txt)return;
+  if(state==='loading'){dot.className='smb-dot loading';txt.textContent='Cargando...';}
+  else if(state==='ok'){dot.className='smb-dot';txt.textContent=extra||'Listo';}
+  else if(state==='error'){dot.className='smb-dot';dot.style.background='var(--r600)';txt.textContent='Error al cargar';}
+  else{dot.className='smb-dot';dot.style.background='';txt.textContent='Selecciona un mes';}
+}
+
+async function loadVentasMes(suc){
+  const sel=document.getElementById('ventas-'+suc+'-month-select');
   const monthKey=sel?sel.value:getMonthKey();
   if(!monthKey)return;
-
-  const [y,m]=monthKey.split('-');
-  const selMonth=+m, selYear=+y;
-
-  // Cargar ventas del mes desde Firestore (get puntual, sin filtro de sucursal para mensual)
-  let monthly=[];
+  setVentasStatus(suc,'loading');
   try{
-    const snap=await db.collection('ventas').where('mes','==',monthKey).get();
-    snap.forEach(doc=>monthly.push({id:doc.id,...doc.data()}));
-    monthly.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
-  }catch(e){console.error('Error mensual',e);}
+    let q=db.collection('ventas').where('mes','==',monthKey).where('sucursal','==',suc);
+    const snap=await q.get();
+    const todas=[];
+    snap.forEach(doc=>todas.push({id:doc.id,...doc.data()}));
+    todas.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
+    ventasPaginadas[suc]=todas;
+    ventasShown[suc]=0;
+    ventasLoaded[suc]=true;
+    ventasMesActual[suc]=monthKey;
+    renderVentasTable(suc,false);
+    setVentasStatus(suc,'ok',todas.length+' venta'+(todas.length!==1?'s':'')+' · '+monthKeyToLabel(monthKey));
+  }catch(e){
+    console.error('Error cargando ventas',suc,e);
+    setVentasStatus(suc,'error');
+  }
+}
 
-  const totalV=monthly.reduce((s,v)=>s+v.total,0);
-  const totalC=monthly.reduce((s,v)=>s+v.costTotal,0);
-  const totalUnits=monthly.reduce((s,v)=>s+v.qty,0);
-  const numTx=monthly.length;
-  document.getElementById('mensual-ventas').textContent=fmt(totalV);
-  document.getElementById('mensual-costos').textContent=fmt(totalC);
-  document.getElementById('mensual-ganancia').textContent=fmt(totalV-totalC);
-  document.getElementById('mensual-units').textContent=totalUnits;
-  document.getElementById('mensual-transacciones').textContent=numTx;
-  document.getElementById('mensual-avg').textContent=fmt(numTx>0?totalV/numTx:0);
-  // Top 5 con nuevo diseño
-  const byProd={};
-  monthly.forEach(v=>{byProd[v.productName]=(byProd[v.productName]||0)+v.qty;});
-  const sorted=Object.entries(byProd).sort((a,b)=>b[1]-a[1]).slice(0,5);
-  const top5El=document.getElementById('mensual-top5');
-  if(!sorted.length){
-    top5El.innerHTML='<div class="mensual-empty"><i class="ti ti-chart-bar-off"></i><span>Sin ventas en '+monthKeyToLabel(monthKey)+'</span></div>';
+function renderVentasTable(suc,append){
+  const pfx=suc==='exsal'?'exsal':'cdb';
+  const body=document.getElementById(pfx+'-sales-table-body');
+  const loadMoreRow=document.getElementById(pfx+'-sales-load-more-row');
+  const allVentas=ventasPaginadas[suc];
+  if(!allVentas.length){
+    body.innerHTML='<div class="sales-empty">Sin ventas en este período</div>';
+    if(loadMoreRow)loadMoreRow.style.display='none';
     return;
   }
-  const rankCls=['lb-r1','lb-r2','lb-r3','lb-rx','lb-rx'];
-  top5El.innerHTML=sorted.map(([name,qty],i)=>{
-    const prod=products.find(p=>p.name===name);
-    const curStock=prod?(getStock(prod,'exsal')+getStock(prod,'cdb')):0;
-    const initStock=curStock+qty;
-    const ratio=initStock>0?Math.round((qty/initStock)*100):0;
-    const pillClass=i===0?'lb-pct-pill lb-pct-pill-gold':'lb-pct-pill';
-    return `<div class="lb-item">
-      <div class="lb-rank ${rankCls[i]}">${i+1}</div>
-      <div class="lb-body">
-        <div class="lb-name">${esc(name)}</div>
-        <div class="lb-meta">${qty} vendidos · ${initStock} stock inicial est.</div>
-      </div>
-      <div class="${pillClass}">${ratio}%</div>
-    </div>`;
+  const start=append?ventasShown[suc]:0;
+  const end=Math.min(start+VENTAS_PAGE_SIZE,allVentas.length);
+  const slice=allVentas.slice(start,end);
+  ventasShown[suc]=end;
+  const hasMore=end<allVentas.length;
+
+  const rows=slice.map(v=>{
+    const g=+(v.total-v.costTotal).toFixed(2);
+    const seller=v.seller?v.seller.split('@')[0]:'—';
+    const orderNum=v.orderNumber||('ORD-'+(String(v.timestamp||Date.now()).slice(-6)));
+    const checked=selectedSales[suc].has(v.id)?'checked':'';
+    const discCell=v.descuentoAplicado
+      ?`<td><span class="badge badge-descuento">-${v.descuentoAplicado.porcentaje}%</span></td>`
+      :`<td><span style="font-size:11px;color:var(--tm)">—</span></td>`;
+    return `<tr class="sale-row-select">
+      <td style="padding:8px 6px 8px 14px"><input type="checkbox" class="sale-cb" ${checked} onchange="toggleSaleSelect('${v.id}','${suc}',this)" onclick="event.stopPropagation()"></td>
+      <td style="font-size:11px;color:var(--tm);font-weight:700">${orderNum}</td>
+      <td>${v.date}</td><td>${esc(v.productName)}</td><td>${v.qty}</td>
+      <td>${fmt(v.total)}</td>
+      ${discCell}
+      <td style="color:${g>=0?'var(--g600)':'var(--r600)'}">${fmt(g)}</td>
+      <td style="font-size:12px;color:var(--ts)">${esc(seller)}</td>
+      <td><button onclick="event.stopPropagation();deleteSale('${v.id}')" style="background:none;border:none;cursor:pointer;color:var(--r600);padding:4px 8px;border-radius:6px;font-size:16px"><i class="ti ti-trash"></i></button></td>
+    </tr>`;
   }).join('');
-}
 
-// ── SELECCIÓN PARA FACTURA ──
-let selectedSales={exsal:new Set(),cdb:new Set(),total:new Set()};
-
-function toggleSaleSelect(id,suc,cb){
-  if(cb.checked) selectedSales[suc].add(id);
-  else selectedSales[suc].delete(id);
-  updateSelBar(suc);
-}
-function updateSelBar(suc){
-  const bar=document.getElementById(suc+'-sel-bar');
-  const cnt=document.getElementById(suc+'-sel-count');
-  const n=selectedSales[suc].size;
-  cnt.textContent=n;
-  bar.classList.toggle('visible',n>0);
-}
-function deselectAll(suc){
-  selectedSales[suc].clear();
-  updateSelBar(suc);
-  renderStats(suc);
-}
-
-function renderStats(suc){
-  const pfx=suc==='total'?'tot':suc;
-  const filtered=suc==='total'?sales:sales.filter(v=>(v.sucursal||'exsal')===suc);
-  const totalV=filtered.reduce((s,v)=>s+v.total,0);
-  const totalC=filtered.reduce((s,v)=>s+v.costTotal,0);
-  document.getElementById(pfx+'-fs-ventas').textContent=fmt(totalV);
-  document.getElementById(pfx+'-fs-costos').textContent=fmt(totalC);
-  const ganancia=totalV-totalC;
-  document.getElementById(pfx+'-fs-ganancia').textContent=fmt(ganancia);
-  const gananciaEl=document.getElementById(pfx+'-fs-ganancia');
-  if(gananciaEl) gananciaEl.style.color=ganancia>=0?'var(--g600)':'var(--r600)';
-  document.getElementById(pfx+'-fs-units').textContent=filtered.reduce((s,v)=>s+v.qty,0);
-  // Valor empresa y costos-ventas: solo en Total
-  if(suc==='total'){
-    const invCosto=products.reduce((s,p)=>s+p.cost*(getStock(p,'exsal')+getStock(p,'cdb')),0);
-    const diff=totalV-totalC-invCosto;
-    const diffEl=document.getElementById('tot-fs-costos-menos-ventas');
-    diffEl.textContent=fmt(diff);
-    diffEl.style.color=diff>=0?'var(--g600)':'var(--r600)';
-  }
-  const body=document.getElementById(pfx+'-sales-table-body');
-  if(!filtered.length){body.innerHTML=`<div class="sales-empty">Sin ventas en este período</div>`;return;}
-  const showSuc=suc==='total';
-  body.innerHTML=`<table class="sales-table"><thead><tr>
+  const tableHtml=`<table class="sales-table"><thead><tr>
     <th style="width:32px"></th>
-    <th>Orden</th><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Ingreso</th><th>Desc.</th><th>Ganancia</th><th>Vendedor</th>
-    ${showSuc?'<th>Sucursal</th>':''}<th></th>
-  </tr></thead><tbody>${
-    filtered.map((v,i)=>{
+    <th>Orden</th><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Ingreso</th><th>Desc.</th><th>Ganancia</th><th>Vendedor</th><th></th>
+  </tr></thead><tbody>${rows}</tbody></table>`;
+
+  if(append){
+    // Reemplazar tabla completa con todas las filas visibles
+    const allVisible=allVentas.slice(0,end);
+    const allRows=allVisible.map(v=>{
       const g=+(v.total-v.costTotal).toFixed(2);
       const seller=v.seller?v.seller.split('@')[0]:'—';
-      const sc=v.sucursal||'exsal';
-      const sucCell=showSuc?`<td><span class="badge ${sc==='cdb'?'badge-cdb':'badge-exsal'}">${sc.toUpperCase()}</span></td>`:'';
       const orderNum=v.orderNumber||('ORD-'+(String(v.timestamp||Date.now()).slice(-6)));
       const checked=selectedSales[suc].has(v.id)?'checked':'';
       const discCell=v.descuentoAplicado
@@ -2301,17 +2396,88 @@ function renderStats(suc){
         ${discCell}
         <td style="color:${g>=0?'var(--g600)':'var(--r600)'}">${fmt(g)}</td>
         <td style="font-size:12px;color:var(--ts)">${esc(seller)}</td>
-        ${sucCell}
         <td><button onclick="event.stopPropagation();deleteSale('${v.id}')" style="background:none;border:none;cursor:pointer;color:var(--r600);padding:4px 8px;border-radius:6px;font-size:16px"><i class="ti ti-trash"></i></button></td>
       </tr>`;
-    }).join('')
-  }</tbody></table>`;
+    }).join('');
+    body.innerHTML=`<table class="sales-table"><thead><tr>
+      <th style="width:32px"></th>
+      <th>Orden</th><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Ingreso</th><th>Desc.</th><th>Ganancia</th><th>Vendedor</th><th></th>
+    </tr></thead><tbody>${allRows}</tbody></table>`;
+  } else {
+    body.innerHTML=tableHtml;
+  }
+  if(loadMoreRow) loadMoreRow.style.display=hasMore?'block':'none';
+}
+
+function loadMoreVentas(suc){
+  renderVentasTable(suc,true);
+}
+
+// ── TOP 10 BAJO DEMANDA ──
+async function loadTop10(suc){
+  const sel=document.getElementById(suc+'-top10-month');
+  const monthKey=sel?sel.value:getMonthKey();
+  const bodyEl=document.getElementById(suc+'-top10-body');
+  if(!bodyEl)return;
+  bodyEl.innerHTML='<div class="mensual-empty"><i class="ti ti-loader" style="animation:spin .7s linear infinite"></i><span>Calculando...</span></div>';
+  try{
+    const snap=await db.collection('ventas').where('mes','==',monthKey).where('sucursal','==',suc).get();
+    const ventas=[];
+    snap.forEach(doc=>ventas.push(doc.data()));
+    const byProd={};
+    ventas.forEach(v=>{byProd[v.productName]=(byProd[v.productName]||0)+v.qty;});
+    const sorted=Object.entries(byProd).sort((a,b)=>b[1]-a[1]).slice(0,10);
+    if(!sorted.length){
+      bodyEl.innerHTML='<div class="mensual-empty"><i class="ti ti-chart-bar-off"></i><span>Sin ventas en '+monthKeyToLabel(monthKey)+'</span></div>';
+      return;
+    }
+    const rankCls=['lb-r1','lb-r2','lb-r3','lb-rx','lb-rx','lb-rx','lb-rx','lb-rx','lb-rx','lb-rx'];
+    bodyEl.innerHTML=sorted.map(([name,qty],i)=>{
+      const prod=products.find(p=>p.name===name);
+      const curStock=prod?getStock(prod,suc):0;
+      const initStock=curStock+qty;
+      const ratio=initStock>0?Math.round((qty/initStock)*100):0;
+      const pillClass=i===0?'lb-pct-pill lb-pct-pill-gold':'lb-pct-pill';
+      return `<div class="lb-item">
+        <div class="lb-rank ${rankCls[i]}">${i+1}</div>
+        <div class="lb-body">
+          <div class="lb-name">${esc(name)}</div>
+          <div class="lb-meta">${qty} vendido${qty!==1?'s':''} · Stock actual: ${curStock}</div>
+        </div>
+        <div class="${pillClass}">${ratio}%</div>
+      </div>`;
+    }).join('');
+  }catch(e){
+    console.error('Error Top10',e);
+    bodyEl.innerHTML='<div class="mensual-empty"><i class="ti ti-alert-circle"></i><span>Error al calcular</span></div>';
+  }
+}
+
+// ── SELECCIÓN PARA FACTURA ──
+let selectedSales={exsal:new Set(),cdb:new Set(),total:new Set()};
+
+function toggleSaleSelect(id,suc,cb){
+  if(cb.checked) selectedSales[suc].add(id);
+  else selectedSales[suc].delete(id);
+  updateSelBar(suc);
+}
+function updateSelBar(suc){
+  const bar=document.getElementById(suc+'-sel-bar');
+  const cnt=document.getElementById(suc+'-sel-count');
+  if(!bar||!cnt)return;
+  const n=selectedSales[suc].size;
+  cnt.textContent=n;
+  bar.classList.toggle('visible',n>0);
+}
+function deselectAll(suc){
+  selectedSales[suc].clear();
+  updateSelBar(suc);
+  if(ventasLoaded[suc]) renderVentasTable(suc,false);
 }
 
 function renderAllDeletedSales(){
   renderDeletedSales('exsal');
   renderDeletedSales('cdb');
-  renderDeletedSales('total');
 }
 
 function renderDeletedSales(suc){
@@ -2352,9 +2518,23 @@ async function deleteSale(id){
       const currentStock=prod[stockField]||0;
       batch.update(db.collection("productos").doc(prod.id),{[stockField]:currentStock+venta.qty});
     }
+    // Revertir estadisticas acumuladas
+    const statSucursal=(suc==='cdb')?'cdb':'exsal';
+    const statDocId=statSucursal==='exsal'?'ColegioExsal':'ColegioDonBosco';
+    batch.update(db.collection("estadisticas").doc(statDocId),{
+      'ventas':firebase.firestore.FieldValue.increment(-(venta.total||0)),
+      'unidades vendidas':firebase.firestore.FieldValue.increment(-(venta.qty||0)),
+      'numero de ventas':firebase.firestore.FieldValue.increment(-1)
+    });
     await batch.commit();
+    // Actualizar tabla de ventas si está cargada
+    if(ventasLoaded[statSucursal]){
+      ventasPaginadas[statSucursal]=ventasPaginadas[statSucursal].filter(v=>v.id!==id);
+      if(ventasShown[statSucursal]>ventasPaginadas[statSucursal].length) ventasShown[statSucursal]=ventasPaginadas[statSucursal].length;
+      renderVentasTable(statSucursal,false);
+    }
     showToast('Venta eliminada · stock reintegrado','ti-trash');
-  }catch(e){showToast('Error al eliminar','ti-alert-circle');}
+  }catch(e){showToast('Error al eliminar','ti-alert-circle');console.error(e);}
 }
 
 async function restoreSale(id){
@@ -2375,9 +2555,18 @@ async function restoreSale(id){
       const newStock=Math.max(0,currentStock-venta.qty);
       batch.update(db.collection("productos").doc(prod.id),{[stockField]:newStock});
     }
+    // Volver a sumar a estadisticas al restaurar
+    const statSuc=(suc==='cdb')?'cdb':'exsal';
+    const statDocId=statSuc==='exsal'?'ColegioExsal':'ColegioDonBosco';
+    batch.update(db.collection("estadisticas").doc(statDocId),{
+      'ventas':firebase.firestore.FieldValue.increment(venta.total||0),
+      'unidades vendidas':firebase.firestore.FieldValue.increment(venta.qty||0),
+      'numero de ventas':firebase.firestore.FieldValue.increment(1)
+    });
     await batch.commit();
     showToast('Venta restaurada · stock descontado','ti-restore');
-  }catch(e){showToast('Error al restaurar','ti-alert-circle');}
+  }catch(e){showToast('Error al restaurar','ti-alert-circle');console.error(e);}
+}
 }
 
 async function clearDeletedSales(suc){
@@ -2413,7 +2602,8 @@ const EMAILJS_PUBLIC_KEY='fDEqYQfxIAemU-QSp';   // ← Reemplaza con tu Public K
 function abrirModalFactura(suc){
   const sel=selectedSales[suc];
   if(!sel.size){showToast('Selecciona al menos una venta','ti-alert-circle');return;}
-  const ventasSel=sales.filter(v=>sel.has(v.id));
+  // Use ventasPaginadas instead of global sales
+  const ventasSel=(ventasPaginadas[suc]||[]).filter(v=>sel.has(v.id));
 
   // Preview
   const rowsEl=document.getElementById('fact-preview-rows');
@@ -2449,7 +2639,7 @@ async function generarFactura(){
   errEl.textContent='';
 
   const sel=selectedSales[suc];
-  const ventasSel=sales.filter(v=>sel.has(v.id));
+  const ventasSel=(ventasPaginadas[suc]||[]).filter(v=>sel.has(v.id));
   const user=firebase.auth().currentUser;
   const vendedor=user?user.email:'—';
 
@@ -2626,7 +2816,7 @@ const productosHtml = ventasSel.map((v, i) => {
     // Limpiar selección
     selectedSales[suc].clear();
     updateSelBar(suc);
-    renderStats(suc);
+    if(ventasLoaded[suc]) renderVentasTable(suc,false);
 
   }catch(err){
     console.error(err);
@@ -2708,13 +2898,16 @@ async function deliverOrder(orderId){
   const user=firebase.auth().currentUser;
   const sellerEmail=user?user.email:'Desconocido';
   const suc=order.sucursal||'exsal';
+  const statDocId=suc==='cdb'?'ColegioDonBosco':'ColegioExsal';
   const batch=db.batch();
   let costTotal=0;
+  let totalVentasPedido=0;
+  let totalUnidadesPedido=0;
+  let numItemsPedido=0;
 
   for(const item of (order.items||[])){
     const qty=item.qty||1;
     const prod=products.find(p=>p.id===item.id||p.name===item.name);
-    // Priorizar costo/precio guardado en el item al momento del pedido; usar producto en vivo como fallback
     const unitCost=typeof item.cost==='number'?item.cost:(prod?prod.cost:0);
     const unitPrice=typeof item.price==='number'?item.price:(prod?prod.price:0);
     costTotal+=unitCost*qty;
@@ -2734,18 +2927,18 @@ async function deliverOrder(orderId){
       }
       batch.update(db.collection('productos').doc(prod.id),stockUpdate);
     } else if(item.id){
-      // Producto no en cache local pero tenemos su id: descontar directo
       let stockUpdate={};
       if(suc==='exsal') stockUpdate={stockExsal:firebase.firestore.FieldValue.increment(-qty)};
       else if(suc==='cdb') stockUpdate={stockCdb:firebase.firestore.FieldValue.increment(-qty)};
       if(Object.keys(stockUpdate).length) batch.update(db.collection('productos').doc(item.id),stockUpdate);
     }
 
-    // Calcular total del item aplicando descuento proporcional si existe
     const discFactor=order.discountPct?((100-order.discountPct)/100):1;
     const itemTotal=+(unitPrice*qty*discFactor).toFixed(2);
+    totalVentasPedido+=itemTotal;
+    totalUnidadesPedido+=qty;
+    numItemsPedido++;
 
-    // Crear registro en "ventas" — siempre, aunque el producto no este en cache
     batch.set(db.collection('ventas').doc(),{
       orderNumber:'PED-'+Date.now().toString().slice(-6)+'-'+Math.random().toString(36).slice(-3),
       productName:item.name,
@@ -2756,15 +2949,21 @@ async function deliverOrder(orderId){
       sucursal:suc,
       date:new Date().toLocaleDateString('es'),
       timestamp:Date.now(),
+      mes:getMonthKey(),
       fromOrder:orderId,
       ...(order.discountPct?{discountName:order.discountName,discountPct:order.discountPct}:{})
     });
   }
 
-  // Total efectivo considerando descuento
   const totalEfectivo=typeof order.totalConDescuento==='number'?order.totalConDescuento:(order.total||0);
 
-  // Actualizar estado del pedido y congelar costTotal
+  // Actualizar estadisticas
+  batch.update(db.collection('estadisticas').doc(statDocId),{
+    'ventas':firebase.firestore.FieldValue.increment(+totalVentasPedido.toFixed(2)),
+    'unidades vendidas':firebase.firestore.FieldValue.increment(totalUnidadesPedido),
+    'numero de ventas':firebase.firestore.FieldValue.increment(numItemsPedido)
+  });
+
   batch.update(db.collection('pedidos').doc(orderId),{
     status:'delivered',
     costTotal:+costTotal.toFixed(2),
@@ -2782,6 +2981,25 @@ async function deliverOrder(orderId){
   }
 }
 
+// Cancelar pedido (cambia estado a cancelled sin eliminarlo)
+async function cancelOrder(orderId){
+  const order=orders.find(o=>o.id===orderId);
+  if(!order||order.status!=='pending'){showToast('Solo se pueden cancelar pedidos pendientes','ti-alert-circle');return;}
+  const label=order.code||order.name||orderId;
+  if(!confirm(`¿Cancelar el pedido "${label}"? Se moverá al historial como cancelado.`))return;
+  try{
+    await db.collection('pedidos').doc(orderId).update({
+      status:'cancelled',
+      cancelledAt:Date.now(),
+      cancelledBy:(firebase.auth().currentUser?.email||'Desconocido')
+    });
+    showToast('Pedido cancelado','ti-ban');
+  }catch(e){
+    showToast('Error al cancelar pedido','ti-alert-circle');
+    console.error(e);
+  }
+}
+
 // Borrar pedido individual
 async function deleteOrder(orderId){
   const order=orders.find(o=>o.id===orderId);
@@ -2796,87 +3014,142 @@ async function deleteOrder(orderId){
   }
 }
 
+function buildPedidoRow(o){
+  const statusLabel={pending:'Pendiente',delivered:'Entregado',cancelled:'Cancelado'};
+  const statusClass={pending:'status-pending',delivered:'status-delivered',cancelled:'status-cancelled'};
+  const statusIcon={pending:'ti-clock',delivered:'ti-circle-check',cancelled:'ti-circle-x'};
+  const sucRaw=(o.sucursal||'cdb');
+  const sucLabel=sucRaw.toUpperCase();
+  const sucClass=sucRaw==='cdb'?'badge-cdb':'badge-exsal';
+  const st=o.status||'pending';
+  const items=(o.items||[]).map(i=>`<div class="pedido-item-row"><i class="ti ti-point" style="font-size:10px"></i> ${esc(i.name)} ×${i.qty||1} — ${fmt(i.price*(i.qty||1))}</div>`).join('');
+  const cost=getOrderCost(o);
+  const totalEfectivo=typeof o.totalConDescuento==='number'?o.totalConDescuento:(o.total||0);
+  const ganancia=st==='delivered'?totalEfectivo-cost:null;
+  const gananciaCell=ganancia!==null?`<span style="color:${ganancia>=0?'var(--g600)':'var(--r600)'}">${fmt(ganancia)}</span>`:`<span style="color:var(--tm);font-size:11px">—</span>`;
+  const createdAt=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate().toLocaleDateString('es'):o.createdAt||'—';
+  const deliverBtn=st==='pending'?`<button onclick="deliverOrder('${o.id}')" title="Marcar como entregado" style="background:var(--g50);border:1.5px solid var(--g100);color:var(--g600);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:700;display:flex;align-items:center;gap:4px;white-space:nowrap"><i class="ti ti-check"></i>Entregar</button>
+<button onclick="cancelOrder('${o.id}')" title="Cancelar pedido" style="background:var(--w50);border:1.5px solid var(--w100);color:var(--w600);border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;font-weight:700;display:flex;align-items:center;gap:4px;white-space:nowrap"><i class="ti ti-ban"></i>Cancelar</button>`:'';
+  const discOpts=descuentos.map(d=>`<option value="${d.id}" data-pct="${d.porcentaje}" ${o.discountId===d.id?'selected':''}>${esc(d.nombre)} (${d.porcentaje}%)</option>`).join('');
+  const selectedPct=o.discountId&&o.discountPct?o.discountPct:0;
+  const totalOriginal=o.total||0;
+  const discountCell=st==='pending'
+    ?`<div style="display:flex;flex-direction:column;gap:4px">
+        <select onchange="applyOrderDiscount('${o.id}',this)" style="background:var(--b50);border:1.5px solid var(--b100);border-radius:7px;padding:4px 8px;font-size:12px;font-family:inherit;color:var(--tp);cursor:pointer;max-width:160px">
+          <option value="" ${!o.discountId?'selected':''}>Sin descuento</option>
+          ${discOpts}
+        </select>
+        ${o.discountId?`<span style="font-size:11px;color:var(--w600);font-weight:700">−${selectedPct}% → ${fmt(totalEfectivo)}</span>`:''}
+      </div>`
+    :o.discountId
+      ?`<span class="badge badge-descuento"><i class="ti ti-ticket-off"></i>${esc(o.discountName||'')} −${selectedPct}%</span>`
+      :`<span style="color:var(--tm);font-size:11px">—</span>`;
+  return `<tr>
+    <td><span class="pedido-code">${esc(o.code||'—')}</span></td>
+    <td><div style="font-weight:600">${esc(o.name||'—')}</div><div style="font-size:11px;color:var(--tm)">${esc(o.email||'')}</div></td>
+    <td><div class="pedido-items">${items||'<span style="color:var(--tm);font-size:11px">Sin items</span>'}</div></td>
+    <td style="font-weight:700">
+      ${o.discountId&&typeof o.totalConDescuento==='number'
+        ?`<div style="font-size:11px;color:var(--tm);text-decoration:line-through">${fmt(totalOriginal)}</div><div style="color:var(--g600);font-weight:700">${fmt(totalEfectivo)}</div>`
+        :fmt(totalOriginal)}
+    </td>
+    <td>${discountCell}</td>
+    <td>${gananciaCell}</td>
+    <td><span class="badge ${sucClass}">${sucLabel}</span></td>
+    <td><span class="status-badge ${statusClass[st]||'status-pending'}"><i class="ti ${statusIcon[st]||'ti-clock'}"></i>${statusLabel[st]||st}</span></td>
+    <td style="font-size:12px;color:var(--tm);white-space:nowrap">${createdAt}</td>
+    <td style="white-space:nowrap">
+      <div style="display:flex;gap:6px;align-items:center">
+        ${deliverBtn}
+        <button onclick="deleteOrder('${o.id}')" title="Eliminar pedido" style="background:none;border:1.5px solid var(--r100);color:var(--r600);border-radius:8px;padding:5px 8px;cursor:pointer;font-size:14px;display:flex;align-items:center"><i class="ti ti-trash"></i></button>
+      </div>
+    </td>
+  </tr>`;
+}
+
+function buildPedidosTable(list, emptyMsg){
+  if(!list.length) return `<div class="pedidos-empty"><div class="empty-icon"><i class="ti ti-shopping-bag-x"></i></div><p>${emptyMsg}</p></div>`;
+  return `<table class="pedidos-table"><thead><tr>
+    <th>Código</th><th>Cliente</th><th>Productos</th><th>Total</th><th>Descuento</th><th>Ganancia</th><th>Sucursal</th><th>Estado</th><th>Fecha</th><th></th>
+  </tr></thead><tbody>${list.map(buildPedidoRow).join('')}</tbody></table>`;
+}
+
 function renderPedidos(){
   renderPedidosKpis();
   const q=(document.getElementById('ped-search').value||'').toLowerCase().trim();
   const filterStatus=document.getElementById('ped-filter-status').value;
   const filterSuc=document.getElementById('ped-filter-suc').value;
 
-  let list=[...orders];
-  if(filterStatus) list=list.filter(o=>o.status===filterStatus);
-  if(filterSuc) list=list.filter(o=>(o.sucursal||'cdb')===filterSuc);
-  if(q) list=list.filter(o=>{
-    const nameMatch=(o.name||'').toLowerCase().includes(q);
-    const codeMatch=(o.code||'').toLowerCase().includes(q);
-    const itemMatch=(o.items||[]).some(i=>(i.name||'').toLowerCase().includes(q));
-    const emailMatch=(o.email||'').toLowerCase().includes(q);
-    return nameMatch||codeMatch||itemMatch||emailMatch;
-  });
+  function applyFilters(list){
+    if(filterSuc) list=list.filter(o=>(o.sucursal||'cdb')===filterSuc);
+    if(q) list=list.filter(o=>{
+      const nameMatch=(o.name||'').toLowerCase().includes(q);
+      const codeMatch=(o.code||'').toLowerCase().includes(q);
+      const itemMatch=(o.items||[]).some(i=>(i.name||'').toLowerCase().includes(q));
+      const emailMatch=(o.email||'').toLowerCase().includes(q);
+      return nameMatch||codeMatch||itemMatch||emailMatch;
+    });
+    return list;
+  }
 
-  document.getElementById('ped-list-count').textContent=list.length+' pedido'+(list.length!==1?'s':'');
+  // Separar por estado
+  const allOrders=[...orders];
+  const pendingOrders=applyFilters(allOrders.filter(o=>(!o.status||o.status==='pending')));
+  const completedOrders=applyFilters(allOrders.filter(o=>o.status==='delivered'||o.status==='cancelled'));
 
-  const body=document.getElementById('pedidos-table-body');
-  if(!list.length){
-    body.innerHTML=`<div class="pedidos-empty"><div class="empty-icon"><i class="ti ti-shopping-bag-x"></i></div><p>Sin pedidos que mostrar</p></div>`;
+  // Si hay filtro de estado específico, mezclar en tabla única
+  if(filterStatus){
+    const filtered=applyFilters(allOrders.filter(o=>o.status===filterStatus||(!o.status&&filterStatus==='pending')));
+    document.getElementById('ped-list-count').textContent=filtered.length+' pedido'+(filtered.length!==1?'s':'');
+    document.getElementById('pedidos-table-body').innerHTML=buildPedidosTable(filtered,'Sin pedidos con ese filtro');
+    // Ocultar sección de historial cuando hay filtro
+    const hist=document.getElementById('ped-history-section');
+    if(hist) hist.style.display='none';
     return;
   }
 
-  const statusLabel={pending:'Pendiente',delivered:'Entregado',cancelled:'Cancelado'};
-  const statusClass={pending:'status-pending',delivered:'status-delivered',cancelled:'status-cancelled'};
-  const statusIcon={pending:'ti-clock',delivered:'ti-circle-check',cancelled:'ti-circle-x'};
+  // Vista por defecto: pendientes arriba, historial colapsable abajo
+  document.getElementById('ped-list-count').textContent=pendingOrders.length+' pendiente'+(pendingOrders.length!==1?'s':'');
+  document.getElementById('pedidos-table-body').innerHTML=buildPedidosTable(pendingOrders,'No hay pedidos pendientes');
 
-  body.innerHTML=`<table class="pedidos-table"><thead><tr>
-    <th>Código</th><th>Cliente</th><th>Productos</th><th>Total</th><th>Descuento</th><th>Ganancia</th><th>Sucursal</th><th>Estado</th><th>Fecha</th><th></th>
-  </tr></thead><tbody>${list.map(o=>{
-    const sucRaw=(o.sucursal||'cdb');
-    const sucLabel=sucRaw.toUpperCase();
-    const sucClass=sucRaw==='cdb'?'badge-cdb':'badge-exsal';
-    const st=o.status||'pending';
-    const items=(o.items||[]).map(i=>`<div class="pedido-item-row"><i class="ti ti-point" style="font-size:10px"></i> ${esc(i.name)} ×${i.qty||1} — ${fmt(i.price*(i.qty||1))}</div>`).join('');
-    const cost=getOrderCost(o);
-    // Total efectivo: si hay descuento guardado usar totalConDescuento, sino total original
-    const totalEfectivo=typeof o.totalConDescuento==='number'?o.totalConDescuento:(o.total||0);
-    const ganancia=st==='delivered'?totalEfectivo-cost:null;
-    const gananciaCell=ganancia!==null?`<span style="color:${ganancia>=0?'var(--g600)':'var(--r600)'}">${fmt(ganancia)}</span>`:`<span style="color:var(--tm);font-size:11px">—</span>`;
-    const createdAt=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate().toLocaleDateString('es'):o.createdAt||'—';
-    const deliverBtn=st==='pending'?`<button onclick="deliverOrder('${o.id}')" title="Marcar como entregado" style="background:var(--g50);border:1.5px solid var(--g100);color:var(--g600);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:700;display:flex;align-items:center;gap:4px;white-space:nowrap"><i class="ti ti-check"></i>Entregar</button>`:'';
-    // Selector de descuento (solo en pedidos pendientes o para ver el aplicado)
-    const discOpts=descuentos.map(d=>`<option value="${d.id}" data-pct="${d.porcentaje}" ${o.discountId===d.id?'selected':''}>${esc(d.nombre)} (${d.porcentaje}%)</option>`).join('');
-    const selectedPct=o.discountId&&o.discountPct?o.discountPct:0;
-    const totalOriginal=o.total||0;
-    const discountCell=st==='pending'
-      ?`<div style="display:flex;flex-direction:column;gap:4px">
-          <select onchange="applyOrderDiscount('${o.id}',this)" style="background:var(--b50);border:1.5px solid var(--b100);border-radius:7px;padding:4px 8px;font-size:12px;font-family:inherit;color:var(--tp);cursor:pointer;max-width:160px">
-            <option value="" ${!o.discountId?'selected':''}>Sin descuento</option>
-            ${discOpts}
-          </select>
-          ${o.discountId?`<span style="font-size:11px;color:var(--w600);font-weight:700">−${selectedPct}% → ${fmt(totalEfectivo)}</span>`:''}
-        </div>`
-      :o.discountId
-        ?`<span class="badge badge-descuento"><i class="ti ti-ticket-off"></i>${esc(o.discountName||'')} −${selectedPct}%</span>`
-        :`<span style="color:var(--tm);font-size:11px">—</span>`;
-    return `<tr>
-      <td><span class="pedido-code">${esc(o.code||'—')}</span></td>
-      <td><div style="font-weight:600">${esc(o.name||'—')}</div><div style="font-size:11px;color:var(--tm)">${esc(o.email||'')}</div></td>
-      <td><div class="pedido-items">${items||'<span style="color:var(--tm);font-size:11px">Sin items</span>'}</div></td>
-      <td style="font-weight:700">
-        ${o.discountId&&typeof o.totalConDescuento==='number'
-          ?`<div style="font-size:11px;color:var(--tm);text-decoration:line-through">${fmt(totalOriginal)}</div><div style="color:var(--g600);font-weight:700">${fmt(totalEfectivo)}</div>`
-          :fmt(totalOriginal)}
-      </td>
-      <td>${discountCell}</td>
-      <td>${gananciaCell}</td>
-      <td><span class="badge ${sucClass}">${sucLabel}</span></td>
-      <td><span class="status-badge ${statusClass[st]||'status-pending'}"><i class="ti ${statusIcon[st]||'ti-clock'}"></i>${statusLabel[st]||st}</span></td>
-      <td style="font-size:12px;color:var(--tm);white-space:nowrap">${createdAt}</td>
-      <td style="white-space:nowrap">
-        <div style="display:flex;gap:6px;align-items:center">
-          ${deliverBtn}
-          <button onclick="deleteOrder('${o.id}')" title="Eliminar pedido" style="background:none;border:1.5px solid var(--r100);color:var(--r600);border-radius:8px;padding:5px 8px;cursor:pointer;font-size:14px;display:flex;align-items:center"><i class="ti ti-trash"></i></button>
+  // Sección de historial (entregados + cancelados)
+  let hist=document.getElementById('ped-history-section');
+  if(!hist){
+    hist=document.createElement('div');
+    hist.id='ped-history-section';
+    hist.style.cssText='margin-top:18px';
+    document.getElementById('tab-stats-pedidos').appendChild(hist);
+  }
+  if(completedOrders.length){
+    const isOpen=hist.getAttribute('data-open')==='1';
+    hist.innerHTML=`
+      <div style="background:var(--wh);border:1px solid var(--b100);border-radius:var(--rmd);box-shadow:var(--sc);overflow:hidden">
+        <div onclick="togglePedidosHistory()" style="padding:14px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;border-bottom:${isOpen?'1px solid var(--b50)':'none'}">
+          <div style="display:flex;align-items:center;gap:9px">
+            <div style="width:30px;height:30px;background:linear-gradient(135deg,var(--tm),var(--ts));border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px"><i class="ti ti-history"></i></div>
+            <div>
+              <div style="font-size:14px;font-weight:700;color:var(--tp)">Historial · Entregados y Cancelados</div>
+              <div style="font-size:11px;color:var(--tm)">${completedOrders.length} pedido${completedOrders.length!==1?'s':''} completados</div>
+            </div>
+          </div>
+          <i class="ti ${isOpen?'ti-chevron-up':'ti-chevron-down'}" style="font-size:18px;color:var(--tm)"></i>
         </div>
-      </td>
-    </tr>`;
-  }).join('')}</tbody></table>`;
+        <div id="ped-history-body" style="display:${isOpen?'block':'none'};padding:${isOpen?'0':'0'}">
+          ${isOpen?buildPedidosTable(completedOrders,'Sin historial'):''}
+        </div>
+      </div>`;
+  } else {
+    hist.innerHTML='';
+  }
+}
+
+function togglePedidosHistory(){
+  const hist=document.getElementById('ped-history-section');
+  if(!hist)return;
+  const body=document.getElementById('ped-history-body');
+  const isOpen=hist.getAttribute('data-open')==='1';
+  hist.setAttribute('data-open',isOpen?'0':'1');
+  renderPedidos();
 }
 
 // ── RESTOCK ──
@@ -3034,10 +3307,17 @@ async function ejecutarRestock(){
     fecha:new Date().toLocaleDateString('es-SV')
   };
 
+  // El costo que realmente salió del bolsillo es el pkgCost (costo del paquete comprado)
+  const statDocId=suc==='exsal'?'ColegioExsal':'ColegioDonBosco';
+
   try{
     const batch=db.batch();
     batch.update(db.collection('productos').doc(pid),updateData);
     batch.set(db.collection('restock-historial').doc(),histRecord);
+    // Sumar costo del paquete a estadisticas
+    batch.update(db.collection('estadisticas').doc(statDocId),{
+      'costos':firebase.firestore.FieldValue.increment(+pkgCost.toFixed(2))
+    });
     await batch.commit();
     cerrarRestockConfirm();
     clearRestockProduct();
