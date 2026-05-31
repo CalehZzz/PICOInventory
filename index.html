@@ -2567,7 +2567,6 @@ async function restoreSale(id){
     showToast('Venta restaurada · stock descontado','ti-restore');
   }catch(e){showToast('Error al restaurar','ti-alert-circle');console.error(e);}
 }
-}
 
 async function clearDeletedSales(suc){
   const filtered=suc==='total'?deletedSales:deletedSales.filter(v=>(v.sucursal||'exsal')===suc);
