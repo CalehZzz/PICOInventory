@@ -2031,12 +2031,13 @@ async function loadStatsMonth(suc, forceKey){
   setStatsStatus(suc,'loading');
 
   try{
-    // Query filtrada por mes — solo lee ventas del mes seleccionado
+    // Query filtrada por mes — sin orderBy para evitar índice compuesto, se ordena en memoria
     let q=db.collection('ventas').where('mes','==',monthKey);
     if(suc!=='total') q=q.where('sucursal','==',suc);
-    const snap=await q.orderBy('timestamp','desc').get();
+    const snap=await q.get();
     const ventasMes=[];
     snap.forEach(doc=>ventasMes.push({id:doc.id,...doc.data()}));
+    ventasMes.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
 
     // Guardar en sales solo para este contexto
     if(suc==='total'){
@@ -2112,10 +2113,10 @@ async function loadGastosMes(suc,mes){
     // Para EXSAL y CDB: cargar gastos de esa sucursal + generales
     // Para total: cargar todos
     if(suc!=='total'){
-      // Usamos dos queries y combinamos (Firestore no soporta OR en where)
+      // Dos queries separadas porque Firestore no soporta OR en where
       const [snapSuc,snapGen]=await Promise.all([
-        q.where('sucursal','==',suc).get(),
-        q.where('sucursal','==','general').get()
+        db.collection('gastos').where('mes','==',mes).where('sucursal','==',suc).get(),
+        db.collection('gastos').where('mes','==',mes).where('sucursal','==','general').get()
       ]);
       gastos=[];
       snapSuc.forEach(doc=>gastos.push({id:doc.id,...doc.data()}));
@@ -2125,7 +2126,7 @@ async function loadGastosMes(suc,mes){
       gastos=[];
       snap.forEach(doc=>gastos.push({id:doc.id,...doc.data()}));
     }
-    gastos.sort((a,b)=>b.timestamp-a.timestamp);
+    gastos.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
 
     if(periodoEl) periodoEl.textContent=monthKeyToLabel(mes);
 
@@ -2193,6 +2194,7 @@ async function renderMonthlyStats(){
   try{
     const snap=await db.collection('ventas').where('mes','==',monthKey).get();
     snap.forEach(doc=>monthly.push({id:doc.id,...doc.data()}));
+    monthly.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
   }catch(e){console.error('Error mensual',e);}
 
   const totalV=monthly.reduce((s,v)=>s+v.total,0);
