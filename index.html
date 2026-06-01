@@ -2226,6 +2226,37 @@ async function loadHistorialMensual(suc){
 }
 
 // ── GASTOS ──
+// Cache local de gastos por sede (se llena cuando el usuario carga el mes)
+const gastosCache={exsal:[],cdb:[]};
+const gastosMesCargado={exsal:null,cdb:null};
+
+function renderGastosList(suc,mes){
+  const listEl=document.getElementById(suc+'-gastos-list');
+  const periodoEl=document.getElementById(suc+'-gastos-periodo');
+  if(!listEl)return;
+  const gs=gastosCache[suc]||[];
+  if(periodoEl) periodoEl.textContent=monthKeyToLabel(mes);
+  const total=gs.reduce((s,g)=>s+g.monto,0);
+  if(!gs.length){
+    listEl.innerHTML='<div class="sales-empty">Sin gastos en '+monthKeyToLabel(mes)+'</div>';
+  } else {
+    listEl.innerHTML=gs.map(g=>`
+      <div class="gasto-card">
+        <div class="gasto-icon"><i class="ti ti-coin-off"></i></div>
+        <div class="gasto-info">
+          <div class="gasto-nombre">${esc(g.nombre)}</div>
+          <div class="gasto-meta">${g.date||'—'}</div>
+        </div>
+        <div class="gasto-monto">${fmt(g.monto)}</div>
+        <button onclick="deleteGasto('${g.id}','${suc}','${mes}',${g.monto})" style="background:none;border:none;cursor:pointer;color:var(--r600);padding:4px 8px;font-size:16px;border-radius:6px"><i class="ti ti-trash"></i></button>
+      </div>`).join('')+
+      `<div style="padding:12px 16px;border-top:1.5px dashed var(--r100);display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:12px;font-weight:700;color:var(--tm)">TOTAL GASTOS</span>
+        <span style="font-size:17px;font-weight:700;color:var(--r600)">${fmt(total)}</span>
+      </div>`;
+  }
+}
+
 async function addGasto(suc){
   const nombre=document.getElementById(suc+'-gasto-nombre').value.trim();
   const montoStr=document.getElementById(suc+'-gasto-monto').value;
@@ -2241,13 +2272,17 @@ async function addGasto(suc){
   const statDocId=suc==='exsal'?'ColegioExsal':'ColegioDonBosco';
 
   try{
-    const batch=db.batch();
-    batch.set(db.collection('gastos').doc(),{
+    const newRef=db.collection('gastos').doc();
+    const newGasto={
+      id:newRef.id,
       nombre,monto:+monto.toFixed(2),
       sucursal:suc,mes,
       timestamp:Date.now(),
       date:new Date().toLocaleDateString('es')
-    });
+    };
+    const batch=db.batch();
+    const {id,...firestoreData}=newGasto;
+    batch.set(newRef,firestoreData);
     // Sumar a costos acumulados de la sede
     batch.update(db.collection('estadisticas').doc(statDocId),{
       'costos':firebase.firestore.FieldValue.increment(+monto.toFixed(2))
@@ -2256,7 +2291,12 @@ async function addGasto(suc){
     document.getElementById(suc+'-gasto-nombre').value='';
     document.getElementById(suc+'-gasto-monto').value='';
     showToast('Gasto registrado','ti-minus');
-    loadGastosMes(suc,mes);
+    // Actualizar cache local sin re-query a Firestore
+    if(gastosMesCargado[suc]===mes){
+      gastosCache[suc].unshift(newGasto);
+      gastosCache[suc].sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
+      renderGastosList(suc,mes);
+    }
   }catch(e){err.textContent='Error al guardar el gasto.';}
 }
 
@@ -2272,7 +2312,11 @@ async function deleteGasto(id,suc,mes,monto){
     });
     await batch.commit();
     showToast('Gasto eliminado','ti-trash');
-    loadGastosMes(suc,mes);
+    // Actualizar cache local sin re-query a Firestore
+    if(gastosMesCargado[suc]===mes){
+      gastosCache[suc]=gastosCache[suc].filter(g=>g.id!==id);
+      renderGastosList(suc,mes);
+    }
   }catch(e){showToast('Error al eliminar','ti-alert-circle');}
 }
 
@@ -2287,28 +2331,10 @@ async function loadGastosMes(suc,mes){
     const gs=[];
     snap.forEach(doc=>gs.push({id:doc.id,...doc.data()}));
     gs.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
-
-    if(periodoEl) periodoEl.textContent=monthKeyToLabel(mes);
-
-    const total=gs.reduce((s,g)=>s+g.monto,0);
-    if(!gs.length){
-      listEl.innerHTML='<div class="sales-empty">Sin gastos en '+monthKeyToLabel(mes)+'</div>';
-    } else {
-      listEl.innerHTML=gs.map(g=>`
-        <div class="gasto-card">
-          <div class="gasto-icon"><i class="ti ti-coin-off"></i></div>
-          <div class="gasto-info">
-            <div class="gasto-nombre">${esc(g.nombre)}</div>
-            <div class="gasto-meta">${g.date||'—'}</div>
-          </div>
-          <div class="gasto-monto">${fmt(g.monto)}</div>
-          <button onclick="deleteGasto('${g.id}','${suc}','${mes}',${g.monto})" style="background:none;border:none;cursor:pointer;color:var(--r600);padding:4px 8px;font-size:16px;border-radius:6px"><i class="ti ti-trash"></i></button>
-        </div>`).join('')+
-        `<div style="padding:12px 16px;border-top:1.5px dashed var(--r100);display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:12px;font-weight:700;color:var(--tm)">TOTAL GASTOS</span>
-          <span style="font-size:17px;font-weight:700;color:var(--r600)">${fmt(total)}</span>
-        </div>`;
-    }
+    // Guardar en cache local
+    gastosCache[suc]=gs;
+    gastosMesCargado[suc]=mes;
+    renderGastosList(suc,mes);
   }catch(e){console.error('Error cargando gastos',e);listEl.innerHTML='<div class="sales-empty">Error al cargar</div>';}
 }
 
@@ -2340,8 +2366,8 @@ function populateGastosMonthSelectors(){
     if(!sel)return;
     sel.innerHTML=opts;
     sel.value=now;
-    // Auto-carga gastos del mes actual
-    loadGastosMes(suc,now);
+    // NO auto-carga al inicio — el usuario debe presionar el botón de cargar
+    // (evita lecturas innecesarias a Firestore en cada login)
   });
 }
 
@@ -2460,39 +2486,53 @@ async function loadMoreVentas(suc){
 }
 
 // ── TOP 10 BAJO DEMANDA ──
+// Cache del Top10 para evitar re-queries innecesarias
+const top10Cache={exsal:{},cdb:{}};
+
 async function loadTop10(suc){
   const sel=document.getElementById(suc+'-top10-month');
   const monthKey=sel?sel.value:getMonthKey();
   const bodyEl=document.getElementById(suc+'-top10-body');
   if(!bodyEl)return;
+
+  // Usar cache si ya se cargó este mes
+  if(top10Cache[suc][monthKey]){
+    bodyEl.innerHTML=top10Cache[suc][monthKey];
+    return;
+  }
+
   bodyEl.innerHTML='<div class="mensual-empty"><i class="ti ti-loader" style="animation:spin .7s linear infinite"></i><span>Calculando...</span></div>';
   try{
-    const snap=await db.collection('ventas').where('mes','==',monthKey).where('sucursal','==',suc).get();
+    // Límite de 500 docs para el Top10 — suficiente para calcular ranking sin leer miles de registros
+    const snap=await db.collection('ventas').where('mes','==',monthKey).where('sucursal','==',suc).orderBy('timestamp','desc').limit(500).get();
     const ventas=[];
     snap.forEach(doc=>ventas.push(doc.data()));
     const byProd={};
     ventas.forEach(v=>{byProd[v.productName]=(byProd[v.productName]||0)+v.qty;});
     const sorted=Object.entries(byProd).sort((a,b)=>b[1]-a[1]).slice(0,10);
+    let html;
     if(!sorted.length){
-      bodyEl.innerHTML='<div class="mensual-empty"><i class="ti ti-chart-bar-off"></i><span>Sin ventas en '+monthKeyToLabel(monthKey)+'</span></div>';
-      return;
+      html='<div class="mensual-empty"><i class="ti ti-chart-bar-off"></i><span>Sin ventas en '+monthKeyToLabel(monthKey)+'</span></div>';
+    } else {
+      const rankCls=['lb-r1','lb-r2','lb-r3','lb-rx','lb-rx','lb-rx','lb-rx','lb-rx','lb-rx','lb-rx'];
+      html=sorted.map(([name,qty],i)=>{
+        const prod=products.find(p=>p.name===name);
+        const curStock=prod?getStock(prod,suc):0;
+        const initStock=curStock+qty;
+        const ratio=initStock>0?Math.round((qty/initStock)*100):0;
+        const pillClass=i===0?'lb-pct-pill lb-pct-pill-gold':'lb-pct-pill';
+        return `<div class="lb-item">
+          <div class="lb-rank ${rankCls[i]}">${i+1}</div>
+          <div class="lb-body">
+            <div class="lb-name">${esc(name)}</div>
+            <div class="lb-meta">${qty} vendido${qty!==1?'s':''} · Stock actual: ${curStock}</div>
+          </div>
+          <div class="${pillClass}">${ratio}%</div>
+        </div>`;
+      }).join('');
     }
-    const rankCls=['lb-r1','lb-r2','lb-r3','lb-rx','lb-rx','lb-rx','lb-rx','lb-rx','lb-rx','lb-rx'];
-    bodyEl.innerHTML=sorted.map(([name,qty],i)=>{
-      const prod=products.find(p=>p.name===name);
-      const curStock=prod?getStock(prod,suc):0;
-      const initStock=curStock+qty;
-      const ratio=initStock>0?Math.round((qty/initStock)*100):0;
-      const pillClass=i===0?'lb-pct-pill lb-pct-pill-gold':'lb-pct-pill';
-      return `<div class="lb-item">
-        <div class="lb-rank ${rankCls[i]}">${i+1}</div>
-        <div class="lb-body">
-          <div class="lb-name">${esc(name)}</div>
-          <div class="lb-meta">${qty} vendido${qty!==1?'s':''} · Stock actual: ${curStock}</div>
-        </div>
-        <div class="${pillClass}">${ratio}%</div>
-      </div>`;
-    }).join('');
+    top10Cache[suc][monthKey]=html;
+    bodyEl.innerHTML=html;
   }catch(e){
     console.error('Error Top10',e);
     bodyEl.innerHTML='<div class="mensual-empty"><i class="ti ti-alert-circle"></i><span>Error al calcular</span></div>';
