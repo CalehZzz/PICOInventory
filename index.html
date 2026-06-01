@@ -350,6 +350,8 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .btn-lock-stats{background:none;border:1.5px solid var(--b100);border-radius:var(--rp);font-size:11px;font-weight:600;color:var(--tm);padding:3px 10px;cursor:pointer;font-family:inherit;display:none;align-items:center;gap:4px;transition:background var(--tr),color var(--tr)}
 .btn-lock-stats.visible{display:flex}
 .btn-lock-stats:hover{background:var(--r50);border-color:var(--r100);color:var(--r600)}
+.ventas-pin-badge{font-size:10px;font-weight:700;color:var(--tm);background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rp);padding:2px 9px;display:flex;align-items:center;gap:4px;letter-spacing:.3px;transition:opacity var(--tr)}
+.ventas-pin-badge.hidden{display:none}
 /* ── MONTHLY REDESIGN ── */
 .mensual-header-bar{background:var(--wh);border-radius:var(--rmd);border:1px solid var(--b100);box-shadow:var(--sc);padding:16px 20px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .mensual-select-wrap{position:relative;min-width:200px}
@@ -487,7 +489,10 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
   </div>
   <!-- GRUPO TABS: VENTAS -->
   <div class="tabs-group">
-    <div class="tabs-label">Ventas</div>
+    <div class="stats-tabs-label-wrap">
+      <div class="tabs-label">Ventas</div>
+      <span class="ventas-pin-badge" id="ventas-pin-badge"><i class="ti ti-lock" style="font-size:11px"></i>PIN requerido</span>
+    </div>
     <div class="tabs">
       <button class="tab-btn" onclick="switchTab('ventas-exsal',this)"><i class="ti ti-receipt"></i>Ventas EXSAL</button>
       <button class="tab-btn" onclick="switchTab('ventas-cdb',this)"><i class="ti ti-receipt"></i>Ventas CDB</button>
@@ -997,6 +1002,29 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     </div>
   </div>
 
+  <!-- ═══ HERRAMIENTAS DE MANTENIMIENTO (uso único, solo admin) ═══ -->
+  <div style="margin-top:40px;border-top:2px dashed var(--b100);padding-top:22px;padding-left:4px">
+    <button onclick="toggleAdminTools()" style="background:none;border:none;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:7px;color:var(--tm);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:4px 0">
+      <i class="ti ti-settings-2" style="font-size:15px"></i>Herramientas de mantenimiento
+      <i class="ti ti-chevron-down" id="admin-tools-chevron" style="font-size:13px;margin-left:4px"></i>
+    </button>
+    <div id="admin-tools-panel" style="display:none;margin-top:14px;background:var(--w50);border:1.5px dashed var(--w600);border-radius:var(--rmd);padding:18px 20px">
+      <div style="font-size:12px;font-weight:700;color:var(--w600);margin-bottom:12px;display:flex;align-items:center;gap:6px">
+        <i class="ti ti-alert-triangle"></i>
+        Estas herramientas hacen lecturas masivas de toda una colección. Úsalas solo cuando sea estrictamente necesario y una sola vez.
+      </div>
+      <div style="background:var(--wh);border:1px solid var(--w100);border-radius:var(--rsm);padding:13px 16px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--tp)">Migración: campo "mes" en ventas</div>
+          <div style="font-size:11px;color:var(--tm);margin-top:2px">Lee <strong>todas</strong> las ventas de la colección. Agrega el campo "mes" a las que no lo tienen. Ejecutar una sola vez.</div>
+        </div>
+        <button onclick="migrarVentasMes()" style="background:none;border:1.5px solid var(--w600);border-radius:var(--rp);font-size:12px;font-weight:700;color:var(--w600);padding:7px 16px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0">
+          <i class="ti ti-database"></i>Ejecutar migración
+        </button>
+      </div>
+    </div>
+  </div>
+
 </div><!-- /.app -->
 
 <!-- MODAL: PRODUCTO -->
@@ -1170,7 +1198,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     <div class="pin-header">
       <div class="pin-logo"><i class="ti ti-lock-access"></i></div>
       <div class="pin-title">Área Restringida</div>
-      <div class="pin-sub">Ingresa el PIN de 4 dígitos para acceder</div>
+      <div class="pin-sub">Estadísticas y Ventas · Ingresa el PIN de 4 dígitos</div>
     </div>
     <div class="pin-body">
       <div class="pin-dots">
@@ -1180,7 +1208,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
         <input class="pin-dot" type="password" id="pin-d4" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off">
       </div>
       <div class="pin-error" id="pin-error"></div>
-      <button class="btn-pin" onclick="verifyStatsPin()"><i class="ti ti-lock-open"></i>Desbloquear estadísticas</button>
+      <button class="btn-pin" onclick="verifyStatsPin()"><i class="ti ti-lock-open"></i>Desbloquear acceso</button>
       <button class="btn-pin-cancel" onclick="closePinOverlay()">Cancelar</button>
     </div>
   </div>
@@ -1193,6 +1221,12 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 const firebaseConfig={apiKey:"AIzaSyBrcUAuy-X43Rq8i_RJ7VUy97siQ90_gqQ",authDomain:"pico-6c040.firebaseapp.com",projectId:"pico-6c040",storageBucket:"pico-6c040.firebasestorage.app",messagingSenderId:"566388158042",appId:"1:566388158042:web:0642d5d533a9f59cd2b263",measurementId:"G-EN9QFLSHM8"};
 firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore(), auth=firebase.auth();
+
+// Caché local: los productos se sirven de IndexedDB en recargas,
+// solo se descargan del servidor los documentos que cambiaron.
+db.enableMultiTabIndexedDbPersistence().catch(e=>{
+  if(e.code==='unimplemented') console.warn('Persistence no soportada en este browser.');
+});
 
 // ── ESTADO ──
 let products=[], sales=[], deletedSales=[], orders=[], descuentos=[], gastos=[];
@@ -1237,6 +1271,7 @@ async function verifyStatsPin(){
     const tabToOpen=pendingStatsTab;
     closePinOverlay();
     document.getElementById('btn-lock-stats').classList.add('visible');
+    const vb=document.getElementById('ventas-pin-badge');if(vb)vb.classList.add('hidden');
     if(tabToOpen){doSwitchTab(tabToOpen.name,tabToOpen.btn);}
   }else{
     errEl.textContent='PIN incorrecto. Intenta de nuevo.';errEl.classList.add('show');
@@ -1258,12 +1293,13 @@ function closePinOverlay(){
 function lockStats(){
   statsUnlocked=false;
   document.getElementById('btn-lock-stats').classList.remove('visible');
-  const activeStatsTab=document.querySelector('.tab-content.active[id^="tab-stats-"]');
-  if(activeStatsTab){
+  const vb=document.getElementById('ventas-pin-badge');if(vb)vb.classList.remove('hidden');
+  const activeProtected=document.querySelector('.tab-content.active[id^="tab-stats-"],.tab-content.active[id^="tab-ventas-"]');
+  if(activeProtected){
     const firstInvBtn=document.querySelector('.tab-btn');
     doSwitchTab('inv-exsal',firstInvBtn);
   }
-  showToast('Estadísticas bloqueadas','ti-lock');
+  showToast('Estadísticas y ventas bloqueadas','ti-lock');
 }
 
 // Auto-avance en PIN inputs
@@ -1555,7 +1591,7 @@ function doSwitchTab(name,btn){
   if(name.startsWith('stats-'))renderAllStats();
 }
 function switchTab(name,btn){
-  if(name.startsWith('stats-')&&!statsUnlocked){
+  if((name.startsWith('stats-')||name.startsWith('ventas-'))&&!statsUnlocked){
     pendingStatsTab={name,btn};
     const ov=document.getElementById('pin-overlay');
     ov.style.cssText='display:flex;align-items:center;justify-content:center;position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;background:rgba(15,63,99,.52);backdrop-filter:blur(7px);padding:20px;';
@@ -2588,16 +2624,23 @@ async function clearDeletedSales(suc){
   }catch(e){showToast('Error al limpiar','ti-alert-circle');}
 }
 
+// ── BORRAR VENTAS CARGADAS EN PANTALLA ──
+// Nota: usa ventasPaginadas (lo que está visible) porque no hay listener global de ventas.
+// Solo borra lo que está paginado en la vista actual del mes seleccionado.
 async function clearSales(suc){
-  const filtered=suc==='total'?sales:sales.filter(v=>(v.sucursal||'exsal')===suc);
-  if(!filtered.length||!confirm('¿Borrar TODO el historial de '+suc.toUpperCase()+'?'))return;
+  const visible=ventasPaginadas[suc]||[];
+  if(!visible.length||!confirm('¿Borrar TODAS las ventas visibles de '+suc.toUpperCase()+'?\nSolo se eliminarán las ventas cargadas en pantalla para el mes actual.'))return;
   setSave('saving','Borrando...');
   try{
     const batch=db.batch();
-    filtered.forEach(v=>batch.delete(db.collection("ventas").doc(v.id)));
+    visible.forEach(v=>batch.delete(db.collection("ventas").doc(v.id)));
     await batch.commit();
-    showToast('Historial borrado','ti-trash');setSave('ok','Sincronizado ✓');
-  }catch(e){setSave('error','Error al borrar');}
+    ventasPaginadas[suc]=[];
+    ventasShown[suc]=0;
+    ventasLoaded[suc]=false;
+    renderVentasTable(suc,false);
+    showToast('Ventas borradas','ti-trash');setSave('ok','Sincronizado ✓');
+  }catch(e){setSave('error','Error al borrar');console.error(e);}
 }
 
 
@@ -3442,6 +3485,7 @@ async function clearRestockHistory(){
 }
 
 // ── MIGRACIÓN: agregar campo "mes" a ventas existentes ──
+// ⚠️  LEE TODA LA COLECCIÓN "ventas" — usar solo una vez desde el panel de mantenimiento
 async function migrarVentasMes(){
   if(!confirm('Esto agregará el campo "mes" a todas las ventas que no lo tengan.\n\nSolo es necesario correrlo UNA vez. ¿Continuar?'))return;
   showToast('Iniciando migración...','ti-database');
@@ -3467,6 +3511,16 @@ async function migrarVentasMes(){
     }
     showToast(`Migración completa: ${count} venta${count!==1?'s':''} actualizadas ✓`,'ti-check');
   }catch(e){showToast('Error en migración','ti-alert-circle');console.error(e);}
+}
+
+// ── PANEL DE MANTENIMIENTO (toggle) ──
+function toggleAdminTools(){
+  const panel=document.getElementById('admin-tools-panel');
+  const chevron=document.getElementById('admin-tools-chevron');
+  if(!panel)return;
+  const open=panel.style.display!=='none';
+  panel.style.display=open?'none':'block';
+  if(chevron) chevron.className=open?'ti ti-chevron-down':'ti ti-chevron-up';
 }
 
 </script>
