@@ -1224,8 +1224,9 @@ const db=firebase.firestore(), auth=firebase.auth();
 
 // Caché local: los productos se sirven de IndexedDB en recargas,
 // solo se descargan del servidor los documentos que cambiaron.
-db.enableMultiTabIndexedDbPersistence().catch(e=>{
-  if(e.code==='unimplemented') console.warn('Persistence no soportada en este browser.');
+db.enablePersistence({ synchronizeTabs: true }).catch(e=>{
+  if(e.code==='failed-precondition') console.warn('Persistencia no disponible: múltiples pestañas.');
+  else if(e.code==='unimplemented') console.warn('Persistence no soportada en este browser.');
 });
 
 // ── ESTADO ──
