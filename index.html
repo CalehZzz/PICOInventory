@@ -1204,8 +1204,10 @@ let restockPendingData=null;
 // Estado de carga de ventas por mes (nuevo apartado ventas)
 let ventasLoaded={exsal:false,cdb:false};
 let ventasMesActual={exsal:'',cdb:''};
-let ventasPaginadas={exsal:[],cdb:[]};       // todas las ventas cargadas del mes
+let ventasPaginadas={exsal:[],cdb:[]};       // ventas cargadas hasta ahora (páginas acumuladas)
 let ventasShown={exsal:0,cdb:0};             // cuántas se muestran actualmente
+let ventasCursor={exsal:null,cdb:null};      // último doc de Firestore para startAfter()
+let ventasAllLoaded={exsal:false,cdb:false}; // true cuando no hay más páginas en Firestore
 const VENTAS_PAGE_SIZE=10;
 // Estadisticas desde colección (acumulados)
 let estadisticasData={exsal:{ventas:0,costos:0,unidadesVendidas:0,numeroVentas:0},cdb:{ventas:0,costos:0,unidadesVendidas:0,numeroVentas:0}};
@@ -2327,18 +2329,32 @@ async function loadVentasMes(suc){
   const monthKey=sel?sel.value:getMonthKey();
   if(!monthKey)return;
   setVentasStatus(suc,'loading');
+  // Resetear estado para este mes
+  ventasPaginadas[suc]=[];
+  ventasShown[suc]=0;
+  ventasCursor[suc]=null;
+  ventasAllLoaded[suc]=false;
+  ventasMesActual[suc]=monthKey;
+  ventasLoaded[suc]=false;
   try{
-    let q=db.collection('ventas').where('mes','==',monthKey).where('sucursal','==',suc);
+    const q=db.collection('ventas')
+      .where('mes','==',monthKey)
+      .where('sucursal','==',suc)
+      .orderBy('timestamp','desc')
+      .limit(VENTAS_PAGE_SIZE);
     const snap=await q.get();
-    const todas=[];
-    snap.forEach(doc=>todas.push({id:doc.id,...doc.data()}));
-    todas.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
-    ventasPaginadas[suc]=todas;
-    ventasShown[suc]=0;
+    const page=[];
+    snap.forEach(doc=>page.push({id:doc.id,...doc.data()}));
+    ventasPaginadas[suc]=page;
+    ventasShown[suc]=page.length;
+    ventasCursor[suc]=snap.docs[snap.docs.length-1]||null;
+    ventasAllLoaded[suc]=snap.docs.length<VENTAS_PAGE_SIZE;
     ventasLoaded[suc]=true;
-    ventasMesActual[suc]=monthKey;
     renderVentasTable(suc,false);
-    setVentasStatus(suc,'ok',todas.length+' venta'+(todas.length!==1?'s':'')+' · '+monthKeyToLabel(monthKey));
+    // Total desde estadisticas acumuladas (ya en memoria, 0 lecturas extra)
+    const totalKnown=estadisticasData[suc]?estadisticasData[suc].numeroVentas:null;
+    const totalTxt=totalKnown?totalKnown+' venta'+(totalKnown!==1?'s':''):page.length+' venta'+(page.length!==1?'s':'');
+    setVentasStatus(suc,'ok',totalTxt+' · '+monthKeyToLabel(monthKey));
   }catch(e){
     console.error('Error cargando ventas',suc,e);
     setVentasStatus(suc,'error');
@@ -2355,13 +2371,9 @@ function renderVentasTable(suc,append){
     if(loadMoreRow)loadMoreRow.style.display='none';
     return;
   }
-  const start=append?ventasShown[suc]:0;
-  const end=Math.min(start+VENTAS_PAGE_SIZE,allVentas.length);
-  const slice=allVentas.slice(start,end);
-  ventasShown[suc]=end;
-  const hasMore=end<allVentas.length;
-
-  const rows=slice.map(v=>{
+  // Con paginación real de Firestore, todos los docs en ventasPaginadas ya son los visibles
+  const hasMore=!ventasAllLoaded[suc];
+  const makeRow=v=>{
     const g=+(v.total-v.costTotal).toFixed(2);
     const seller=v.seller?v.seller.split('@')[0]:'—';
     const orderNum=v.orderNumber||('ORD-'+(String(v.timestamp||Date.now()).slice(-6)));
@@ -2379,47 +2391,35 @@ function renderVentasTable(suc,append){
       <td style="font-size:12px;color:var(--ts)">${esc(seller)}</td>
       <td><button onclick="event.stopPropagation();deleteSale('${v.id}')" style="background:none;border:none;cursor:pointer;color:var(--r600);padding:4px 8px;border-radius:6px;font-size:16px"><i class="ti ti-trash"></i></button></td>
     </tr>`;
-  }).join('');
-
-  const tableHtml=`<table class="sales-table"><thead><tr>
+  };
+  const thead=`<table class="sales-table"><thead><tr>
     <th style="width:32px"></th>
     <th>Orden</th><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Ingreso</th><th>Desc.</th><th>Ganancia</th><th>Vendedor</th><th></th>
-  </tr></thead><tbody>${rows}</tbody></table>`;
-
-  if(append){
-    // Reemplazar tabla completa con todas las filas visibles
-    const allVisible=allVentas.slice(0,end);
-    const allRows=allVisible.map(v=>{
-      const g=+(v.total-v.costTotal).toFixed(2);
-      const seller=v.seller?v.seller.split('@')[0]:'—';
-      const orderNum=v.orderNumber||('ORD-'+(String(v.timestamp||Date.now()).slice(-6)));
-      const checked=selectedSales[suc].has(v.id)?'checked':'';
-      const discCell=v.descuentoAplicado
-        ?`<td><span class="badge badge-descuento">-${v.descuentoAplicado.porcentaje}%</span></td>`
-        :`<td><span style="font-size:11px;color:var(--tm)">—</span></td>`;
-      return `<tr class="sale-row-select">
-        <td style="padding:8px 6px 8px 14px"><input type="checkbox" class="sale-cb" ${checked} onchange="toggleSaleSelect('${v.id}','${suc}',this)" onclick="event.stopPropagation()"></td>
-        <td style="font-size:11px;color:var(--tm);font-weight:700">${orderNum}</td>
-        <td>${v.date}</td><td>${esc(v.productName)}</td><td>${v.qty}</td>
-        <td>${fmt(v.total)}</td>
-        ${discCell}
-        <td style="color:${g>=0?'var(--g600)':'var(--r600)'}">${fmt(g)}</td>
-        <td style="font-size:12px;color:var(--ts)">${esc(seller)}</td>
-        <td><button onclick="event.stopPropagation();deleteSale('${v.id}')" style="background:none;border:none;cursor:pointer;color:var(--r600);padding:4px 8px;border-radius:6px;font-size:16px"><i class="ti ti-trash"></i></button></td>
-      </tr>`;
-    }).join('');
-    body.innerHTML=`<table class="sales-table"><thead><tr>
-      <th style="width:32px"></th>
-      <th>Orden</th><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Ingreso</th><th>Desc.</th><th>Ganancia</th><th>Vendedor</th><th></th>
-    </tr></thead><tbody>${allRows}</tbody></table>`;
-  } else {
-    body.innerHTML=tableHtml;
-  }
+  </tr></thead><tbody>`;
+  body.innerHTML=thead+allVentas.map(makeRow).join('')+'</tbody></table>';
   if(loadMoreRow) loadMoreRow.style.display=hasMore?'block':'none';
 }
 
-function loadMoreVentas(suc){
-  renderVentasTable(suc,true);
+async function loadMoreVentas(suc){
+  if(ventasAllLoaded[suc]||!ventasLoaded[suc])return;
+  const monthKey=ventasMesActual[suc];
+  if(!monthKey||!ventasCursor[suc])return;
+  try{
+    const q=db.collection('ventas')
+      .where('mes','==',monthKey)
+      .where('sucursal','==',suc)
+      .orderBy('timestamp','desc')
+      .startAfter(ventasCursor[suc])
+      .limit(VENTAS_PAGE_SIZE);
+    const snap=await q.get();
+    const page=[];
+    snap.forEach(doc=>page.push({id:doc.id,...doc.data()}));
+    ventasPaginadas[suc]=[...ventasPaginadas[suc],...page];
+    ventasShown[suc]=ventasPaginadas[suc].length;
+    ventasCursor[suc]=snap.docs[snap.docs.length-1]||ventasCursor[suc];
+    ventasAllLoaded[suc]=snap.docs.length<VENTAS_PAGE_SIZE;
+    renderVentasTable(suc,true);
+  }catch(e){console.error('Error cargando más ventas',suc,e);}
 }
 
 // ── TOP 10 BAJO DEMANDA ──
