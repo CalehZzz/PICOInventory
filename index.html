@@ -751,8 +751,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       <div class="fin-card fin-card-gasto"><div class="fin-label">Costos EXSAL (acumulado)</div><div class="fin-value" id="exsal-stat-costos">$0.00</div></div>
       <div class="fin-card"><div class="fin-label">Ganancia Real (ventas − costos)</div><div class="fin-value fv-green" id="exsal-stat-ganancia">$0.00</div></div>
       <div class="fin-card"><div class="fin-label">Unidades vendidas</div><div class="fin-value fv-blue" id="exsal-stat-units">0</div></div>
-      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Número de ventas</div><div class="fin-value fv-blue" id="exsal-stat-numventas">0</div></div>
-      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Valor inventario EXSAL (a costo)</div><div class="fin-value fv-orange" id="exsal-si-valor">$0.00</div></div>
+      <div class="fin-card" style="grid-column:span 4"><div class="fin-label">Número de ventas</div><div class="fin-value fv-blue" id="exsal-stat-numventas">0</div></div>
     </div>
 
     <!-- Top 10 bajo demanda -->
@@ -820,8 +819,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       <div class="fin-card fin-card-gasto"><div class="fin-label">Costos CDB (acumulado)</div><div class="fin-value" id="cdb-stat-costos">$0.00</div></div>
       <div class="fin-card"><div class="fin-label">Ganancia Real (ventas − costos)</div><div class="fin-value fv-green" id="cdb-stat-ganancia">$0.00</div></div>
       <div class="fin-card"><div class="fin-label">Unidades vendidas</div><div class="fin-value fv-blue" id="cdb-stat-units">0</div></div>
-      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Número de ventas</div><div class="fin-value fv-blue" id="cdb-stat-numventas">0</div></div>
-      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Valor inventario CDB (a costo)</div><div class="fin-value fv-orange" id="cdb-si-valor">$0.00</div></div>
+      <div class="fin-card" style="grid-column:span 4"><div class="fin-label">Número de ventas</div><div class="fin-value fv-blue" id="cdb-stat-numventas">0</div></div>
     </div>
 
     <!-- Top 10 bajo demanda -->
@@ -1352,16 +1350,31 @@ async function ensureEstadisticasInit(){
     {id:'ColegioExsal',data:{'ventas':2.10,'costos':5.33,'unidades vendidas':14,'numero de ventas':1}},
     {id:'ColegioDonBosco',data:{'ventas':362.20,'costos':346.19,'unidades vendidas':1037,'numero de ventas':296}}
   ];
+  let anyCreated=false;
   for(const d of docsToInit){
-    const ref=db.collection('estadisticas').doc(d.id);
-    const snap=await ref.get();
-    if(!snap.exists){
-      await ref.set(d.data);
-      console.log('Inicializado estadisticas/'+d.id);
+    try{
+      const ref=db.collection('estadisticas').doc(d.id);
+      const snap=await ref.get();
+      if(!snap.exists){
+        await ref.set(d.data);
+        console.log('Inicializado estadisticas/'+d.id, d.data);
+        anyCreated=true;
+      }
+    }catch(e){
+      console.error('Error al inicializar estadisticas/'+d.id, e);
     }
   }
-  // Revisar si hay que hacer reset mensual
-  await checkMonthlyReset();
+  if(!anyCreated){
+    await checkMonthlyReset();
+  } else {
+    try{
+      const metaRef=db.collection('estadisticas').doc('_meta');
+      const metaSnap=await metaRef.get();
+      if(!metaSnap.exists){
+        await metaRef.set({ultimoMes:getMonthKey(),updatedAt:Date.now()});
+      }
+    }catch(e){console.warn('Error al crear _meta:',e);}
+  }
 }
 
 // ── RESET MENSUAL DE ESTADÍSTICAS ──
@@ -1559,9 +1572,7 @@ function updateAllInvStats(){
   document.getElementById('exsal-si-total').textContent=products.length;
   document.getElementById('exsal-si-stock').textContent=exsalStock.toLocaleString('es');
   document.getElementById('exsal-si-valor-venta').textContent=fmt(exsalVenta);
-  // Actualizar valor inventario en estadisticas EXSAL
-  const exsalValEl=document.getElementById('exsal-si-valor');
-  if(exsalValEl) exsalValEl.textContent=fmt(exsalCosto);
+  // exsal-si-valor fue eliminado de la UI de estadísticas
 
   const cdbStock=products.reduce((s,p)=>s+getStock(p,'cdb'),0);
   const cdbVenta=products.reduce((s,p)=>s+(p.price*getStock(p,'cdb')),0);
@@ -1569,9 +1580,7 @@ function updateAllInvStats(){
   document.getElementById('cdb-si-total').textContent=products.length;
   document.getElementById('cdb-si-stock').textContent=cdbStock.toLocaleString('es');
   document.getElementById('cdb-si-valor-venta').textContent=fmt(cdbVenta);
-  // Actualizar valor inventario en estadisticas CDB
-  const cdbValEl=document.getElementById('cdb-si-valor');
-  if(cdbValEl) cdbValEl.textContent=fmt(cdbCosto);
+  // cdb-si-valor fue eliminado de la UI de estadísticas
 
   const totStock=exsalStock+cdbStock;
   const totVenta=exsalVenta+cdbVenta;
