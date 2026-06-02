@@ -1002,28 +1002,6 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     </div>
   </div>
 
-  <!-- ═══ HERRAMIENTAS DE MANTENIMIENTO (uso único, solo admin) ═══ -->
-  <div style="margin-top:40px;border-top:2px dashed var(--b100);padding-top:22px;padding-left:4px">
-    <button onclick="toggleAdminTools()" style="background:none;border:none;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:7px;color:var(--tm);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:4px 0">
-      <i class="ti ti-settings-2" style="font-size:15px"></i>Herramientas de mantenimiento
-      <i class="ti ti-chevron-down" id="admin-tools-chevron" style="font-size:13px;margin-left:4px"></i>
-    </button>
-    <div id="admin-tools-panel" style="display:none;margin-top:14px;background:var(--w50);border:1.5px dashed var(--w600);border-radius:var(--rmd);padding:18px 20px">
-      <div style="font-size:12px;font-weight:700;color:var(--w600);margin-bottom:12px;display:flex;align-items:center;gap:6px">
-        <i class="ti ti-alert-triangle"></i>
-        Estas herramientas hacen lecturas masivas de toda una colección. Úsalas solo cuando sea estrictamente necesario y una sola vez.
-      </div>
-      <div style="background:var(--wh);border:1px solid var(--w100);border-radius:var(--rsm);padding:13px 16px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap">
-        <div>
-          <div style="font-size:13px;font-weight:700;color:var(--tp)">Migración: campo "mes" en ventas</div>
-          <div style="font-size:11px;color:var(--tm);margin-top:2px">Lee <strong>todas</strong> las ventas de la colección. Agrega el campo "mes" a las que no lo tienen. Ejecutar una sola vez.</div>
-        </div>
-        <button onclick="migrarVentasMes()" style="background:none;border:1.5px solid var(--w600);border-radius:var(--rp);font-size:12px;font-weight:700;color:var(--w600);padding:7px 16px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0">
-          <i class="ti ti-database"></i>Ejecutar migración
-        </button>
-      </div>
-    </div>
-  </div>
 
 </div><!-- /.app -->
 
@@ -1245,7 +1223,7 @@ let ventasCursor={exsal:null,cdb:null};      // último doc de Firestore para st
 let ventasAllLoaded={exsal:false,cdb:false}; // true cuando no hay más páginas en Firestore
 const VENTAS_PAGE_SIZE=10;
 // Estadisticas desde colección (acumulados)
-let estadisticasData={exsal:{ventas:0,costos:0,unidadesVendidas:0,numeroVentas:0},cdb:{ventas:0,costos:0,unidadesVendidas:0,numeroVentas:0}};
+let estadisticasData={exsal:{ventas:0,costos:0,unidadesVendidas:0,numeroVentas:0,pedidosEntregados:0,pedidosCancelados:0,pedidosPendientes:0,ingresosPedidos:0,costosPedidos:0},cdb:{ventas:0,costos:0,unidadesVendidas:0,numeroVentas:0,pedidosEntregados:0,pedidosCancelados:0,pedidosPendientes:0,ingresosPedidos:0,costosPedidos:0}};
 
 // ── PAGINACIÓN ──
 const PROD_PAGE_SIZE=20;
@@ -1453,6 +1431,10 @@ async function checkMonthlyReset(){
           costos:data.costos||0,
           'unidades vendidas':data['unidades vendidas']||0,
           'numero de ventas':data['numero de ventas']||0,
+          pedidosEntregados:data.pedidosEntregados||0,
+          pedidosCancelados:data.pedidosCancelados||0,
+          ingresosPedidos:data.ingresosPedidos||0,
+          costosPedidos:data.costosPedidos||0,
           archivedAt:Date.now()
         });
       }
@@ -1465,7 +1447,12 @@ async function checkMonthlyReset(){
         'ventas':0,
         'costos':0,
         'unidades vendidas':0,
-        'numero de ventas':0
+        'numero de ventas':0,
+        // Contadores de pedidos: se reinician cada mes (pedidosPendientes NO, sigue acumulado real)
+        'pedidosEntregados':0,
+        'pedidosCancelados':0,
+        'ingresosPedidos':0,
+        'costosPedidos':0
       });
     }
 
@@ -1550,11 +1537,17 @@ function startListeners(){
         ventas:d.ventas||0,
         costos:d.costos||0,
         unidadesVendidas:d['unidades vendidas']||0,
-        numeroVentas:d['numero de ventas']||0
+        numeroVentas:d['numero de ventas']||0,
+        pedidosEntregados:d.pedidosEntregados||0,
+        pedidosCancelados:d.pedidosCancelados||0,
+        pedidosPendientes:d.pedidosPendientes||0,
+        ingresosPedidos:d.ingresosPedidos||0,
+        costosPedidos:d.costosPedidos||0
       };
     });
     renderEstadisticasKpis('exsal');
     renderEstadisticasKpis('cdb');
+    renderPedidosKpis();
   },err=>console.error('Error estadisticas listener',err));
 
   // Inicializar selectores de mes para ventas y gastos
@@ -2941,15 +2934,18 @@ function getOrderCost(order){
 }
 
 function renderPedidosKpis(){
-  const delivered=orders.filter(o=>o.status==='delivered');
-  const pending=orders.filter(o=>o.status==='pending');
-  const cancelled=orders.filter(o=>o.status==='cancelled');
-  // Ingresos: usar totalConDescuento si existe (precio real cobrado), sino total original
-  const ingresos=delivered.reduce((s,o)=>s+(typeof o.totalConDescuento==='number'?o.totalConDescuento:(o.total||0)),0);
-  const costos=delivered.reduce((s,o)=>s+getOrderCost(o),0);
-  document.getElementById('ped-count-delivered').textContent=delivered.length;
-  document.getElementById('ped-count-pending').textContent=pending.length;
-  document.getElementById('ped-count-cancelled').textContent=cancelled.length;
+  // Leer desde los contadores acumulados en la colección "estadisticas"
+  // (ya escuchados en tiempo real por unsubEstadisticas) en vez de sumar el
+  // array "orders" en memoria, que solo tiene los últimos ORDERS_LIMIT pedidos.
+  const e=estadisticasData.exsal, c=estadisticasData.cdb;
+  const delivered=(e.pedidosEntregados||0)+(c.pedidosEntregados||0);
+  const pending=(e.pedidosPendientes||0)+(c.pedidosPendientes||0);
+  const cancelled=(e.pedidosCancelados||0)+(c.pedidosCancelados||0);
+  const ingresos=(e.ingresosPedidos||0)+(c.ingresosPedidos||0);
+  const costos=(e.costosPedidos||0)+(c.costosPedidos||0);
+  document.getElementById('ped-count-delivered').textContent=delivered;
+  document.getElementById('ped-count-pending').textContent=pending;
+  document.getElementById('ped-count-cancelled').textContent=cancelled;
   document.getElementById('ped-total-ingresos').textContent=fmt(ingresos);
   document.getElementById('ped-total-costos').textContent=fmt(costos);
   document.getElementById('ped-total-ganancia').textContent=fmt(ingresos-costos);
@@ -3053,7 +3049,12 @@ async function deliverOrder(orderId){
   batch.update(db.collection('estadisticas').doc(statDocId),{
     'ventas':firebase.firestore.FieldValue.increment(+totalVentasPedido.toFixed(2)),
     'unidades vendidas':firebase.firestore.FieldValue.increment(totalUnidadesPedido),
-    'numero de ventas':firebase.firestore.FieldValue.increment(numItemsPedido)
+    'numero de ventas':firebase.firestore.FieldValue.increment(numItemsPedido),
+    // Contadores de pedidos (mensuales salvo pedidosPendientes)
+    'pedidosEntregados':firebase.firestore.FieldValue.increment(1),
+    'ingresosPedidos':firebase.firestore.FieldValue.increment(+totalEfectivo.toFixed(2)),
+    'costosPedidos':firebase.firestore.FieldValue.increment(+costTotal.toFixed(2)),
+    'pedidosPendientes':firebase.firestore.FieldValue.increment(-1)
   });
 
   batch.update(db.collection('pedidos').doc(orderId),{
@@ -3073,6 +3074,78 @@ async function deliverOrder(orderId){
   }
 }
 
+// Volver un pedido entregado a "pendiente": restaura stock, borra registros de "ventas"
+// y revierte estadísticas SOLO si la entrega fue del mes actual.
+async function undeliverOrder(orderId){
+  const order=orders.find(o=>o.id===orderId);
+  if(!order||order.status!=='delivered'){showToast('Solo se pueden revertir pedidos entregados','ti-alert-circle');return;}
+  if(!confirm('¿Volver este pedido a pendiente? Se restaurará el stock y se revertirán las ventas/estadísticas.'))return;
+
+  const suc=order.sucursal||'exsal';
+  const stockField=suc==='cdb'?'stockCdb':'stockExsal';
+  const statDocId=suc==='cdb'?'ColegioDonBosco':'ColegioExsal';
+
+  // ¿La entrega fue de este mes?
+  const mesActual=getMonthKey();
+  const mesEntrega=order.deliveredAt?getMonthKey(order.deliveredAt):null;
+  const revertStats=mesEntrega===mesActual;
+
+  // Recalcular totales (precios/costos congelados, igual que al entregar)
+  const discFactor=order.discountPct?((100-order.discountPct)/100):1;
+  let totalUnidades=0,totalVentas=0,costTotal=0;
+  for(const item of (order.items||[])){
+    const qty=item.qty||1;
+    const prod=products.find(p=>p.id===item.id||p.name===item.name);
+    const unitCost=typeof item.cost==='number'?item.cost:(prod?prod.cost:0);
+    const unitPrice=typeof item.price==='number'?item.price:(prod?prod.price:0);
+    totalUnidades+=qty;
+    totalVentas+=+(unitPrice*qty*discFactor).toFixed(2);
+    costTotal+=unitCost*qty;
+  }
+  const totalEfectivo=typeof order.totalConDescuento==='number'?order.totalConDescuento:totalVentas;
+
+  const batch=db.batch();
+
+  // 1) Restaurar stock (siempre)
+  for(const item of (order.items||[])){
+    const prod=products.find(p=>p.id===item.id||p.name===item.name);
+    const ref=prod?db.collection('productos').doc(prod.id):(item.id?db.collection('productos').doc(item.id):null);
+    if(ref) batch.update(ref,{[stockField]:firebase.firestore.FieldValue.increment(item.qty||1)});
+  }
+
+  // 2) Borrar los registros de "ventas" de este pedido (siempre)
+  const ventasSnap=await db.collection('ventas').where('fromOrder','==',orderId).get();
+  ventasSnap.forEach(doc=>batch.delete(doc.ref));
+
+  // 3) Revertir estadísticas SOLO si la entrega fue de este mes
+  const statUpdate={'pedidosPendientes':firebase.firestore.FieldValue.increment(1)};
+  if(revertStats){
+    statUpdate['pedidosEntregados']=firebase.firestore.FieldValue.increment(-1);
+    statUpdate['ventas']=firebase.firestore.FieldValue.increment(-totalVentas);
+    statUpdate['unidades vendidas']=firebase.firestore.FieldValue.increment(-totalUnidades);
+    statUpdate['numero de ventas']=firebase.firestore.FieldValue.increment(-(order.items||[]).length);
+    statUpdate['ingresosPedidos']=firebase.firestore.FieldValue.increment(-(+totalEfectivo.toFixed(2)));
+    statUpdate['costosPedidos']=firebase.firestore.FieldValue.increment(-(+costTotal.toFixed(2)));
+  }
+  batch.set(db.collection('estadisticas').doc(statDocId),statUpdate,{merge:true});
+
+  // 4) Volver a pendiente y limpiar marcas de entrega
+  batch.update(db.collection('pedidos').doc(orderId),{
+    status:'pending',
+    deliveredAt:firebase.firestore.FieldValue.delete(),
+    deliveredBy:firebase.firestore.FieldValue.delete(),
+    costTotal:firebase.firestore.FieldValue.delete()
+  });
+
+  try{
+    await batch.commit();
+    showToast('Pedido devuelto a pendiente · entrega revertida','ti-rotate');
+  }catch(e){
+    console.error(e);
+    showToast('Error al revertir el pedido','ti-alert-circle');
+  }
+}
+
 // Cancelar pedido (cambia estado a cancelled sin eliminarlo)
 async function cancelOrder(orderId){
   const order=orders.find(o=>o.id===orderId);
@@ -3080,11 +3153,18 @@ async function cancelOrder(orderId){
   const label=order.code||order.name||orderId;
   if(!confirm(`¿Cancelar el pedido "${label}"? Se moverá al historial como cancelado.`))return;
   try{
-    await db.collection('pedidos').doc(orderId).update({
+    const suc=order.sucursal==='cdb'?'ColegioDonBosco':'ColegioExsal';
+    const batch=db.batch();
+    batch.update(db.collection('pedidos').doc(orderId),{
       status:'cancelled',
       cancelledAt:Date.now(),
       cancelledBy:(firebase.auth().currentUser?.email||'Desconocido')
     });
+    batch.set(db.collection('estadisticas').doc(suc),{
+      'pedidosCancelados':firebase.firestore.FieldValue.increment(1),
+      'pedidosPendientes':firebase.firestore.FieldValue.increment(-1)
+    },{merge:true});
+    await batch.commit();
     showToast('Pedido cancelado','ti-ban');
   }catch(e){
     showToast('Error al cancelar pedido','ti-alert-circle');
@@ -3096,10 +3176,34 @@ async function cancelOrder(orderId){
 async function deleteOrder(orderId){
   const order=orders.find(o=>o.id===orderId);
   if(!order)return;
+  // No se permite borrar pedidos entregados: primero hay que volverlos a pendiente
+  // (así se revierte stock, ventas y estadísticas correctamente desde undeliverOrder).
+  if(order.status==='delivered'){
+    showToast('Primero vuelve el pedido a pendiente para poder eliminarlo','ti-alert-circle');
+    return;
+  }
   const label=order.code||order.name||orderId;
   if(!confirm(`¿Eliminar el pedido "${label}"? Esta acción no se puede deshacer.`))return;
   try{
-    await db.collection('pedidos').doc(orderId).delete();
+    // Al borrar solo se ajustan los CONTADORES de pedidos (no ventas/unidades/ingresos/costos).
+    // pedidosPendientes nunca se resetea por mes; pedidosCancelados solo se descuenta si es del mes actual.
+    const suc=order.sucursal==='cdb'?'ColegioDonBosco':'ColegioExsal';
+    const mesActual=getMonthKey();
+    const statUpdate={};
+    if(order.status==='pending'){
+      statUpdate['pedidosPendientes']=firebase.firestore.FieldValue.increment(-1);
+    } else if(order.status==='cancelled'){
+      const mesCancel=order.cancelledAt?getMonthKey(order.cancelledAt):null;
+      if(mesCancel===mesActual){
+        statUpdate['pedidosCancelados']=firebase.firestore.FieldValue.increment(-1);
+      }
+    }
+    const batch=db.batch();
+    batch.delete(db.collection('pedidos').doc(orderId));
+    if(Object.keys(statUpdate).length){
+      batch.set(db.collection('estadisticas').doc(suc),statUpdate,{merge:true});
+    }
+    await batch.commit();
     showToast('Pedido eliminado','ti-trash');
   }catch(e){
     showToast('Error al eliminar pedido','ti-alert-circle');
@@ -3121,7 +3225,9 @@ function buildPedidoRow(o){
   const gananciaCell=ganancia!==null?`<span style="color:${ganancia>=0?'var(--g600)':'var(--r600)'}">${fmt(ganancia)}</span>`:`<span style="color:var(--tm);font-size:11px">—</span>`;
   const createdAt=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate().toLocaleDateString('es'):o.createdAt||'—';
   const deliverBtn=st==='pending'?`<button onclick="deliverOrder('${o.id}')" title="Marcar como entregado" style="background:var(--g50);border:1.5px solid var(--g100);color:var(--g600);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:700;display:flex;align-items:center;gap:4px;white-space:nowrap"><i class="ti ti-check"></i>Entregar</button>
-<button onclick="cancelOrder('${o.id}')" title="Cancelar pedido" style="background:var(--w50);border:1.5px solid var(--w100);color:var(--w600);border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;font-weight:700;display:flex;align-items:center;gap:4px;white-space:nowrap"><i class="ti ti-ban"></i>Cancelar</button>`:'';
+<button onclick="cancelOrder('${o.id}')" title="Cancelar pedido" style="background:var(--w50);border:1.5px solid var(--w100);color:var(--w600);border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;font-weight:700;display:flex;align-items:center;gap:4px;white-space:nowrap"><i class="ti ti-ban"></i>Cancelar</button>`
+  :st==='delivered'?`<button onclick="undeliverOrder('${o.id}')" title="Volver a pendiente (revierte stock y ventas)" style="background:var(--w50);border:1.5px solid var(--w100);color:var(--w600);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:700;display:flex;align-items:center;gap:4px;white-space:nowrap"><i class="ti ti-rotate"></i>Volver a pendiente</button>`
+  :'';
   const discOpts=descuentos.map(d=>`<option value="${d.id}" data-pct="${d.porcentaje}" ${o.discountId===d.id?'selected':''}>${esc(d.nombre)} (${d.porcentaje}%)</option>`).join('');
   const selectedPct=o.discountId&&o.discountPct?o.discountPct:0;
   const totalOriginal=o.total||0;
@@ -3153,7 +3259,7 @@ function buildPedidoRow(o){
     <td style="white-space:nowrap">
       <div style="display:flex;gap:6px;align-items:center">
         ${deliverBtn}
-        <button onclick="deleteOrder('${o.id}')" title="Eliminar pedido" style="background:none;border:1.5px solid var(--r100);color:var(--r600);border-radius:8px;padding:5px 8px;cursor:pointer;font-size:14px;display:flex;align-items:center"><i class="ti ti-trash"></i></button>
+        ${st!=='delivered'?`<button onclick="deleteOrder('${o.id}')" title="Eliminar pedido" style="background:none;border:1.5px solid var(--r100);color:var(--r600);border-radius:8px;padding:5px 8px;cursor:pointer;font-size:14px;display:flex;align-items:center"><i class="ti ti-trash"></i></button>`:''}
       </div>
     </td>
   </tr>`;
@@ -3523,45 +3629,6 @@ async function clearRestockHistory(){
     await batch.commit();
     showToast('Historial de restock borrado','ti-trash');
   }catch(e){showToast('Error al borrar historial','ti-alert-circle');}
-}
-
-// ── MIGRACIÓN: agregar campo "mes" a ventas existentes ──
-// ⚠️  LEE TODA LA COLECCIÓN "ventas" — usar solo una vez desde el panel de mantenimiento
-async function migrarVentasMes(){
-  if(!confirm('Esto agregará el campo "mes" a todas las ventas que no lo tengan.\n\nSolo es necesario correrlo UNA vez. ¿Continuar?'))return;
-  showToast('Iniciando migración...','ti-database');
-  try{
-    const snap=await db.collection('ventas').get();
-    const sinMes=[];
-    snap.forEach(doc=>{
-      const d=doc.data();
-      if(!d.mes) sinMes.push({id:doc.id,ts:d.timestamp});
-    });
-    if(!sinMes.length){showToast('No hay ventas pendientes de migrar ✓','ti-check');return;}
-    // Procesar en batches de 500
-    let count=0;
-    for(let i=0;i<sinMes.length;i+=500){
-      const chunk=sinMes.slice(i,i+500);
-      const batch=db.batch();
-      chunk.forEach(v=>{
-        const mes=getMonthKey(v.ts||Date.now());
-        batch.update(db.collection('ventas').doc(v.id),{mes});
-      });
-      await batch.commit();
-      count+=chunk.length;
-    }
-    showToast(`Migración completa: ${count} venta${count!==1?'s':''} actualizadas ✓`,'ti-check');
-  }catch(e){showToast('Error en migración','ti-alert-circle');console.error(e);}
-}
-
-// ── PANEL DE MANTENIMIENTO (toggle) ──
-function toggleAdminTools(){
-  const panel=document.getElementById('admin-tools-panel');
-  const chevron=document.getElementById('admin-tools-chevron');
-  if(!panel)return;
-  const open=panel.style.display!=='none';
-  panel.style.display=open?'none':'block';
-  if(chevron) chevron.className=open?'ti ti-chevron-down':'ti ti-chevron-up';
 }
 
 </script>
