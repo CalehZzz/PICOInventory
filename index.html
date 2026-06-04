@@ -1326,7 +1326,7 @@ auth.onAuthStateChanged(user=>{
     startListeners();
   }else{
     overlay.style.display='flex';
-    if(unsubProd)unsubProd();if(unsubSales)unsubSales();if(unsubDeleted)unsubDeleted();if(unsubOrders)unsubOrders();if(unsubRestock)unsubRestock();if(unsubDescuentos)unsubDescuentos();
+    if(unsubProd){unsubProd();unsubProd=null;}if(unsubSales){unsubSales();unsubSales=null;}if(unsubDeleted){unsubDeleted();unsubDeleted=null;}if(unsubOrders){unsubOrders();unsubOrders=null;}if(unsubRestock){unsubRestock();unsubRestock=null;}if(unsubDescuentos){unsubDescuentos();unsubDescuentos=null;}if(unsubGastos){unsubGastos();unsubGastos=null;}if(unsubEstadisticas){unsubEstadisticas();unsubEstadisticas=null;}
     products=[];sales=[];deletedSales=[];orders=[];descuentos=[];
     salesExtra=[];ordersExtra=[];restockExtra=[];
     salesLastVisible=null;ordersLastVisible=null;restockLastVisible=null;
@@ -1473,6 +1473,18 @@ async function checkMonthlyReset(){
 
 // ── LISTENERS ──
 function startListeners(){
+  // Evita listeners duplicados: onAuthStateChanged puede dispararse varias veces
+  // (carga, refresco de token, reconexión). Sin esto se acumulan varios onSnapshot
+  // sobre "pedidos"/"estadisticas" y cada cambio (p. ej. cancelar) se renderiza
+  // por duplicado.
+  if(unsubProd){unsubProd();unsubProd=null;}
+  if(unsubSales){unsubSales();unsubSales=null;}
+  if(unsubDeleted){unsubDeleted();unsubDeleted=null;}
+  if(unsubOrders){unsubOrders();unsubOrders=null;}
+  if(unsubRestock){unsubRestock();unsubRestock=null;}
+  if(unsubDescuentos){unsubDescuentos();unsubDescuentos=null;}
+  if(unsubGastos){unsubGastos();unsubGastos=null;}
+  if(unsubEstadisticas){unsubEstadisticas();unsubEstadisticas=null;}
   setSave('saving','Sincronizando...');
   // Inicializar colección estadisticas si no existe
   ensureEstadisticasInit().catch(e=>console.warn('estadisticas init:',e));
@@ -2359,8 +2371,8 @@ function populateGastosMonthSelectors(){
     if(!sel)return;
     sel.innerHTML=opts;
     sel.value=now;
-    // NO auto-carga al inicio — el usuario debe presionar el botón de cargar
-    // (evita lecturas innecesarias a Firestore en cada login)
+    // Cargar automáticamente los gastos del mes actual
+    loadGastosMes(suc,now);
   });
 }
 
