@@ -1016,7 +1016,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       </div>
       <div class="pm-stock-section">
         <div class="pm-stock-label">Stock actual <span id="pm-stock-sucursal-label" style="font-weight:400;text-transform:none;letter-spacing:0"></span></div>
-        <div class="pm-stock-ctrl">
+        <div class="pm-stock-ctrl" id="pm-stock-ctrl">
           <button class="stock-btn stock-btn-minus" onclick="changeSellQty(-1)"><i class="ti ti-minus"></i></button>
           <div class="stock-number" id="pm-stock-num">0</div>
           <button class="stock-btn stock-btn-plus" onclick="changeSellQty(1)"><i class="ti ti-plus"></i></button>
@@ -1030,7 +1030,10 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
           <div id="pm-sale-total-val" style="font-size:22px;font-weight:700;color:var(--g600)">$0.00</div>
         </div>
       </div>
-      <div class="pm-discount-section">
+      <div id="pm-total-warning" style="display:none;text-align:center;background:#fef3c7;border:1.5px solid #fde68a;border-radius:var(--rmd);padding:10px 14px;font-size:12.5px;color:#92400e;margin-bottom:6px">
+        <i class="ti ti-alert-triangle"></i> Para vender, abre el producto desde la pestaña EXSAL o CDB.
+      </div>
+      <div class="pm-discount-section" id="pm-discount-wrap">
         <div class="pm-discount-label"><i class="ti ti-ticket-off"></i>Descuento</div>
         <select class="pm-discount-select" id="pm-discount-select" onchange="onDiscountChange()">
           <option value="">Sin descuento</option>
@@ -1043,7 +1046,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
           <span class="pm-discount-badge" id="pm-discount-badge-txt">-0%</span>
         </div>
       </div>
-      <div class="pm-sell-section">
+      <div class="pm-sell-section" id="pm-sell-wrap">
         <div class="pm-sell-label"><i class="ti ti-shopping-cart"></i>Registrar venta</div>
         <div class="pm-sell-row">
           <button class="btn-sell" onclick="registerSale()" style="width:100%;justify-content:center"><i class="ti ti-check"></i>Confirmar venta (<span id="pm-confirm-qty">0</span> uds.)</button>
@@ -1211,7 +1214,7 @@ db.enablePersistence({ synchronizeTabs: true }).catch(e=>{
 let products=[], sales=[], deletedSales=[], orders=[], descuentos=[], gastos=[];
 let sortAsc={exsal:false,cdb:false,total:false};
 let activePid=null, activeSucursal=null;
-let unsubProd=null, unsubDeleted=null, unsubOrders=null, unsubRestock=null, unsubDescuentos=null, unsubGastos=null, unsubEstadisticas=null;
+let unsubProd=null, unsubSales=null, unsubDeleted=null, unsubOrders=null, unsubRestock=null, unsubDescuentos=null, unsubGastos=null, unsubEstadisticas=null;
 let restockHistory=[];
 let restockPendingData=null;
 // Estado de carga de ventas por mes (nuevo apartado ventas)
@@ -1939,6 +1942,12 @@ function openPM(id,suc){
   }
   if(p.imageUrl){imgEl.src=p.imageUrl;imgEl.style.display='block';}
   else{imgEl.style.display='none';}
+  // En la pestaña "Total" no se puede vender (no hay sucursal concreta): ocultar venta.
+  const isTotal=suc!=='exsal'&&suc!=='cdb';
+  document.getElementById('pm-total-warning').style.display=isTotal?'block':'none';
+  document.getElementById('pm-stock-ctrl').style.display=isTotal?'none':'';
+  document.getElementById('pm-discount-wrap').style.display=isTotal?'none':'';
+  document.getElementById('pm-sell-wrap').style.display=isTotal?'none':'';
   // Reset discount
   const dsel=document.getElementById('pm-discount-select');
   if(dsel) dsel.value='';
@@ -2020,21 +2029,20 @@ async function registerSale(){
   const totalConDescuento=+(totalSinDescuento*(1-discPct/100)).toFixed(2);
   const costoTotal=+(p.cost*qty).toFixed(2);
 
+  if(activeSucursal!=='exsal'&&activeSucursal!=='cdb'){
+    showToast('Selecciona una sucursal (EXSAL o CDB) para vender','ti-alert-circle');
+    return;
+  }
+
   let stockUpdate={};
   if(activeSucursal==='exsal'){
     stockUpdate={stockExsal:firebase.firestore.FieldValue.increment(-qty)};
-  } else if(activeSucursal==='cdb'){
-    stockUpdate={stockCdb:firebase.firestore.FieldValue.increment(-qty)};
   } else {
-    const fromExsal=Math.min(qty,getStock(p,'exsal'));
-    const fromCdb=qty-fromExsal;
-    if(fromExsal>0) stockUpdate.stockExsal=firebase.firestore.FieldValue.increment(-fromExsal);
-    if(fromCdb>0)   stockUpdate.stockCdb=firebase.firestore.FieldValue.increment(-fromCdb);
+    stockUpdate={stockCdb:firebase.firestore.FieldValue.increment(-qty)};
   }
 
   // Determinar sede para estadisticas
-  const statSuc=activeSucursal==='total'?'exsal':activeSucursal; // 'total' no deberia ocurrir aqui
-  const statDocId=statSuc==='exsal'?'ColegioExsal':'ColegioDonBosco';
+  const statDocId=activeSucursal==='exsal'?'ColegioExsal':'ColegioDonBosco';
 
   try{
     const batch=db.batch();
@@ -2044,7 +2052,7 @@ async function registerSale(){
       costTotal:costoTotal,
       total:totalConDescuento,
       seller:sellerEmail,
-      sucursal:activeSucursal==='total'?'total':activeSucursal,
+      sucursal:activeSucursal,
       date:new Date().toLocaleDateString('es'),
       timestamp:Date.now(),
       mes:getMonthKey()
@@ -2993,7 +3001,7 @@ async function applyOrderDiscount(orderId, selectEl){
 async function deliverOrder(orderId){
   const order=orders.find(o=>o.id===orderId);
   if(!order||order.status==='delivered'){showToast('Pedido ya entregado','ti-alert-circle');return;}
-  if(!confirm('¿Marcar este pedido como entregado y descontar stock?'))return;
+  if(!confirm('¿Marcar este pedido como entregado?'))return;
 
   const user=firebase.auth().currentUser;
   const sellerEmail=user?user.email:'Desconocido';
@@ -3012,26 +3020,7 @@ async function deliverOrder(orderId){
     const unitPrice=typeof item.price==='number'?item.price:(prod?prod.price:0);
     costTotal+=unitCost*qty;
 
-    // Descontar stock
-    if(prod){
-      let stockUpdate={};
-      if(suc==='exsal'){
-        stockUpdate={stockExsal:firebase.firestore.FieldValue.increment(-qty)};
-      } else if(suc==='cdb'){
-        stockUpdate={stockCdb:firebase.firestore.FieldValue.increment(-qty)};
-      } else {
-        const fromExsal=Math.min(qty,getStock(prod,'exsal'));
-        const fromCdb=qty-fromExsal;
-        if(fromExsal>0) stockUpdate.stockExsal=firebase.firestore.FieldValue.increment(-fromExsal);
-        if(fromCdb>0)   stockUpdate.stockCdb=firebase.firestore.FieldValue.increment(-fromCdb);
-      }
-      batch.update(db.collection('productos').doc(prod.id),stockUpdate);
-    } else if(item.id){
-      let stockUpdate={};
-      if(suc==='exsal') stockUpdate={stockExsal:firebase.firestore.FieldValue.increment(-qty)};
-      else if(suc==='cdb') stockUpdate={stockCdb:firebase.firestore.FieldValue.increment(-qty)};
-      if(Object.keys(stockUpdate).length) batch.update(db.collection('productos').doc(item.id),stockUpdate);
-    }
+    // NOTA: el stock ya se descontó al crear el pedido. Al entregar NO se toca el stock.
 
     const discFactor=order.discountPct?((100-order.discountPct)/100):1;
     const itemTotal=+(unitPrice*qty*discFactor).toFixed(2);
@@ -3071,6 +3060,7 @@ async function deliverOrder(orderId){
 
   batch.update(db.collection('pedidos').doc(orderId),{
     status:'delivered',
+    saleRecorded:true,
     costTotal:+costTotal.toFixed(2),
     totalConDescuento:+totalEfectivo.toFixed(2),
     deliveredAt:Date.now(),
@@ -3079,7 +3069,7 @@ async function deliverOrder(orderId){
 
   try{
     await batch.commit();
-    showToast('Pedido entregado · stock descontado','ti-circle-check');
+    showToast('Pedido entregado','ti-circle-check');
   }catch(e){
     console.error(e);
     showToast('Error al entregar pedido','ti-alert-circle');
@@ -3091,7 +3081,7 @@ async function deliverOrder(orderId){
 async function undeliverOrder(orderId){
   const order=orders.find(o=>o.id===orderId);
   if(!order||order.status!=='delivered'){showToast('Solo se pueden revertir pedidos entregados','ti-alert-circle');return;}
-  if(!confirm('¿Volver este pedido a pendiente? Se restaurará el stock y se revertirán las ventas/estadísticas.'))return;
+  if(!confirm('¿Volver este pedido a pendiente? Se revertirán las ventas/estadísticas (el stock se mantiene descontado).'))return;
 
   const suc=order.sucursal||'exsal';
   const stockField=suc==='cdb'?'stockCdb':'stockExsal';
@@ -3118,18 +3108,15 @@ async function undeliverOrder(orderId){
 
   const batch=db.batch();
 
-  // 1) Restaurar stock (siempre)
-  for(const item of (order.items||[])){
-    const prod=products.find(p=>p.id===item.id||p.name===item.name);
-    const ref=prod?db.collection('productos').doc(prod.id):(item.id?db.collection('productos').doc(item.id):null);
-    if(ref) batch.update(ref,{[stockField]:firebase.firestore.FieldValue.increment(item.qty||1)});
-  }
+  // NOTA: el stock NO se restaura al volver a pendiente. El stock sigue descontado
+  // mientras el pedido exista (solo se devuelve al cancelar). Aquí solo se revierten
+  // los registros de "ventas" y las estadísticas de la entrega.
 
-  // 2) Borrar los registros de "ventas" de este pedido (siempre)
+  // 1) Borrar los registros de "ventas" de este pedido (siempre)
   const ventasSnap=await db.collection('ventas').where('fromOrder','==',orderId).get();
   ventasSnap.forEach(doc=>batch.delete(doc.ref));
 
-  // 3) Revertir estadísticas SOLO si la entrega fue de este mes
+  // 2) Revertir estadísticas SOLO si la entrega fue de este mes
   const statUpdate={'pedidosPendientes':firebase.firestore.FieldValue.increment(1)};
   if(revertStats){
     statUpdate['pedidosEntregados']=firebase.firestore.FieldValue.increment(-1);
@@ -3141,9 +3128,11 @@ async function undeliverOrder(orderId){
   }
   batch.set(db.collection('estadisticas').doc(statDocId),statUpdate,{merge:true});
 
-  // 4) Volver a pendiente y limpiar marcas de entrega
+  // 3) Volver a pendiente y limpiar marcas de entrega.
+  //    El stock sigue descontado; saleRecorded vuelve a false.
   batch.update(db.collection('pedidos').doc(orderId),{
     status:'pending',
+    saleRecorded:false,
     deliveredAt:firebase.firestore.FieldValue.delete(),
     deliveredBy:firebase.firestore.FieldValue.delete(),
     costTotal:firebase.firestore.FieldValue.delete()
@@ -3166,18 +3155,29 @@ async function cancelOrder(orderId){
   if(!confirm(`¿Cancelar el pedido "${label}"? Se moverá al historial como cancelado.`))return;
   try{
     const suc=order.sucursal==='cdb'?'ColegioDonBosco':'ColegioExsal';
+    const stockField=order.sucursal==='cdb'?'stockCdb':'stockExsal';
     const batch=db.batch();
     batch.update(db.collection('pedidos').doc(orderId),{
       status:'cancelled',
+      stockDeducted:false,
       cancelledAt:Date.now(),
       cancelledBy:(firebase.auth().currentUser?.email||'Desconocido')
     });
+    // Devolver el stock a la sucursal (el stock se descontó al crear el pedido)
+    if(order.stockDeducted!==false){
+      for(const item of (order.items||[])){
+        if(!item.id) continue;
+        batch.update(db.collection('productos').doc(item.id),{
+          [stockField]:firebase.firestore.FieldValue.increment(item.qty||0)
+        });
+      }
+    }
     batch.set(db.collection('estadisticas').doc(suc),{
       'pedidosCancelados':firebase.firestore.FieldValue.increment(1),
       'pedidosPendientes':firebase.firestore.FieldValue.increment(-1)
     },{merge:true});
     await batch.commit();
-    showToast('Pedido cancelado','ti-ban');
+    showToast('Pedido cancelado · stock restaurado','ti-ban');
   }catch(e){
     showToast('Error al cancelar pedido','ti-alert-circle');
     console.error(e);
@@ -3188,33 +3188,24 @@ async function cancelOrder(orderId){
 async function deleteOrder(orderId){
   const order=orders.find(o=>o.id===orderId);
   if(!order)return;
-  // No se permite borrar pedidos entregados: primero hay que volverlos a pendiente
-  // (así se revierte stock, ventas y estadísticas correctamente desde undeliverOrder).
+  // Solo se pueden borrar pedidos CANCELADOS. Un pedido pendiente o entregado debe
+  // cancelarse primero (la cancelación es la que devuelve el stock). Al borrar NO se
+  // revierte stock ni ventas: el stock ya fue restaurado al cancelar.
   if(order.status==='delivered'){
-    showToast('Primero vuelve el pedido a pendiente para poder eliminarlo','ti-alert-circle');
+    showToast('Primero vuelve el pedido a pendiente y cancélalo para poder eliminarlo','ti-alert-circle');
+    return;
+  }
+  if(order.status==='pending'){
+    showToast('Primero cancela el pedido para poder eliminarlo','ti-alert-circle');
     return;
   }
   const label=order.code||order.name||orderId;
   if(!confirm(`¿Eliminar el pedido "${label}"? Esta acción no se puede deshacer.`))return;
   try{
-    // Al borrar solo se ajustan los CONTADORES de pedidos (no ventas/unidades/ingresos/costos).
-    // pedidosPendientes nunca se resetea por mes; pedidosCancelados solo se descuenta si es del mes actual.
-    const suc=order.sucursal==='cdb'?'ColegioDonBosco':'ColegioExsal';
-    const mesActual=getMonthKey();
-    const statUpdate={};
-    if(order.status==='pending'){
-      statUpdate['pedidosPendientes']=firebase.firestore.FieldValue.increment(-1);
-    } else if(order.status==='cancelled'){
-      const mesCancel=order.cancelledAt?getMonthKey(order.cancelledAt):null;
-      if(mesCancel===mesActual){
-        statUpdate['pedidosCancelados']=firebase.firestore.FieldValue.increment(-1);
-      }
-    }
+    // Al borrar un pedido cancelado NO se ajusta ninguna estadística:
+    // los contadores ya se ajustaron al cancelarlo. Solo se elimina el documento.
     const batch=db.batch();
     batch.delete(db.collection('pedidos').doc(orderId));
-    if(Object.keys(statUpdate).length){
-      batch.set(db.collection('estadisticas').doc(suc),statUpdate,{merge:true});
-    }
     await batch.commit();
     showToast('Pedido eliminado','ti-trash');
   }catch(e){
