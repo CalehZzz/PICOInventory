@@ -472,6 +472,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       <button class="tab-btn" onclick="switchTab('inv-total',this)"><i class="ti ti-layers-intersect"></i>Total</button>
       <button class="tab-btn" onclick="switchTab('inv-restock',this)"><i class="ti ti-package-import"></i>Restock</button>
       <button class="tab-btn" onclick="switchTab('inv-descuentos',this)"><i class="ti ti-ticket-off"></i>Descuentos</button>
+      <button class="tab-btn" onclick="switchTab('inv-papelera',this)"><i class="ti ti-trash"></i>Papelera</button>
     </div>
   </div>
 
@@ -1002,6 +1003,15 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     </div>
   </div>
 
+  <!-- ═══ PAPELERA ═══ -->
+  <div class="tab-content" id="tab-inv-papelera">
+    <div class="panel">
+      <div class="panel-hd"><div class="phd-icon" style="background:linear-gradient(135deg,var(--r400,#e25555),#b91c1c)"><i class="ti ti-trash"></i></div><div><div class="ptitle">Papelera</div><div class="psub">Productos eliminados · puedes restaurarlos o borrarlos definitivamente</div></div></div>
+      <div class="list-meta" style="padding:13px 15px 10px"><span class="list-count" id="trash-list-count"></span></div>
+      <div class="list-area" id="trash-list-area" style="max-height:460px"></div>
+    </div>
+  </div>
+
 
 </div><!-- /.app -->
 
@@ -1494,7 +1504,10 @@ function startListeners(){
   // Productos: sin límite, necesario para todo el inventario
   unsubProd=db.collection("productos").onSnapshot(snap=>{
     products=[];
-    snap.forEach(doc=>products.push({id:doc.id,...doc.data()}));
+    // Ignorar productos con borrado lógico para que no aparezcan en el inventario
+    // ni afecten estadísticas/costos. Siguen en Firestore solo para que la tienda
+    // los pueda quitar de su caché eterno.
+    snap.forEach(doc=>{const d=doc.data();if(d&&d.eliminado)return;products.push({id:doc.id,...d});});
     renderAllLists();updateAllInvStats();
     setSave('ok','Sincronizado ✓');
     renderRestockProductList();
@@ -1609,6 +1622,7 @@ function switchTab(name,btn){
     return;
   }
   doSwitchTab(name,btn);
+  if(name==='inv-papelera') loadTrash();
 }
 
 // ── INVENTARIO STATS ──
@@ -1800,7 +1814,7 @@ async function addProduct(suc){
       const batch=db.batch();
       suffixes.forEach(sfx=>{
         const vname=name+' '+sfx;
-        const data={name:vname,desc,cost,price,stockExsal:0,stockCdb:0,createdAt:Date.now()};
+        const data={name:vname,desc,cost,price,stockExsal:0,stockCdb:0,createdAt:Date.now(),updatedAt:Date.now()};
         if(imageUrl) data.imageUrl=imageUrl;
         if(suc==='exsal') data.stockExsal=stock;
         else data.stockCdb=stock;
@@ -1818,7 +1832,7 @@ async function addProduct(suc){
     }catch(e){showToast('Error al guardar','ti-alert-circle');}
   } else {
     // Modo normal: un solo producto
-    const data={name,desc,cost,price,stockExsal:0,stockCdb:0,createdAt:Date.now()};
+    const data={name,desc,cost,price,stockExsal:0,stockCdb:0,createdAt:Date.now(),updatedAt:Date.now()};
     if(imageUrl) data.imageUrl=imageUrl;
     if(suc==='exsal') data.stockExsal=stock;
     else data.stockCdb=stock;
@@ -1864,7 +1878,7 @@ async function addProductTotal(){
       const batch=db.batch();
       suffixes.forEach(sfx=>{
         const vname=name+' '+sfx;
-        const data={name:vname,desc,cost,price,stockExsal:0,stockCdb:0,createdAt:Date.now()};
+        const data={name:vname,desc,cost,price,stockExsal:0,stockCdb:0,createdAt:Date.now(),updatedAt:Date.now()};
         if(imageUrl) data.imageUrl=imageUrl;
         if(suc==='exsal'){data.stockExsal=stock;}else{data.stockCdb=stock;}
         batch.set(db.collection("productos").doc(),data);
@@ -1880,7 +1894,7 @@ async function addProductTotal(){
       showToast(suffixes.length+' variantes de "'+name+'" agregadas','ti-layers-subtract');
     }catch(e){showToast('Error al guardar','ti-alert-circle');}
   } else {
-    const data={name,desc,cost,price,stockExsal:0,stockCdb:0,createdAt:Date.now()};
+    const data={name,desc,cost,price,stockExsal:0,stockCdb:0,createdAt:Date.now(),updatedAt:Date.now()};
     if(imageUrl) data.imageUrl=imageUrl;
     if(suc==='exsal'){data.stockExsal=stock;}else{data.stockCdb=stock;}
     try{
@@ -1911,10 +1925,83 @@ function openDelModal(id,onConfirm){
 }
 function closeDelModal(){document.getElementById('del-overlay').classList.remove('open');}
 async function doDelete(id){
-  try{await db.collection("productos").doc(id).delete();closeDelModal();showToast('Producto eliminado','ti-trash');}
+  // Borrado lógico: no se elimina el doc (eso rompería el caché eterno del
+  // cliente). Se marca 'eliminado' + 'updatedAt' para que la tienda lo quite
+  // del caché en su próxima sincronización incremental.
+  try{await db.collection("productos").doc(id).update({eliminado:true,updatedAt:Date.now()});closeDelModal();showToast('Producto eliminado','ti-trash');}
   catch(e){showToast('Error al eliminar','ti-alert-circle');}
 }
 function confirmDeleteDirect(id){openDelModal(id,()=>doDelete(id));}
+
+// ═══════════════════════════════════════════════════
+//  PAPELERA  (productos con borrado lógico)
+// ═══════════════════════════════════════════════════
+// La lista de inventario (onSnapshot) filtra los 'eliminado', así que aquí
+// hacemos una consulta aparte solo de los borrados. No se mantiene suscrita:
+// se recarga al abrir la pestaña y tras cada acción.
+let trashProducts=[];
+async function loadTrash(){
+  const area=document.getElementById('trash-list-area');
+  const cnt=document.getElementById('trash-list-count');
+  if(!area) return;
+  area.innerHTML='<div class="empty-state"><div class="empty-icon"><i class="ti ti-loader"></i></div><p>Cargando…</p></div>';
+  try{
+    const snap=await db.collection("productos").where('eliminado','==',true).get();
+    trashProducts=[];
+    snap.forEach(doc=>trashProducts.push({id:doc.id,...doc.data()}));
+    // Más recientes primero
+    trashProducts.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+    renderTrash();
+  }catch(e){
+    console.error('loadTrash:',e);
+    area.innerHTML='<div class="empty-state"><div class="empty-icon"><i class="ti ti-alert-circle"></i></div><p>Error al cargar la papelera.</p></div>';
+  }
+}
+function renderTrash(){
+  const area=document.getElementById('trash-list-area');
+  const cnt=document.getElementById('trash-list-count');
+  if(!trashProducts.length){
+    cnt.textContent='';
+    area.innerHTML='<div class="empty-state"><div class="empty-icon"><i class="ti ti-trash-off"></i></div><p>La papelera está vacía.</p></div>';
+    return;
+  }
+  cnt.textContent=trashProducts.length+' producto'+(trashProducts.length!==1?'s':'')+' eliminado'+(trashProducts.length!==1?'s':'');
+  area.innerHTML=trashProducts.map(p=>{
+    const ex=p.stockExsal||0, cd=p.stockCdb||0;
+    return `<div class="product-card" style="opacity:.92">
+      <div class="card-top">${p.imageUrl?`<img src="${esc(p.imageUrl)}" alt="" style="width:42px;height:42px;object-fit:contain;border-radius:6px;border:1px solid var(--b100);background:var(--b50);flex-shrink:0;margin-right:2px" onerror="this.style.display='none'">`:''}
+      <div style="flex:1"><div class="card-name">${esc(p.name)}</div></div>
+      <div class="card-actions" style="display:flex;gap:6px">
+        <button class="btn-icon" title="Restaurar" onclick="restoreProduct('${p.id}')"><i class="ti ti-arrow-back-up"></i></button>
+        <button class="btn-icon btn-del-sm" title="Borrar definitivamente" onclick="purgeProduct('${p.id}')"><i class="ti ti-trash-x"></i></button>
+      </div></div>
+      <div class="card-badges"><span class="badge badge-exsal">EXSAL: ${ex}</span><span class="badge badge-cdb">CDB: ${cd}</span><span class="badge badge-price">Precio ${fmt(p.price)}</span></div>
+    </div>`;
+  }).join('');
+}
+async function restoreProduct(id){
+  try{
+    // Quitar la marca de borrado y sellar updatedAt para que la tienda lo
+    // vuelva a incorporar en su próxima sincronización.
+    await db.collection("productos").doc(id).update({
+      eliminado:firebase.firestore.FieldValue.delete(),
+      updatedAt:Date.now()
+    });
+    showToast('Producto restaurado','ti-arrow-back-up');
+    loadTrash();
+  }catch(e){console.error('restoreProduct:',e);showToast('Error al restaurar','ti-alert-circle');}
+}
+async function purgeProduct(id){
+  const p=trashProducts.find(x=>x.id===id);
+  if(!confirm(`¿Borrar definitivamente "${p?p.name:id}"?\n\nEsta acción NO se puede deshacer. Recomendado: deja el producto en la papelera al menos un día antes de purgarlo, para que las tiendas ya abiertas lo hayan quitado de su caché.`)) return;
+  try{
+    // Borrado físico real. Como el producto ya estaba marcado 'eliminado',
+    // la tienda ya lo quitó de su caché; eliminar el doc ahora es seguro.
+    await db.collection("productos").doc(id).delete();
+    showToast('Producto borrado definitivamente','ti-trash-x');
+    loadTrash();
+  }catch(e){console.error('purgeProduct:',e);showToast('Error al borrar','ti-alert-circle');}
+}
 function confirmDeleteFromModal(){openDelModal(activePid,()=>{doDelete(activePid);closePM();});}
 
 // ── MODAL PRODUCTO ──
@@ -2036,9 +2123,9 @@ async function registerSale(){
 
   let stockUpdate={};
   if(activeSucursal==='exsal'){
-    stockUpdate={stockExsal:firebase.firestore.FieldValue.increment(-qty)};
+    stockUpdate={stockExsal:firebase.firestore.FieldValue.increment(-qty),updatedAt:Date.now()};
   } else {
-    stockUpdate={stockCdb:firebase.firestore.FieldValue.increment(-qty)};
+    stockUpdate={stockCdb:firebase.firestore.FieldValue.increment(-qty),updatedAt:Date.now()};
   }
 
   // Determinar sede para estadisticas
@@ -2123,7 +2210,7 @@ async function saveEdit(){
   const oldProd=products.find(x=>x.id===activePid);
   const oldCost=oldProd?oldProd.cost:cost;
 
-  const updateData={name,desc,cost,price,stockExsal,stockCdb};
+  const updateData={name,desc,cost,price,stockExsal,stockCdb,updatedAt:Date.now()};
   if(imageUrl) updateData.imageUrl=imageUrl;
   else updateData.imageUrl=firebase.firestore.FieldValue.delete();
   try{
@@ -2615,7 +2702,7 @@ async function deleteSale(id){
     if(prod){
       const stockField=suc==='cdb'?'stockCdb':'stockExsal';
       const currentStock=prod[stockField]||0;
-      batch.update(db.collection("productos").doc(prod.id),{[stockField]:currentStock+venta.qty});
+      batch.update(db.collection("productos").doc(prod.id),{[stockField]:currentStock+venta.qty,updatedAt:Date.now()});
     }
     // Revertir estadisticas acumuladas
     const statSucursal=(suc==='cdb')?'cdb':'exsal';
@@ -2652,7 +2739,7 @@ async function restoreSale(id){
       const stockField=suc==='cdb'?'stockCdb':'stockExsal';
       const currentStock=prod[stockField]||0;
       const newStock=Math.max(0,currentStock-venta.qty);
-      batch.update(db.collection("productos").doc(prod.id),{[stockField]:newStock});
+      batch.update(db.collection("productos").doc(prod.id),{[stockField]:newStock,updatedAt:Date.now()});
     }
     // Volver a sumar a estadisticas al restaurar
     const statSuc=(suc==='cdb')?'cdb':'exsal';
