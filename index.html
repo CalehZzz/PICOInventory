@@ -1111,7 +1111,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
         <input type="checkbox" id="edit-affect-costos" style="margin-top:2px;width:15px;height:15px;accent-color:var(--b400);flex-shrink:0;cursor:pointer">
         <div>
           <div style="font-size:13px;font-weight:600;color:var(--tp)">Afectar costos acumulados en estadísticas</div>
-          <div style="font-size:11px;color:var(--tm);margin-top:1px">Marca si el cambio de costo debe actualizar el campo "costos" de la sede. Se calcula como: (nuevo costo − costo anterior) × stock actual de la sede.</div>
+          <div style="font-size:11px;color:var(--tm);margin-top:1px">Úsalo solo cuando el stock estaba en 0 y registras unidades nuevas (si ya hay stock, usa Restock). Suma a los "costos" de cada sede: (stock nuevo − stock anterior) × costo.</div>
         </div>
       </label>
       <div class="form-error" id="edit-error"></div>
@@ -2216,18 +2216,23 @@ async function saveEdit(){
   try{
     const batch=db.batch();
     batch.update(db.collection("productos").doc(activePid),updateData);
-    // Si checkbox activado y cambió el costo, afectar estadisticas
-    if(affectCostos&&oldProd&&cost!==oldCost){
-      const diffExsal=+(cost-oldCost).toFixed(4)*stockExsal;
-      const diffCdb=+(cost-oldCost).toFixed(4)*stockCdb;
-      if(stockExsal>0&&diffExsal!==0){
+    // Si checkbox activado, afectar costos del mes por el cambio de stock.
+    // Fórmula: (stock nuevo - stock anterior) * costo, por sucursal.
+    // Pensado para registrar el costo de unidades nuevas cuando el stock
+    // partía de 0 (entradas que no pasan por el flujo de restock).
+    if(affectCostos&&oldProd){
+      const oldStockExsal=getStock(oldProd,'exsal');
+      const oldStockCdb=getStock(oldProd,'cdb');
+      const diffExsal=+((stockExsal-oldStockExsal)*cost).toFixed(4);
+      const diffCdb=+((stockCdb-oldStockCdb)*cost).toFixed(4);
+      if(diffExsal!==0){
         batch.update(db.collection("estadisticas").doc('ColegioExsal'),{
-          'costos':firebase.firestore.FieldValue.increment(+diffExsal.toFixed(4))
+          'costos':firebase.firestore.FieldValue.increment(diffExsal)
         });
       }
-      if(stockCdb>0&&diffCdb!==0){
+      if(diffCdb!==0){
         batch.update(db.collection("estadisticas").doc('ColegioDonBosco'),{
-          'costos':firebase.firestore.FieldValue.increment(+diffCdb.toFixed(4))
+          'costos':firebase.firestore.FieldValue.increment(diffCdb)
         });
       }
     }
@@ -3577,7 +3582,7 @@ async function ejecutarRestock(){
   if(!restockPendingData)return;
   const{pid,p,suc,pkgCost,pkgQty,stockActual,costoActual,nuevoCosto,totalUnidades}=restockPendingData;
 
-  const updateData={cost:+nuevoCosto.toFixed(4)};
+  const updateData={cost:+nuevoCosto.toFixed(4),updatedAt:Date.now()};
   if(suc==='exsal') updateData.stockExsal=totalUnidades;
   else updateData.stockCdb=totalUnidades;
 
