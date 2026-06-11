@@ -415,6 +415,58 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .pedido-item-row{font-size:12px;color:var(--ts)}
 .pedido-code{font-size:11px;font-weight:700;color:var(--b600);background:var(--b50);border:1px solid var(--b100);border-radius:6px;padding:2px 8px;display:inline-block}
 @media(max-width:900px){.pedidos-stats-row{grid-template-columns:1fr 1fr}.pedidos-filter-bar{flex-direction:column;align-items:stretch}}
+/* ── CARRITO DE VENTA ── */
+#cart-panel{position:fixed;right:20px;bottom:20px;width:340px;max-width:calc(100vw - 32px);background:#fff;border:1.5px solid var(--b100);border-radius:16px;box-shadow:0 18px 50px rgba(15,63,99,.28);z-index:8000;display:none;flex-direction:column;overflow:hidden;font-family:inherit}
+#cart-panel.open{display:flex;animation:cartIn .22s ease}
+@keyframes cartIn{from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1}}
+.cart-hd{background:linear-gradient(135deg,var(--b400),var(--s400));color:#fff;padding:12px 15px;display:flex;align-items:center;justify-content:space-between}
+.cart-hd-title{font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:7px}
+.cart-hd-badge{font-size:11px;font-weight:700;background:rgba(255,255,255,.22);padding:2px 9px;border-radius:20px}
+.cart-sede{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;opacity:.85}
+.cart-body{padding:11px 13px;max-height:46vh;overflow-y:auto}
+.cart-client{margin-bottom:9px}
+.cart-client input{width:100%;padding:8px 11px;border:1.5px solid var(--b100);border-radius:9px;font-size:13px;font-family:inherit;background:var(--b50);color:var(--tp)}
+.cart-client input:focus{outline:none;border-color:var(--b400);background:#fff}
+.cart-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--b50)}
+.cart-item:last-child{border-bottom:none}
+.cart-item-info{flex:1;min-width:0}
+.cart-item-name{font-size:12.5px;font-weight:600;color:var(--tp);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cart-item-meta{font-size:11px;color:var(--tm);margin-top:1px}
+.cart-item-sub{font-size:13px;font-weight:700;color:var(--g600);white-space:nowrap}
+.cart-item-del{background:none;border:none;cursor:pointer;color:var(--r600);font-size:15px;padding:3px 5px;border-radius:6px}
+.cart-item-del:hover{background:#fff5f5}
+.cart-empty{text-align:center;color:var(--tm);font-size:12.5px;padding:14px 0}
+.cart-ft{border-top:1.5px solid var(--b50);padding:12px 13px;background:var(--b50)}
+.cart-total-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cart-total-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ts)}
+.cart-total-val{font-size:21px;font-weight:800;color:var(--g600)}
+.cart-actions{display:flex;gap:8px}
+.btn-cart-confirm{flex:1;justify-content:center;display:flex;align-items:center;gap:7px;padding:11px;background:linear-gradient(135deg,var(--g500,#2fb380),var(--g600,#1d9268));color:#fff;border:none;border-radius:11px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(45,179,128,.35)}
+.btn-cart-confirm:disabled{opacity:.55;cursor:not-allowed;box-shadow:none}
+.btn-cart-clear{padding:11px 13px;background:#fff;border:1.5px solid var(--b100);border-radius:11px;color:var(--ts);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.cart-fab{position:fixed;right:20px;bottom:20px;z-index:7999;background:linear-gradient(135deg,var(--b400),var(--s400));color:#fff;border:none;border-radius:30px;padding:13px 18px;font-size:13.5px;font-weight:700;cursor:pointer;display:none;align-items:center;gap:8px;box-shadow:0 10px 28px rgba(74,168,232,.45);font-family:inherit}
+.cart-fab.show{display:flex}
+.cart-fab-badge{background:#fff;color:var(--b600);border-radius:20px;font-size:11px;font-weight:800;padding:1px 8px}
+/* ── FACTURAS ── */
+.fac-toggle{display:inline-flex;background:var(--b50);border:1.5px solid var(--b100);border-radius:11px;padding:3px;gap:3px}
+.fac-toggle button{border:none;background:none;padding:7px 18px;border-radius:8px;font-size:12.5px;font-weight:700;color:var(--ts);cursor:pointer;font-family:inherit}
+.fac-toggle button.active{background:linear-gradient(135deg,var(--b400),var(--s400));color:#fff;box-shadow:0 3px 10px rgba(74,168,232,.3)}
+.fac-card{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid var(--b50);border-radius:12px;margin-bottom:9px;background:#fff;transition:border-color .15s}
+.fac-card:hover{border-color:var(--b100)}
+.fac-num{flex-shrink:0;width:46px;height:46px;border-radius:11px;background:linear-gradient(135deg,var(--b50),#eef6fd);border:1.5px solid var(--b100);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--b600)}
+.fac-num-hash{font-size:9px;font-weight:700;opacity:.7;line-height:1}
+.fac-num-val{font-size:16px;font-weight:800;line-height:1.1}
+.fac-info{flex:1;min-width:0}
+.fac-info-top{font-size:13px;font-weight:700;color:var(--tp);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.fac-info-sub{font-size:11.5px;color:var(--tm);margin-top:2px}
+.fac-info-items{font-size:11.5px;color:var(--ts);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.fac-total{font-size:15px;font-weight:800;color:var(--g600);white-space:nowrap}
+.btn-fac-dl{flex-shrink:0;background:var(--b50);border:1.5px solid var(--b100);color:var(--b600);border-radius:9px;padding:8px 11px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px}
+.btn-fac-dl:hover{background:var(--b100)}
+.fac-empty{text-align:center;color:var(--tm);padding:30px 16px;font-size:13px}
+.btn-fac-month{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;background:linear-gradient(135deg,#e25555,#b91c1c);color:#fff;border:none;border-radius:10px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(226,85,85,.3)}
+.btn-fac-month:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
+@media(max-width:560px){#cart-panel{right:8px;left:8px;width:auto;bottom:8px}.fac-card{flex-wrap:wrap}.fac-total{order:3}}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -497,6 +549,16 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     <div class="tabs">
       <button class="tab-btn" onclick="switchTab('ventas-exsal',this)"><i class="ti ti-receipt"></i>Ventas EXSAL</button>
       <button class="tab-btn" onclick="switchTab('ventas-cdb',this)"><i class="ti ti-receipt"></i>Ventas CDB</button>
+    </div>
+  </div>
+  <!-- GRUPO TABS: FACTURAS -->
+  <div class="tabs-group">
+    <div class="stats-tabs-label-wrap">
+      <div class="tabs-label">Facturas</div>
+      <span class="ventas-pin-badge"><i class="ti ti-lock" style="font-size:11px"></i>PIN requerido</span>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn" onclick="switchTab('facturas',this)"><i class="ti ti-file-invoice"></i>Facturas</button>
     </div>
   </div>
 
@@ -945,6 +1007,34 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     </div>
   </div>
 
+  <!-- ═══ FACTURAS ═══ -->
+  <div class="tab-content" id="tab-facturas">
+    <div class="stats-month-bar" style="flex-wrap:wrap;gap:10px">
+      <div class="smb-icon"><i class="ti ti-file-invoice"></i></div>
+      <div class="fac-toggle" id="fac-sede-toggle">
+        <button class="active" data-sede="exsal" onclick="setFacSede('exsal')">EXSAL</button>
+        <button data-sede="cdb" onclick="setFacSede('cdb')">CDB</button>
+      </div>
+      <label>Mes</label>
+      <div class="smb-select-wrap">
+        <i class="ti ti-calendar"></i>
+        <select id="fac-month-select" class="smb-select" onchange="onFacturasMonthChange()"></select>
+      </div>
+      <button class="btn-smb-load" onclick="loadFacturasMes()"><i class="ti ti-refresh"></i>Cargar</button>
+      <button class="btn-fac-month" id="fac-download-month-btn" onclick="downloadAllFacturasMes()" disabled><i class="ti ti-file-download"></i>Descargar mes (PDF)</button>
+      <div class="smb-status" id="fac-smb-status"><div class="smb-dot" id="fac-smb-dot"></div><span id="fac-smb-txt">Selecciona un mes</span></div>
+    </div>
+    <div class="sales-wrap">
+      <div class="sales-hd">
+        <div class="shd-title"><i class="ti ti-file-invoice"></i>Facturas · <span id="fac-sede-label">EXSAL</span></div>
+      </div>
+      <div style="padding:14px" id="fac-list-body"><div class="fac-empty">Selecciona una sede y un mes, luego presiona <b>Cargar</b>.</div></div>
+      <div id="fac-load-more-row" class="load-more-row" style="display:none">
+        <button class="btn-load-more" id="fac-load-more-btn" onclick="loadMoreFacturas()"><i class="ti ti-arrow-down"></i>Cargar más facturas</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ═══ PEDIDOS ═══ -->
   <div class="tab-content" id="tab-stats-pedidos">
 
@@ -1059,7 +1149,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       <div class="pm-sell-section" id="pm-sell-wrap">
         <div class="pm-sell-label"><i class="ti ti-shopping-cart"></i>Registrar venta</div>
         <div class="pm-sell-row">
-          <button class="btn-sell" onclick="registerSale()" style="width:100%;justify-content:center"><i class="ti ti-check"></i>Confirmar venta (<span id="pm-confirm-qty">0</span> uds.)</button>
+          <button class="btn-sell" onclick="addToCart()" style="width:100%;justify-content:center"><i class="ti ti-cart-plus"></i>Añadir a la venta (<span id="pm-confirm-qty">0</span> uds.)</button>
         </div>
       </div>
       <div class="pm-footer">
@@ -1175,6 +1265,13 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
         <div class="restock-info-row"><span class="restock-info-label">Nuevo stock total</span><span class="restock-info-val" id="rc-modal-new-stock" style="font-weight:700;color:var(--g600)">—</span></div>
         <div class="restock-info-row"><span class="restock-info-label">Costo del paquete</span><span class="restock-info-val" id="rc-modal-pkg-cost">—</span></div>
       </div>
+      <label style="display:flex;align-items:flex-start;gap:10px;background:var(--g50);border:1.5px solid var(--g100);border-radius:var(--rsm);padding:11px 13px;cursor:pointer;user-select:none;margin-bottom:16px">
+        <input type="checkbox" id="restock-affect-costos" checked style="margin-top:2px;width:16px;height:16px;accent-color:var(--g600);flex-shrink:0;cursor:pointer">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--tp)">Reflejar en los costos de estadísticas</div>
+          <div style="font-size:11.5px;color:var(--tm);margin-top:1px">Si lo marcas, el costo del paquete se suma a los “costos” de la sede. Desmárcalo si este reabastecimiento no debe afectar las estadísticas.</div>
+        </div>
+      </label>
       <div class="pm-footer">
         <button class="btn-secondary" onclick="cerrarRestockConfirm()">Cancelar</button>
         <button class="btn-save" style="background:linear-gradient(135deg,var(--g600),#22c55e)" onclick="ejecutarRestock()"><i class="ti ti-check"></i>Confirmar</button>
@@ -1204,6 +1301,34 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     </div>
   </div>
 </div>
+
+<!-- ═══ CARRITO DE VENTA EN CURSO ═══ -->
+<div id="cart-panel">
+  <div class="cart-hd">
+    <div class="cart-hd-title"><i class="ti ti-shopping-cart"></i>Venta en curso <span class="cart-sede" id="cart-sede-label"></span></div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="cart-hd-badge" id="cart-count">0</span>
+      <button onclick="toggleCartPanel(false)" style="background:none;border:none;color:#fff;cursor:pointer;font-size:16px;display:flex"><i class="ti ti-minus"></i></button>
+    </div>
+  </div>
+  <div class="cart-body" id="cart-body">
+    <div class="cart-client">
+      <input type="text" id="cart-cliente" maxlength="60" placeholder="Nombre del cliente (opcional)">
+    </div>
+    <div id="cart-items"></div>
+  </div>
+  <div class="cart-ft">
+    <div class="cart-total-row">
+      <span class="cart-total-label">Total</span>
+      <span class="cart-total-val" id="cart-total">$0.00</span>
+    </div>
+    <div class="cart-actions">
+      <button class="btn-cart-confirm" id="cart-confirm-btn" onclick="confirmarVenta()"><i class="ti ti-check"></i>Confirmar venta (<span id="cart-confirm-count">0</span>)</button>
+      <button class="btn-cart-clear" onclick="vaciarCarrito()" title="Vaciar"><i class="ti ti-trash"></i></button>
+    </div>
+  </div>
+</div>
+<button class="cart-fab" id="cart-fab" onclick="toggleCartPanel(true)"><i class="ti ti-shopping-cart"></i>Venta <span class="cart-fab-badge" id="cart-fab-count">0</span></button>
 
 <div class="toast" id="toast"></div>
 
@@ -1235,6 +1360,17 @@ let ventasShown={exsal:0,cdb:0};             // cuántas se muestran actualmente
 let ventasCursor={exsal:null,cdb:null};      // último doc de Firestore para startAfter()
 let ventasAllLoaded={exsal:false,cdb:false}; // true cuando no hay más páginas en Firestore
 const VENTAS_PAGE_SIZE=10;
+// ── CARRITO DE VENTA EN CURSO (en memoria, 0 lecturas) ──
+let cart=[];          // {pid,productName,qty,price,cost,discPct,discId,discNombre,subtotal,total,costTotal}
+let cartSede=null;    // 'exsal' | 'cdb' — una venta = una sede
+// ── FACTURAS: carga paginada por mes y bajo demanda (sin onSnapshot) ──
+let facSede='exsal';
+let facLoaded=false;
+let facMesActual='';
+let facPaginadas=[];
+let facCursor=null;
+let facAllLoaded=false;
+const FACTURAS_PAGE_SIZE=10;
 // Estadisticas desde colección (acumulados)
 let estadisticasData={exsal:{ventas:0,costos:0,unidadesVendidas:0,numeroVentas:0,pedidosEntregados:0,pedidosCancelados:0,pedidosPendientes:0,ingresosPedidos:0,costosPedidos:0},cdb:{ventas:0,costos:0,unidadesVendidas:0,numeroVentas:0,pedidosEntregados:0,pedidosCancelados:0,pedidosPendientes:0,ingresosPedidos:0,costosPedidos:0}};
 
@@ -1286,7 +1422,7 @@ function lockStats(){
   statsUnlocked=false;
   document.getElementById('btn-lock-stats').classList.remove('visible');
   const vb=document.getElementById('ventas-pin-badge');if(vb)vb.classList.remove('hidden');
-  const activeProtected=document.querySelector('.tab-content.active[id^="tab-stats-"],.tab-content.active[id^="tab-ventas-"]');
+  const activeProtected=document.querySelector('.tab-content.active[id^="tab-stats-"],.tab-content.active[id^="tab-ventas-"],.tab-content.active#tab-facturas');
   if(activeProtected){
     const firstInvBtn=document.querySelector('.tab-btn');
     doSwitchTab('inv-exsal',firstInvBtn);
@@ -1470,14 +1606,14 @@ async function checkMonthlyReset(){
     }
 
     // Actualizar el meta con el mes actual
-    await metaRef.set({ultimoMes:mesActual,updatedAt:Date.now()});
+    await metaRef.set({ultimoMes:mesActual,updatedAt:Date.now()},{merge:true});
 
     if(lastMes){
       showToast('Estadísticas archivadas · Inicio de '+monthKeyToLabel(mesActual),'ti-calendar-stats');
       console.log('Reset mensual completado. Mes anterior:',lastMes,'→ archivado en estadisticas-historial');
     } else {
       // Primera vez: solo registrar el mes actual sin resetear
-      await metaRef.set({ultimoMes:mesActual,updatedAt:Date.now()});
+      await metaRef.set({ultimoMes:mesActual,updatedAt:Date.now()},{merge:true});
     }
   }catch(e){
     console.warn('Error en reset mensual:',e);
@@ -1613,7 +1749,7 @@ function doSwitchTab(name,btn){
   if(name.startsWith('stats-'))renderAllStats();
 }
 function switchTab(name,btn){
-  if((name.startsWith('stats-')||name.startsWith('ventas-'))&&!statsUnlocked){
+  if((name.startsWith('stats-')||name.startsWith('ventas-')||name==='facturas')&&!statsUnlocked){
     pendingStatsTab={name,btn};
     const ov=document.getElementById('pin-overlay');
     ov.style.cssText='display:flex;align-items:center;justify-content:center;position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;background:rgba(15,63,99,.52);backdrop-filter:blur(7px);padding:20px;';
@@ -2098,74 +2234,422 @@ function onDiscountChange(){
   }
 }
 
-async function registerSale(){
+// ══════════════════════════════════════════════
+//  CARRITO DE VENTA EN CURSO  (multi-producto, en memoria → 0 lecturas)
+// ══════════════════════════════════════════════
+function recalcCartItem(it){
+  it.subtotal=+(it.price*it.qty).toFixed(2);                       // sin descuento
+  it.total=+(it.subtotal*(1-(it.discPct||0)/100)).toFixed(2);      // con descuento
+  it.costTotal=+(it.cost*it.qty).toFixed(2);
+}
+
+function addToCart(){
   const p=products.find(x=>x.id===activePid);if(!p)return;
-  const user=firebase.auth().currentUser;
-  const sellerEmail=user?user.email:'Desconocido';
+  const suc=activeSucursal;
+  if(suc!=='exsal'&&suc!=='cdb'){showToast('Selecciona una sucursal (EXSAL o CDB) para vender','ti-alert-circle');return;}
   const qty=parseInt(document.getElementById('pm-sell-qty-display').textContent)||0;
   if(isNaN(qty)||qty<=0){showToast('Selecciona al menos 1 unidad','ti-alert-circle');return;}
-  if(qty>getStock(p,activeSucursal)){showToast('Stock insuficiente','ti-alert-circle');return;}
-
-  // Discount
+  // Una venta = una sede
+  if(cart.length&&cartSede&&cartSede!==suc){
+    showToast('La venta en curso es de '+(cartSede==='exsal'?'EXSAL':'CDB')+'. Confírmala o vacíala antes de cambiar de sede.','ti-alert-circle');
+    return;
+  }
+  // Descuento seleccionado
   const discPct=getSelectedDiscountPct();
   const selDisc=document.getElementById('pm-discount-select');
   const discId=selDisc&&selDisc.value?selDisc.value:'';
   const discObj=discId?descuentos.find(x=>x.id===discId):null;
   const discNombre=discObj?discObj.nombre:'';
-  const totalSinDescuento=+(p.price*qty).toFixed(2);
-  const totalConDescuento=+(totalSinDescuento*(1-discPct/100)).toFixed(2);
-  const costoTotal=+(p.cost*qty).toFixed(2);
-
-  if(activeSucursal!=='exsal'&&activeSucursal!=='cdb'){
-    showToast('Selecciona una sucursal (EXSAL o CDB) para vender','ti-alert-circle');
+  // Validar stock contra lo ya acumulado en el carrito para este producto
+  const yaEnCarrito=cart.filter(it=>it.pid===p.id).reduce((s,it)=>s+it.qty,0);
+  if(yaEnCarrito+qty>getStock(p,suc)){
+    showToast('Stock insuficiente'+(yaEnCarrito?' (ya hay '+yaEnCarrito+' en la venta)':''),'ti-alert-circle');
     return;
   }
+  cartSede=suc;
+  // Fusionar líneas iguales (mismo producto + mismo descuento)
+  const existing=cart.find(it=>it.pid===p.id&&it.discId===discId);
+  if(existing){existing.qty+=qty;recalcCartItem(existing);}
+  else{const item={pid:p.id,productName:p.name,qty,price:p.price,cost:p.cost,discPct,discId,discNombre};recalcCartItem(item);cart.push(item);}
+  renderCart();
+  toggleCartPanel(true);
+  showToast('Añadido a la venta · '+p.name,'ti-cart-plus');
+  closePM();
+}
 
-  let stockUpdate={};
-  if(activeSucursal==='exsal'){
-    stockUpdate={stockExsal:firebase.firestore.FieldValue.increment(-qty),updatedAt:Date.now()};
-  } else {
-    stockUpdate={stockCdb:firebase.firestore.FieldValue.increment(-qty),updatedAt:Date.now()};
+function renderCart(){
+  const itemsEl=document.getElementById('cart-items');
+  const n=cart.length;
+  const total=cart.reduce((s,it)=>s+it.total,0);
+  document.getElementById('cart-count').textContent=n;
+  document.getElementById('cart-fab-count').textContent=n;
+  document.getElementById('cart-confirm-count').textContent=n;
+  document.getElementById('cart-total').textContent=fmt(total);
+  document.getElementById('cart-confirm-btn').disabled=n===0;
+  document.getElementById('cart-sede-label').textContent=cartSede==='exsal'?'· EXSAL':cartSede==='cdb'?'· CDB':'';
+  if(!n){
+    itemsEl.innerHTML='<div class="cart-empty">Aún no has añadido productos.</div>';
+  }else{
+    itemsEl.innerHTML=cart.map((it,i)=>{
+      const descTxt=it.discPct>0?` · -${it.discPct}%`:'';
+      return `<div class="cart-item">
+        <div class="cart-item-info">
+          <div class="cart-item-name">${esc(it.productName)}</div>
+          <div class="cart-item-meta">${it.qty} × ${fmt(it.price)}${descTxt}</div>
+        </div>
+        <span class="cart-item-sub">${fmt(it.total)}</span>
+        <button class="cart-item-del" onclick="removeCartItem(${i})"><i class="ti ti-x"></i></button>
+      </div>`;
+    }).join('');
   }
+  if(n===0){toggleCartPanel(false);}
+}
 
-  // Determinar sede para estadisticas
-  const statDocId=activeSucursal==='exsal'?'ColegioExsal':'ColegioDonBosco';
+function toggleCartPanel(show){
+  const panel=document.getElementById('cart-panel');
+  const fab=document.getElementById('cart-fab');
+  if(show&&cart.length){panel.classList.add('open');fab.classList.remove('show');}
+  else{panel.classList.remove('open');if(cart.length)fab.classList.add('show');else fab.classList.remove('show');}
+}
+
+function removeCartItem(i){
+  cart.splice(i,1);
+  if(!cart.length)cartSede=null;
+  renderCart();
+}
+
+function vaciarCarrito(){
+  cart=[];cartSede=null;
+  document.getElementById('cart-cliente').value='';
+  renderCart();
+  toggleCartPanel(false);
+}
+
+// ── CONFIRMAR VENTA: transacción atómica con contador secuencial de facturas ──
+async function confirmarVenta(){
+  if(!cart.length){showToast('La venta está vacía','ti-alert-circle');return;}
+  if(cartSede!=='exsal'&&cartSede!=='cdb'){showToast('Sede inválida','ti-alert-circle');return;}
+  const btn=document.getElementById('cart-confirm-btn');
+  btn.disabled=true;
+  const user=firebase.auth().currentUser;
+  const sellerEmail=user?user.email:'Desconocido';
+  const cliente=document.getElementById('cart-cliente').value.trim();
+  const suc=cartSede;
+  const statDocId=suc==='exsal'?'ColegioExsal':'ColegioDonBosco';
+  const stockField=suc==='exsal'?'stockExsal':'stockCdb';
+  const ts=Date.now();
+  const mes=getMonthKey();
+  const fecha=new Date().toLocaleDateString('es');
+  // Copia inmutable del carrito
+  const lineas=cart.map(it=>({...it}));
+  const totalVenta=+(lineas.reduce((s,it)=>s+it.total,0)).toFixed(2);
+  const subtotalVenta=+(lineas.reduce((s,it)=>s+it.subtotal,0)).toFixed(2);
+  const totalUnidades=lineas.reduce((s,it)=>s+it.qty,0);
+  const INC=firebase.firestore.FieldValue.increment;
+  const metaRef=db.collection('estadisticas').doc('_meta');
+  const facRef=db.collection('facturas').doc();
 
   try{
-    const batch=db.batch();
-    batch.update(db.collection("productos").doc(p.id),stockUpdate);
-    const saleData={
-      orderNumber:'ORD-'+Date.now().toString().slice(-6),productName:p.name,qty,
-      costTotal:costoTotal,
-      total:totalConDescuento,
-      seller:sellerEmail,
-      sucursal:activeSucursal,
-      date:new Date().toLocaleDateString('es'),
-      timestamp:Date.now(),
-      mes:getMonthKey()
-    };
-    if(discPct>0){
-      saleData.descuentoAplicado={nombre:discNombre,porcentaje:discPct,totalSinDescuento};
-    }
-    batch.set(db.collection("ventas").doc(),saleData);
-    // Actualizar estadisticas acumuladas
-    batch.update(db.collection("estadisticas").doc(statDocId),{
-      'ventas':firebase.firestore.FieldValue.increment(totalConDescuento),
-      'unidades vendidas':firebase.firestore.FieldValue.increment(qty),
-      'numero de ventas':firebase.firestore.FieldValue.increment(1)
+    let seq=0;
+    await db.runTransaction(async t=>{
+      // ── LECTURA (única) — contador secuencial ──
+      const metaSnap=await t.get(metaRef);
+      seq=((metaSnap.exists&&metaSnap.data().facturaSeq)||0)+1;
+      const numFactura='FAC-'+String(seq).padStart(5,'0');
+      // ── ESCRITURAS ──
+      // Un doc de venta por línea (mantiene estadísticas / Top10 / historial intactos)
+      lineas.forEach(it=>{
+        const saleData={
+          orderNumber:'ORD-'+String(ts).slice(-6),
+          productName:it.productName,qty:it.qty,
+          costTotal:it.costTotal,total:it.total,
+          seller:sellerEmail,sucursal:suc,
+          date:fecha,timestamp:ts,mes,facturaNum:numFactura
+        };
+        if(it.discPct>0){saleData.descuentoAplicado={nombre:it.discNombre,porcentaje:it.discPct,totalSinDescuento:it.subtotal};}
+        t.set(db.collection('ventas').doc(),saleData);
+        t.update(db.collection('productos').doc(it.pid),{[stockField]:INC(-it.qty),updatedAt:ts});
+      });
+      // Estadísticas acumuladas (por línea, como siempre)
+      t.update(db.collection('estadisticas').doc(statDocId),{
+        'ventas':INC(totalVenta),
+        'unidades vendidas':INC(totalUnidades),
+        'numero de ventas':INC(lineas.length)
+      });
+      // Documento de FACTURA (liviano, solo texto — el PDF se genera en el navegador)
+      t.set(facRef,{
+        numero:seq,numFactura,sucursal:suc,
+        cliente:cliente||'',seller:sellerEmail,
+        date:fecha,timestamp:ts,mes,
+        subtotal:subtotalVenta,total:totalVenta,unidades:totalUnidades,
+        items:lineas.map(it=>({productName:it.productName,qty:it.qty,precioUnit:it.price,descPct:it.discPct||0,descNombre:it.discNombre||'',subtotal:it.subtotal,total:it.total}))
+      });
+      // Avanzar el contador (merge para no pisar otros campos de _meta)
+      t.set(metaRef,{facturaSeq:seq,updatedAt:ts},{merge:true});
     });
-    await batch.commit();
-    document.getElementById('pm-sell-qty-display').textContent=0;
-    document.getElementById('pm-confirm-qty').textContent=0;
-    document.getElementById('pm-sell-label-mini').style.display='none';
-    document.getElementById('pm-sale-total-wrap').style.display='none';
-    const dsel=document.getElementById('pm-discount-select');
-    if(dsel) dsel.value='';
-    const dprev=document.getElementById('pm-discount-preview');
-    if(dprev) dprev.classList.remove('show');
-    const discMsg=discPct>0?` · -${discPct}% ${discNombre}`:'';
-    showToast(`Venta registrada · ${sellerEmail.split('@')[0]}${discMsg}`,'ti-shopping-cart');
-  }catch(e){showToast('Error en la venta','ti-alert-circle');console.error(e);}
+
+    showToast('✓ Venta confirmada · FAC-'+String(seq).padStart(5,'0'),'ti-file-invoice');
+    cart=[];cartSede=null;
+    document.getElementById('cart-cliente').value='';
+    renderCart();
+    toggleCartPanel(false);
+  }catch(e){
+    console.error('Error al confirmar venta',e);
+    showToast('Error al confirmar la venta','ti-alert-circle');
+    btn.disabled=false;
+  }
+}
+
+// ══════════════════════════════════════════════
+//  FACTURAS  (apartado bajo demanda · sin onSnapshot · botón Cargar obligatorio)
+// ══════════════════════════════════════════════
+function setFacSede(suc){
+  if(suc===facSede)return;
+  facSede=suc;
+  document.querySelectorAll('#fac-sede-toggle button').forEach(b=>b.classList.toggle('active',b.dataset.sede===suc));
+  document.getElementById('fac-sede-label').textContent=suc==='exsal'?'EXSAL':'CDB';
+  facLoaded=false;
+  document.getElementById('fac-list-body').innerHTML='<div class="fac-empty">Sede cambiada. Presiona <b>Cargar</b> para ver las facturas.</div>';
+  document.getElementById('fac-load-more-row').style.display='none';
+  document.getElementById('fac-download-month-btn').disabled=true;
+  setFacStatus('idle');
+}
+
+function onFacturasMonthChange(){
+  facLoaded=false;
+  document.getElementById('fac-download-month-btn').disabled=true;
+  setFacStatus('idle');
+}
+
+function setFacStatus(state,extra){
+  const dot=document.getElementById('fac-smb-dot');
+  const txt=document.getElementById('fac-smb-txt');
+  if(!dot||!txt)return;
+  if(state==='loading'){dot.className='smb-dot loading';txt.textContent='Cargando...';}
+  else if(state==='ok'){dot.className='smb-dot';dot.style.background='';txt.textContent=extra||'Listo';}
+  else if(state==='error'){dot.className='smb-dot';dot.style.background='var(--r600)';txt.textContent='Error al cargar';}
+  else{dot.className='smb-dot';dot.style.background='';txt.textContent='Selecciona un mes';}
+}
+
+async function loadFacturasMes(){
+  const sel=document.getElementById('fac-month-select');
+  const monthKey=sel?sel.value:getMonthKey();
+  if(!monthKey)return;
+  setFacStatus('loading');
+  facPaginadas=[];facCursor=null;facAllLoaded=false;facMesActual=monthKey;facLoaded=false;
+  try{
+    const q=db.collection('facturas')
+      .where('mes','==',monthKey)
+      .where('sucursal','==',facSede)
+      .orderBy('timestamp','desc')
+      .limit(FACTURAS_PAGE_SIZE);
+    const snap=await q.get();
+    const page=[];
+    snap.forEach(doc=>page.push({id:doc.id,...doc.data()}));
+    facPaginadas=page;
+    facCursor=snap.docs[snap.docs.length-1]||null;
+    facAllLoaded=snap.docs.length<FACTURAS_PAGE_SIZE;
+    facLoaded=true;
+    renderFacturasList();
+    document.getElementById('fac-download-month-btn').disabled=page.length===0;
+    setFacStatus('ok',page.length+' factura'+(page.length!==1?'s':'')+(facAllLoaded?'':'+')+' · '+monthKeyToLabel(monthKey));
+  }catch(e){
+    console.error('Error cargando facturas',e);
+    setFacStatus('error');
+    if(String(e&&e.message||'').toLowerCase().includes('index')){
+      document.getElementById('fac-list-body').innerHTML='<div class="fac-empty">Falta crear el índice de Firestore para <b>facturas</b>. Abre la consola del navegador (F12), haz clic en el enlace que aparece para crear el índice y vuelve a pulsar <b>Cargar</b>.</div>';
+    }
+  }
+}
+
+function renderFacturasList(){
+  const body=document.getElementById('fac-list-body');
+  const row=document.getElementById('fac-load-more-row');
+  if(!facPaginadas.length){
+    body.innerHTML='<div class="fac-empty">Sin facturas en este período.</div>';
+    row.style.display='none';
+    return;
+  }
+  body.innerHTML=facPaginadas.map(f=>{
+    const itemsTxt=(f.items||[]).map(it=>esc(it.productName)+' ×'+it.qty).join(' · ');
+    const cli=f.cliente?' · '+esc(f.cliente):'';
+    return `<div class="fac-card">
+      <div class="fac-num"><span class="fac-num-hash">FAC</span><span class="fac-num-val">${f.numero||'—'}</span></div>
+      <div class="fac-info">
+        <div class="fac-info-top">${esc(f.numFactura||'')}<span style="font-weight:600;color:var(--tm);font-size:11.5px">${esc(f.date||'')}${cli}</span></div>
+        <div class="fac-info-sub">${(f.items||[]).length} producto(s) · ${f.unidades||0} uds. · ${esc((f.seller||'').split('@')[0])}</div>
+        <div class="fac-info-items">${itemsTxt}</div>
+      </div>
+      <span class="fac-total">${fmt(f.total)}</span>
+      <button class="btn-fac-dl" onclick="downloadFacturaPDF('${f.id}')"><i class="ti ti-download"></i>PDF</button>
+    </div>`;
+  }).join('');
+  row.style.display=facAllLoaded?'none':'block';
+}
+
+async function loadMoreFacturas(){
+  if(facAllLoaded||!facLoaded||!facCursor)return;
+  try{
+    const q=db.collection('facturas')
+      .where('mes','==',facMesActual)
+      .where('sucursal','==',facSede)
+      .orderBy('timestamp','desc')
+      .startAfter(facCursor)
+      .limit(FACTURAS_PAGE_SIZE);
+    const snap=await q.get();
+    const page=[];
+    snap.forEach(doc=>page.push({id:doc.id,...doc.data()}));
+    facPaginadas=[...facPaginadas,...page];
+    facCursor=snap.docs[snap.docs.length-1]||facCursor;
+    facAllLoaded=snap.docs.length<FACTURAS_PAGE_SIZE;
+    renderFacturasList();
+  }catch(e){console.error('Error cargando más facturas',e);}
+}
+
+function downloadFacturaPDF(id){
+  const fac=facPaginadas.find(f=>f.id===id);
+  if(!fac){showToast('Factura no encontrada','ti-alert-circle');return;}
+  try{
+    const { jsPDF }=window.jspdf;
+    const doc=new jsPDF({orientation:'p',unit:'mm',format:'a4'});
+    buildFacturaPDF(doc,fac);
+    doc.save((fac.numFactura||'factura')+'.pdf');
+  }catch(e){console.error(e);showToast('Error al generar el PDF','ti-alert-circle');}
+}
+
+async function downloadAllFacturasMes(){
+  if(!facMesActual){showToast('Carga primero un mes','ti-alert-circle');return;}
+  const btn=document.getElementById('fac-download-month-btn');
+  const original=btn.innerHTML;
+  btn.disabled=true;
+  btn.innerHTML='<i class="ti ti-loader" style="animation:spin .7s linear infinite"></i>Generando...';
+  try{
+    // Lee TODAS las facturas del mes en una sola pasada (solo al pulsar el botón)
+    let all=[],cursor=null,done=false;
+    while(!done){
+      let q=db.collection('facturas')
+        .where('mes','==',facMesActual)
+        .where('sucursal','==',facSede)
+        .orderBy('timestamp','desc')
+        .limit(100);
+      if(cursor) q=q.startAfter(cursor);
+      const snap=await q.get();
+      snap.forEach(doc=>all.push({id:doc.id,...doc.data()}));
+      cursor=snap.docs[snap.docs.length-1]||null;
+      done=snap.docs.length<100;
+      if(all.length>3000)break;
+    }
+    if(!all.length){showToast('No hay facturas en este mes','ti-alert-circle');return;}
+    all.sort((a,b)=>(a.numero||0)-(b.numero||0));
+    const { jsPDF }=window.jspdf;
+    const doc=new jsPDF({orientation:'p',unit:'mm',format:'a4'});
+    all.forEach((fac,i)=>{if(i>0)doc.addPage();buildFacturaPDF(doc,fac);});
+    const sedeLbl=facSede==='exsal'?'EXSAL':'CDB';
+    doc.save('Facturas-'+sedeLbl+'-'+facMesActual+'.pdf');
+    showToast('✓ '+all.length+' factura'+(all.length!==1?'s':'')+' exportada'+(all.length!==1?'s':''),'ti-file-download');
+  }catch(e){
+    console.error('Error exportando facturas del mes',e);
+    showToast('Error al exportar el mes','ti-alert-circle');
+  }finally{
+    btn.innerHTML=original;
+    btn.disabled=false;
+  }
+}
+
+// ── CONSTRUCTOR DE PDF (reutilizado por descarga individual y mensual) ──
+function buildFacturaPDF(doc,fac){
+  const W=210, pad=18;
+  const azul=[74,168,232], azulOsc=[23,118,176], gris=[240,248,253], grisL=[197,227,249];
+  const negro=[15,63,99], grisT=[74,137,176], blanco=[255,255,255];
+  const items=fac.items||[];
+  const numFactura=fac.numFactura||('FAC-'+(fac.numero||''));
+  const fechaHoy=fac.date||new Date().toLocaleDateString('es');
+  const sucursalLabel=fac.sucursal==='exsal'?'EXSAL':fac.sucursal==='cdb'?'CDB':'—';
+  const vendedor=fac.seller||'—';
+
+  // Header
+  doc.setFillColor(...azul);doc.rect(0,0,W,42,'F');
+  try{doc.addImage(LOGO_DATA_URI,'JPEG',pad,6,28,28);}catch(e){}
+  doc.setFont('helvetica','bold');doc.setFontSize(22);doc.setTextColor(...blanco);
+  doc.text('FACTURA',W-pad,18,{align:'right'});
+  doc.setFontSize(10);doc.setFont('helvetica','normal');
+  doc.text(numFactura,W-pad,25,{align:'right'});
+  doc.text('Fecha: '+fechaHoy,W-pad,31,{align:'right'});
+  doc.text('Sede: '+sucursalLabel,W-pad,37,{align:'right'});
+  doc.setFontSize(13);doc.setFont('helvetica','bold');
+  doc.text('PICO Electrónica',pad+32,17);
+  doc.setFontSize(9);doc.setFont('helvetica','normal');
+  doc.text('Sistema de inventario y ventas',pad+32,23);
+
+  let y=52;
+  // Cliente / vendedor
+  doc.setFillColor(...gris);doc.roundedRect(pad,y,W-pad*2,32,3,3,'F');
+  doc.setDrawColor(...grisL);doc.setLineWidth(0.4);doc.roundedRect(pad,y,W-pad*2,32,3,3,'S');
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...grisT);
+  doc.text('CLIENTE',pad+5,y+7);doc.text('ATENDIDO POR',W/2+5,y+7);
+  doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(...negro);
+  doc.text(fac.cliente?fac.cliente:'Consumidor final',pad+5,y+14);
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(...grisT);
+  doc.text('N° '+numFactura,pad+5,y+20);
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(...negro);
+  doc.text(vendedor.split('@')[0],W/2+5,y+14);
+  doc.setFontSize(8);doc.setTextColor(...grisT);
+  doc.text(vendedor,W/2+5,y+20);
+  y+=38;
+
+  // Tabla
+  const cols=[10,84,22,34,40];
+  const headers=['#','Producto','Cant.','Precio/ud','Subtotal'];
+  const colX=[pad,pad+cols[0],pad+cols[0]+cols[1],pad+cols[0]+cols[1]+cols[2],pad+cols[0]+cols[1]+cols[2]+cols[3]];
+  function drawHead(){
+    doc.setFillColor(...azul);doc.rect(pad,y,W-pad*2,8,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...blanco);
+    headers.forEach((h,i)=>{const align=i>=2?'right':'left';const x=i>=2?colX[i]+cols[i]-2:colX[i]+2;doc.text(h,x,y+5.5,{align});});
+    y+=8;
+  }
+  drawHead();
+  items.forEach((it,idx)=>{
+    if(y>262){doc.addPage();y=20;drawHead();}
+    const rowBg=idx%2===0?blanco:gris;
+    doc.setFillColor(...rowBg);doc.rect(pad,y,W-pad*2,7,'F');
+    doc.setDrawColor(...grisL);doc.setLineWidth(0.2);doc.line(pad,y+7,W-pad,y+7);
+    doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(...negro);
+    doc.text(String(idx+1),colX[0]+2,y+5);
+    let nm=it.productName||'';
+    if(it.descPct>0) nm+=' (-'+it.descPct+'%)';
+    if(nm.length>46) nm=nm.slice(0,44)+'…';
+    doc.text(nm,colX[1]+2,y+5);
+    doc.text(String(it.qty),colX[2]+cols[2]-2,y+5,{align:'right'});
+    doc.text('$'+(+(it.precioUnit||0)).toFixed(2),colX[3]+cols[3]-2,y+5,{align:'right'});
+    doc.text('$'+(+(it.total||0)).toFixed(2),colX[4]+cols[4]-2,y+5,{align:'right'});
+    y+=7;
+  });
+
+  if(y>250){doc.addPage();y=20;}
+  // Subtotal/descuento si aplica
+  const hayDesc=(+(fac.subtotal||0)).toFixed(2)!==(+(fac.total||0)).toFixed(2);
+  if(hayDesc){
+    doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(...grisT);
+    doc.text('Subtotal: $'+(+(fac.subtotal||0)).toFixed(2)+'   ·   Descuentos: -$'+(+((fac.subtotal||0)-(fac.total||0))).toFixed(2),W-pad,y+4,{align:'right'});
+    y+=6;
+  }
+  // Total
+  doc.setFillColor(...azulOsc);doc.rect(pad,y,W-pad*2,9,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(...blanco);
+  doc.text('TOTAL',colX[3]+cols[3]-2,y+6,{align:'right'});
+  doc.text('$'+(+(fac.total||0)).toFixed(2),colX[4]+cols[4]-2,y+6,{align:'right'});
+  y+=18;
+
+  if(y>262){doc.addPage();y=20;}
+  // Agradecimiento
+  doc.setFillColor(...gris);doc.roundedRect(pad,y,W-pad*2,22,3,3,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(...azul);
+  doc.text('¡Gracias por tu compra!',W/2,y+9,{align:'center'});
+  doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(...grisT);
+  doc.text('En PICO Electrónica valoramos tu confianza. Ante cualquier consulta, contáctanos.',W/2,y+16,{align:'center'});
+  // Pie
+  doc.setFontSize(7.5);doc.setTextColor(...grisT);
+  doc.text('Documento generado el '+new Date().toLocaleString('es')+' · Factura '+numFactura,W/2,290,{align:'center'});
 }
 
 document.getElementById('pm-overlay').addEventListener('click',e=>{if(e.target.id==='pm-overlay')closePM();});
@@ -2460,6 +2944,9 @@ function populateVentasMonthSelectors(){
     sel.innerHTML=opts;
     sel.value=now;
   });
+  // Selector de mes para FACTURAS
+  const facSel=document.getElementById('fac-month-select');
+  if(facSel){facSel.innerHTML=opts;facSel.value=now;}
 }
 
 function populateGastosMonthSelectors(){
@@ -3570,6 +4057,9 @@ function abrirRestockConfirm(){
   document.getElementById('rc-modal-new-stock').textContent=totalUnidades+' uds.';
   document.getElementById('rc-modal-pkg-cost').textContent=fmt(pkgCost);
 
+  const ac=document.getElementById('restock-affect-costos');
+  if(ac) ac.checked=true;
+
   document.getElementById('restock-confirm-overlay').classList.add('open');
 }
 
@@ -3581,6 +4071,7 @@ function cerrarRestockConfirm(){
 async function ejecutarRestock(){
   if(!restockPendingData)return;
   const{pid,p,suc,pkgCost,pkgQty,stockActual,costoActual,nuevoCosto,totalUnidades}=restockPendingData;
+  const afectaCostos=(document.getElementById('restock-affect-costos')||{checked:true}).checked;
 
   const updateData={cost:+nuevoCosto.toFixed(4),updatedAt:Date.now()};
   if(suc==='exsal') updateData.stockExsal=totalUnidades;
@@ -3596,6 +4087,7 @@ async function ejecutarRestock(){
     unidadesAgregadas:pkgQty,
     stockNuevo:totalUnidades,
     costoPaquete:+pkgCost.toFixed(2),
+    afectaCostos:afectaCostos,
     timestamp:Date.now(),
     fecha:new Date().toLocaleDateString('es-SV')
   };
@@ -3607,14 +4099,16 @@ async function ejecutarRestock(){
     const batch=db.batch();
     batch.update(db.collection('productos').doc(pid),updateData);
     batch.set(db.collection('restock-historial').doc(),histRecord);
-    // Sumar costo del paquete a estadisticas
-    batch.update(db.collection('estadisticas').doc(statDocId),{
-      'costos':firebase.firestore.FieldValue.increment(+pkgCost.toFixed(2))
-    });
+    // Sumar costo del paquete a estadisticas SOLO si se marcó la casilla
+    if(afectaCostos){
+      batch.update(db.collection('estadisticas').doc(statDocId),{
+        'costos':firebase.firestore.FieldValue.increment(+pkgCost.toFixed(2))
+      });
+    }
     await batch.commit();
     cerrarRestockConfirm();
     clearRestockProduct();
-    showToast('Restock aplicado · '+p.name,'ti-package-import');
+    showToast(afectaCostos?('Restock aplicado · '+p.name):('Restock aplicado (sin afectar costos) · '+p.name),'ti-package-import');
   }catch(e){
     console.error(e);
     showToast('Error al aplicar restock','ti-alert-circle');
@@ -3647,6 +4141,7 @@ function renderRestockHistory(){
         <span class="badge ${sucClass[r.sucursal]||'badge-ok'}">${(r.sucursal||'').toUpperCase()}</span>
         <span class="badge badge-ok"><i class="ti ti-stack" style="font-size:10px"></i>${r.stockAnterior} → ${r.stockNuevo} uds.</span>
         <span class="badge" style="background:var(--b50);border:1px solid var(--b100);color:${diffColor}">Δ ${diffSign}${fmt(diff)}</span>
+        ${r.afectaCostos===false?'<span class="badge" style="background:#fff7ed;border:1px solid #fed7aa;color:#9a3412"><i class="ti ti-ban" style="font-size:10px"></i>Sin afectar costos</span>':''}
       </div>
       <div class="rhc-costs">
         <div class="rhc-cost-box rhc-cost-old"><div class="rhc-cost-label">Costo anterior</div><div class="rhc-cost-val">${fmt(r.costoAnterior)}</div></div>
