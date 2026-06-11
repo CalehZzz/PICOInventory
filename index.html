@@ -2373,6 +2373,8 @@ async function confirmarVenta(){
   const INC=firebase.firestore.FieldValue.increment;
   const metaRef=db.collection('estadisticas').doc('_meta');
   const facRef=db.collection('facturas').doc();
+  const ventaRef=db.collection('ventas').doc();
+  const costTotalVenta=+(lineas.reduce((s,it)=>s+it.costTotal,0)).toFixed(2);
 
   try{
     let seq=0;
@@ -2382,31 +2384,40 @@ async function confirmarVenta(){
       seq=((metaSnap.exists&&metaSnap.data().facturaSeq)||0)+1;
       const numFactura='FAC-'+String(seq).padStart(5,'0');
       // ── ESCRITURAS ──
-      // Un doc de venta por línea (mantiene estadísticas / Top10 / historial intactos)
+      // Un solo documento de venta con todos los productos (lógica nueva), vinculado a su factura.
+      const ventaItems=lineas.map(it=>({
+        pid:it.pid,productName:it.productName,qty:it.qty,
+        precioUnit:it.price,costTotal:it.costTotal,total:it.total,
+        descPct:it.discPct||0,descNombre:it.discNombre||'',subtotal:it.subtotal
+      }));
+      const ventaData={
+        orderNumber:'ORD-'+String(ts).slice(-6),
+        items:ventaItems,qty:totalUnidades,
+        costTotal:costTotalVenta,total:totalVenta,
+        seller:sellerEmail,sucursal:suc,
+        date:fecha,timestamp:ts,mes,
+        facturaNum:numFactura,facturaId:facRef.id
+      };
+      const lineaDesc=lineas.find(it=>it.discPct>0);
+      if(lineaDesc){ventaData.descuentoAplicado={nombre:lineaDesc.discNombre,porcentaje:lineaDesc.discPct};}
+      t.set(ventaRef,ventaData);
+      // Descontar el stock de cada producto
       lineas.forEach(it=>{
-        const saleData={
-          orderNumber:'ORD-'+String(ts).slice(-6),
-          productName:it.productName,qty:it.qty,
-          costTotal:it.costTotal,total:it.total,
-          seller:sellerEmail,sucursal:suc,
-          date:fecha,timestamp:ts,mes,facturaNum:numFactura
-        };
-        if(it.discPct>0){saleData.descuentoAplicado={nombre:it.discNombre,porcentaje:it.discPct,totalSinDescuento:it.subtotal};}
-        t.set(db.collection('ventas').doc(),saleData);
         t.update(db.collection('productos').doc(it.pid),{[stockField]:INC(-it.qty),updatedAt:ts});
       });
-      // Estadísticas acumuladas (por línea, como siempre)
+      // Estadísticas acumuladas — 'numero de ventas' cuenta ventas reales (1 por venta)
       t.update(db.collection('estadisticas').doc(statDocId),{
         'ventas':INC(totalVenta),
         'unidades vendidas':INC(totalUnidades),
-        'numero de ventas':INC(lineas.length)
+        'numero de ventas':INC(1)
       });
-      // Documento de FACTURA (liviano, solo texto — el PDF se genera en el navegador)
+      // Documento de FACTURA (liviano, solo texto — el PDF se genera en el navegador), vinculado a la venta
       t.set(facRef,{
         numero:seq,numFactura,sucursal:suc,
         cliente:cliente||'',seller:sellerEmail,
         date:fecha,timestamp:ts,mes,
         subtotal:subtotalVenta,total:totalVenta,unidades:totalUnidades,
+        ventaId:ventaRef.id,
         items:lineas.map(it=>({productName:it.productName,qty:it.qty,precioUnit:it.price,descPct:it.discPct||0,descNombre:it.discNombre||'',subtotal:it.subtotal,total:it.total}))
       });
       // Avanzar el contador (merge para no pisar otros campos de _meta)
@@ -3058,13 +3069,19 @@ function renderVentasTable(suc,append){
     const seller=v.seller?v.seller.split('@')[0]:'—';
     const orderNum=v.orderNumber||('ORD-'+(String(v.timestamp||Date.now()).slice(-6)));
     const checked=selectedSales[suc].has(v.id)?'checked':'';
-    const discCell=v.descuentoAplicado
-      ?`<td><span class="badge badge-descuento">-${v.descuentoAplicado.porcentaje}%</span></td>`
+    // Producto(s): venta unificada (items[]) o formato antiguo (1 producto)
+    const prodCell=Array.isArray(v.items)
+      ? v.items.map(it=>esc(it.productName)+' <span style="color:var(--tm)">×'+it.qty+'</span>').join('<br>')
+      : esc(v.productName);
+    const discPctShown=v.descuentoAplicado?v.descuentoAplicado.porcentaje
+      :(Array.isArray(v.items)?((v.items.find(it=>it.descPct>0)||{}).descPct||0):0);
+    const discCell=discPctShown
+      ?`<td><span class="badge badge-descuento">-${discPctShown}%</span></td>`
       :`<td><span style="font-size:11px;color:var(--tm)">—</span></td>`;
     return `<tr class="sale-row-select">
       <td style="padding:8px 6px 8px 14px"><input type="checkbox" class="sale-cb" ${checked} onchange="toggleSaleSelect('${v.id}','${suc}',this)" onclick="event.stopPropagation()"></td>
       <td style="font-size:11px;color:var(--tm);font-weight:700">${orderNum}</td>
-      <td>${v.date}</td><td>${esc(v.productName)}</td><td>${v.qty}</td>
+      <td>${v.date}</td><td>${prodCell}</td><td>${v.qty}</td>
       <td>${fmt(v.total)}</td>
       ${discCell}
       <td style="color:${g>=0?'var(--g600)':'var(--r600)'}">${fmt(g)}</td>
@@ -3125,7 +3142,10 @@ async function loadTop10(suc){
     const ventas=[];
     snap.forEach(doc=>ventas.push(doc.data()));
     const byProd={};
-    ventas.forEach(v=>{byProd[v.productName]=(byProd[v.productName]||0)+v.qty;});
+    ventas.forEach(v=>{
+      if(Array.isArray(v.items)) v.items.forEach(it=>{byProd[it.productName]=(byProd[it.productName]||0)+(it.qty||0);});
+      else byProd[v.productName]=(byProd[v.productName]||0)+(v.qty||0);
+    });
     const sorted=Object.entries(byProd).sort((a,b)=>b[1]-a[1]).slice(0,10);
     let html;
     if(!sorted.length){
@@ -3197,37 +3217,58 @@ function renderDeletedSales(suc){
       const seller=v.seller?v.seller.split('@')[0]:'—';
       const sc=v.sucursal||'exsal';
       const sucCell=showSuc?`<td><span class="badge ${sc==='cdb'?'badge-cdb':'badge-exsal'}">${sc.toUpperCase()}</span></td>`:'';
-      return `<tr style="opacity:.75"><td>${v.deletedDate||v.date}</td><td>${esc(v.productName)}</td><td>${v.qty}</td><td>${fmt(v.total)}</td><td style="color:${g>=0?'var(--g600)':'var(--r600)'}">${fmt(g)}</td><td style="font-size:12px;color:var(--ts)">${esc(seller)}</td>${sucCell}<td><button onclick="restoreSale('${v.id}')" title="Restaurar" style="background:none;border:none;cursor:pointer;color:var(--g600);padding:4px 8px;border-radius:6px;font-size:16px"><i class="ti ti-restore"></i></button></td></tr>`;
+      return `<tr style="opacity:.75"><td>${v.deletedDate||v.date}</td><td>${Array.isArray(v.items)?v.items.map(it=>esc(it.productName)+' ×'+it.qty).join(', '):esc(v.productName)}</td><td>${v.qty}</td><td>${fmt(v.total)}</td><td style="color:${g>=0?'var(--g600)':'var(--r600)'}">${fmt(g)}</td><td style="font-size:12px;color:var(--ts)">${esc(seller)}</td>${sucCell}<td><button onclick="restoreSale('${v.id}')" title="Restaurar" style="background:none;border:none;cursor:pointer;color:var(--g600);padding:4px 8px;border-radius:6px;font-size:16px"><i class="ti ti-restore"></i></button></td></tr>`;
     }).join('')
   }</tbody></table>`;
 }
 
 // ── VENTAS: ELIMINAR / RESTAURAR / LIMPIAR ──
 async function deleteSale(id){
-  if(!confirm('¿Eliminar esta venta? El stock del producto será reintegrado.'))return;
+  if(!confirm('¿Eliminar esta venta? Se reintegrará el stock y se borrará su factura.'))return;
   try{
     const doc=await db.collection("ventas").doc(id).get();
     if(!doc.exists){showToast('Venta no encontrada','ti-alert-circle');return;}
     const venta=doc.data();
-    const data={...venta,deletedAt:Date.now(),deletedDate:new Date().toLocaleDateString('es')};
-    const batch=db.batch();
-    batch.set(db.collection("ventas-eliminadas").doc(id),data);
-    batch.delete(db.collection("ventas").doc(id));
-    // Reintegrar stock al producto
+    const INC=firebase.firestore.FieldValue.increment;
     const suc=venta.sucursal||'exsal';
-    const prod=products.find(p=>p.name===venta.productName);
-    if(prod){
-      const stockField=suc==='cdb'?'stockCdb':'stockExsal';
-      const currentStock=prod[stockField]||0;
-      batch.update(db.collection("productos").doc(prod.id),{[stockField]:currentStock+venta.qty,updatedAt:Date.now()});
-    }
-    // Revertir estadisticas acumuladas
+    const stockField=suc==='cdb'?'stockCdb':'stockExsal';
     const statSucursal=(suc==='cdb')?'cdb':'exsal';
     const statDocId=statSucursal==='exsal'?'ColegioExsal':'ColegioDonBosco';
+
+    // Snapshot de la factura vinculada (para poder restaurarla idéntica)
+    let facturaSnapshot=null;
+    if(venta.facturaId){
+      try{
+        const facDoc=await db.collection('facturas').doc(venta.facturaId).get();
+        if(facDoc.exists) facturaSnapshot={id:facDoc.id,data:facDoc.data()};
+      }catch(_){}
+    }
+
+    const batch=db.batch();
+    const eliminada={...venta,deletedAt:Date.now(),deletedDate:new Date().toLocaleDateString('es')};
+    if(facturaSnapshot) eliminada.facturaSnapshot=facturaSnapshot;
+    batch.set(db.collection("ventas-eliminadas").doc(id),eliminada);
+    batch.delete(db.collection("ventas").doc(id));
+    // Borrar la factura vinculada (si existe)
+    if(venta.facturaId) batch.delete(db.collection('facturas').doc(venta.facturaId));
+
+    // Reintegrar stock — soporta venta unificada (items[]) y formato antiguo (1 producto)
+    let totalUnidades=0;
+    const reintegra=(pid,name,qty)=>{
+      let prod=null;
+      if(pid) prod=products.find(p=>p.id===pid);
+      if(!prod&&name) prod=products.find(p=>p.name===name);
+      if(prod) batch.update(db.collection("productos").doc(prod.id),{[stockField]:INC(qty),updatedAt:Date.now()});
+      totalUnidades+=qty;
+    };
+    if(Array.isArray(venta.items)) venta.items.forEach(it=>reintegra(it.pid,it.productName,it.qty||0));
+    else reintegra(null,venta.productName,venta.qty||0);
+
+    // Revertir estadisticas acumuladas (resta exactamente lo que la venta sumó)
     batch.update(db.collection("estadisticas").doc(statDocId),{
-      'ventas':firebase.firestore.FieldValue.increment(-(venta.total||0)),
-      'unidades vendidas':firebase.firestore.FieldValue.increment(-(venta.qty||0)),
-      'numero de ventas':firebase.firestore.FieldValue.increment(-1)
+      'ventas':INC(-(venta.total||0)),
+      'unidades vendidas':INC(-(venta.qty||totalUnidades||0)),
+      'numero de ventas':INC(-1)
     });
     await batch.commit();
     // Actualizar tabla de ventas si está cargada
@@ -3236,7 +3277,7 @@ async function deleteSale(id){
       if(ventasShown[statSucursal]>ventasPaginadas[statSucursal].length) ventasShown[statSucursal]=ventasPaginadas[statSucursal].length;
       renderVentasTable(statSucursal,false);
     }
-    showToast('Venta eliminada · stock reintegrado','ti-trash');
+    showToast('Venta eliminada · stock reintegrado · factura borrada','ti-trash');
   }catch(e){showToast('Error al eliminar','ti-alert-circle');console.error(e);}
 }
 
@@ -3245,29 +3286,40 @@ async function restoreSale(id){
     const doc=await db.collection("ventas-eliminadas").doc(id).get();
     if(!doc.exists){showToast('No encontrada','ti-alert-circle');return;}
     const venta={...doc.data()};
-    delete venta.deletedAt;delete venta.deletedDate;
+    const facturaSnapshot=venta.facturaSnapshot||null;
+    delete venta.deletedAt;delete venta.deletedDate;delete venta.facturaSnapshot;
+    const INC=firebase.firestore.FieldValue.increment;
+    const suc=venta.sucursal||'exsal';
+    const stockField=suc==='cdb'?'stockCdb':'stockExsal';
+    const statSuc=(suc==='cdb')?'cdb':'exsal';
+    const statDocId=statSuc==='exsal'?'ColegioExsal':'ColegioDonBosco';
+
     const batch=db.batch();
     batch.set(db.collection("ventas").doc(id),venta);
     batch.delete(db.collection("ventas-eliminadas").doc(id));
-    // Descontar stock nuevamente al restaurar
-    const suc=venta.sucursal||'exsal';
-    const prod=products.find(p=>p.name===venta.productName);
-    if(prod){
-      const stockField=suc==='cdb'?'stockCdb':'stockExsal';
-      const currentStock=prod[stockField]||0;
-      const newStock=Math.max(0,currentStock-venta.qty);
-      batch.update(db.collection("productos").doc(prod.id),{[stockField]:newStock,updatedAt:Date.now()});
-    }
+    // Recrear la factura vinculada (mismo número/id) si se había guardado copia
+    if(facturaSnapshot&&facturaSnapshot.id) batch.set(db.collection('facturas').doc(facturaSnapshot.id),facturaSnapshot.data);
+
+    // Descontar stock nuevamente — soporta unificada y formato antiguo
+    let totalUnidades=0;
+    const descuenta=(pid,name,qty)=>{
+      let prod=null;
+      if(pid) prod=products.find(p=>p.id===pid);
+      if(!prod&&name) prod=products.find(p=>p.name===name);
+      if(prod) batch.update(db.collection("productos").doc(prod.id),{[stockField]:INC(-qty),updatedAt:Date.now()});
+      totalUnidades+=qty;
+    };
+    if(Array.isArray(venta.items)) venta.items.forEach(it=>descuenta(it.pid,it.productName,it.qty||0));
+    else descuenta(null,venta.productName,venta.qty||0);
+
     // Volver a sumar a estadisticas al restaurar
-    const statSuc=(suc==='cdb')?'cdb':'exsal';
-    const statDocId=statSuc==='exsal'?'ColegioExsal':'ColegioDonBosco';
     batch.update(db.collection("estadisticas").doc(statDocId),{
-      'ventas':firebase.firestore.FieldValue.increment(venta.total||0),
-      'unidades vendidas':firebase.firestore.FieldValue.increment(venta.qty||0),
-      'numero de ventas':firebase.firestore.FieldValue.increment(1)
+      'ventas':INC(venta.total||0),
+      'unidades vendidas':INC(venta.qty||totalUnidades||0),
+      'numero de ventas':INC(1)
     });
     await batch.commit();
-    showToast('Venta restaurada · stock descontado','ti-restore');
+    showToast('Venta restaurada · stock descontado · factura recreada','ti-restore');
   }catch(e){showToast('Error al restaurar','ti-alert-circle');console.error(e);}
 }
 
@@ -3291,7 +3343,10 @@ async function clearSales(suc){
   setSave('saving','Borrando...');
   try{
     const batch=db.batch();
-    visible.forEach(v=>batch.delete(db.collection("ventas").doc(v.id)));
+    visible.forEach(v=>{
+      batch.delete(db.collection("ventas").doc(v.id));
+      if(v.facturaId) batch.delete(db.collection('facturas').doc(v.facturaId));
+    });
     await batch.commit();
     ventasPaginadas[suc]=[];
     ventasShown[suc]=0;
@@ -3313,11 +3368,15 @@ function abrirModalFactura(suc){
   if(!sel.size){showToast('Selecciona al menos una venta','ti-alert-circle');return;}
   // Use ventasPaginadas instead of global sales
   const ventasSel=(ventasPaginadas[suc]||[]).filter(v=>sel.has(v.id));
+  // Aplanar a líneas de producto (soporta venta unificada items[] y formato antiguo)
+  const lineasSel=ventasSel.flatMap(v=>Array.isArray(v.items)
+    ? v.items.map(it=>({productName:it.productName,qty:it.qty,total:it.total,orderNumber:v.orderNumber,timestamp:v.timestamp}))
+    : [{productName:v.productName,qty:v.qty,total:v.total,orderNumber:v.orderNumber,timestamp:v.timestamp}]);
 
   // Preview
   const rowsEl=document.getElementById('fact-preview-rows');
   let total=0;
-  rowsEl.innerHTML=ventasSel.map(v=>{
+  rowsEl.innerHTML=lineasSel.map(v=>{
     total+=v.total;
     return `<div class="fact-preview-row"><span>${esc(v.productName)} ×${v.qty}</span><span>${fmt(v.total)}</span></div>`;
   }).join('')+`<div class="fact-preview-row"><span>TOTAL</span><span>${fmt(total)}</span></div>`;
@@ -3349,6 +3408,10 @@ async function generarFactura(){
 
   const sel=selectedSales[suc];
   const ventasSel=(ventasPaginadas[suc]||[]).filter(v=>sel.has(v.id));
+  // Aplanar a líneas de producto (soporta venta unificada items[] y formato antiguo)
+  const lineasSel=ventasSel.flatMap(v=>Array.isArray(v.items)
+    ? v.items.map(it=>({productName:it.productName,qty:it.qty,total:it.total,orderNumber:v.orderNumber,timestamp:v.timestamp}))
+    : [{productName:v.productName,qty:v.qty,total:v.total,orderNumber:v.orderNumber,timestamp:v.timestamp}]);
   const user=firebase.auth().currentUser;
   const vendedor=user?user.email:'—';
 
@@ -3438,7 +3501,7 @@ async function generarFactura(){
       doc.text(h,x,y+5.5,{align});
     });
     y+=8;
-const productosHtml = ventasSel.map((v, i) => {
+const productosHtml = lineasSel.map((v, i) => {
   const precioUd = v.qty > 0 ? (v.total / v.qty).toFixed(2) : '0.00';
   const orden = v.orderNumber || '—';
   return `<tr>
@@ -3452,7 +3515,7 @@ const productosHtml = ventasSel.map((v, i) => {
 }).join('');
 
     let totalGeneral=0;
-    ventasSel.forEach((v,idx)=>{
+    lineasSel.forEach((v,idx)=>{
       const precioUd=v.qty>0?(v.total/v.qty):0;
       const rowBg=idx%2===0?blanco:gris;
       doc.setFillColor(...rowBg);
