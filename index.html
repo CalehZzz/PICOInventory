@@ -601,6 +601,13 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
             <div id="exsal-variants-list" style="display:flex;flex-direction:column;gap:6px"></div>
             <button type="button" onclick="addVariantRow('exsal')" style="background:none;border:1.5px dashed var(--b300);border-radius:var(--rsm);padding:7px;font-size:12px;font-weight:600;color:var(--b500);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;font-family:inherit"><i class="ti ti-plus"></i>Añadir variante</button>
           </div>
+          <label style="display:flex;align-items:flex-start;gap:10px;background:var(--g50);border:1.5px solid var(--g100);border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none;margin-bottom:10px">
+            <input type="checkbox" id="exsal-f-affect-costos" checked style="margin-top:2px;width:15px;height:15px;accent-color:var(--g600);flex-shrink:0;cursor:pointer">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--tp)">Reflejar en los costos de estadísticas</div>
+              <div style="font-size:11px;color:var(--tm);margin-top:1px">Suma el costo inicial (costo × stock) a los “costos” de la sede. Desmárcalo si no debe afectar las estadísticas.</div>
+            </div>
+          </label>
           <button class="btn-add" onclick="addProduct('exsal')"><i class="ti ti-plus"></i>Agregar a EXSAL</button>
           <div class="form-error" id="exsal-form-error"></div>
         </div>
@@ -652,6 +659,13 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
             <div id="cdb-variants-list" style="display:flex;flex-direction:column;gap:6px"></div>
             <button type="button" onclick="addVariantRow('cdb')" style="background:none;border:1.5px dashed var(--b300);border-radius:var(--rsm);padding:7px;font-size:12px;font-weight:600;color:var(--b500);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;font-family:inherit"><i class="ti ti-plus"></i>Añadir variante</button>
           </div>
+          <label style="display:flex;align-items:flex-start;gap:10px;background:var(--g50);border:1.5px solid var(--g100);border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none;margin-bottom:10px">
+            <input type="checkbox" id="cdb-f-affect-costos" checked style="margin-top:2px;width:15px;height:15px;accent-color:var(--g600);flex-shrink:0;cursor:pointer">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--tp)">Reflejar en los costos de estadísticas</div>
+              <div style="font-size:11px;color:var(--tm);margin-top:1px">Suma el costo inicial (costo × stock) a los “costos” de la sede. Desmárcalo si no debe afectar las estadísticas.</div>
+            </div>
+          </label>
           <button class="btn-add" onclick="addProduct('cdb')"><i class="ti ti-plus"></i>Agregar a CDB</button>
           <div class="form-error" id="cdb-form-error"></div>
         </div>
@@ -710,6 +724,13 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
             <div id="total-variants-list" style="display:flex;flex-direction:column;gap:6px"></div>
             <button type="button" onclick="addVariantRow('total')" style="background:none;border:1.5px dashed var(--b300);border-radius:var(--rsm);padding:7px;font-size:12px;font-weight:600;color:var(--b500);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;font-family:inherit"><i class="ti ti-plus"></i>Añadir variante</button>
           </div>
+          <label style="display:flex;align-items:flex-start;gap:10px;background:var(--g50);border:1.5px solid var(--g100);border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none;margin-bottom:10px">
+            <input type="checkbox" id="total-f-affect-costos" checked style="margin-top:2px;width:15px;height:15px;accent-color:var(--g600);flex-shrink:0;cursor:pointer">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--tp)">Reflejar en los costos de estadísticas</div>
+              <div style="font-size:11px;color:var(--tm);margin-top:1px">Suma el costo inicial (costo × stock) a los “costos” de la sede. Desmárcalo si no debe afectar las estadísticas.</div>
+            </div>
+          </label>
           <button class="btn-add" onclick="addProductTotal()"><i class="ti ti-plus"></i>Agregar producto</button>
           <div class="form-error" id="total-form-error"></div>
         </div>
@@ -1973,10 +1994,11 @@ async function addProduct(suc){
     if(suc==='exsal') data.stockExsal=stock;
     else data.stockCdb=stock;
     try{
+      const affectCostos=(document.getElementById(pre+'affect-costos')||{checked:true}).checked;
       const batch=db.batch();
       batch.set(db.collection("productos").doc(),data);
-      // Sumar costo inicial a estadisticas de la sede
-      if(stock>0){
+      // Sumar costo inicial a estadisticas de la sede (solo si se marcó la casilla)
+      if(stock>0&&affectCostos){
         const statDocId=suc==='exsal'?'ColegioExsal':'ColegioDonBosco';
         batch.update(db.collection("estadisticas").doc(statDocId),{
           'costos':firebase.firestore.FieldValue.increment(+(cost*stock).toFixed(4))
@@ -1984,9 +2006,10 @@ async function addProduct(suc){
       }
       await batch.commit();
       [pre+'name',pre+'desc',pre+'imageurl',pre+'cost',pre+'price',pre+'stock'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+      const acb=document.getElementById(pre+'affect-costos');if(acb)acb.checked=true;
       previewImg(suc);
       document.getElementById(pre+'name').focus();
-      showToast('Producto agregado a '+suc.toUpperCase(),'ti-circle-check');
+      showToast('Producto agregado a '+suc.toUpperCase()+(stock>0&&!affectCostos?' (sin afectar costos)':''),'ti-circle-check');
     }catch(e){showToast('Error al guardar','ti-alert-circle');}
   }
 }
@@ -2034,10 +2057,11 @@ async function addProductTotal(){
     if(imageUrl) data.imageUrl=imageUrl;
     if(suc==='exsal'){data.stockExsal=stock;}else{data.stockCdb=stock;}
     try{
+      const affectCostos=(document.getElementById('total-f-affect-costos')||{checked:true}).checked;
       const batch=db.batch();
       batch.set(db.collection("productos").doc(),data);
-      // Sumar costo inicial a estadisticas de la sede
-      if(stock>0){
+      // Sumar costo inicial a estadisticas de la sede (solo si se marcó la casilla)
+      if(stock>0&&affectCostos){
         const statDocId=suc==='exsal'?'ColegioExsal':'ColegioDonBosco';
         batch.update(db.collection("estadisticas").doc(statDocId),{
           'costos':firebase.firestore.FieldValue.increment(+(cost*stock).toFixed(4))
@@ -2045,9 +2069,10 @@ async function addProductTotal(){
       }
       await batch.commit();
       ['total-f-name','total-f-desc','total-f-imageurl','total-f-cost','total-f-price','total-f-stock'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+      const acb=document.getElementById('total-f-affect-costos');if(acb)acb.checked=true;
       previewImg('total');
       document.getElementById('total-f-name').focus();
-      showToast('Producto agregado a '+suc.toUpperCase(),'ti-circle-check');
+      showToast('Producto agregado a '+suc.toUpperCase()+(stock>0&&!affectCostos?' (sin afectar costos)':''),'ti-circle-check');
     }catch(e){showToast('Error al guardar','ti-alert-circle');}
   }
 }
