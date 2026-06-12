@@ -3680,6 +3680,7 @@ async function deliverOrder(orderId){
   let totalUnidadesPedido=0;
   let numItemsPedido=0;
 
+  const ventaItems=[];
   for(const item of (order.items||[])){
     const qty=item.qty||1;
     const prod=products.find(p=>p.id===item.id||p.name===item.name);
@@ -3694,22 +3695,37 @@ async function deliverOrder(orderId){
     totalVentasPedido+=itemTotal;
     totalUnidadesPedido+=qty;
     numItemsPedido++;
-
-    batch.set(db.collection('ventas').doc(),{
-      orderNumber:'PED-'+Date.now().toString().slice(-6)+'-'+Math.random().toString(36).slice(-3),
+    ventaItems.push({
+      pid:item.id||null,
       productName:item.name,
       qty,
+      precioUnit:unitPrice,
       costTotal:+(unitCost*qty).toFixed(2),
       total:itemTotal,
-      seller:sellerEmail,
-      sucursal:suc,
-      date:new Date().toLocaleDateString('es'),
-      timestamp:Date.now(),
-      mes:getMonthKey(),
-      fromOrder:orderId,
-      ...(order.discountPct?{discountName:order.discountName,discountPct:order.discountPct}:{})
+      descPct:order.discountPct||0,
+      descNombre:order.discountName||''
     });
   }
+
+  // Un solo documento de venta con todos los productos del pedido (lógica nueva),
+  // con el descuento aplicado y vinculado a la factura creada en la tienda.
+  const ventaPedido={
+    orderNumber:'PED-'+Date.now().toString().slice(-6)+'-'+Math.random().toString(36).slice(-3),
+    items:ventaItems,
+    qty:totalUnidadesPedido,
+    costTotal:+costTotal.toFixed(2),
+    total:+totalVentasPedido.toFixed(2),
+    seller:sellerEmail,
+    sucursal:suc,
+    date:new Date().toLocaleDateString('es'),
+    timestamp:Date.now(),
+    mes:getMonthKey(),
+    fromOrder:orderId,
+    facturaId:order.facturaId||null,
+    facturaNum:order.facturaNum||null
+  };
+  if(order.discountPct){ventaPedido.descuentoAplicado={nombre:order.discountName,porcentaje:order.discountPct};}
+  batch.set(db.collection('ventas').doc(),ventaPedido);
 
   const totalEfectivo=typeof order.totalConDescuento==='number'?order.totalConDescuento:(order.total||0);
 
@@ -3717,7 +3733,7 @@ async function deliverOrder(orderId){
   batch.update(db.collection('estadisticas').doc(statDocId),{
     'ventas':firebase.firestore.FieldValue.increment(+totalVentasPedido.toFixed(2)),
     'unidades vendidas':firebase.firestore.FieldValue.increment(totalUnidadesPedido),
-    'numero de ventas':firebase.firestore.FieldValue.increment(numItemsPedido),
+    'numero de ventas':firebase.firestore.FieldValue.increment(1),
     // Contadores de pedidos (mensuales salvo pedidosPendientes)
     'pedidosEntregados':firebase.firestore.FieldValue.increment(1),
     'ingresosPedidos':firebase.firestore.FieldValue.increment(+totalEfectivo.toFixed(2)),
@@ -3789,7 +3805,7 @@ async function undeliverOrder(orderId){
     statUpdate['pedidosEntregados']=firebase.firestore.FieldValue.increment(-1);
     statUpdate['ventas']=firebase.firestore.FieldValue.increment(-totalVentas);
     statUpdate['unidades vendidas']=firebase.firestore.FieldValue.increment(-totalUnidades);
-    statUpdate['numero de ventas']=firebase.firestore.FieldValue.increment(-(order.items||[]).length);
+    statUpdate['numero de ventas']=firebase.firestore.FieldValue.increment(-1);
     statUpdate['ingresosPedidos']=firebase.firestore.FieldValue.increment(-(+totalEfectivo.toFixed(2)));
     statUpdate['costosPedidos']=firebase.firestore.FieldValue.increment(-(+costTotal.toFixed(2)));
   }
@@ -3824,6 +3840,11 @@ async function cancelOrder(orderId){
     const suc=order.sucursal==='cdb'?'ColegioDonBosco':'ColegioExsal';
     const stockField=order.sucursal==='cdb'?'stockCdb':'stockExsal';
     const batch=db.batch();
+    // Borrar la factura vinculada a este pedido (si existe). Neutra para estadísticas.
+    try{
+      const facSnap=await db.collection('facturas').where('fromOrder','==',orderId).get();
+      facSnap.forEach(d=>batch.delete(d.ref));
+    }catch(e){console.warn('No se pudo localizar la factura del pedido para borrarla:',e);}
     batch.update(db.collection('pedidos').doc(orderId),{
       status:'cancelled',
       stockDeducted:false,
