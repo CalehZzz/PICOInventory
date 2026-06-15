@@ -401,7 +401,10 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .pedidos-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
 .pedidos-wrap{background:var(--wh);border-radius:var(--rlg);border:1px solid var(--b100);box-shadow:var(--sc);overflow:hidden}
 .pedidos-hd{padding:16px 20px;border-bottom:1px solid var(--b50);display:flex;align-items:center;justify-content:space-between}
-.pedidos-table{width:100%;border-collapse:collapse}
+/* Contenedor con scroll horizontal: en pantallas angostas la tabla (10 columnas,
+   incluye botones de acción) se desplaza en vez de recortarse. */
+.pedidos-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:var(--b200) transparent}
+.pedidos-table{width:100%;border-collapse:collapse;min-width:920px}
 .pedidos-table th{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--tm);padding:10px 14px;text-align:left;border-bottom:1px solid var(--b50);background:var(--b50)}
 .pedidos-table td{font-size:13px;color:var(--tp);padding:10px 14px;border-bottom:1px solid var(--b50);vertical-align:top}
 .pedidos-table tr:last-child td{border-bottom:none}
@@ -410,6 +413,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .status-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:var(--rp);display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
 .status-pending{background:var(--w50);color:var(--w600);border:1px solid var(--w100)}
 .status-delivered{background:var(--g50);color:var(--g600);border:1px solid var(--g100)}
+.status-confirmado{background:var(--b50);color:var(--b600);border:1px solid var(--b100)}
 .status-cancelled{background:var(--r50);color:var(--r600);border:1px solid var(--r100)}
 .pedido-items{display:flex;flex-direction:column;gap:3px}
 .pedido-item-row{font-size:12px;color:var(--ts)}
@@ -1605,6 +1609,9 @@ async function checkMonthlyReset(){
           pedidosCancelados:data.pedidosCancelados||0,
           ingresosPedidos:data.ingresosPedidos||0,
           costosPedidos:data.costosPedidos||0,
+          ingresosEnvio:data.ingresosEnvio||0,
+          costosEnvio:data.costosEnvio||0,
+          comisionesStripe:data.comisionesStripe||0,
           archivedAt:Date.now()
         });
       }
@@ -1622,7 +1629,11 @@ async function checkMonthlyReset(){
         'pedidosEntregados':0,
         'pedidosCancelados':0,
         'ingresosPedidos':0,
-        'costosPedidos':0
+        'costosPedidos':0,
+        // Campos de envío y comisión de tarjeta: también son mensuales (transparencia del mes)
+        'ingresosEnvio':0,
+        'costosEnvio':0,
+        'comisionesStripe':0
       });
     }
 
@@ -2509,14 +2520,16 @@ function renderFacturasList(){
   body.innerHTML=facPaginadas.map(f=>{
     const itemsTxt=(f.items||[]).map(it=>esc(it.productName)+' ×'+it.qty).join(' · ');
     const cli=f.cliente?' · '+esc(f.cliente):'';
-    return `<div class="fac-card">
+    const anulada=f.anulada===true;
+    const envioTxt=(f.envioCosto>0)?` · 🚚 $${(+f.envioCosto).toFixed(2)}`:'';
+    return `<div class="fac-card"${anulada?' style="opacity:.6"':''}>
       <div class="fac-num"><span class="fac-num-hash">FAC</span><span class="fac-num-val">${f.numero||'—'}</span></div>
       <div class="fac-info">
-        <div class="fac-info-top">${esc(f.numFactura||'')}<span style="font-weight:600;color:var(--tm);font-size:11.5px">${esc(f.date||'')}${cli}</span></div>
-        <div class="fac-info-sub">${(f.items||[]).length} producto(s) · ${f.unidades||0} uds. · ${esc((f.seller||'').split('@')[0])}</div>
+        <div class="fac-info-top">${esc(f.numFactura||'')}${anulada?' <span style="background:#fee2e2;color:#dc2626;border-radius:999px;padding:1px 8px;font-size:10px;font-weight:800;letter-spacing:.4px;vertical-align:middle">ANULADA</span>':''}<span style="font-weight:600;color:var(--tm);font-size:11.5px">${esc(f.date||'')}${cli}</span></div>
+        <div class="fac-info-sub">${(f.items||[]).length} producto(s) · ${f.unidades||0} uds. · ${esc((f.seller||'').split('@')[0])}${envioTxt}</div>
         <div class="fac-info-items">${itemsTxt}</div>
       </div>
-      <span class="fac-total">${fmt(f.total)}</span>
+      <span class="fac-total"${anulada?' style="text-decoration:line-through"':''}>${fmt(f.total)}</span>
       <button class="btn-fac-dl" onclick="downloadFacturaPDF('${f.id}')"><i class="ti ti-download"></i>PDF</button>
     </div>`;
   }).join('');
@@ -2663,10 +2676,17 @@ function buildFacturaPDF(doc,fac){
 
   if(y>250){doc.addPage();y=20;}
   // Subtotal/descuento si aplica
-  const hayDesc=(+(fac.subtotal||0)).toFixed(2)!==(+(fac.total||0)).toFixed(2);
+  const hayDesc=(+(fac.subtotal||0)).toFixed(2)!==(+(fac.totalProductos!=null?fac.totalProductos:fac.total||0)).toFixed(2);
   if(hayDesc){
+    const totProd=(fac.totalProductos!=null?fac.totalProductos:fac.total||0);
     doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(...grisT);
-    doc.text('Subtotal: $'+(+(fac.subtotal||0)).toFixed(2)+'   ·   Descuentos: -$'+(+((fac.subtotal||0)-(fac.total||0))).toFixed(2),W-pad,y+4,{align:'right'});
+    doc.text('Subtotal: $'+(+(fac.subtotal||0)).toFixed(2)+'   ·   Descuentos: -$'+(+((fac.subtotal||0)-totProd)).toFixed(2),W-pad,y+4,{align:'right'});
+    y+=6;
+  }
+  // Envío a domicilio (si se cobró) — se suma al total de la factura
+  if(+(fac.envioCosto||0)>0){
+    doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(...grisT);
+    doc.text('Envio a domicilio: $'+(+(fac.envioCosto||0)).toFixed(2),W-pad,y+4,{align:'right'});
     y+=6;
   }
   // Total
@@ -2686,6 +2706,20 @@ function buildFacturaPDF(doc,fac){
   // Pie
   doc.setFontSize(7.5);doc.setTextColor(...grisT);
   doc.text('Documento generado el '+new Date().toLocaleString('es')+' · Factura '+numFactura,W/2,290,{align:'center'});
+
+  // Marca de agua ANULADA (sobre todas las páginas) si la factura fue anulada
+  if(fac.anulada===true){
+    const total=doc.getNumberOfPages();
+    for(let p=1;p<=total;p++){
+      doc.setPage(p);
+      doc.setTextColor(220,38,38);
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(54);
+      if(doc.GState){try{doc.setGState(new doc.GState({opacity:0.18}));}catch(_){}}
+      doc.text('ANULADA',W/2,160,{align:'center',angle:32});
+      if(doc.GState){try{doc.setGState(new doc.GState({opacity:1}));}catch(_){}}
+    }
+  }
 }
 
 document.getElementById('pm-overlay').addEventListener('click',e=>{if(e.target.id==='pm-overlay')closePM();});
@@ -3249,8 +3283,12 @@ async function deleteSale(id){
     if(facturaSnapshot) eliminada.facturaSnapshot=facturaSnapshot;
     batch.set(db.collection("ventas-eliminadas").doc(id),eliminada);
     batch.delete(db.collection("ventas").doc(id));
-    // Borrar la factura vinculada (si existe)
-    if(venta.facturaId) batch.delete(db.collection('facturas').doc(venta.facturaId));
+    // La factura NUNCA se borra: se marca como ANULADA (se conserva el historial contable).
+    if(venta.facturaId) batch.update(db.collection('facturas').doc(venta.facturaId),{
+      anulada:true,
+      anuladaAt:firebase.firestore.FieldValue.serverTimestamp(),
+      anuladaBy:(firebase.auth().currentUser?.email||'admin')
+    });
 
     // Reintegrar stock — soporta venta unificada (items[]) y formato antiguo (1 producto)
     let totalUnidades=0;
@@ -3277,7 +3315,7 @@ async function deleteSale(id){
       if(ventasShown[statSucursal]>ventasPaginadas[statSucursal].length) ventasShown[statSucursal]=ventasPaginadas[statSucursal].length;
       renderVentasTable(statSucursal,false);
     }
-    showToast('Venta eliminada · stock reintegrado · factura borrada','ti-trash');
+    showToast('Venta eliminada · stock reintegrado · factura anulada','ti-trash');
   }catch(e){showToast('Error al eliminar','ti-alert-circle');console.error(e);}
 }
 
@@ -3297,8 +3335,17 @@ async function restoreSale(id){
     const batch=db.batch();
     batch.set(db.collection("ventas").doc(id),venta);
     batch.delete(db.collection("ventas-eliminadas").doc(id));
-    // Recrear la factura vinculada (mismo número/id) si se había guardado copia
-    if(facturaSnapshot&&facturaSnapshot.id) batch.set(db.collection('facturas').doc(facturaSnapshot.id),facturaSnapshot.data);
+    // La factura ya no se borra al eliminar la venta: solo se había anulado. Al restaurar,
+    // se quita la marca de anulada. Si por algún motivo no existiera, se recrea desde la copia.
+    if(venta.facturaId){
+      batch.set(db.collection('facturas').doc(venta.facturaId),{
+        anulada:false,
+        anuladaAt:firebase.firestore.FieldValue.delete(),
+        anuladaBy:firebase.firestore.FieldValue.delete()
+      },{merge:true});
+    } else if(facturaSnapshot&&facturaSnapshot.id){
+      batch.set(db.collection('facturas').doc(facturaSnapshot.id),facturaSnapshot.data);
+    }
 
     // Descontar stock nuevamente — soporta unificada y formato antiguo
     let totalUnidades=0;
@@ -3345,7 +3392,12 @@ async function clearSales(suc){
     const batch=db.batch();
     visible.forEach(v=>{
       batch.delete(db.collection("ventas").doc(v.id));
-      if(v.facturaId) batch.delete(db.collection('facturas').doc(v.facturaId));
+      // La factura NUNCA se borra: se anula.
+      if(v.facturaId) batch.update(db.collection('facturas').doc(v.facturaId),{
+        anulada:true,
+        anuladaAt:firebase.firestore.FieldValue.serverTimestamp(),
+        anuladaBy:(firebase.auth().currentUser?.email||'admin')
+      });
     });
     await batch.commit();
     ventasPaginadas[suc]=[];
@@ -3641,19 +3693,23 @@ function renderPedidosKpis(){
 // Aplicar / quitar descuento a un pedido pendiente desde la tabla de pedidos
 async function applyOrderDiscount(orderId, selectEl){
   const discountId=selectEl.value;
+  const order=orders.find(o=>o.id===orderId);
+  if(!order)return;
+  const esDom=order.tipoEntrega==='domicilio';
+  const envio=esDom?(typeof order.envioCosto==='number'?order.envioCosto:0):0;
+  const totalOriginal=order.total||0;
   let update={};
   if(!discountId){
-    // Quitar descuento
-    update={discountId:null,discountName:null,discountPct:null,totalConDescuento:null};
+    // Quitar descuento — el total con envío vuelve a productos + envío
+    update={discountId:null,discountName:null,discountPct:null,totalConDescuento:null,
+            totalConEnvio:+((totalOriginal)+envio).toFixed(2)};
   } else {
     const desc=descuentos.find(d=>d.id===discountId);
     if(!desc)return;
-    const order=orders.find(o=>o.id===orderId);
-    if(!order)return;
     const pct=desc.porcentaje;
-    const totalOriginal=order.total||0;
     const totalConDescuento=+(totalOriginal*(1-pct/100)).toFixed(2);
-    update={discountId,discountName:desc.nombre,discountPct:pct,totalConDescuento};
+    update={discountId,discountName:desc.nombre,discountPct:pct,totalConDescuento,
+            totalConEnvio:+(totalConDescuento+envio).toFixed(2)};
   }
   try{
     await db.collection('pedidos').doc(orderId).update(update);
@@ -3664,93 +3720,115 @@ async function applyOrderDiscount(orderId, selectEl){
   }
 }
 
-// Entregar pedido: descuenta stock + crea registros en "ventas" (igual que registerSale)
+// ════════════════════════════════════════════════════════════════
+//  ENTREGAR / REVERTIR / CANCELAR PEDIDOS
+//  Lógica IDÉNTICA a la del panel admin (admin.js) para que las estadísticas
+//  nunca diverjan entre las dos páginas. Conceptos clave:
+//   • statsRecorded === true  → la venta (productos) YA se contabilizó al PAGAR
+//     con tarjeta (Cloud Function). Al entregar NO se vuelve a sumar productos.
+//   • margen de envío (solo domicilio): el cliente pagó envioCosto; el envío real
+//     costó costoEnvioReal. Si real > cobrado → exceso a costos. Si real < cobrado
+//     → diferencia a la ganancia.
+//   • El stock se descuenta al CREAR el pedido y solo se devuelve al CANCELAR.
+// ════════════════════════════════════════════════════════════════
+
+// Entregar pedido: registra la venta y las estadísticas (el stock ya se descontó al crear el pedido)
 async function deliverOrder(orderId){
   const order=orders.find(o=>o.id===orderId);
   if(!order||order.status==='delivered'){showToast('Pedido ya entregado','ti-alert-circle');return;}
+  if(!order.sucursal){showToast('Asigna una sucursal antes de entregar','ti-alert-circle');return;}
   if(!confirm('¿Marcar este pedido como entregado?'))return;
 
-  const user=firebase.auth().currentUser;
-  const sellerEmail=user?user.email:'Desconocido';
-  const suc=order.sucursal||'exsal';
-  const statDocId=suc==='cdb'?'ColegioDonBosco':'ColegioExsal';
-  const batch=db.batch();
-  let costTotal=0;
-  let totalVentasPedido=0;
-  let totalUnidadesPedido=0;
-  let numItemsPedido=0;
-
-  const ventaItems=[];
-  for(const item of (order.items||[])){
-    const qty=item.qty||1;
-    const prod=products.find(p=>p.id===item.id||p.name===item.name);
-    const unitCost=typeof item.cost==='number'?item.cost:(prod?prod.cost:0);
-    const unitPrice=typeof item.price==='number'?item.price:(prod?prod.price:0);
-    costTotal+=unitCost*qty;
-
-    // NOTA: el stock ya se descontó al crear el pedido. Al entregar NO se toca el stock.
-
-    const discFactor=order.discountPct?((100-order.discountPct)/100):1;
-    const itemTotal=+(unitPrice*qty*discFactor).toFixed(2);
-    totalVentasPedido+=itemTotal;
-    totalUnidadesPedido+=qty;
-    numItemsPedido++;
-    ventaItems.push({
-      pid:item.id||null,
-      productName:item.name,
-      qty,
-      precioUnit:unitPrice,
-      costTotal:+(unitCost*qty).toFixed(2),
-      total:itemTotal,
-      descPct:order.discountPct||0,
-      descNombre:order.discountName||''
-    });
-  }
-
-  // Un solo documento de venta con todos los productos del pedido (lógica nueva),
-  // con el descuento aplicado y vinculado a la factura creada en la tienda.
-  const ventaPedido={
-    orderNumber:'PED-'+Date.now().toString().slice(-6)+'-'+Math.random().toString(36).slice(-3),
-    items:ventaItems,
-    qty:totalUnidadesPedido,
-    costTotal:+costTotal.toFixed(2),
-    total:+totalVentasPedido.toFixed(2),
-    seller:sellerEmail,
-    sucursal:suc,
-    date:new Date().toLocaleDateString('es'),
-    timestamp:Date.now(),
-    mes:getMonthKey(),
-    fromOrder:orderId,
-    facturaId:order.facturaId||null,
-    facturaNum:order.facturaNum||null
-  };
-  if(order.discountPct){ventaPedido.descuentoAplicado={nombre:order.discountName,porcentaje:order.discountPct};}
-  batch.set(db.collection('ventas').doc(),ventaPedido);
-
-  const totalEfectivo=typeof order.totalConDescuento==='number'?order.totalConDescuento:(order.total||0);
-
-  // Actualizar estadisticas
-  batch.update(db.collection('estadisticas').doc(statDocId),{
-    'ventas':firebase.firestore.FieldValue.increment(+totalVentasPedido.toFixed(2)),
-    'unidades vendidas':firebase.firestore.FieldValue.increment(totalUnidadesPedido),
-    'numero de ventas':firebase.firestore.FieldValue.increment(1),
-    // Contadores de pedidos (mensuales salvo pedidosPendientes)
-    'pedidosEntregados':firebase.firestore.FieldValue.increment(1),
-    'ingresosPedidos':firebase.firestore.FieldValue.increment(+totalEfectivo.toFixed(2)),
-    'costosPedidos':firebase.firestore.FieldValue.increment(+costTotal.toFixed(2)),
-    'pedidosPendientes':firebase.firestore.FieldValue.increment(-1)
-  });
-
-  batch.update(db.collection('pedidos').doc(orderId),{
-    status:'delivered',
-    saleRecorded:true,
-    costTotal:+costTotal.toFixed(2),
-    totalConDescuento:+totalEfectivo.toFixed(2),
-    deliveredAt:Date.now(),
-    deliveredBy:sellerEmail
-  });
-
   try{
+    // Releer el pedido para trabajar con datos frescos (evita doble registro)
+    const freshSnap=await db.collection('pedidos').doc(orderId).get();
+    const freshData=freshSnap.data()||{};
+    if(freshData.saleRecorded){showToast('Pedido ya entregado','ti-alert-circle');return;}
+
+    const user=firebase.auth().currentUser;
+    const sellerEmail=user?user.email:'admin';
+    const suc=freshData.sucursal;
+    const statDocId=(suc==='cdb'||suc==='domicilio')?'ColegioDonBosco':'ColegioExsal';
+    const discFactor=freshData.discountPct?((100-freshData.discountPct)/100):1;
+    const mesKey=getMonthKey();
+
+    let costTotal=0, priceTotal=0, totalUnidades=0, totalVentasEfectivo=0;
+    const ventaItems=[];
+    for(const item of (freshData.items||[])){
+      const qty=item.qty||1;
+      const unitCost=typeof item.cost==='number'?item.cost:0;
+      const unitPrice=typeof item.price==='number'?item.price:0;
+      costTotal+=unitCost*qty;
+      priceTotal+=unitPrice*qty;
+      const itemTotal=+(unitPrice*qty*discFactor).toFixed(2);
+      totalUnidades+=qty;
+      totalVentasEfectivo+=itemTotal;
+      ventaItems.push({
+        pid:item.id||null, productName:item.name, qty,
+        precioUnit:unitPrice, costTotal:+(unitCost*qty).toFixed(2), total:itemTotal,
+        descPct:freshData.discountPct||0, descNombre:freshData.discountName||''
+      });
+    }
+
+    // ¿La venta (productos) ya se contabilizó al pagar con tarjeta?
+    const alreadyCounted=freshData.statsRecorded===true;
+
+    const batch=db.batch();
+
+    // Documento de venta — solo si NO se creó ya al pagar (tarjeta)
+    if(!alreadyCounted){
+      const ventaPedido={
+        orderNumber:'PED-'+Date.now().toString().slice(-6)+'-'+Math.random().toString(36).slice(-3),
+        items:ventaItems, qty:totalUnidades,
+        costTotal:+costTotal.toFixed(2), total:+totalVentasEfectivo.toFixed(2),
+        seller:sellerEmail, sucursal:suc,
+        date:new Date().toLocaleDateString('es'), timestamp:Date.now(), mes:mesKey,
+        fromOrder:orderId,
+        facturaId:freshData.facturaId||null, facturaNum:freshData.facturaNum||null
+      };
+      if(freshData.discountPct){ventaPedido.descuentoAplicado={nombre:freshData.discountName,porcentaje:freshData.discountPct};}
+      batch.set(db.collection('ventas').doc(),ventaPedido);
+    }
+
+    const totalEfectivo=typeof freshData.totalConDescuento==='number'
+      ? freshData.totalConDescuento : +(priceTotal*discFactor).toFixed(2);
+
+    // Margen de envío (solo domicilio)
+    const esDom=freshData.tipoEntrega==='domicilio';
+    const envioCobrado=esDom?(typeof freshData.envioCosto==='number'?freshData.envioCosto:0):0;
+    const envioReal=esDom?(typeof freshData.costoEnvioReal==='number'?freshData.costoEnvioReal:0):0;
+    const diffEnvio=+(envioReal-envioCobrado).toFixed(2);
+    const extraCostoEnvio=diffEnvio>0?diffEnvio:0;
+    const gananciaEnvio=diffEnvio<0?-diffEnvio:0;
+
+    batch.update(db.collection('pedidos').doc(orderId),{
+      status:'delivered',
+      stockDeducted:true,
+      saleRecorded:true,
+      costTotal:+costTotal.toFixed(2),
+      totalConDescuento:+totalEfectivo.toFixed(2),
+      margenEnvio:esDom?+(-diffEnvio).toFixed(2):0,
+      deliveredAt:firebase.firestore.FieldValue.serverTimestamp(),
+      deliveredBy:sellerEmail
+    });
+
+    const statPayload={
+      'pedidosEntregados':firebase.firestore.FieldValue.increment(1),
+      'pedidosPendientes':firebase.firestore.FieldValue.increment(-1),
+      'ingresosPedidos':firebase.firestore.FieldValue.increment(+(((alreadyCounted?0:totalEfectivo))+gananciaEnvio).toFixed(2)),
+      'costosPedidos':firebase.firestore.FieldValue.increment(+(((alreadyCounted?0:costTotal))+extraCostoEnvio).toFixed(2))
+    };
+    if(!alreadyCounted){
+      statPayload['ventas']=firebase.firestore.FieldValue.increment(+totalVentasEfectivo.toFixed(2));
+      statPayload['unidades vendidas']=firebase.firestore.FieldValue.increment(totalUnidades);
+      statPayload['numero de ventas']=firebase.firestore.FieldValue.increment(1);
+    }
+    if(esDom){
+      statPayload['ingresosEnvio']=firebase.firestore.FieldValue.increment(+envioCobrado.toFixed(2));
+      statPayload['costosEnvio']=firebase.firestore.FieldValue.increment(+envioReal.toFixed(2));
+    }
+    batch.set(db.collection('estadisticas').doc(statDocId),statPayload,{merge:true});
+
     await batch.commit();
     showToast('Pedido entregado','ti-circle-check');
   }catch(e){
@@ -3759,69 +3837,91 @@ async function deliverOrder(orderId){
   }
 }
 
-// Volver un pedido entregado a "pendiente": restaura stock, borra registros de "ventas"
-// y revierte estadísticas SOLO si la entrega fue del mes actual.
+// Volver un pedido entregado a "pendiente": revierte ventas/estadísticas de la entrega.
+// El stock NO se restaura (sigue descontado mientras el pedido exista).
 async function undeliverOrder(orderId){
   const order=orders.find(o=>o.id===orderId);
   if(!order||order.status!=='delivered'){showToast('Solo se pueden revertir pedidos entregados','ti-alert-circle');return;}
   if(!confirm('¿Volver este pedido a pendiente? Se revertirán las ventas/estadísticas (el stock se mantiene descontado).'))return;
 
-  const suc=order.sucursal||'exsal';
-  const stockField=suc==='cdb'?'stockCdb':'stockExsal';
-  const statDocId=suc==='cdb'?'ColegioDonBosco':'ColegioExsal';
-
-  // ¿La entrega fue de este mes?
-  const mesActual=getMonthKey();
-  const mesEntrega=order.deliveredAt?getMonthKey(order.deliveredAt):null;
-  const revertStats=mesEntrega===mesActual;
-
-  // Recalcular totales (precios/costos congelados, igual que al entregar)
-  const discFactor=order.discountPct?((100-order.discountPct)/100):1;
-  let totalUnidades=0,totalVentas=0,costTotal=0;
-  for(const item of (order.items||[])){
-    const qty=item.qty||1;
-    const prod=products.find(p=>p.id===item.id||p.name===item.name);
-    const unitCost=typeof item.cost==='number'?item.cost:(prod?prod.cost:0);
-    const unitPrice=typeof item.price==='number'?item.price:(prod?prod.price:0);
-    totalUnidades+=qty;
-    totalVentas+=+(unitPrice*qty*discFactor).toFixed(2);
-    costTotal+=unitCost*qty;
-  }
-  const totalEfectivo=typeof order.totalConDescuento==='number'?order.totalConDescuento:totalVentas;
-
-  const batch=db.batch();
-
-  // NOTA: el stock NO se restaura al volver a pendiente. El stock sigue descontado
-  // mientras el pedido exista (solo se devuelve al cancelar). Aquí solo se revierten
-  // los registros de "ventas" y las estadísticas de la entrega.
-
-  // 1) Borrar los registros de "ventas" de este pedido (siempre)
-  const ventasSnap=await db.collection('ventas').where('fromOrder','==',orderId).get();
-  ventasSnap.forEach(doc=>batch.delete(doc.ref));
-
-  // 2) Revertir estadísticas SOLO si la entrega fue de este mes
-  const statUpdate={'pedidosPendientes':firebase.firestore.FieldValue.increment(1)};
-  if(revertStats){
-    statUpdate['pedidosEntregados']=firebase.firestore.FieldValue.increment(-1);
-    statUpdate['ventas']=firebase.firestore.FieldValue.increment(-totalVentas);
-    statUpdate['unidades vendidas']=firebase.firestore.FieldValue.increment(-totalUnidades);
-    statUpdate['numero de ventas']=firebase.firestore.FieldValue.increment(-1);
-    statUpdate['ingresosPedidos']=firebase.firestore.FieldValue.increment(-(+totalEfectivo.toFixed(2)));
-    statUpdate['costosPedidos']=firebase.firestore.FieldValue.increment(-(+costTotal.toFixed(2)));
-  }
-  batch.set(db.collection('estadisticas').doc(statDocId),statUpdate,{merge:true});
-
-  // 3) Volver a pendiente y limpiar marcas de entrega.
-  //    El stock sigue descontado; saleRecorded vuelve a false.
-  batch.update(db.collection('pedidos').doc(orderId),{
-    status:'pending',
-    saleRecorded:false,
-    deliveredAt:firebase.firestore.FieldValue.delete(),
-    deliveredBy:firebase.firestore.FieldValue.delete(),
-    costTotal:firebase.firestore.FieldValue.delete()
-  });
-
   try{
+    const freshSnap=await db.collection('pedidos').doc(orderId).get();
+    const data=freshSnap.data()||{};
+    const suc=(data.sucursal==='cdb'||data.sucursal==='domicilio')?'cdb':'exsal';
+    const statDocId=suc==='cdb'?'ColegioDonBosco':'ColegioExsal';
+
+    // ¿La entrega fue de este mes? (los meses cerrados ya fueron archivados)
+    const mesActual=getMonthKey();
+    let mesEntrega=null;
+    if(data.deliveredAt){
+      const dd=data.deliveredAt.toDate?data.deliveredAt.toDate():new Date(data.deliveredAt);
+      mesEntrega=getMonthKey(dd.getTime());
+    }
+    const revertStats=mesEntrega===mesActual;
+
+    const discFactor=data.discountPct?((100-data.discountPct)/100):1;
+    let totalUnidades=0,totalVentasEfectivo=0,costTotal=0;
+    for(const item of (data.items||[])){
+      const qty=item.qty||1;
+      const unitCost=typeof item.cost==='number'?item.cost:0;
+      const unitPrice=typeof item.price==='number'?item.price:0;
+      totalUnidades+=qty;
+      totalVentasEfectivo+=+(unitPrice*qty*discFactor).toFixed(2);
+      costTotal+=unitCost*qty;
+    }
+    const totalEfectivo=typeof data.totalConDescuento==='number'?data.totalConDescuento:totalVentasEfectivo;
+
+    // En tarjeta la venta se registró al PAGAR (no al entregar): no se revierte aquí.
+    const statsAtPayment=data.metodoPago==='tarjeta'&&data.statsRecorded===true;
+
+    const batch=db.batch();
+
+    // 1) Borrar registros de "ventas" solo si se crearon al ENTREGAR (efectivo/pickup)
+    if(!statsAtPayment){
+      const ventasSnap=await db.collection('ventas').where('fromOrder','==',orderId).get();
+      ventasSnap.forEach(doc=>batch.delete(doc.ref));
+    }
+
+    // 2) Revertir estadísticas SOLO si la entrega fue de este mes
+    const statUpdate={'pedidosPendientes':firebase.firestore.FieldValue.increment(1)};
+    if(revertStats){
+      statUpdate['pedidosEntregados']=firebase.firestore.FieldValue.increment(-1);
+
+      const esDom=data.tipoEntrega==='domicilio';
+      const envioCobrado=esDom?(typeof data.envioCosto==='number'?data.envioCosto:0):0;
+      const envioReal=esDom?(typeof data.costoEnvioReal==='number'?data.costoEnvioReal:0):0;
+      const diffEnvio=+(envioReal-envioCobrado).toFixed(2);
+      const extraCostoEnvio=diffEnvio>0?diffEnvio:0;
+      const gananciaEnvio=diffEnvio<0?-diffEnvio:0;
+
+      const revProdIngreso=statsAtPayment?0:totalEfectivo;
+      const revProdCosto=statsAtPayment?0:costTotal;
+
+      statUpdate['ingresosPedidos']=firebase.firestore.FieldValue.increment(-(+((revProdIngreso+gananciaEnvio)).toFixed(2)));
+      statUpdate['costosPedidos']=firebase.firestore.FieldValue.increment(-(+((revProdCosto+extraCostoEnvio)).toFixed(2)));
+
+      if(!statsAtPayment){
+        statUpdate['ventas']=firebase.firestore.FieldValue.increment(-totalVentasEfectivo);
+        statUpdate['unidades vendidas']=firebase.firestore.FieldValue.increment(-totalUnidades);
+        statUpdate['numero de ventas']=firebase.firestore.FieldValue.increment(-1);
+      }
+      if(esDom){
+        statUpdate['ingresosEnvio']=firebase.firestore.FieldValue.increment(-(+envioCobrado.toFixed(2)));
+        statUpdate['costosEnvio']=firebase.firestore.FieldValue.increment(-(+envioReal.toFixed(2)));
+      }
+    }
+    batch.set(db.collection('estadisticas').doc(statDocId),statUpdate,{merge:true});
+
+    // 3) Volver a pendiente; el stock sigue descontado; saleRecorded vuelve a false.
+    batch.update(db.collection('pedidos').doc(orderId),{
+      status:'pending',
+      stockDeducted:true,
+      saleRecorded:false,
+      deliveredAt:firebase.firestore.FieldValue.delete(),
+      deliveredBy:firebase.firestore.FieldValue.delete(),
+      costTotal:firebase.firestore.FieldValue.delete()
+    });
+
     await batch.commit();
     showToast('Pedido devuelto a pendiente · entrega revertida','ti-rotate');
   }catch(e){
@@ -3830,40 +3930,86 @@ async function undeliverOrder(orderId){
   }
 }
 
-// Cancelar pedido (cambia estado a cancelled sin eliminarlo)
+// Cancelar pedido (cambia estado a cancelled sin eliminarlo). NO se cancelan entregados:
+// primero hay que volverlos a pendiente. La factura se ANULA (nunca se borra).
 async function cancelOrder(orderId){
   const order=orders.find(o=>o.id===orderId);
-  if(!order||order.status!=='pending'){showToast('Solo se pueden cancelar pedidos pendientes','ti-alert-circle');return;}
+  if(!order){showToast('Pedido no encontrado','ti-alert-circle');return;}
+  if(order.status==='delivered'||order.status==='sold'){
+    showToast('Primero vuelve el pedido a pendiente para poder cancelarlo','ti-alert-circle');
+    return;
+  }
+  if(order.status==='cancelled'){showToast('El pedido ya está cancelado','ti-alert-circle');return;}
   const label=order.code||order.name||orderId;
   if(!confirm(`¿Cancelar el pedido "${label}"? Se moverá al historial como cancelado.`))return;
   try{
-    const suc=order.sucursal==='cdb'?'ColegioDonBosco':'ColegioExsal';
-    const stockField=order.sucursal==='cdb'?'stockCdb':'stockExsal';
+    const suc=(order.sucursal==='cdb'||order.sucursal==='domicilio')?'ColegioDonBosco':'ColegioExsal';
+    const stockField=order.sucursal==='exsal'?'stockExsal':'stockCdb';
     const batch=db.batch();
-    // Borrar la factura vinculada a este pedido (si existe). Neutra para estadísticas.
+
+    // Las facturas NUNCA se borran: se marcan como ANULADAS.
     try{
       const facSnap=await db.collection('facturas').where('fromOrder','==',orderId).get();
-      facSnap.forEach(d=>batch.delete(d.ref));
-    }catch(e){console.warn('No se pudo localizar la factura del pedido para borrarla:',e);}
+      facSnap.forEach(d=>batch.update(d.ref,{
+        anulada:true,
+        anuladaAt:firebase.firestore.FieldValue.serverTimestamp(),
+        anuladaBy:(firebase.auth().currentUser?.email||'admin')
+      }));
+    }catch(e){console.warn('No se pudo marcar la factura del pedido como anulada:',e);}
+
     batch.update(db.collection('pedidos').doc(orderId),{
       status:'cancelled',
       stockDeducted:false,
-      cancelledAt:Date.now(),
-      cancelledBy:(firebase.auth().currentUser?.email||'Desconocido')
+      cancelledAt:firebase.firestore.FieldValue.serverTimestamp(),
+      cancelledBy:(firebase.auth().currentUser?.email||'admin')
     });
+
+    // Ajustar contadores de pedidos según el estado previo
+    const statUpdate={'pedidosCancelados':firebase.firestore.FieldValue.increment(1)};
+    if(order.status==='pending'||order.status==='confirmado'){
+      statUpdate['pedidosPendientes']=firebase.firestore.FieldValue.increment(-1);
+    }
+
+    // Si la venta ya se registró al pagar (tarjeta), revertir productos + comisión Stripe + borrar la venta.
+    if(order.statsRecorded===true&&order.items){
+      const discFactor=order.discountPct?((100-order.discountPct)/100):1;
+      let totalUnidades=0,productCost=0,priceTotal=0,totalVentasEfectivo=0;
+      for(const item of order.items){
+        const qty=item.qty||1;
+        const unitCost=typeof item.cost==='number'?item.cost:0;
+        const unitPrice=typeof item.price==='number'?item.price:0;
+        productCost+=unitCost*qty;
+        priceTotal+=unitPrice*qty;
+        totalUnidades+=qty;
+        totalVentasEfectivo+=+(unitPrice*qty*discFactor).toFixed(2);
+      }
+      const totalEfectivo=typeof order.totalConDescuento==='number'?order.totalConDescuento:+(priceTotal*discFactor).toFixed(2);
+      const comision=typeof order.comisionStripe==='number'?order.comisionStripe:0;
+      statUpdate['ventas']=firebase.firestore.FieldValue.increment(-totalVentasEfectivo);
+      statUpdate['unidades vendidas']=firebase.firestore.FieldValue.increment(-totalUnidades);
+      statUpdate['numero de ventas']=firebase.firestore.FieldValue.increment(-1);
+      statUpdate['ingresosPedidos']=firebase.firestore.FieldValue.increment(-(+totalEfectivo.toFixed(2)));
+      statUpdate['costosPedidos']=firebase.firestore.FieldValue.increment(-(+(productCost+comision).toFixed(2)));
+      statUpdate['comisionesStripe']=firebase.firestore.FieldValue.increment(-comision);
+      try{
+        const ventasSnap=await db.collection('ventas').where('fromOrder','==',orderId).get();
+        ventasSnap.forEach(d=>batch.delete(d.ref));
+      }catch(e){console.warn('No se pudieron borrar las ventas del pedido al cancelar:',e);}
+    }
+
+    batch.set(db.collection('estadisticas').doc(suc),statUpdate,{merge:true});
+
     // Devolver el stock a la sucursal (el stock se descontó al crear el pedido)
     if(order.stockDeducted!==false){
       for(const item of (order.items||[])){
         if(!item.id) continue;
         batch.update(db.collection('productos').doc(item.id),{
-          [stockField]:firebase.firestore.FieldValue.increment(item.qty||0)
+          [stockField]:firebase.firestore.FieldValue.increment(item.qty||0),
+          updatedAt:Date.now()
         });
       }
     }
-    batch.set(db.collection('estadisticas').doc(suc),{
-      'pedidosCancelados':firebase.firestore.FieldValue.increment(1),
-      'pedidosPendientes':firebase.firestore.FieldValue.increment(-1)
-    },{merge:true});
+
     await batch.commit();
     showToast('Pedido cancelado · stock restaurado','ti-ban');
   }catch(e){
@@ -3902,9 +4048,9 @@ async function deleteOrder(orderId){
 }
 
 function buildPedidoRow(o){
-  const statusLabel={pending:'Pendiente',delivered:'Entregado',cancelled:'Cancelado'};
-  const statusClass={pending:'status-pending',delivered:'status-delivered',cancelled:'status-cancelled'};
-  const statusIcon={pending:'ti-clock',delivered:'ti-circle-check',cancelled:'ti-circle-x'};
+  const statusLabel={pending:'Pendiente',confirmado:'Confirmado',delivered:'Entregado',cancelled:'Cancelado'};
+  const statusClass={pending:'status-pending',confirmado:'status-confirmado',delivered:'status-delivered',cancelled:'status-cancelled'};
+  const statusIcon={pending:'ti-clock',confirmado:'ti-truck-delivery',delivered:'ti-circle-check',cancelled:'ti-circle-x'};
   const sucRaw=(o.sucursal||'cdb');
   const sucLabel=sucRaw.toUpperCase();
   const sucClass=sucRaw==='cdb'?'badge-cdb':'badge-exsal';
@@ -3912,10 +4058,23 @@ function buildPedidoRow(o){
   const items=(o.items||[]).map(i=>`<div class="pedido-item-row"><i class="ti ti-point" style="font-size:10px"></i> ${esc(i.name)} ×${i.qty||1} — ${fmt(i.price*(i.qty||1))}</div>`).join('');
   const cost=getOrderCost(o);
   const totalEfectivo=typeof o.totalConDescuento==='number'?o.totalConDescuento:(o.total||0);
-  const ganancia=st==='delivered'?totalEfectivo-cost:null;
+  // Ganancia del pedido (entregado), coherente con la KPI "Ganancia por pedidos":
+  //   ingresos = productos (con descuento) + ahorro de envío
+  //   costos   = costo productos + comisión Stripe (tarjeta) + exceso de envío
+  let ganancia=null;
+  if(st==='delivered'){
+    const esDom=o.tipoEntrega==='domicilio';
+    const envioCobrado=esDom?(typeof o.envioCosto==='number'?o.envioCosto:0):0;
+    const envioReal=esDom?(typeof o.costoEnvioReal==='number'?o.costoEnvioReal:0):0;
+    const diffEnvio=+(envioReal-envioCobrado).toFixed(2);
+    const extraCostoEnvio=diffEnvio>0?diffEnvio:0;
+    const gananciaEnvio=diffEnvio<0?-diffEnvio:0;
+    const comision=typeof o.comisionStripe==='number'?o.comisionStripe:0;
+    ganancia=+((totalEfectivo+gananciaEnvio)-(cost+comision+extraCostoEnvio)).toFixed(2);
+  }
   const gananciaCell=ganancia!==null?`<span style="color:${ganancia>=0?'var(--g600)':'var(--r600)'}">${fmt(ganancia)}</span>`:`<span style="color:var(--tm);font-size:11px">—</span>`;
   const createdAt=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate().toLocaleDateString('es'):o.createdAt||'—';
-  const deliverBtn=st==='pending'?`<button onclick="deliverOrder('${o.id}')" title="Marcar como entregado" style="background:var(--g50);border:1.5px solid var(--g100);color:var(--g600);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:700;display:flex;align-items:center;gap:4px;white-space:nowrap"><i class="ti ti-check"></i>Entregar</button>
+  const deliverBtn=(st==='pending'||st==='confirmado')?`<button onclick="deliverOrder('${o.id}')" title="Marcar como entregado" style="background:var(--g50);border:1.5px solid var(--g100);color:var(--g600);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:700;display:flex;align-items:center;gap:4px;white-space:nowrap"><i class="ti ti-check"></i>Entregar</button>
 <button onclick="cancelOrder('${o.id}')" title="Cancelar pedido" style="background:var(--w50);border:1.5px solid var(--w100);color:var(--w600);border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;font-weight:700;display:flex;align-items:center;gap:4px;white-space:nowrap"><i class="ti ti-ban"></i>Cancelar</button>`
   :st==='delivered'?`<button onclick="undeliverOrder('${o.id}')" title="Volver a pendiente (revierte stock y ventas)" style="background:var(--w50);border:1.5px solid var(--w100);color:var(--w600);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:700;display:flex;align-items:center;gap:4px;white-space:nowrap"><i class="ti ti-rotate"></i>Volver a pendiente</button>`
   :'';
@@ -3958,9 +4117,9 @@ function buildPedidoRow(o){
 
 function buildPedidosTable(list, emptyMsg){
   if(!list.length) return `<div class="pedidos-empty"><div class="empty-icon"><i class="ti ti-shopping-bag-x"></i></div><p>${emptyMsg}</p></div>`;
-  return `<table class="pedidos-table"><thead><tr>
+  return `<div class="pedidos-scroll"><table class="pedidos-table"><thead><tr>
     <th>Código</th><th>Cliente</th><th>Productos</th><th>Total</th><th>Descuento</th><th>Ganancia</th><th>Sucursal</th><th>Estado</th><th>Fecha</th><th></th>
-  </tr></thead><tbody>${list.map(buildPedidoRow).join('')}</tbody></table>`;
+  </tr></thead><tbody>${list.map(buildPedidoRow).join('')}</tbody></table></div>`;
 }
 
 function renderPedidos(){
@@ -3981,9 +4140,9 @@ function renderPedidos(){
     return list;
   }
 
-  // Separar por estado
+  // Separar por estado: activos = pendientes + confirmados (domicilio con guía, aún no entregados)
   const allOrders=[...orders];
-  const pendingOrders=applyFilters(allOrders.filter(o=>(!o.status||o.status==='pending')));
+  const pendingOrders=applyFilters(allOrders.filter(o=>(!o.status||o.status==='pending'||o.status==='confirmado')));
   const completedOrders=applyFilters(allOrders.filter(o=>o.status==='delivered'||o.status==='cancelled'));
 
   // Si hay filtro de estado específico, mezclar en tabla única
