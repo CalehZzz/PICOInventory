@@ -553,6 +553,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     <div class="tabs">
       <button class="tab-btn" onclick="switchTab('ventas-exsal',this)"><i class="ti ti-receipt"></i>Ventas EXSAL</button>
       <button class="tab-btn" onclick="switchTab('ventas-cdb',this)"><i class="ti ti-receipt"></i>Ventas CDB</button>
+      <button class="tab-btn" onclick="switchTab('ventas-domicilio',this)"><i class="ti ti-truck-delivery"></i>Ventas a domicilio</button>
     </div>
   </div>
   <!-- GRUPO TABS: FACTURAS -->
@@ -1032,6 +1033,26 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     </div>
   </div>
 
+  <!-- ═══ VENTAS A DOMICILIO ═══ -->
+  <div class="tab-content" id="tab-ventas-domicilio">
+    <div class="pedidos-stats-row" style="grid-template-columns:repeat(4,1fr)">
+      <div class="fin-card"><div class="fin-label">Pedidos a domicilio entregados</div><div class="fin-value fv-blue" id="dom-count">0</div></div>
+      <div class="fin-card"><div class="fin-label">Envío cobrado (total)</div><div class="fin-value fv-green" id="dom-envio-cobrado">$0.00</div></div>
+      <div class="fin-card"><div class="fin-label">Envío real (total)</div><div class="fin-value fv-orange" id="dom-envio-real">$0.00</div></div>
+      <div class="fin-card"><div class="fin-label">Comisión Stripe (total)</div><div class="fin-value fv-orange" id="dom-comision">$0.00</div></div>
+    </div>
+    <div class="sales-wrap">
+      <div class="sales-hd">
+        <div class="shd-title"><i class="ti ti-truck-delivery"></i>Ventas a domicilio · entregadas (afectan a CDB)</div>
+        <button class="btn-smb-load" onclick="loadVentasDomicilio(true)"><i class="ti ti-refresh"></i>Actualizar</button>
+      </div>
+      <div id="dom-sales-table-body"><div class="sales-empty">Presiona <b>Actualizar</b> para cargar las ventas a domicilio</div></div>
+      <div id="dom-sales-load-more-row" class="load-more-row" style="display:none">
+        <button class="btn-load-more" id="dom-sales-load-more-btn" onclick="loadVentasDomicilio(false)"><i class="ti ti-arrow-down"></i>Cargar más</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ═══ FACTURAS ═══ -->
   <div class="tab-content" id="tab-facturas">
     <div class="stats-month-bar" style="flex-wrap:wrap;gap:10px">
@@ -1069,7 +1090,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       <div class="fin-card"><div class="fin-label">Pedidos pendientes</div><div class="fin-value fv-orange" id="ped-count-pending">0</div></div>
       <div class="fin-card"><div class="fin-label">Pedidos cancelados</div><div class="fin-value" id="ped-count-cancelled" style="color:var(--r600)">0</div></div>
       <div class="fin-card"><div class="fin-label">Ingresos por pedidos</div><div class="fin-value fv-blue" id="ped-total-ingresos">$0.00</div></div>
-      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Costos por pedidos (entregados)</div><div class="fin-value fv-orange" id="ped-total-costos">$0.00</div></div>
+      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Costos por pedidos (productos + envío real + comisión)</div><div class="fin-value fv-orange" id="ped-total-costos">$0.00</div></div>
       <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Ganancia por pedidos</div><div class="fin-value fv-green" id="ped-total-ganancia">$0.00</div></div>
     </div>
 
@@ -1385,6 +1406,11 @@ let ventasShown={exsal:0,cdb:0};             // cuántas se muestran actualmente
 let ventasCursor={exsal:null,cdb:null};      // último doc de Firestore para startAfter()
 let ventasAllLoaded={exsal:false,cdb:false}; // true cuando no hay más páginas en Firestore
 const VENTAS_PAGE_SIZE=10;
+// Estado de "Ventas a domicilio" (lee de la colección pedidos: domicilio + entregados)
+let domLoaded=false, domLoading=false, domAllLoaded=false;
+let domVentas=[], domCursor=null;
+let domTotals={count:0,envioCobrado:0,envioReal:0,comision:0};
+const DOM_PAGE_SIZE=15;
 // ── CARRITO DE VENTA EN CURSO (en memoria, 0 lecturas) ──
 let cart=[];          // {pid,productName,qty,price,cost,discPct,discId,discNombre,subtotal,total,costTotal}
 let cartSede=null;    // 'exsal' | 'cdb' — una venta = una sede
@@ -1779,6 +1805,7 @@ function doSwitchTab(name,btn){
   btn.classList.add('active');
   document.getElementById('tab-'+name).classList.add('active');
   if(name.startsWith('stats-'))renderAllStats();
+  if(name==='ventas-domicilio'&&!domLoaded) loadVentasDomicilio(true);
 }
 function switchTab(name,btn){
   if((name.startsWith('stats-')||name.startsWith('ventas-')||name==='facturas')&&!statsUnlocked){
@@ -3153,6 +3180,104 @@ async function loadMoreVentas(suc){
   }catch(e){console.error('Error cargando más ventas',suc,e);}
 }
 
+// ── VENTAS A DOMICILIO (lee de la colección pedidos: domicilio + entregados) ──
+// Solo separación VISUAL; estas ventas SIEMPRE afectan a las estadísticas de CDB.
+async function loadVentasDomicilio(reset){
+  if(domLoading) return;
+  if(!reset && domAllLoaded) return;
+  domLoading=true;
+  const body=document.getElementById('dom-sales-table-body');
+  const moreRow=document.getElementById('dom-sales-load-more-row');
+  const moreBtn=document.getElementById('dom-sales-load-more-btn');
+  if(reset){
+    domVentas=[]; domCursor=null; domAllLoaded=false;
+    domTotals={count:0,envioCobrado:0,envioReal:0,comision:0};
+    if(body) body.innerHTML='<div class="sales-empty"><i class="ti ti-loader" style="animation:spin .7s linear infinite"></i> Cargando ventas a domicilio...</div>';
+  } else if(moreBtn){
+    moreBtn.disabled=true; moreBtn.innerHTML='<i class="ti ti-loader" style="animation:spin .7s linear infinite"></i> Cargando...';
+  }
+  try{
+    let q=db.collection('pedidos')
+      .where('tipoEntrega','==','domicilio')
+      .where('status','==','delivered')
+      .orderBy('deliveredAt','desc')
+      .limit(DOM_PAGE_SIZE);
+    if(!reset && domCursor) q=q.startAfter(domCursor);
+    const snap=await q.get();
+    const page=[];
+    snap.forEach(doc=>page.push({id:doc.id,...doc.data()}));
+    domVentas=[...domVentas,...page];
+    domCursor=snap.docs[snap.docs.length-1]||domCursor;
+    domAllLoaded=snap.docs.length<DOM_PAGE_SIZE;
+    domLoaded=true;
+    // Totales sobre lo cargado hasta ahora
+    domTotals={count:0,envioCobrado:0,envioReal:0,comision:0};
+    domVentas.forEach(o=>{
+      domTotals.count++;
+      domTotals.envioCobrado+=(typeof o.envioCosto==='number'?o.envioCosto:0);
+      domTotals.envioReal+=(typeof o.costoEnvioReal==='number'?o.costoEnvioReal:0);
+      domTotals.comision+=(typeof o.comisionStripe==='number'?o.comisionStripe:0);
+    });
+    renderVentasDomicilio();
+  }catch(e){
+    console.error('Error cargando ventas a domicilio',e);
+    if(reset && body) body.innerHTML='<div class="sales-empty" style="color:var(--r600)">Error al cargar. Si en la consola del navegador aparece un enlace para crear un índice de Firestore, ábrelo una vez (lo crea automáticamente) y vuelve a presionar Actualizar.</div>';
+    if(moreBtn){moreBtn.disabled=false;moreBtn.innerHTML='<i class="ti ti-arrow-down"></i>Cargar más';}
+  }finally{
+    domLoading=false;
+  }
+}
+
+function renderVentasDomicilio(){
+  const body=document.getElementById('dom-sales-table-body');
+  const moreRow=document.getElementById('dom-sales-load-more-row');
+  const moreBtn=document.getElementById('dom-sales-load-more-btn');
+  const elC=document.getElementById('dom-count');
+  if(elC) elC.textContent=domTotals.count+(domAllLoaded?'':'+');
+  const elEC=document.getElementById('dom-envio-cobrado'); if(elEC) elEC.textContent=fmt(domTotals.envioCobrado);
+  const elER=document.getElementById('dom-envio-real');    if(elER) elER.textContent=fmt(domTotals.envioReal);
+  const elCom=document.getElementById('dom-comision');     if(elCom) elCom.textContent=fmt(domTotals.comision);
+  if(!body) return;
+  if(!domVentas.length){
+    body.innerHTML='<div class="sales-empty">No hay ventas a domicilio entregadas todavía</div>';
+    if(moreRow) moreRow.style.display='none';
+    return;
+  }
+  const rows=domVentas.map(o=>{
+    const fecha=o.deliveredAt&&o.deliveredAt.toDate?o.deliveredAt.toDate().toLocaleDateString('es'):'—';
+    const items=(o.items||[]).map(i=>`${esc(i.name)} ×${i.qty||1}`).join(', ');
+    const totalProd=typeof o.totalConDescuento==='number'?o.totalConDescuento:(o.total||0);
+    const envioCobrado=typeof o.envioCosto==='number'?o.envioCosto:0;
+    const envioReal=typeof o.costoEnvioReal==='number'?o.costoEnvioReal:0;
+    const comision=typeof o.comisionStripe==='number'?o.comisionStripe:0;
+    const cost=typeof o.costTotal==='number'?o.costTotal:getOrderCost(o);
+    // Ganancia = (productos + envío cobrado) − (costo productos + comisión + envío real)
+    const ganancia=+(((totalProd+envioCobrado))-(cost+comision+envioReal)).toFixed(2);
+    const pago=o.metodoPago==='tarjeta'
+      ?'<span class="badge badge-cdb"><i class="ti ti-credit-card" style="font-size:11px"></i> Tarjeta</span>'
+      :'<span class="badge badge-exsal"><i class="ti ti-cash" style="font-size:11px"></i> Efectivo</span>';
+    return `<tr>
+      <td><span class="pedido-code">${esc(o.code||'—')}</span></td>
+      <td style="font-size:12px;color:var(--tm);white-space:nowrap">${fecha}</td>
+      <td><div style="font-weight:600">${esc(o.name||'—')}</div><div style="font-size:11px;color:var(--tm)">${esc(o.email||'')}</div></td>
+      <td style="font-size:12px;max-width:240px">${items||'—'}</td>
+      <td style="font-weight:700">${fmt(totalProd)}</td>
+      <td style="color:var(--g600);font-weight:600">${fmt(envioCobrado)}</td>
+      <td style="color:var(--w600)">${o.costoEnvioReal!=null?fmt(envioReal):'<span style="color:var(--tm)">—</span>'}</td>
+      <td style="color:var(--w600)">${comision>0?fmt(comision):'<span style="color:var(--tm)">—</span>'}</td>
+      <td>${pago}</td>
+      <td style="font-weight:700;color:${ganancia>=0?'var(--g600)':'var(--r600)'}">${fmt(ganancia)}</td>
+    </tr>`;
+  }).join('');
+  body.innerHTML=`<div class="pedidos-scroll"><table class="pedidos-table"><thead><tr>
+    <th>Código</th><th>Entregado</th><th>Cliente</th><th>Productos</th><th>Total productos</th><th>Envío cobrado</th><th>Envío real</th><th>Comisión</th><th>Pago</th><th>Ganancia</th>
+  </tr></thead><tbody>${rows}</tbody></table></div>`;
+  if(moreRow){
+    moreRow.style.display=domAllLoaded?'none':'';
+    if(moreBtn){moreBtn.disabled=false;moreBtn.innerHTML='<i class="ti ti-arrow-down"></i>Cargar más';}
+  }
+}
+
 // ── TOP 10 BAJO DEMANDA ──
 // Cache del Top10 para evitar re-queries innecesarias
 const top10Cache={exsal:{},cdb:{}};
@@ -3796,15 +3921,18 @@ async function deliverOrder(orderId){
     const totalEfectivo=typeof freshData.totalConDescuento==='number'
       ? freshData.totalConDescuento : +(priceTotal*discFactor).toFixed(2);
 
-    // Margen de envío (solo domicilio) — modelo BRUTO:
-    //   • el envío que paga el cliente (envioCobrado) entra como INGRESO
-    //   • el costo real de envío que registra el admin (envioReal) entra como COSTO
-    //   • el fee de Stripe (solo tarjeta) entra como COSTO
+    // Margen de envío (solo domicilio) · modelo MEZCLADO con CDB:
+    //   • El envío cobrado al cliente entra a INGRESOS y a 'ventas'.
+    //   • El envío real ya se registró al ASIGNARLO (confirmar en la tienda) → aquí no se repite.
+    //   • La comisión Stripe ya se sumó al PAGAR → aquí no se repite.
     const esDom=freshData.tipoEntrega==='domicilio';
     const envioCobrado=esDom?(typeof freshData.envioCosto==='number'?freshData.envioCosto:0):0;
     const envioReal=esDom?(typeof freshData.costoEnvioReal==='number'?freshData.costoEnvioReal:0):0;
-    // Comisión de Stripe: en tarjeta la cobra la pasarela. Si la venta de productos ya se
-    // contabilizó al pagar (Cloud Function), la comisión también se sumó allí → aquí no se repite.
+    const ingresoEnvioYa=freshData.ingresoEnvioRegistrado===true;
+    const addIngresoEnvio=(esDom&&!ingresoEnvioYa)?envioCobrado:0;
+    const costoEnvioYa=freshData.costoEnvioRegistrado===true;
+    const addCostoEnvio=(esDom&&!costoEnvioYa)?envioReal:0;
+    // Comisión de Stripe: si la venta ya se contabilizó al pagar, allí ya se sumó → aquí no se repite.
     const comisionStripe=(!alreadyCounted && typeof freshData.comisionStripe==='number')?freshData.comisionStripe:0;
 
     batch.update(db.collection('pedidos').doc(orderId),{
@@ -3816,6 +3944,8 @@ async function deliverOrder(orderId){
       envioCobrado:+envioCobrado.toFixed(2),
       envioReal:+envioReal.toFixed(2),
       margenEnvio:+(envioCobrado-envioReal).toFixed(2),
+      ingresoEnvioRegistrado:(esDom?true:freshData.ingresoEnvioRegistrado||false),
+      costoEnvioRegistrado:(esDom?true:freshData.costoEnvioRegistrado||false),
       deliveredAt:firebase.firestore.FieldValue.serverTimestamp(),
       deliveredBy:sellerEmail
     });
@@ -3823,24 +3953,26 @@ async function deliverOrder(orderId){
     const statPayload={
       'pedidosEntregados':firebase.firestore.FieldValue.increment(1),
       'pedidosPendientes':firebase.firestore.FieldValue.increment(-1),
-      // INGRESOS = productos (si no se contó ya) + envío cobrado al cliente
-      'ingresosPedidos':firebase.firestore.FieldValue.increment(+(((alreadyCounted?0:totalEfectivo))+envioCobrado).toFixed(2)),
-      // COSTOS = costo productos (si no se contó ya) + envío real + comisión Stripe
-      'costosPedidos':firebase.firestore.FieldValue.increment(+(((alreadyCounted?0:costTotal))+envioReal+comisionStripe).toFixed(2))
+      // INGRESOS = productos (si no se contó ya) + envío cobrado (si no se registró ya)
+      'ingresosPedidos':firebase.firestore.FieldValue.increment(+(((alreadyCounted?0:totalEfectivo))+addIngresoEnvio).toFixed(2)),
+      // COSTOS pedidos = costo productos (si no se contó ya) + envío real pendiente + comisión pendiente
+      'costosPedidos':firebase.firestore.FieldValue.increment(+(((alreadyCounted?0:costTotal))+addCostoEnvio+comisionStripe).toFixed(2))
     };
     if(!alreadyCounted){
-      statPayload['ventas']=firebase.firestore.FieldValue.increment(+totalVentasEfectivo.toFixed(2));
+      statPayload['ventas']=firebase.firestore.FieldValue.increment(+(totalVentasEfectivo+addIngresoEnvio).toFixed(2));
       statPayload['unidades vendidas']=firebase.firestore.FieldValue.increment(totalUnidades);
       statPayload['numero de ventas']=firebase.firestore.FieldValue.increment(1);
+    } else if(addIngresoEnvio>0){
+      statPayload['ventas']=firebase.firestore.FieldValue.increment(+addIngresoEnvio.toFixed(2));
     }
-    // Campos de transparencia (se ven por separado en el panel)
-    if(esDom){
-      statPayload['ingresosEnvio']=firebase.firestore.FieldValue.increment(+envioCobrado.toFixed(2));
-      statPayload['costosEnvio']=firebase.firestore.FieldValue.increment(+envioReal.toFixed(2));
+    // MERGE a 'costos' (principal): envío real pendiente + comisión pendiente.
+    if(addCostoEnvio+comisionStripe>0){
+      statPayload['costos']=firebase.firestore.FieldValue.increment(+(addCostoEnvio+comisionStripe).toFixed(2));
     }
-    if(comisionStripe>0){
-      statPayload['comisionesStripe']=firebase.firestore.FieldValue.increment(+comisionStripe.toFixed(2));
-    }
+    // Campos de transparencia
+    if(addIngresoEnvio>0) statPayload['ingresosEnvio']=firebase.firestore.FieldValue.increment(+addIngresoEnvio.toFixed(2));
+    if(addCostoEnvio>0)   statPayload['costosEnvio']=firebase.firestore.FieldValue.increment(+addCostoEnvio.toFixed(2));
+    if(comisionStripe>0)  statPayload['comisionesStripe']=firebase.firestore.FieldValue.increment(+comisionStripe.toFixed(2));
     batch.set(db.collection('estadisticas').doc(statDocId),statPayload,{merge:true});
 
     await batch.commit();
@@ -3896,47 +4028,56 @@ async function undeliverOrder(orderId){
       ventasSnap.forEach(doc=>batch.delete(doc.ref));
     }
 
-    // 2) Revertir estadísticas SOLO si la entrega fue de este mes (modelo BRUTO, igual que deliverOrder)
+    // 2) Revertir estadísticas SOLO si la entrega fue de este mes.
+    //    Se revierte SOLO lo registrado AL ENTREGAR. El envío real se registró al
+    //    ASIGNARLO (confirmar) → se mantiene hasta que el pedido se cancele.
     const statUpdate={'pedidosPendientes':firebase.firestore.FieldValue.increment(1)};
+    let limpiarIngresoEnvio=false;
     if(revertStats){
       statUpdate['pedidosEntregados']=firebase.firestore.FieldValue.increment(-1);
 
       const esDom=data.tipoEntrega==='domicilio';
       const envioCobrado=esDom?(typeof data.envioCosto==='number'?data.envioCosto:0):0;
-      const envioReal=esDom?(typeof data.costoEnvioReal==='number'?data.costoEnvioReal:0):0;
-      // La comisión Stripe solo se sumó al entregar si la venta NO se había contado al pagar.
+      // Ingreso por envío: solo se revierte si se registró AL ENTREGAR (efectivo).
+      const revIngresoEnvio=(esDom&&!statsAtPayment&&data.ingresoEnvioRegistrado===true)?envioCobrado:0;
+      limpiarIngresoEnvio=revIngresoEnvio>0;
+      // Comisión Stripe: solo se sumó al entregar si la venta NO se contó al pagar (caso raro).
       const comisionStripe=(!statsAtPayment && typeof data.comisionStripe==='number')?data.comisionStripe:0;
 
       const revProdIngreso=statsAtPayment?0:totalEfectivo;
       const revProdCosto=statsAtPayment?0:costTotal;
 
-      statUpdate['ingresosPedidos']=firebase.firestore.FieldValue.increment(-(+((revProdIngreso+envioCobrado)).toFixed(2)));
-      statUpdate['costosPedidos']=firebase.firestore.FieldValue.increment(-(+((revProdCosto+envioReal+comisionStripe)).toFixed(2)));
+      statUpdate['ingresosPedidos']=firebase.firestore.FieldValue.increment(-(+((revProdIngreso+revIngresoEnvio)).toFixed(2)));
+      statUpdate['costosPedidos']=firebase.firestore.FieldValue.increment(-(+((revProdCosto+comisionStripe)).toFixed(2)));
 
       if(!statsAtPayment){
-        statUpdate['ventas']=firebase.firestore.FieldValue.increment(-totalVentasEfectivo);
+        statUpdate['ventas']=firebase.firestore.FieldValue.increment(-(+((totalVentasEfectivo+revIngresoEnvio)).toFixed(2)));
         statUpdate['unidades vendidas']=firebase.firestore.FieldValue.increment(-totalUnidades);
         statUpdate['numero de ventas']=firebase.firestore.FieldValue.increment(-1);
       }
-      if(esDom){
-        statUpdate['ingresosEnvio']=firebase.firestore.FieldValue.increment(-(+envioCobrado.toFixed(2)));
-        statUpdate['costosEnvio']=firebase.firestore.FieldValue.increment(-(+envioReal.toFixed(2)));
-      }
+      // MERGE 'costos': revertir comisión que se hubiera sumado al entregar (caso raro).
       if(comisionStripe>0){
+        statUpdate['costos']=firebase.firestore.FieldValue.increment(-(+comisionStripe.toFixed(2)));
         statUpdate['comisionesStripe']=firebase.firestore.FieldValue.increment(-(+comisionStripe.toFixed(2)));
+      }
+      if(revIngresoEnvio>0){
+        statUpdate['ingresosEnvio']=firebase.firestore.FieldValue.increment(-(+revIngresoEnvio.toFixed(2)));
       }
     }
     batch.set(db.collection('estadisticas').doc(statDocId),statUpdate,{merge:true});
 
     // 3) Volver a pendiente; el stock sigue descontado; saleRecorded vuelve a false.
-    batch.update(db.collection('pedidos').doc(orderId),{
+    //    costoEnvioRegistrado se MANTIENE (el envío real sigue contabilizado).
+    const pedUpd={
       status:'pending',
       stockDeducted:true,
       saleRecorded:false,
       deliveredAt:firebase.firestore.FieldValue.delete(),
       deliveredBy:firebase.firestore.FieldValue.delete(),
       costTotal:firebase.firestore.FieldValue.delete()
-    });
+    };
+    if(limpiarIngresoEnvio) pedUpd.ingresoEnvioRegistrado=false;
+    batch.update(db.collection('pedidos').doc(orderId),pedUpd);
 
     await batch.commit();
     showToast('Pedido devuelto a pendiente · entrega revertida','ti-rotate');
@@ -3986,7 +4127,10 @@ async function cancelOrder(orderId){
       statUpdate['pedidosPendientes']=firebase.firestore.FieldValue.increment(-1);
     }
 
-    // Si la venta ya se registró al pagar (tarjeta), revertir productos + comisión Stripe + borrar la venta.
+    // Acumuladores numéricos (un campo puede tocarse por comisión y por envío real).
+    let decCostos=0, decCostosPedidos=0;
+
+    // Si la venta ya se registró al pagar (tarjeta), revertir productos + comisión + envío cobrado + borrar la venta.
     if(order.statsRecorded===true&&order.items){
       const discFactor=order.discountPct?((100-order.discountPct)/100):1;
       let totalUnidades=0,productCost=0,priceTotal=0,totalVentasEfectivo=0;
@@ -4001,17 +4145,34 @@ async function cancelOrder(orderId){
       }
       const totalEfectivo=typeof order.totalConDescuento==='number'?order.totalConDescuento:+(priceTotal*discFactor).toFixed(2);
       const comision=typeof order.comisionStripe==='number'?order.comisionStripe:0;
-      statUpdate['ventas']=firebase.firestore.FieldValue.increment(-totalVentasEfectivo);
+      const envioCobrado=(order.ingresoEnvioRegistrado===true)?(typeof order.envioCosto==='number'?order.envioCosto:0):0;
+
+      statUpdate['ventas']=firebase.firestore.FieldValue.increment(-(+((totalVentasEfectivo+envioCobrado)).toFixed(2)));
       statUpdate['unidades vendidas']=firebase.firestore.FieldValue.increment(-totalUnidades);
       statUpdate['numero de ventas']=firebase.firestore.FieldValue.increment(-1);
-      statUpdate['ingresosPedidos']=firebase.firestore.FieldValue.increment(-(+totalEfectivo.toFixed(2)));
-      statUpdate['costosPedidos']=firebase.firestore.FieldValue.increment(-(+(productCost+comision).toFixed(2)));
+      statUpdate['ingresosPedidos']=firebase.firestore.FieldValue.increment(-(+((totalEfectivo+envioCobrado)).toFixed(2)));
       statUpdate['comisionesStripe']=firebase.firestore.FieldValue.increment(-comision);
+      decCostos+=comision;
+      decCostosPedidos+=productCost+comision;
+      if(envioCobrado>0) statUpdate['ingresosEnvio']=firebase.firestore.FieldValue.increment(-(+envioCobrado.toFixed(2)));
       try{
         const ventasSnap=await db.collection('ventas').where('fromOrder','==',orderId).get();
         ventasSnap.forEach(d=>batch.delete(d.ref));
       }catch(e){console.warn('No se pudieron borrar las ventas del pedido al cancelar:',e);}
     }
+
+    // Envío real: se registró al CONFIRMAR (costos/costosPedidos/costosEnvio) → revertir al cancelar.
+    if(order.costoEnvioRegistrado===true){
+      const envioReal=typeof order.costoEnvioReal==='number'?order.costoEnvioReal:0;
+      if(envioReal>0){
+        decCostos+=envioReal;
+        decCostosPedidos+=envioReal;
+        statUpdate['costosEnvio']=firebase.firestore.FieldValue.increment(-(+envioReal.toFixed(2)));
+      }
+    }
+
+    if(decCostos>0)        statUpdate['costos']=firebase.firestore.FieldValue.increment(-(+decCostos.toFixed(2)));
+    if(decCostosPedidos>0) statUpdate['costosPedidos']=firebase.firestore.FieldValue.increment(-(+decCostosPedidos.toFixed(2)));
 
     batch.set(db.collection('estadisticas').doc(suc),statUpdate,{merge:true});
 
@@ -4073,6 +4234,15 @@ function buildPedidoRow(o){
   const st=o.status||'pending';
   const items=(o.items||[]).map(i=>`<div class="pedido-item-row"><i class="ti ti-point" style="font-size:10px"></i> ${esc(i.name)} ×${i.qty||1} — ${fmt(i.price*(i.qty||1))}</div>`).join('');
   const cost=getOrderCost(o);
+  // ── Desglose de costos del pedido (claro por pedido) ──
+  const esDomCost=o.tipoEntrega==='domicilio';
+  const comisionVal=(typeof o.comisionStripe==='number')?o.comisionStripe:0;
+  const envioRealVal=esDomCost?(typeof o.costoEnvioReal==='number'?o.costoEnvioReal:0):0;
+  const totalCostos=+(cost+comisionVal+envioRealVal).toFixed(2);
+  const costBreak=[`<div style="font-size:11px;color:var(--ts)"><i class="ti ti-box" style="font-size:10px"></i> Productos: ${fmt(cost)}</div>`];
+  if(comisionVal>0) costBreak.push(`<div style="font-size:11px;color:var(--ts)"><i class="ti ti-credit-card" style="font-size:10px"></i> Comisión: ${fmt(comisionVal)}</div>`);
+  if(esDomCost) costBreak.push(`<div style="font-size:11px;color:var(--ts)"><i class="ti ti-truck" style="font-size:10px"></i> Envío real: ${o.costoEnvioReal!=null?fmt(envioRealVal):'<span style="color:var(--tm)">pendiente</span>'}</div>`);
+  const costosCell=`<div style="font-weight:700;color:var(--w600)">${fmt(totalCostos)}</div>${costBreak.join('')}`;
   const totalEfectivo=typeof o.totalConDescuento==='number'?o.totalConDescuento:(o.total||0);
   // Ganancia del pedido (entregado), coherente con la KPI "Ganancia por pedidos":
   //   ingresos = productos (con descuento) + ahorro de envío
@@ -4118,6 +4288,7 @@ function buildPedidoRow(o){
         :fmt(totalOriginal)}
     </td>
     <td>${discountCell}</td>
+    <td>${costosCell}</td>
     <td>${gananciaCell}</td>
     <td><span class="badge ${sucClass}">${sucLabel}</span></td>
     <td><span class="status-badge ${statusClass[st]||'status-pending'}"><i class="ti ${statusIcon[st]||'ti-clock'}"></i>${statusLabel[st]||st}</span></td>
@@ -4134,7 +4305,7 @@ function buildPedidoRow(o){
 function buildPedidosTable(list, emptyMsg){
   if(!list.length) return `<div class="pedidos-empty"><div class="empty-icon"><i class="ti ti-shopping-bag-x"></i></div><p>${emptyMsg}</p></div>`;
   return `<div class="pedidos-scroll"><table class="pedidos-table"><thead><tr>
-    <th>Código</th><th>Cliente</th><th>Productos</th><th>Total</th><th>Descuento</th><th>Ganancia</th><th>Sucursal</th><th>Estado</th><th>Fecha</th><th></th>
+    <th>Código</th><th>Cliente</th><th>Productos</th><th>Total</th><th>Descuento</th><th>Costos</th><th>Ganancia</th><th>Sucursal</th><th>Estado</th><th>Fecha</th><th></th>
   </tr></thead><tbody>${list.map(buildPedidoRow).join('')}</tbody></table></div>`;
 }
 
