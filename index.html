@@ -3946,6 +3946,7 @@ async function deliverOrder(orderId){
       margenEnvio:+(envioCobrado-envioReal).toFixed(2),
       ingresoEnvioRegistrado:(esDom?true:freshData.ingresoEnvioRegistrado||false),
       costoEnvioRegistrado:(esDom?true:freshData.costoEnvioRegistrado||false),
+      ...(comisionStripe>0?{comisionCostoRegistrada:true}:{}),
       deliveredAt:firebase.firestore.FieldValue.serverTimestamp(),
       deliveredBy:sellerEmail
     });
@@ -4055,9 +4056,8 @@ async function undeliverOrder(orderId){
         statUpdate['unidades vendidas']=firebase.firestore.FieldValue.increment(-totalUnidades);
         statUpdate['numero de ventas']=firebase.firestore.FieldValue.increment(-1);
       }
-      // MERGE 'costos': revertir comisión que se hubiera sumado al entregar (caso raro).
+      // La comisión ya no entra a 'costos' al entregar (entra al confirmar) → solo el campo informativo.
       if(comisionStripe>0){
-        statUpdate['costos']=firebase.firestore.FieldValue.increment(-(+comisionStripe.toFixed(2)));
         statUpdate['comisionesStripe']=firebase.firestore.FieldValue.increment(-(+comisionStripe.toFixed(2)));
       }
       if(revIngresoEnvio>0){
@@ -4152,7 +4152,8 @@ async function cancelOrder(orderId){
       statUpdate['numero de ventas']=firebase.firestore.FieldValue.increment(-1);
       statUpdate['ingresosPedidos']=firebase.firestore.FieldValue.increment(-(+((totalEfectivo+envioCobrado)).toFixed(2)));
       statUpdate['comisionesStripe']=firebase.firestore.FieldValue.increment(-comision);
-      decCostos+=comision;
+      const comisionEnCostos=(order.comisionCostoRegistrada===true)?comision:0;
+      decCostos+=comisionEnCostos;
       decCostosPedidos+=productCost+comision;
       if(envioCobrado>0) statUpdate['ingresosEnvio']=firebase.firestore.FieldValue.increment(-(+envioCobrado.toFixed(2)));
       try{
