@@ -196,6 +196,9 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .fin-card{background:var(--wh);border-radius:var(--rmd);padding:17px 19px;border:1px solid var(--b100);box-shadow:var(--sc);}
 .fin-label{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--tm)}
 .fin-value{font-size:22px;font-weight:700;margin-top:3px;}
+.fin-cost-break{margin-top:7px;display:flex;flex-direction:column;gap:2px}
+.fin-cost-break .fcb-row{display:flex;justify-content:space-between;font-size:11px;color:var(--tm)}
+.fin-cost-break .fcb-row b{color:var(--ts);font-weight:600}
 .fv-blue{color:var(--b600)}.fv-green{color:var(--g600)}.fv-orange{color:var(--w600)}
 .sales-wrap{background:var(--wh);border-radius:var(--rlg);border:1px solid var(--b100);box-shadow:var(--sc);overflow:hidden}
 .sales-hd{padding:16px 20px;border-bottom:1px solid var(--b50);display:flex;align-items:center;justify-content:space-between}
@@ -842,7 +845,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     <!-- KPIs desde colección estadisticas -->
     <div class="fin-grid" id="exsal-kpi-grid">
       <div class="fin-card"><div class="fin-label">Ventas EXSAL (acumulado)</div><div class="fin-value fv-blue" id="exsal-stat-ventas">$0.00</div></div>
-      <div class="fin-card fin-card-gasto"><div class="fin-label">Costos EXSAL (acumulado)</div><div class="fin-value" id="exsal-stat-costos">$0.00</div></div>
+      <div class="fin-card fin-card-gasto"><div class="fin-label">Costos EXSAL (acumulado)</div><div class="fin-value" id="exsal-stat-costos">$0.00</div><div class="fin-cost-break" id="exsal-stat-costos-break"></div></div>
       <div class="fin-card"><div class="fin-label">Ganancia Real (ventas − costos)</div><div class="fin-value fv-green" id="exsal-stat-ganancia">$0.00</div></div>
       <div class="fin-card"><div class="fin-label">Unidades vendidas</div><div class="fin-value fv-blue" id="exsal-stat-units">0</div></div>
       <div class="fin-card" style="grid-column:span 4"><div class="fin-label">Número de ventas</div><div class="fin-value fv-blue" id="exsal-stat-numventas">0</div></div>
@@ -910,7 +913,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     <!-- KPIs desde colección estadisticas -->
     <div class="fin-grid" id="cdb-kpi-grid">
       <div class="fin-card"><div class="fin-label">Ventas CDB (acumulado)</div><div class="fin-value fv-blue" id="cdb-stat-ventas">$0.00</div></div>
-      <div class="fin-card fin-card-gasto"><div class="fin-label">Costos CDB (acumulado)</div><div class="fin-value" id="cdb-stat-costos">$0.00</div></div>
+      <div class="fin-card fin-card-gasto"><div class="fin-label">Costos CDB (acumulado)</div><div class="fin-value" id="cdb-stat-costos">$0.00</div><div class="fin-cost-break" id="cdb-stat-costos-break"></div></div>
       <div class="fin-card"><div class="fin-label">Ganancia Real (ventas − costos)</div><div class="fin-value fv-green" id="cdb-stat-ganancia">$0.00</div></div>
       <div class="fin-card"><div class="fin-label">Unidades vendidas</div><div class="fin-value fv-blue" id="cdb-stat-units">0</div></div>
       <div class="fin-card" style="grid-column:span 4"><div class="fin-label">Número de ventas</div><div class="fin-value fv-blue" id="cdb-stat-numventas">0</div></div>
@@ -1423,7 +1426,7 @@ let facCursor=null;
 let facAllLoaded=false;
 const FACTURAS_PAGE_SIZE=10;
 // Estadisticas desde colección (acumulados)
-let estadisticasData={exsal:{ventas:0,costos:0,unidadesVendidas:0,numeroVentas:0,pedidosEntregados:0,pedidosCancelados:0,pedidosPendientes:0,ingresosPedidos:0,costosPedidos:0},cdb:{ventas:0,costos:0,unidadesVendidas:0,numeroVentas:0,pedidosEntregados:0,pedidosCancelados:0,pedidosPendientes:0,ingresosPedidos:0,costosPedidos:0}};
+let estadisticasData={exsal:{ventas:0,costos:0,unidadesVendidas:0,numeroVentas:0,pedidosEntregados:0,pedidosCancelados:0,pedidosPendientes:0,ingresosPedidos:0,costosPedidos:0,costosEnvio:0,comisionesStripe:0},cdb:{ventas:0,costos:0,unidadesVendidas:0,numeroVentas:0,pedidosEntregados:0,pedidosCancelados:0,pedidosPendientes:0,ingresosPedidos:0,costosPedidos:0,costosEnvio:0,comisionesStripe:0}};
 
 // ── PAGINACIÓN ──
 const PROD_PAGE_SIZE=20;
@@ -1629,6 +1632,9 @@ async function checkMonthlyReset(){
           mesLabel:monthKeyToLabel(lastMes),
           ventas:data.ventas||0,
           costos:data.costos||0,
+          // Total de costos del mes = base (inventario/gastos) + envío real + comisión Stripe.
+          // Se guarda explícito para que el historial sea correcto sin depender del modelo de 'costos'.
+          costosTotal:+(((data.costos||0)+(data.costosEnvio||0)+(data.comisionesStripe||0)).toFixed(2)),
           'unidades vendidas':data['unidades vendidas']||0,
           'numero de ventas':data['numero de ventas']||0,
           pedidosEntregados:data.pedidosEntregados||0,
@@ -1764,7 +1770,9 @@ function startListeners(){
         pedidosCancelados:d.pedidosCancelados||0,
         pedidosPendientes:d.pedidosPendientes||0,
         ingresosPedidos:d.ingresosPedidos||0,
-        costosPedidos:d.costosPedidos||0
+        costosPedidos:d.costosPedidos||0,
+        costosEnvio:d.costosEnvio||0,
+        comisionesStripe:d.comisionesStripe||0
       };
     });
     renderEstadisticasKpis('exsal');
@@ -2834,11 +2842,25 @@ async function saveEdit(){
 document.getElementById('edit-overlay').addEventListener('click',e=>{if(e.target.id==='edit-overlay')closeEditModal();});
 
 // ── ESTADÍSTICAS (desde colección estadisticas) ──
+// "Costos (acumulado)" = costos base (inventario/restock + gastos) + envío real + comisión Stripe.
+// Estos tres viven en campos separados (costos, costosEnvio, comisionesStripe) y NO se solapan,
+// por eso se suman aquí para el total. La ganancia usa ese mismo total.
 function renderEstadisticasKpis(suc){
   const d=estadisticasData[suc];
-  const ganancia=d.ventas-d.costos;
+  const costosBase=d.costos||0;
+  const envio=d.costosEnvio||0;
+  const comision=d.comisionesStripe||0;
+  const costosTotal=+(costosBase+envio+comision).toFixed(2);
+  const ganancia=+( (d.ventas||0) - costosTotal ).toFixed(2);
   document.getElementById(suc+'-stat-ventas').textContent=fmt(d.ventas);
-  document.getElementById(suc+'-stat-costos').textContent=fmt(d.costos);
+  document.getElementById(suc+'-stat-costos').textContent=fmt(costosTotal);
+  const breakEl=document.getElementById(suc+'-stat-costos-break');
+  if(breakEl){
+    const rows=[`<div class="fcb-row"><span>Costos (inventario)</span><b>${fmt(costosBase)}</b></div>`];
+    if(envio>0)    rows.push(`<div class="fcb-row"><span>Envío</span><b>${fmt(envio)}</b></div>`);
+    if(comision>0) rows.push(`<div class="fcb-row"><span>Comisión Stripe</span><b>${fmt(comision)}</b></div>`);
+    breakEl.innerHTML=rows.join('');
+  }
   const gEl=document.getElementById(suc+'-stat-ganancia');
   gEl.textContent=fmt(ganancia);
   gEl.style.color=ganancia>=0?'var(--g600)':'var(--r600)';
@@ -2871,7 +2893,9 @@ async function loadHistorialMensual(suc){
     bodyEl.innerHTML=`<div style="display:flex;flex-direction:column;gap:10px;padding:4px 0">
       ${docs.map(d=>{
         const ventas=d.ventas||0;
-        const costos=d.costos||0;
+        // Archivos nuevos traen costosTotal (base+envío+comisión). Los antiguos no, y en ese
+        // modelo 'costos' ya incluía todo → se usa como fallback. Así el historial siempre cuadra.
+        const costos=(typeof d.costosTotal==='number')?d.costosTotal:(d.costos||0);
         const ganancia=ventas-costos;
         return `<div style="background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rmd);padding:14px 18px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
@@ -3966,10 +3990,8 @@ async function deliverOrder(orderId){
     } else if(addIngresoEnvio>0){
       statPayload['ventas']=firebase.firestore.FieldValue.increment(+addIngresoEnvio.toFixed(2));
     }
-    // MERGE a 'costos' (principal): envío real pendiente + comisión pendiente.
-    if(addCostoEnvio+comisionStripe>0){
-      statPayload['costos']=firebase.firestore.FieldValue.increment(+(addCostoEnvio+comisionStripe).toFixed(2));
-    }
+    // 'costos' (principal) = SOLO base (inventario/restock + gastos). El envío real va a
+    // 'costosEnvio' y la comisión a 'comisionesStripe'; el acumulado los suma en pantalla.
     // Campos de transparencia
     if(addIngresoEnvio>0) statPayload['ingresosEnvio']=firebase.firestore.FieldValue.increment(+addIngresoEnvio.toFixed(2));
     if(addCostoEnvio>0)   statPayload['costosEnvio']=firebase.firestore.FieldValue.increment(+addCostoEnvio.toFixed(2));
@@ -4152,8 +4174,7 @@ async function cancelOrder(orderId){
       statUpdate['numero de ventas']=firebase.firestore.FieldValue.increment(-1);
       statUpdate['ingresosPedidos']=firebase.firestore.FieldValue.increment(-(+((totalEfectivo+envioCobrado)).toFixed(2)));
       statUpdate['comisionesStripe']=firebase.firestore.FieldValue.increment(-comision);
-      const comisionEnCostos=(order.comisionCostoRegistrada===true)?comision:0;
-      decCostos+=comisionEnCostos;
+      // 'costos' (principal) NO contiene la comisión → no se toca aquí.
       decCostosPedidos+=productCost+comision;
       if(envioCobrado>0) statUpdate['ingresosEnvio']=firebase.firestore.FieldValue.increment(-(+envioCobrado.toFixed(2)));
       try{
@@ -4162,11 +4183,11 @@ async function cancelOrder(orderId){
       }catch(e){console.warn('No se pudieron borrar las ventas del pedido al cancelar:',e);}
     }
 
-    // Envío real: se registró al CONFIRMAR (costos/costosPedidos/costosEnvio) → revertir al cancelar.
+    // Envío real: se registró en 'costosEnvio' (y 'costosPedidos') al confirmar → revertir al cancelar.
+    // 'costos' (principal) NO contiene el envío → no se toca aquí.
     if(order.costoEnvioRegistrado===true){
       const envioReal=typeof order.costoEnvioReal==='number'?order.costoEnvioReal:0;
       if(envioReal>0){
-        decCostos+=envioReal;
         decCostosPedidos+=envioReal;
         statUpdate['costosEnvio']=firebase.firestore.FieldValue.increment(-(+envioReal.toFixed(2)));
       }
@@ -4235,12 +4256,14 @@ function buildPedidoRow(o){
   const st=o.status||'pending';
   const items=(o.items||[]).map(i=>`<div class="pedido-item-row"><i class="ti ti-point" style="font-size:10px"></i> ${esc(i.name)} ×${i.qty||1} — ${fmt(i.price*(i.qty||1))}</div>`).join('');
   const cost=getOrderCost(o);
-  // ── Desglose de costos del pedido (claro por pedido) ──
+  // ── Desglose de costos del pedido ──
+  // El costo de PRODUCTOS no se muestra ni se resta aquí: ya está contabilizado en los
+  // costos de inventario (restock). El costo propio del pedido = comisión + envío real.
   const esDomCost=o.tipoEntrega==='domicilio';
   const comisionVal=(typeof o.comisionStripe==='number')?o.comisionStripe:0;
   const envioRealVal=esDomCost?(typeof o.costoEnvioReal==='number'?o.costoEnvioReal:0):0;
-  const totalCostos=+(cost+comisionVal+envioRealVal).toFixed(2);
-  const costBreak=[`<div style="font-size:11px;color:var(--ts)"><i class="ti ti-box" style="font-size:10px"></i> Productos: ${fmt(cost)}</div>`];
+  const totalCostos=+(comisionVal+envioRealVal).toFixed(2);
+  const costBreak=[];
   if(comisionVal>0) costBreak.push(`<div style="font-size:11px;color:var(--ts)"><i class="ti ti-credit-card" style="font-size:10px"></i> Comisión: ${fmt(comisionVal)}</div>`);
   if(esDomCost) costBreak.push(`<div style="font-size:11px;color:var(--ts)"><i class="ti ti-truck" style="font-size:10px"></i> Envío real: ${o.costoEnvioReal!=null?fmt(envioRealVal):'<span style="color:var(--tm)">pendiente</span>'}</div>`);
   const costosCell=`<div style="font-weight:700;color:var(--w600)">${fmt(totalCostos)}</div>${costBreak.join('')}`;
@@ -4257,7 +4280,8 @@ function buildPedidoRow(o){
     const extraCostoEnvio=diffEnvio>0?diffEnvio:0;
     const gananciaEnvio=diffEnvio<0?-diffEnvio:0;
     const comision=typeof o.comisionStripe==='number'?o.comisionStripe:0;
-    ganancia=+((totalEfectivo+gananciaEnvio)-(cost+comision+extraCostoEnvio)).toFixed(2);
+    // El costo de productos NO se resta aquí (ya está en costos de inventario).
+    ganancia=+((totalEfectivo+gananciaEnvio)-(comision+extraCostoEnvio)).toFixed(2);
   }
   const gananciaCell=ganancia!==null?`<span style="color:${ganancia>=0?'var(--g600)':'var(--r600)'}">${fmt(ganancia)}</span>`:`<span style="color:var(--tm);font-size:11px">—</span>`;
   const createdAt=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate().toLocaleDateString('es'):o.createdAt||'—';
