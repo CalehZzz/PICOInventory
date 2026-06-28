@@ -294,6 +294,11 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .rhc-cost-val{font-size:16px;font-weight:700}
 .rhc-cost-old .rhc-cost-val{color:var(--w600)}
 .rhc-cost-new .rhc-cost-val{color:var(--g600)}
+.rhc-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px;padding-top:9px;border-top:1px dashed var(--b100);flex-wrap:wrap}
+.rhc-foot-info{font-size:11px;color:var(--tm)}
+.rhc-del-btn{display:inline-flex;align-items:center;gap:5px;background:var(--r50,#fef2f2);border:1px solid var(--r100,#fee2e2);color:var(--r600,#dc2626);font-family:inherit;font-size:11px;font-weight:600;padding:5px 11px;border-radius:var(--rp);cursor:pointer;transition:background var(--tr),box-shadow var(--tr);white-space:nowrap;touch-action:manipulation}
+.rhc-del-btn:hover{background:var(--r100,#fee2e2);box-shadow:0 2px 8px rgba(220,38,38,.15)}
+.rhc-del-btn i{font-size:13px}
 
 @media(max-width:900px){.restock-layout{grid-template-columns:1fr}}
 
@@ -1431,11 +1436,11 @@ let estadisticasData={exsal:{ventas:0,costos:0,unidadesVendidas:0,numeroVentas:0
 // ── PAGINACIÓN ──
 const PROD_PAGE_SIZE=20;
 const ORDERS_LIMIT=30;
-const RESTOCK_LIMIT=25;
+const RESTOCK_PAGE_SIZE=10;
 const DELETED_LIMIT=15;
 let prodPage={exsal:1,cdb:1,total:1};
 let ordersExtra=[],ordersLastVisible=null,ordersAllLoaded=false;
-let restockExtra=[],restockLastVisible=null,restockAllLoaded=false;
+let restockExtra=[],restockLastVisible=null,restockAllLoaded=false,restockLoading=false,restockLoaded=false;
 
 // ── PIN ESTADÍSTICAS ──
 const STATS_PIN_HASH='5a4b2cdca6b0563f5ffd50bcee78bd2a12e0547d9eeef0a1ea8d6ba6f7ce5094';
@@ -1534,6 +1539,7 @@ auth.onAuthStateChanged(user=>{
     salesExtra=[];ordersExtra=[];restockExtra=[];
     salesLastVisible=null;ordersLastVisible=null;restockLastVisible=null;
     salesAllLoaded=false;ordersAllLoaded=false;restockAllLoaded=false;
+    restockHistory=[];restockLoaded=false;restockLoading=false;
     prodPage={exsal:1,cdb:1,total:1};
     renderAllLists();updateAllInvStats();renderAllStats();renderAllDeletedSales();
     document.getElementById('auth-pass').value='';
@@ -1735,17 +1741,12 @@ function startListeners(){
     renderPedidos();renderPedidosKpis();
   });
 
-  // Restock historial: solo los últimos RESTOCK_LIMIT
-  unsubRestock=db.collection("restock-historial").orderBy("timestamp","desc").limit(RESTOCK_LIMIT).onSnapshot(snap=>{
-    const fresh=[];
-    snap.forEach(doc=>fresh.push({id:doc.id,...doc.data()}));
-    restockLastVisible=snap.docs[snap.docs.length-1]||null;
-    restockAllLoaded=snap.docs.length<RESTOCK_LIMIT;
-    const freshIds=new Set(fresh.map(r=>r.id));
-    restockExtra=restockExtra.filter(r=>!freshIds.has(r.id));
-    restockHistory=[...fresh,...restockExtra];
-    renderRestockHistory();renderRestockProductList();
-  });
+  // Restock historial: ya NO usa listener en tiempo real. Se carga de forma
+  // paginada (10 en 10) con .get() y solo cuando el usuario entra a la pestaña
+  // de Restock o pulsa "Cargar más" → minimiza lecturas de Firestore.
+  // Reiniciamos el estado para que la pestaña vuelva a cargar la primera página.
+  restockHistory=[];restockExtra=[];restockLastVisible=null;
+  restockAllLoaded=false;restockLoaded=false;restockLoading=false;
 
   // Descuentos: colección pequeña, sin límite
   unsubDescuentos=db.collection("descuentos").orderBy("createdAt","asc").onSnapshot(snap=>{
@@ -1814,6 +1815,7 @@ function doSwitchTab(name,btn){
   document.getElementById('tab-'+name).classList.add('active');
   if(name.startsWith('stats-'))renderAllStats();
   if(name==='ventas-domicilio'&&!domLoaded) loadVentasDomicilio(true);
+  if(name==='inv-restock'&&!restockLoaded) loadRestockHistory(true);
 }
 function switchTab(name,btn){
   if((name.startsWith('stats-')||name.startsWith('ventas-')||name==='facturas')&&!statsUnlocked){
@@ -4578,7 +4580,8 @@ async function ejecutarRestock(){
   try{
     const batch=db.batch();
     batch.update(db.collection('productos').doc(pid),updateData);
-    batch.set(db.collection('restock-historial').doc(),histRecord);
+    const histRef=db.collection('restock-historial').doc();
+    batch.set(histRef,histRecord);
     // Sumar costo del paquete a estadisticas SOLO si se marcó la casilla
     if(afectaCostos){
       batch.update(db.collection('estadisticas').doc(statDocId),{
@@ -4586,12 +4589,95 @@ async function ejecutarRestock(){
       });
     }
     await batch.commit();
+    // Insertar el nuevo registro al inicio del historial en memoria (sin lectura extra)
+    restockHistory=[{id:histRef.id,...histRecord},...restockHistory];
+    if(restockLoaded) renderRestockHistory();
     cerrarRestockConfirm();
     clearRestockProduct();
     showToast(afectaCostos?('Restock aplicado · '+p.name):('Restock aplicado (sin afectar costos) · '+p.name),'ti-package-import');
   }catch(e){
     console.error(e);
     showToast('Error al aplicar restock','ti-alert-circle');
+  }
+}
+
+// Carga el historial de restock de forma paginada (10 en 10) con .get().
+// Solo lee de Firestore cuando se llama (al abrir la pestaña o pulsar "Cargar más"),
+// nunca con un listener en tiempo real → minimiza lecturas.
+//   reset=true  → reinicia y trae la primera página (newest).
+//   reset=false → trae la siguiente página a partir del último visible.
+async function loadRestockHistory(reset=false){
+  if(restockLoading)return;
+  if(reset){restockHistory=[];restockLastVisible=null;restockAllLoaded=false;restockLoaded=false;}
+  if(!reset&&restockAllLoaded)return; // ya no hay más que cargar
+  restockLoading=true;
+  renderRestockHistory();
+  try{
+    let qy=db.collection("restock-historial").orderBy("timestamp","desc");
+    if(restockLastVisible) qy=qy.startAfter(restockLastVisible);
+    const snap=await qy.limit(RESTOCK_PAGE_SIZE).get();
+    const fresh=[];
+    snap.forEach(doc=>fresh.push({id:doc.id,...doc.data()}));
+    if(snap.docs.length) restockLastVisible=snap.docs[snap.docs.length-1];
+    restockAllLoaded=snap.docs.length<RESTOCK_PAGE_SIZE;
+    const have=new Set(restockHistory.map(r=>r.id));
+    restockHistory=[...restockHistory,...fresh.filter(r=>!have.has(r.id))];
+    restockLoaded=true;
+  }catch(e){
+    console.error(e);
+    showToast('Error al cargar el historial de restock','ti-alert-circle');
+  }finally{
+    restockLoading=false;
+    renderRestockHistory();
+  }
+}
+
+// Elimina un restock y REVIERTE sus efectos:
+//   • Producto: stock −= unidades agregadas (atómico, conserva ventas posteriores)
+//               y costo vuelve al costo anterior guardado.
+//   • Estadísticas: si el restock afectó 'costos', se resta el costo del paquete.
+//   • Se borra el registro de 'restock-historial'.
+async function deleteRestock(id){
+  const r=restockHistory.find(x=>x.id===id);
+  if(!r){showToast('Registro no encontrado','ti-alert-circle');return;}
+  const sucLabel=(r.sucursal||'').toUpperCase();
+  const uds=r.unidadesAgregadas||0;
+  const msg=`¿Eliminar este restock y revertir sus efectos?\n\n`
+    +`Producto: ${r.productName||'—'}\nSucursal: ${sucLabel}\n\n`
+    +`• Stock: se quitarán ${uds} uds. (${r.stockNuevo} → ${r.stockAnterior})\n`
+    +`• Costo: ${fmt(r.costoNuevo)} → ${fmt(r.costoAnterior)}\n`
+    +(r.afectaCostos?`• Costos acumulados: se restará ${fmt(r.costoPaquete)}\n`:`• No afectó costos acumulados.\n`)
+    +`\nImportante: revierte a los valores guardados. Hazlo solo en el restock MÁS RECIENTE del producto/sucursal para mantener la contabilidad correcta.`;
+  if(!confirm(msg))return;
+
+  const p=products.find(x=>x.id===r.productId);
+  const statDocId=r.sucursal==='exsal'?'ColegioExsal':'ColegioDonBosco';
+  try{
+    const batch=db.batch();
+    // Revertir el producto (si todavía existe)
+    if(p){
+      const upd={cost:+(+(r.costoAnterior||0)).toFixed(4),updatedAt:Date.now()};
+      if(r.sucursal==='exsal') upd.stockExsal=firebase.firestore.FieldValue.increment(-uds);
+      else                     upd.stockCdb=firebase.firestore.FieldValue.increment(-uds);
+      batch.update(db.collection('productos').doc(r.productId),upd);
+    }
+    // Revertir el costo del paquete en estadísticas (solo si lo había sumado)
+    if(r.afectaCostos){
+      batch.update(db.collection('estadisticas').doc(statDocId),{
+        'costos':firebase.firestore.FieldValue.increment(-(+(+(r.costoPaquete||0)).toFixed(2)))
+      });
+    }
+    // Borrar el registro del historial
+    batch.delete(db.collection('restock-historial').doc(id));
+    await batch.commit();
+
+    // Quitar de memoria y refrescar (sin nueva lectura)
+    restockHistory=restockHistory.filter(x=>x.id!==id);
+    renderRestockHistory();
+    showToast('Restock eliminado y revertido · '+(r.productName||''),'ti-rotate-2');
+  }catch(e){
+    console.error(e);
+    showToast('Error al eliminar el restock','ti-alert-circle');
   }
 }
 
@@ -4602,17 +4688,20 @@ function renderRestockHistory(){
   const area=document.getElementById('restock-hist-area');
   const cnt=document.getElementById('restock-hist-count');
   if(!area)return;
-  cnt.textContent=list.length+' registro'+(list.length!==1?'s':'');
-  if(!list.length){
-    area.innerHTML=`<div class="empty-state"><div class="empty-icon"><i class="ti ti-history"></i></div><p>${q?'Sin resultados':'Sin restocks registrados.'}</p></div>`;
-    return;
-  }
+  // Contador: muestra lo cargado en memoria; "+" indica que hay más en Firestore.
+  cnt.textContent=restockHistory.length+(restockAllLoaded?'':'+')+' registro'+(restockHistory.length!==1?'s':'')+' cargado'+(restockHistory.length!==1?'s':'');
+
   const sucClass={exsal:'badge-exsal',cdb:'badge-cdb'};
-  area.innerHTML=list.map(r=>{
-    const diff=r.costoNuevo-r.costoAnterior;
-    const diffSign=diff>=0?'+':'';
-    const diffColor=diff>=0?'var(--g600)':'var(--r600)';
-    return `<div class="restock-hist-card">
+  let html='';
+
+  if(!list.length){
+    html=`<div class="empty-state"><div class="empty-icon"><i class="ti ti-history"></i></div><p>${restockLoading?'Cargando...':(q?'Sin resultados en lo cargado':'Sin restocks registrados.')}</p></div>`;
+  }else{
+    html=list.map(r=>{
+      const diff=(r.costoNuevo||0)-(r.costoAnterior||0);
+      const diffSign=diff>=0?'+':'';
+      const diffColor=diff>=0?'var(--g600)':'var(--r600)';
+      return `<div class="restock-hist-card">
       <div class="rhc-top">
         <div class="rhc-name">${esc(r.productName||'—')}</div>
         <div class="rhc-date">${r.fecha||'—'}</div>
@@ -4627,11 +4716,22 @@ function renderRestockHistory(){
         <div class="rhc-cost-box rhc-cost-old"><div class="rhc-cost-label">Costo anterior</div><div class="rhc-cost-val">${fmt(r.costoAnterior)}</div></div>
         <div class="rhc-cost-box rhc-cost-new"><div class="rhc-cost-label">Nuevo costo</div><div class="rhc-cost-val">${fmt(r.costoNuevo)}</div></div>
       </div>
-      <div style="font-size:11px;color:var(--tm);margin-top:8px;display:flex;gap:12px">
-        <span><i class="ti ti-plus" style="font-size:10px"></i> +${r.unidadesAgregadas} uds. · Paquete: ${fmt(r.costoPaquete)}</span>
+      <div class="rhc-foot">
+        <span class="rhc-foot-info"><i class="ti ti-plus" style="font-size:10px"></i> +${r.unidadesAgregadas} uds. · Paquete: ${fmt(r.costoPaquete)}</span>
+        <button class="rhc-del-btn" onclick="deleteRestock('${r.id}')" title="Eliminar y revertir stock y costo"><i class="ti ti-rotate-2"></i>Eliminar y revertir</button>
       </div>
     </div>`;
-  }).join('');
+    }).join('');
+  }
+
+  // Fila de "Cargar más" / indicador de carga
+  if(restockLoading){
+    html+=`<div class="load-more-row"><button class="btn-load-more" disabled><i class="ti ti-loader" style="animation:spin .7s linear infinite"></i>Cargando...</button></div>`;
+  }else if(!restockAllLoaded){
+    html+=`<div class="load-more-row"><button class="btn-load-more" onclick="loadRestockHistory(false)"><i class="ti ti-arrow-down"></i>Cargar 10 más</button></div>`;
+  }
+
+  area.innerHTML=html;
 }
 // ── DESCUENTOS ──
 async function addDescuento(){
