@@ -246,6 +246,17 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .fin-card-gasto{background:linear-gradient(135deg,var(--r50),#fff5f5);border-color:#fca5a5}
 .fin-card-gasto .fin-label{color:#b91c1c}
 .fin-card-gasto .fin-value{color:var(--r600)}
+.fin-card-ingreso{background:linear-gradient(135deg,var(--g50),#f0fdf6);border-color:#86efac}
+.fin-card-ingreso .fin-label{color:#15803d}
+.fin-card-ingreso .fin-value{color:var(--g600)}
+/* ── INGRESOS (donaciones / inversiones) ── */
+.ingreso-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--g50),#d1fae5);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--g600);flex-shrink:0}
+.ingreso-monto{font-size:15px;font-weight:700;color:var(--g600);white-space:nowrap}
+.tipo-badge{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;padding:2px 7px;border-radius:var(--rp);flex-shrink:0}
+.tipo-donacion{background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd}
+.tipo-inversion{background:var(--g50);color:#15803d;border:1px solid #86efac}
+/* Colapsar paneles gasto/ingreso a 1 columna en teléfono (antes se quedaban en 340px 1fr y se apretaban) */
+@media(max-width:760px){.gastos-grid{grid-template-columns:1fr;gap:14px;margin-top:16px}}
 /* STATS / FINANZAS */
 .fin-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
 .fin-card{background:var(--wh);border-radius:var(--rmd);padding:17px 19px;border:1px solid var(--b100);box-shadow:var(--sc);}
@@ -935,10 +946,11 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     <!-- KPIs desde colección estadisticas -->
     <div class="fin-grid" id="exsal-kpi-grid">
       <div class="fin-card"><div class="fin-label">Ventas EXSAL (acumulado)</div><div class="fin-value fv-blue" id="exsal-stat-ventas">$0.00</div></div>
+      <div class="fin-card fin-card-ingreso"><div class="fin-label">Ingresos EXSAL (donaciones/inversiones)</div><div class="fin-value" id="exsal-stat-ingresos">$0.00</div></div>
       <div class="fin-card fin-card-gasto"><div class="fin-label">Costos EXSAL (acumulado)</div><div class="fin-value" id="exsal-stat-costos">$0.00</div><div class="fin-cost-break" id="exsal-stat-costos-break"></div></div>
-      <div class="fin-card"><div class="fin-label">Ganancia Real (ventas − costos)</div><div class="fin-value fv-green" id="exsal-stat-ganancia">$0.00</div></div>
-      <div class="fin-card"><div class="fin-label">Unidades vendidas</div><div class="fin-value fv-blue" id="exsal-stat-units">0</div></div>
-      <div class="fin-card" style="grid-column:span 4"><div class="fin-label">Número de ventas</div><div class="fin-value fv-blue" id="exsal-stat-numventas">0</div></div>
+      <div class="fin-card"><div class="fin-label">Ganancia Real (ventas + ingresos − costos)</div><div class="fin-value fv-green" id="exsal-stat-ganancia">$0.00</div></div>
+      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Unidades vendidas</div><div class="fin-value fv-blue" id="exsal-stat-units">0</div></div>
+      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Número de ventas</div><div class="fin-value fv-blue" id="exsal-stat-numventas">0</div></div>
     </div>
 
     <!-- Top 10 bajo demanda -->
@@ -981,6 +993,32 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
         <div id="exsal-gastos-list"><div class="sales-empty">Sin gastos este mes</div></div>
       </div>
     </div>
+
+    <!-- Ingresos EXSAL (donaciones / inversiones) -->
+    <div class="gastos-grid">
+      <div class="gasto-form-panel">
+        <div class="panel-hd"><div class="phd-icon" style="background:linear-gradient(135deg,var(--g600),#34d399)"><i class="ti ti-gift"></i></div><div><div class="ptitle">Registrar Ingreso</div><div class="psub">Donaciones e inversiones · EXSAL</div></div></div>
+        <div class="form-body">
+          <div class="field"><label>Nombre del ingreso</label><input type="text" id="exsal-ingreso-nombre" placeholder="Ej. Donación padres, inversión inicial..." maxlength="80" autocomplete="off"></div>
+          <div class="field"><label>Tipo</label><select id="exsal-ingreso-tipo"><option value="donacion">Donación</option><option value="inversion">Inversión</option></select></div>
+          <div class="field"><label>Monto ($)</label><input type="number" id="exsal-ingreso-monto" placeholder="0.00" min="0" step="0.01"></div>
+          <button class="btn-add" style="background:linear-gradient(135deg,var(--g600),#34d399);box-shadow:0 4px 14px rgba(27,122,74,.3)" onclick="addIngreso('exsal')"><i class="ti ti-plus"></i>Agregar Ingreso EXSAL</button>
+          <div class="form-error" id="exsal-ingreso-error"></div>
+        </div>
+      </div>
+      <div class="gasto-list-panel">
+        <div class="panel-hd">
+          <div class="phd-icon" style="background:linear-gradient(135deg,var(--g600),#34d399)"><i class="ti ti-list"></i></div>
+          <div><div class="ptitle">Ingresos del mes</div><div class="psub" id="exsal-ingresos-periodo">—</div></div>
+          <div class="smb-select-wrap" style="min-width:140px;margin-left:auto">
+            <i class="ti ti-calendar"></i>
+            <select id="exsal-ingresos-month-select" class="smb-select" onchange="loadIngresosMes('exsal',this.value)"></select>
+          </div>
+        </div>
+        <div id="exsal-ingresos-list"><div class="sales-empty">Sin ingresos este mes</div></div>
+      </div>
+    </div>
+
     <div class="sales-wrap" id="exsal-deleted-sales-wrap" style="margin-top:20px;display:none">
       <div class="sales-hd"><div class="shd-title"><i class="ti ti-history"></i>Ventas eliminadas · EXSAL</div><button class="btn-clr" onclick="clearDeletedSales('exsal')"><i class="ti ti-trash"></i>Limpiar todo</button></div>
       <div id="exsal-deleted-sales-table-body"></div>
@@ -1003,10 +1041,11 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     <!-- KPIs desde colección estadisticas -->
     <div class="fin-grid" id="cdb-kpi-grid">
       <div class="fin-card"><div class="fin-label">Ventas CDB (acumulado)</div><div class="fin-value fv-blue" id="cdb-stat-ventas">$0.00</div></div>
+      <div class="fin-card fin-card-ingreso"><div class="fin-label">Ingresos CDB (donaciones/inversiones)</div><div class="fin-value" id="cdb-stat-ingresos">$0.00</div></div>
       <div class="fin-card fin-card-gasto"><div class="fin-label">Costos CDB (acumulado)</div><div class="fin-value" id="cdb-stat-costos">$0.00</div><div class="fin-cost-break" id="cdb-stat-costos-break"></div></div>
-      <div class="fin-card"><div class="fin-label">Ganancia Real (ventas − costos)</div><div class="fin-value fv-green" id="cdb-stat-ganancia">$0.00</div></div>
-      <div class="fin-card"><div class="fin-label">Unidades vendidas</div><div class="fin-value fv-blue" id="cdb-stat-units">0</div></div>
-      <div class="fin-card" style="grid-column:span 4"><div class="fin-label">Número de ventas</div><div class="fin-value fv-blue" id="cdb-stat-numventas">0</div></div>
+      <div class="fin-card"><div class="fin-label">Ganancia Real (ventas + ingresos − costos)</div><div class="fin-value fv-green" id="cdb-stat-ganancia">$0.00</div></div>
+      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Unidades vendidas</div><div class="fin-value fv-blue" id="cdb-stat-units">0</div></div>
+      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Número de ventas</div><div class="fin-value fv-blue" id="cdb-stat-numventas">0</div></div>
     </div>
 
     <!-- Top 10 bajo demanda -->
@@ -1049,6 +1088,32 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
         <div id="cdb-gastos-list"><div class="sales-empty">Sin gastos este mes</div></div>
       </div>
     </div>
+
+    <!-- Ingresos CDB (donaciones / inversiones) -->
+    <div class="gastos-grid">
+      <div class="gasto-form-panel">
+        <div class="panel-hd"><div class="phd-icon" style="background:linear-gradient(135deg,var(--g600),#34d399)"><i class="ti ti-gift"></i></div><div><div class="ptitle">Registrar Ingreso</div><div class="psub">Donaciones e inversiones · CDB</div></div></div>
+        <div class="form-body">
+          <div class="field"><label>Nombre del ingreso</label><input type="text" id="cdb-ingreso-nombre" placeholder="Ej. Donación padres, inversión inicial..." maxlength="80" autocomplete="off"></div>
+          <div class="field"><label>Tipo</label><select id="cdb-ingreso-tipo"><option value="donacion">Donación</option><option value="inversion">Inversión</option></select></div>
+          <div class="field"><label>Monto ($)</label><input type="number" id="cdb-ingreso-monto" placeholder="0.00" min="0" step="0.01"></div>
+          <button class="btn-add" style="background:linear-gradient(135deg,var(--g600),#34d399);box-shadow:0 4px 14px rgba(27,122,74,.3)" onclick="addIngreso('cdb')"><i class="ti ti-plus"></i>Agregar Ingreso CDB</button>
+          <div class="form-error" id="cdb-ingreso-error"></div>
+        </div>
+      </div>
+      <div class="gasto-list-panel">
+        <div class="panel-hd">
+          <div class="phd-icon" style="background:linear-gradient(135deg,var(--g600),#34d399)"><i class="ti ti-list"></i></div>
+          <div><div class="ptitle">Ingresos del mes</div><div class="psub" id="cdb-ingresos-periodo">—</div></div>
+          <div class="smb-select-wrap" style="min-width:140px;margin-left:auto">
+            <i class="ti ti-calendar"></i>
+            <select id="cdb-ingresos-month-select" class="smb-select" onchange="loadIngresosMes('cdb',this.value)"></select>
+          </div>
+        </div>
+        <div id="cdb-ingresos-list"><div class="sales-empty">Sin ingresos este mes</div></div>
+      </div>
+    </div>
+
     <div class="sales-wrap" id="cdb-deleted-sales-wrap" style="margin-top:20px;display:none">
       <div class="sales-hd"><div class="shd-title"><i class="ti ti-history"></i>Ventas eliminadas · CDB</div><button class="btn-clr" onclick="clearDeletedSales('cdb')"><i class="ti ti-trash"></i>Limpiar todo</button></div>
       <div id="cdb-deleted-sales-table-body"></div>
@@ -1540,7 +1605,7 @@ let facCursor=null;
 let facAllLoaded=false;
 const FACTURAS_PAGE_SIZE=10;
 // Estadisticas desde colección (acumulados)
-let estadisticasData={exsal:{ventas:0,costos:0,unidadesVendidas:0,numeroVentas:0,pedidosEntregados:0,pedidosCancelados:0,pedidosPendientes:0,ingresosPedidos:0,costosPedidos:0,costosEnvio:0,comisionesStripe:0},cdb:{ventas:0,costos:0,unidadesVendidas:0,numeroVentas:0,pedidosEntregados:0,pedidosCancelados:0,pedidosPendientes:0,ingresosPedidos:0,costosPedidos:0,costosEnvio:0,comisionesStripe:0}};
+let estadisticasData={exsal:{ventas:0,costos:0,ingresos:0,unidadesVendidas:0,numeroVentas:0,pedidosEntregados:0,pedidosCancelados:0,pedidosPendientes:0,ingresosPedidos:0,costosPedidos:0,costosEnvio:0,comisionesStripe:0},cdb:{ventas:0,costos:0,ingresos:0,unidadesVendidas:0,numeroVentas:0,pedidosEntregados:0,pedidosCancelados:0,pedidosPendientes:0,ingresosPedidos:0,costosPedidos:0,costosEnvio:0,comisionesStripe:0}};
 
 // ── PAGINACIÓN ──
 const PROD_PAGE_SIZE=20;
@@ -1762,6 +1827,7 @@ async function checkMonthlyReset(){
           mesLabel:monthKeyToLabel(lastMes),
           ventas:data.ventas||0,
           costos:data.costos||0,
+          ingresos:data.ingresos||0,
           // Total de costos del mes = base (inventario/gastos) + envío real + comisión Stripe.
           // Se guarda explícito para que el historial sea correcto sin depender del modelo de 'costos'.
           costosTotal:+(((data.costos||0)+(data.costosEnvio||0)+(data.comisionesStripe||0)).toFixed(2)),
@@ -1785,6 +1851,7 @@ async function checkMonthlyReset(){
       await ref.update({
         'ventas':0,
         'costos':0,
+        'ingresos':0,
         'unidades vendidas':0,
         'numero de ventas':0,
         // Contadores de pedidos: se reinician cada mes (pedidosPendientes NO, sigue acumulado real)
@@ -1830,7 +1897,7 @@ function startListeners(){
   if(unsubEstadisticas){unsubEstadisticas();unsubEstadisticas=null;}
   setSave('saving','Sincronizando...');
   // Inicializar colección estadisticas si no existe
-  ensureEstadisticasInit().catch(e=>console.warn('estadisticas init:',e));
+  ensureEstadisticasInit().then(()=>ensureSeedInversionInicial()).catch(e=>console.warn('estadisticas init:',e));
   // Productos: sin límite, necesario para todo el inventario
   unsubProd=db.collection("productos").onSnapshot(snap=>{
     products=[];
@@ -1899,6 +1966,7 @@ function startListeners(){
       estadisticasData[key]={
         ventas:d.ventas||0,
         costos:d.costos||0,
+        ingresos:d.ingresos||0,
         unidadesVendidas:d['unidades vendidas']||0,
         numeroVentas:d['numero de ventas']||0,
         pedidosEntregados:d.pedidosEntregados||0,
@@ -1915,9 +1983,10 @@ function startListeners(){
     renderPedidosKpis();
   },err=>console.error('Error estadisticas listener',err));
 
-  // Inicializar selectores de mes para ventas y gastos
+  // Inicializar selectores de mes para ventas, gastos e ingresos
   populateVentasMonthSelectors();
   populateGastosMonthSelectors();
+  populateIngresosMonthSelectors();
 }
 
 // ── HELPERS ──
@@ -3032,9 +3101,13 @@ function renderEstadisticasKpis(suc){
   const costosBase=d.costos||0;
   const envio=d.costosEnvio||0;
   const comision=d.comisionesStripe||0;
+  const ingresos=d.ingresos||0;
   const costosTotal=+(costosBase+envio+comision).toFixed(2);
-  const ganancia=+( (d.ventas||0) - costosTotal ).toFixed(2);
+  // Ganancia Real = ventas + ingresos (donaciones/inversiones) − costos totales
+  const ganancia=+( (d.ventas||0) + ingresos - costosTotal ).toFixed(2);
   document.getElementById(suc+'-stat-ventas').textContent=fmt(d.ventas);
+  const ingEl=document.getElementById(suc+'-stat-ingresos');
+  if(ingEl) ingEl.textContent=fmt(ingresos);
   document.getElementById(suc+'-stat-costos').textContent=fmt(costosTotal);
   const breakEl=document.getElementById(suc+'-stat-costos-break');
   if(breakEl){
@@ -3078,7 +3151,9 @@ async function loadHistorialMensual(suc){
         // Archivos nuevos traen costosTotal (base+envío+comisión). Los antiguos no, y en ese
         // modelo 'costos' ya incluía todo → se usa como fallback. Así el historial siempre cuadra.
         const costos=(typeof d.costosTotal==='number')?d.costosTotal:(d.costos||0);
-        const ganancia=ventas-costos;
+        const ingresos=d.ingresos||0;
+        // Ganancia archivada = ventas + ingresos (donaciones/inversiones) − costos totales
+        const ganancia=ventas+ingresos-costos;
         return `<div style="background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rmd);padding:14px 18px">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
             <div style="display:flex;align-items:center;gap:8px">
@@ -3087,10 +3162,14 @@ async function loadHistorialMensual(suc){
             </div>
             <span style="font-size:11px;color:var(--tm)">${d.sucursal?d.sucursal.toUpperCase():''}</span>
           </div>
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(78px,1fr));gap:10px">
             <div style="text-align:center;background:var(--wh);border-radius:var(--rsm);padding:8px;border:1px solid var(--b100)">
               <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tm);margin-bottom:3px">Ventas</div>
               <div style="font-size:15px;font-weight:700;color:var(--b600)">${fmt(ventas)}</div>
+            </div>
+            <div style="text-align:center;background:var(--wh);border-radius:var(--rsm);padding:8px;border:1px solid var(--b100)">
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tm);margin-bottom:3px">Ingresos</div>
+              <div style="font-size:15px;font-weight:700;color:var(--g600)">${fmt(ingresos)}</div>
             </div>
             <div style="text-align:center;background:var(--wh);border-radius:var(--rsm);padding:8px;border:1px solid var(--b100)">
               <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tm);margin-bottom:3px">Costos</div>
@@ -3228,6 +3307,176 @@ async function loadGastosMes(suc,mes){
     gastosMesCargado[suc]=mes;
     renderGastosList(suc,mes);
   }catch(e){console.error('Error cargando gastos',e);listEl.innerHTML='<div class="sales-empty">Error al cargar</div>';}
+}
+
+// ── INGRESOS (donaciones / inversiones) ──
+// Espejo de GASTOS: colección propia 'ingresos' + campo 'ingresos' en estadisticas/{sede}.
+// Cada ingreso suma a estadisticas.ingresos (igual que gastos suma a costos), y la Ganancia
+// Real = ventas + ingresos − costos. Todo organizado por mes.
+const ingresosCache={exsal:[],cdb:[]};
+const ingresosMesCargado={exsal:null,cdb:null};
+
+function tipoIngresoLabel(t){return t==='inversion'?'Inversión':'Donación';}
+
+function renderIngresosList(suc,mes){
+  const listEl=document.getElementById(suc+'-ingresos-list');
+  const periodoEl=document.getElementById(suc+'-ingresos-periodo');
+  if(!listEl)return;
+  const items=ingresosCache[suc]||[];
+  if(periodoEl) periodoEl.textContent=monthKeyToLabel(mes);
+  const total=items.reduce((s,g)=>s+g.monto,0);
+  if(!items.length){
+    listEl.innerHTML='<div class="sales-empty">Sin ingresos en '+monthKeyToLabel(mes)+'</div>';
+  } else {
+    listEl.innerHTML=items.map(g=>{
+      const tipo=g.tipo==='inversion'?'inversion':'donacion';
+      return `
+      <div class="gasto-card">
+        <div class="ingreso-icon"><i class="ti ${tipo==='inversion'?'ti-trending-up':'ti-heart-handshake'}"></i></div>
+        <div class="gasto-info">
+          <div class="gasto-nombre">${esc(g.nombre)}</div>
+          <div class="gasto-meta">${g.date||'—'}</div>
+        </div>
+        <span class="tipo-badge tipo-${tipo}">${tipoIngresoLabel(tipo)}</span>
+        <div class="ingreso-monto">${fmt(g.monto)}</div>
+        <button onclick="deleteIngreso('${g.id}','${suc}','${mes}',${g.monto})" style="background:none;border:none;cursor:pointer;color:var(--r600);padding:4px 8px;font-size:16px;border-radius:6px"><i class="ti ti-trash"></i></button>
+      </div>`;}).join('')+
+      `<div style="padding:12px 16px;border-top:1.5px dashed var(--g100);display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:12px;font-weight:700;color:var(--tm)">TOTAL INGRESOS</span>
+        <span style="font-size:17px;font-weight:700;color:var(--g600)">${fmt(total)}</span>
+      </div>`;
+  }
+}
+
+async function addIngreso(suc){
+  const nombre=document.getElementById(suc+'-ingreso-nombre').value.trim();
+  const tipo=(document.getElementById(suc+'-ingreso-tipo')||{value:'donacion'}).value;
+  const montoStr=document.getElementById(suc+'-ingreso-monto').value;
+  const err=document.getElementById(suc+'-ingreso-error');
+  if(!nombre){err.textContent='El nombre del ingreso es obligatorio.';return;}
+  const monto=parseFloat(montoStr);
+  if(montoStr===''||isNaN(monto)||monto<=0){err.textContent='Ingresa un monto válido mayor a 0.';return;}
+  err.textContent='';
+
+  const sel=document.getElementById(suc+'-ingresos-month-select');
+  const mes=sel?sel.value:getMonthKey();
+  const statDocId=suc==='exsal'?'ColegioExsal':'ColegioDonBosco';
+
+  try{
+    const newRef=db.collection('ingresos').doc();
+    const newIngreso={
+      id:newRef.id,
+      nombre,tipo:(tipo==='inversion'?'inversion':'donacion'),
+      monto:+monto.toFixed(2),
+      sucursal:suc,mes,
+      timestamp:Date.now(),
+      date:new Date().toLocaleDateString('es')
+    };
+    const batch=db.batch();
+    const {id,...firestoreData}=newIngreso;
+    batch.set(newRef,firestoreData);
+    // Sumar al campo de ingresos acumulados de la sede (mismo patrón que gastos→costos)
+    batch.update(db.collection('estadisticas').doc(statDocId),{
+      'ingresos':firebase.firestore.FieldValue.increment(+monto.toFixed(2))
+    });
+    await batch.commit();
+    document.getElementById(suc+'-ingreso-nombre').value='';
+    document.getElementById(suc+'-ingreso-monto').value='';
+    showToast('Ingreso registrado','ti-plus');
+    if(ingresosMesCargado[suc]===mes){
+      ingresosCache[suc].unshift(newIngreso);
+      ingresosCache[suc].sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
+      renderIngresosList(suc,mes);
+    }
+  }catch(e){err.textContent='Error al guardar el ingreso.';}
+}
+
+async function deleteIngreso(id,suc,mes,monto){
+  if(!confirm('¿Eliminar este ingreso? Se restará de los ingresos acumulados.'))return;
+  const statDocId=suc==='exsal'?'ColegioExsal':'ColegioDonBosco';
+  try{
+    const batch=db.batch();
+    batch.delete(db.collection('ingresos').doc(id));
+    batch.update(db.collection('estadisticas').doc(statDocId),{
+      'ingresos':firebase.firestore.FieldValue.increment(-(+parseFloat(monto||0).toFixed(2)))
+    });
+    await batch.commit();
+    showToast('Ingreso eliminado','ti-trash');
+    if(ingresosMesCargado[suc]===mes){
+      ingresosCache[suc]=ingresosCache[suc].filter(g=>g.id!==id);
+      renderIngresosList(suc,mes);
+    }
+  }catch(e){showToast('Error al eliminar','ti-alert-circle');}
+}
+
+async function loadIngresosMes(suc,mes){
+  if(!mes)return;
+  const listEl=document.getElementById(suc+'-ingresos-list');
+  if(!listEl)return;
+  try{
+    const snap=await db.collection('ingresos').where('mes','==',mes).where('sucursal','==',suc).get();
+    const items=[];
+    snap.forEach(doc=>items.push({id:doc.id,...doc.data()}));
+    items.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
+    ingresosCache[suc]=items;
+    ingresosMesCargado[suc]=mes;
+    renderIngresosList(suc,mes);
+  }catch(e){console.error('Error cargando ingresos',e);listEl.innerHTML='<div class="sales-empty">Error al cargar</div>';}
+}
+
+function populateIngresosMonthSelectors(){
+  const keys=buildMonthOptions();
+  const now=getMonthKey();
+  const opts=keys.map(k=>`<option value="${k}">${monthKeyToLabel(k)}</option>`).join('');
+  ['exsal','cdb'].forEach(suc=>{
+    const sel=document.getElementById(suc+'-ingresos-month-select');
+    if(!sel)return;
+    sel.innerHTML=opts;
+    sel.value=now;
+    // Cargar automáticamente los ingresos del mes actual
+    loadIngresosMes(suc,now);
+  });
+}
+
+// ── SEED: inversión inicial del nacimiento de la tienda ($279.76 → CDB) ──
+// El mes pasado (nacimiento) ya quedó archivado en estadisticas-historial sin campo 'ingresos'.
+// Esta función, una sola vez (controlada por flag en _meta), crea el ingreso en la colección
+// 'ingresos' del mes de nacimiento y parchea el snapshot del historial de CDB de ese mes.
+const BIRTH_MONTH='2026-04'; // Mayo 2026 (esquema getMonthKey: mes 0-index)
+const SEED_INVERSION_MONTO=279.76;
+async function ensureSeedInversionInicial(){
+  try{
+    const metaRef=db.collection('estadisticas').doc('_meta');
+    const metaSnap=await metaRef.get();
+    if(metaSnap.exists && metaSnap.data().seedInversionCdbDone) return;
+
+    // 1) Crear/asegurar el ingreso en la colección (id fijo → idempotente)
+    const ingRef=db.collection('ingresos').doc('seed-inversion-cdb-'+BIRTH_MONTH);
+    await ingRef.set({
+      nombre:'Inversión inicial',
+      tipo:'inversion',
+      monto:SEED_INVERSION_MONTO,
+      sucursal:'cdb',
+      mes:BIRTH_MONTH,
+      timestamp:Date.now(),
+      date:new Date().toLocaleDateString('es'),
+      seed:true
+    },{merge:true});
+
+    // 2) Parchear el snapshot de historial de CDB para ese mes (set fijo, no increment)
+    const histSnap=await db.collection('estadisticas-historial')
+      .where('sucursal','==','cdb').where('mes','==',BIRTH_MONTH).get();
+    if(!histSnap.empty){
+      const batch=db.batch();
+      histSnap.forEach(doc=>batch.update(doc.ref,{ingresos:SEED_INVERSION_MONTO}));
+      await batch.commit();
+    } else {
+      console.warn('Seed: no se encontró historial CDB para',BIRTH_MONTH,'— el ingreso quedó en la colección, pero el mes aún no estaba archivado.');
+    }
+
+    await metaRef.set({seedInversionCdbDone:true,updatedAt:Date.now()},{merge:true});
+    console.log('Seed inversión inicial CDB ('+BIRTH_MONTH+') aplicado.');
+  }catch(e){console.warn('Error en seed inversión inicial:',e);}
 }
 
 function populateVentasMonthSelectors(){
