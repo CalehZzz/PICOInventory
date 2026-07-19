@@ -4270,29 +4270,76 @@ function renderPedidosKpis(){
   document.getElementById('ped-total-ganancia').textContent=fmt(ingresos-costos);
 }
 
-// Aplicar / quitar descuento a un pedido pendiente desde la tabla de pedidos
+// Aplicar / quitar descuento a un pedido pendiente desde la tabla de pedidos.
+// También recalcula la factura vinculada (se crea al hacer el pedido y no se regenera sola).
 async function applyOrderDiscount(orderId, selectEl){
   const discountId=selectEl.value;
   const order=orders.find(o=>o.id===orderId);
   if(!order)return;
   const esDom=order.tipoEntrega==='domicilio';
   const envio=esDom?(typeof order.envioCosto==='number'?order.envioCosto:0):0;
-  const totalOriginal=order.total||0;
+  const totalOriginal=+(order.total||0).toFixed(2);
   let update={};
+  let pct=0, descNombre='';
   if(!discountId){
     // Quitar descuento — el total con envío vuelve a productos + envío
     update={discountId:null,discountName:null,discountPct:null,totalConDescuento:null,
-            totalConEnvio:+((totalOriginal)+envio).toFixed(2)};
+            totalConEnvio:+(totalOriginal+envio).toFixed(2)};
   } else {
     const desc=descuentos.find(d=>d.id===discountId);
     if(!desc)return;
-    const pct=desc.porcentaje;
+    pct=desc.porcentaje;
+    descNombre=desc.nombre||'';
     const totalConDescuento=+(totalOriginal*(1-pct/100)).toFixed(2);
-    update={discountId,discountName:desc.nombre,discountPct:pct,totalConDescuento,
+    update={discountId,discountName:descNombre,discountPct:pct,totalConDescuento,
             totalConEnvio:+(totalConDescuento+envio).toFixed(2)};
   }
   try{
-    await db.collection('pedidos').doc(orderId).update(update);
+    const discFactor=pct?((100-pct)/100):1;
+    const totalProductos=discountId
+      ? +(totalOriginal*(1-pct/100)).toFixed(2)
+      : totalOriginal;
+
+    // Localizar factura: facturaId del pedido, o fromOrder == orderId
+    let facDocs=[];
+    if(order.facturaId){
+      const facDoc=await db.collection('facturas').doc(order.facturaId).get();
+      if(facDoc.exists) facDocs=[facDoc];
+    }
+    if(!facDocs.length){
+      const facSnap=await db.collection('facturas').where('fromOrder','==',orderId).get();
+      facDocs=facSnap.docs;
+    }
+
+    const batch=db.batch();
+    batch.update(db.collection('pedidos').doc(orderId),update);
+
+    for(const facDoc of facDocs){
+      const facData=facDoc.data()||{};
+      if(facData.anulada) continue;
+      const envioFac=typeof facData.envioCosto==='number'?facData.envioCosto:envio;
+      const items=(facData.items||[]).map(it=>{
+        const lineSub=typeof it.subtotal==='number'
+          ? +it.subtotal
+          : +((+(it.precioUnit||0))*(+(it.qty||1))).toFixed(2);
+        return Object.assign({},it,{
+          subtotal:lineSub,
+          total:+(lineSub*discFactor).toFixed(2),
+          descPct:pct||0,
+          descNombre:descNombre||''
+        });
+      });
+      const subtotalFac=typeof facData.subtotal==='number'?+facData.subtotal:totalOriginal;
+      batch.update(facDoc.ref,{
+        items,
+        subtotal:subtotalFac,
+        totalProductos,
+        total:+(totalProductos+envioFac).toFixed(2),
+        envioCosto:envioFac
+      });
+    }
+
+    await batch.commit();
     showToast(discountId?'Descuento aplicado al pedido':'Descuento eliminado','ti-ticket-off');
   }catch(e){
     console.error(e);
