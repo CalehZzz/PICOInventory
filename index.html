@@ -555,6 +555,24 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .cart-client{margin-bottom:9px}
 .cart-client input{width:100%;padding:8px 11px;border:1.5px solid var(--b100);border-radius:9px;font-size:13px;font-family:inherit;background:var(--b50);color:var(--tp)}
 .cart-client input:focus{outline:none;border-color:var(--b400);background:#fff}
+.cart-stamp{margin-bottom:10px;background:var(--b50);border:1.5px solid var(--b100);border-radius:10px;padding:9px 10px}
+.cart-stamp-label{font-size:11px;font-weight:700;color:var(--ts);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.cart-stamp-search{position:relative}
+.cart-stamp-search input{width:100%;padding:7px 10px;border:1.5px solid var(--b100);border-radius:8px;font-size:12.5px;font-family:inherit;background:#fff;color:var(--tp)}
+.cart-stamp-search input:focus{outline:none;border-color:var(--b400)}
+.cart-stamp-results{position:absolute;left:0;right:0;top:100%;z-index:5;background:#fff;border:1.5px solid var(--b100);border-radius:8px;box-shadow:var(--sh);max-height:160px;overflow-y:auto;display:none;margin-top:4px}
+.cart-stamp-results.show{display:block}
+.cart-stamp-opt{width:100%;text-align:left;padding:8px 10px;border:none;background:none;cursor:pointer;font-family:inherit;border-bottom:1px solid var(--b50)}
+.cart-stamp-opt:last-child{border-bottom:none}
+.cart-stamp-opt:hover{background:var(--b50)}
+.cart-stamp-opt-name{font-size:12.5px;font-weight:700;color:var(--tp)}
+.cart-stamp-opt-meta{font-size:11px;color:var(--tm);margin-top:1px}
+.cart-stamp-chip{display:none;align-items:center;gap:8px;margin-top:7px;background:#fff;border:1.5px solid var(--b200);border-radius:8px;padding:7px 9px}
+.cart-stamp-chip.show{display:flex}
+.cart-stamp-chip-info{flex:1;min-width:0}
+.cart-stamp-chip-name{font-size:12.5px;font-weight:700;color:var(--tp);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cart-stamp-chip-meta{font-size:11px;color:var(--tm)}
+.cart-stamp-chip-clear{background:none;border:none;cursor:pointer;color:var(--r600);font-size:15px;padding:2px 4px;border-radius:6px}
 .cart-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--b50)}
 .cart-item:last-child{border-bottom:none}
 .cart-item-info{flex:1;min-width:0}
@@ -1405,7 +1423,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     <div class="panel" style="margin-bottom:14px">
       <div class="panel-hd"><div class="phd-icon" style="background:linear-gradient(135deg,var(--b600),var(--s400))"><i class="ti ti-stamp"></i></div><div><div class="ptitle">Tarjetas de sellos</div><div class="psub">8 sellos = 40% de descuento una sola vez</div></div></div>
       <div class="form-body" style="padding-top:12px;padding-bottom:4px">
-        <p class="promo-help">Cada compra entregada de $1 o más (retiro o domicilio) suma un sello automáticamente. Solo hay una tarjeta activa por correo.</p>
+        <p class="promo-help">Podés crear la tarjeta solo con QR y asignar nombre/correo después. Cada compra ≥ $1 (pedido entregado o venta POS con cliente elegido) suma un sello. Solo una tarjeta activa por correo.</p>
       </div>
     </div>
     <div class="promo-subtabs">
@@ -1416,11 +1434,12 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     <div id="stamp-pane-active">
       <div class="descuentos-layout">
         <div class="panel">
-          <div class="panel-hd"><div class="phd-icon" style="background:linear-gradient(135deg,var(--b600),var(--s400))"><i class="ti ti-qrcode"></i></div><div><div class="ptitle">Crear tarjeta nueva</div><div class="psub">Genera código, QR y link de la tienda</div></div></div>
+          <div class="panel-hd"><div class="phd-icon" style="background:linear-gradient(135deg,var(--b600),var(--s400))"><i class="ti ti-qrcode"></i></div><div><div class="ptitle">Crear tarjeta nueva</div><div class="psub">Solo el código/QR es obligatorio</div></div></div>
           <div class="form-body">
-            <div class="field"><label>Nombre del cliente</label><input type="text" id="stamp-f-nombre" placeholder="Ej. María López" maxlength="80" autocomplete="off"></div>
-            <div class="field"><label>Correo</label><input type="email" id="stamp-f-email" placeholder="cliente@correo.com" maxlength="120" autocomplete="off"></div>
-            <div class="field"><label>Fecha (opcional)</label><input type="date" id="stamp-f-fecha"></div>
+            <div class="field"><label>Nombre del cliente <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tm)">(opcional)</span></label><input type="text" id="stamp-f-nombre" placeholder="Ej. María López" maxlength="80" autocomplete="off"></div>
+            <div class="field"><label>Correo <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tm)">(opcional)</span></label><input type="email" id="stamp-f-email" placeholder="cliente@correo.com" maxlength="120" autocomplete="off"></div>
+            <div class="field"><label>Fecha <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tm)">(opcional)</span></label><input type="date" id="stamp-f-fecha"></div>
+            <p class="promo-help" style="margin:0">Podés crear la tarjeta física primero (solo QR). Después asignás nombre y correo cuando se la des al cliente.</p>
             <button class="btn-add" onclick="createStampCard()"><i class="ti ti-plus"></i>Crear tarjeta nueva</button>
             <div class="form-error" id="stamp-form-error"></div>
           </div>
@@ -1671,9 +1690,9 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     <div class="pm-header"><div class="pm-name">Editar tarjeta</div><div class="pm-desc" id="stamp-edit-code-label">—</div></div>
     <div class="form-body">
       <input type="hidden" id="stamp-edit-code">
-      <div class="field"><label>Nombre</label><input type="text" id="stamp-edit-nombre" maxlength="80"></div>
-      <div class="field"><label>Correo</label><input type="email" id="stamp-edit-email" maxlength="120"></div>
-      <div class="field"><label>Fecha (opcional)</label><input type="date" id="stamp-edit-fecha"></div>
+      <div class="field"><label>Nombre <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tm)">(opcional)</span></label><input type="text" id="stamp-edit-nombre" maxlength="80" placeholder="Sin nombre"></div>
+      <div class="field"><label>Correo <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tm)">(opcional)</span></label><input type="email" id="stamp-edit-email" maxlength="120" placeholder="Asignar después"></div>
+      <div class="field"><label>Fecha <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tm)">(opcional)</span></label><input type="date" id="stamp-edit-fecha"></div>
       <div class="form-error" id="stamp-edit-error"></div>
       <div class="pm-footer" style="padding:0;border:0;margin-top:8px">
         <button class="btn-secondary" onclick="closeStampEdit()">Cancelar</button>
@@ -1736,6 +1755,20 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     <div class="cart-client">
       <input type="text" id="cart-cliente" maxlength="60" placeholder="Nombre del cliente (opcional)">
     </div>
+    <div class="cart-stamp">
+      <div class="cart-stamp-label"><i class="ti ti-stamp"></i>¿Sumar sello a un cliente?</div>
+      <div class="cart-stamp-search">
+        <input type="text" id="cart-stamp-q" placeholder="Buscar por nombre o correo…" autocomplete="off" oninput="onCartStampSearch()" onfocus="onCartStampSearch()">
+        <div class="cart-stamp-results" id="cart-stamp-results"></div>
+      </div>
+      <div class="cart-stamp-chip" id="cart-stamp-chip">
+        <div class="cart-stamp-chip-info">
+          <div class="cart-stamp-chip-name" id="cart-stamp-chip-name">—</div>
+          <div class="cart-stamp-chip-meta" id="cart-stamp-chip-meta">—</div>
+        </div>
+        <button type="button" class="cart-stamp-chip-clear" onclick="clearCartStamp()" title="Quitar"><i class="ti ti-x"></i></button>
+      </div>
+    </div>
     <div id="cart-items"></div>
   </div>
   <div class="cart-ft">
@@ -1789,6 +1822,7 @@ const DOM_PAGE_SIZE=15;
 // ── CARRITO DE VENTA EN CURSO (en memoria, 0 lecturas) ──
 let cart=[];          // {pid,productName,qty,price,cost,discPct,discId,discNombre,subtotal,total,costTotal}
 let cartSede=null;    // 'exsal' | 'cdb' — una venta = una sede
+let cartStampCode=null; // código de stamp-card activa elegida (opcional)
 // ── FACTURAS: carga paginada por mes y bajo demanda (sin onSnapshot) ──
 let facSede='exsal';
 let facLoaded=false;
@@ -2831,9 +2865,67 @@ function removeCartItem(i){
 function vaciarCarrito(){
   cart=[];cartSede=null;
   document.getElementById('cart-cliente').value='';
+  clearCartStamp();
   renderCart();
   toggleCartPanel(false);
 }
+
+function getActiveStampCardsWithEmail(){
+  return stampCards.filter(c=>(c.status||'')==='active' && !!(c.emailLower||c.email));
+}
+function onCartStampSearch(){
+  const box=document.getElementById('cart-stamp-results');
+  const q=((document.getElementById('cart-stamp-q')||{}).value||'').trim().toLowerCase();
+  if(!box)return;
+  let list=getActiveStampCardsWithEmail();
+  if(q) list=list.filter(c=>((c.nombre||'')+(c.email||'')+(c.code||'')).toLowerCase().includes(q));
+  list=list.slice(0,8);
+  if(!list.length){
+    box.classList.remove('show');
+    box.innerHTML='';
+    return;
+  }
+  box.innerHTML=list.map(c=>{
+    const code=c.code||c.id;
+    const name=c.nombre||'Sin nombre';
+    return `<button type="button" class="cart-stamp-opt" onclick="selectCartStamp('${esc(code)}')">
+      <div class="cart-stamp-opt-name">${esc(name)}</div>
+      <div class="cart-stamp-opt-meta">${esc(c.email||'')} · ${c.sellos||0}/8 · ${esc(code)}</div>
+    </button>`;
+  }).join('');
+  box.classList.add('show');
+}
+function selectCartStamp(code){
+  const card=stampCards.find(c=>(c.code||c.id)===code && (c.status||'')==='active');
+  if(!card||!(card.emailLower||card.email)){showToast('Esa tarjeta no tiene correo asignado','ti-alert-circle');return;}
+  cartStampCode=card.code||card.id;
+  const chip=document.getElementById('cart-stamp-chip');
+  document.getElementById('cart-stamp-chip-name').textContent=card.nombre||'Sin nombre';
+  document.getElementById('cart-stamp-chip-meta').textContent=(card.email||'')+' · '+(card.sellos||0)+'/8';
+  chip.classList.add('show');
+  const qEl=document.getElementById('cart-stamp-q');
+  if(qEl) qEl.value='';
+  const box=document.getElementById('cart-stamp-results');
+  if(box){box.classList.remove('show');box.innerHTML='';}
+  const clienteEl=document.getElementById('cart-cliente');
+  if(clienteEl && !clienteEl.value.trim() && card.nombre) clienteEl.value=card.nombre;
+}
+function clearCartStamp(){
+  cartStampCode=null;
+  const chip=document.getElementById('cart-stamp-chip');
+  if(chip) chip.classList.remove('show');
+  const qEl=document.getElementById('cart-stamp-q');
+  if(qEl) qEl.value='';
+  const box=document.getElementById('cart-stamp-results');
+  if(box){box.classList.remove('show');box.innerHTML='';}
+}
+document.addEventListener('click',e=>{
+  const wrap=document.querySelector('.cart-stamp-search');
+  if(wrap && !wrap.contains(e.target)){
+    const box=document.getElementById('cart-stamp-results');
+    if(box) box.classList.remove('show');
+  }
+});
 
 // ── CONFIRMAR VENTA: transacción atómica con contador secuencial de facturas ──
 async function confirmarVenta(){
@@ -2843,7 +2935,14 @@ async function confirmarVenta(){
   btn.disabled=true;
   const user=firebase.auth().currentUser;
   const sellerEmail=user?user.email:'Desconocido';
-  const cliente=document.getElementById('cart-cliente').value.trim();
+  let cliente=document.getElementById('cart-cliente').value.trim();
+  const stampCard=cartStampCode
+    ? stampCards.find(c=>(c.code||c.id)===cartStampCode && (c.status||'')==='active')
+    : null;
+  const stampCardCode=stampCard?(stampCard.code||stampCard.id):null;
+  const stampNombre=stampCard?(stampCard.nombre||''):'';
+  const stampEmail=stampCard?(stampCard.email||''):'';
+  if(stampCard && !cliente && stampNombre) cliente=stampNombre;
   const suc=cartSede;
   const statDocId=suc==='exsal'?'ColegioExsal':'ColegioDonBosco';
   const stockField=suc==='exsal'?'stockExsal':'stockCdb';
@@ -2885,6 +2984,12 @@ async function confirmarVenta(){
       };
       const lineaDesc=lineas.find(it=>it.discPct>0);
       if(lineaDesc){ventaData.descuentoAplicado={nombre:lineaDesc.discNombre,porcentaje:lineaDesc.discPct};}
+      if(stampCardCode){
+        ventaData.stampCardCode=stampCardCode;
+        ventaData.clienteNombre=stampNombre||cliente||'';
+        ventaData.clienteEmail=stampEmail;
+        ventaData.stampApplied=false;
+      }
       t.set(ventaRef,ventaData);
       // Descontar el stock de cada producto
       lineas.forEach(it=>{
@@ -2897,21 +3002,33 @@ async function confirmarVenta(){
         'numero de ventas':INC(1)
       });
       // Documento de FACTURA (liviano, solo texto — el PDF se genera en el navegador), vinculado a la venta
-      t.set(facRef,{
+      const facData={
         numero:seq,numFactura,sucursal:suc,
-        cliente:cliente||'',seller:sellerEmail,
+        cliente:cliente||stampNombre||'',seller:sellerEmail,
         date:fecha,timestamp:ts,mes,
         subtotal:subtotalVenta,total:totalVenta,unidades:totalUnidades,
         ventaId:ventaRef.id,
         items:lineas.map(it=>({productName:it.productName,qty:it.qty,precioUnit:it.price,descPct:it.discPct||0,descNombre:it.discNombre||'',subtotal:it.subtotal,total:it.total}))
-      });
+      };
+      if(stampCardCode){
+        facData.stampCardCode=stampCardCode;
+        facData.clienteNombre=stampNombre||cliente||'';
+        facData.clienteEmail=stampEmail;
+      }
+      t.set(facRef,facData);
       // Avanzar el contador (merge para no pisar otros campos de _meta)
       t.set(metaRef,{facturaSeq:seq,updatedAt:ts},{merge:true});
     });
 
     showToast('✓ Venta confirmada · FAC-'+String(seq).padStart(5,'0'),'ti-file-invoice');
+    // Sello post-venta (aislado): no altera totales ni revierte la venta
+    if(stampCardCode){
+      try{ await tryAwardStampForSale(ventaRef.id, stampCardCode, totalVenta); }
+      catch(e){ console.warn('Sello POS no actualizado:',e); showToast('Venta ok · no se pudo sumar el sello','ti-stamp'); }
+    }
     cart=[];cartSede=null;
     document.getElementById('cart-cliente').value='';
+    clearCartStamp();
     renderCart();
     toggleCartPanel(false);
   }catch(e){
@@ -5764,13 +5881,14 @@ async function createStampCard(){
   const email=(document.getElementById('stamp-f-email').value||'').trim();
   const fecha=document.getElementById('stamp-f-fecha').value||'';
   const emailLower=email.toLowerCase();
-  if(!nombre){err.textContent='El nombre es obligatorio.';return;}
-  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.textContent='Correo inválido.';return;}
+  if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.textContent='Correo inválido.';return;}
   err.textContent='';
   try{
-    const existing=await db.collection('stamp-cards').where('emailLower','==',emailLower).get();
-    const hasActive=existing.docs.some(d=>(d.data().status||'')==='active');
-    if(hasActive){err.textContent='Ya hay una tarjeta activa para ese correo.';return;}
+    if(emailLower){
+      const existing=await db.collection('stamp-cards').where('emailLower','==',emailLower).get();
+      const hasActive=existing.docs.some(d=>(d.data().status||'')==='active');
+      if(hasActive){err.textContent='Ese cliente ya tiene una tarjeta activa.';return;}
+    }
 
     let code='', tries=0;
     while(tries<8){
@@ -5784,7 +5902,10 @@ async function createStampCard(){
     const now=Date.now();
     const user=firebase.auth().currentUser;
     const data={
-      code, nombre, email, emailLower,
+      code,
+      nombre:nombre||'',
+      email:email||'',
+      emailLower:emailLower||'',
       sellos:0, status:'active',
       rewardPct:STAMP_REWARD_PCT,
       rewardAvailable:false, rewardUsed:false, rewardUsedAt:null,
@@ -5799,7 +5920,7 @@ async function createStampCard(){
     document.getElementById('stamp-f-email').value='';
     document.getElementById('stamp-f-fecha').value='';
     showToast('Tarjeta '+code+' creada','ti-stamp');
-    await showStampQrModal(code, nombre);
+    await showStampQrModal(code, nombre||'Sin nombre');
   }catch(e){console.error(e);err.textContent='Error al crear la tarjeta.';}
 }
 
@@ -5839,17 +5960,22 @@ async function saveStampEdit(){
   const email=(document.getElementById('stamp-edit-email').value||'').trim();
   const fecha=document.getElementById('stamp-edit-fecha').value||'';
   const emailLower=email.toLowerCase();
-  if(!nombre){err.textContent='El nombre es obligatorio.';return;}
-  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.textContent='Correo inválido.';return;}
+  if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.textContent='Correo inválido.';return;}
   err.textContent='';
   try{
     const card=stampCards.find(c=>c.id===code||c.code===code);
-    if(card && card.status==='active' && emailLower!==(card.emailLower||'')){
+    // Al asignar/cambiar correo: una sola tarjeta active por email
+    if(emailLower && emailLower!==(card&&card.emailLower||'')){
       const existing=await db.collection('stamp-cards').where('emailLower','==',emailLower).get();
       const clash=existing.docs.some(d=>d.id!==code && (d.data().status||'')==='active');
-      if(clash){err.textContent='Ya hay una tarjeta activa para ese correo.';return;}
+      if(clash){err.textContent='Ese cliente ya tiene una tarjeta activa.';return;}
     }
-    const update={ nombre, email, emailLower, updatedAt:Date.now() };
+    const update={
+      nombre:nombre||'',
+      email:email||'',
+      emailLower:emailLower||'',
+      updatedAt:Date.now()
+    };
     if(fecha) update.fecha=fecha;
     else update.fecha=firebase.firestore.FieldValue.delete();
     await db.collection('stamp-cards').doc(code).update(update);
@@ -5911,11 +6037,14 @@ function renderStampCards(){
     activeArea.innerHTML=active.map(c=>{
       const sellos=c.sellos||0;
       const rewardReady=!!c.rewardAvailable || sellos>=STAMP_MAX;
+      const displayName=c.nombre||'Sin nombre';
+      const displayEmail=c.email||'Sin correo';
+      const unassigned=!c.emailLower && !c.email;
       return `<div class="stamp-card">
         <div class="stamp-top">
           <div>
-            <div class="stamp-name">${esc(c.nombre||'—')}</div>
-            <div class="stamp-meta"><span>${esc(c.email||'')}</span><span class="dcode-code" style="font-size:12px">${esc(c.code||c.id)}</span>${c.fecha?`<span>${esc(c.fecha)}</span>`:''}</div>
+            <div class="stamp-name">${esc(displayName)}${unassigned?' <span class="badge-off" style="margin-left:6px">Sin asignar</span>':''}</div>
+            <div class="stamp-meta"><span>${esc(displayEmail)}</span><span class="dcode-code" style="font-size:12px">${esc(c.code||c.id)}</span>${c.fecha?`<span>${esc(c.fecha)}</span>`:''}</div>
           </div>
           ${rewardReady?'<span class="badge-reward">40% disponible</span>':''}
         </div>
@@ -5923,7 +6052,7 @@ function renderStampCards(){
         <div class="stamp-actions">
           <button class="btn-mini ok" onclick="adjustStamp('${esc(c.code||c.id)}',1)" title="+1 sello"><i class="ti ti-plus"></i>+1</button>
           <button class="btn-mini" onclick="adjustStamp('${esc(c.code||c.id)}',-1)" title="-1 sello"><i class="ti ti-minus"></i>−1</button>
-          <button class="btn-mini" onclick="openStampEdit('${esc(c.code||c.id)}')"><i class="ti ti-pencil"></i>Editar</button>
+          <button class="btn-mini" onclick="openStampEdit('${esc(c.code||c.id)}')"><i class="ti ti-pencil"></i>${unassigned?'Asignar':'Editar'}</button>
           <button class="btn-mini" onclick="openStampQrAgain('${esc(c.code||c.id)}')"><i class="ti ti-qrcode"></i>QR</button>
           <button class="btn-mini warn" onclick="markStampRewardUsedInPerson('${esc(c.code||c.id)}')"><i class="ti ti-discount-check"></i>Marcar 40% usado en persona</button>
         </div>
@@ -5945,8 +6074,8 @@ function renderStampCards(){
       return `<div class="stamp-card inactive">
         <div class="stamp-top">
           <div>
-            <div class="stamp-name">${esc(c.nombre||'—')}</div>
-            <div class="stamp-meta"><span>${esc(c.email||'')}</span><span class="dcode-code" style="font-size:12px">${esc(c.code||c.id)}</span></div>
+            <div class="stamp-name">${esc(c.nombre||'Sin nombre')}</div>
+            <div class="stamp-meta"><span>${esc(c.email||'Sin correo')}</span><span class="dcode-code" style="font-size:12px">${esc(c.code||c.id)}</span></div>
           </div>
           <span class="${st==='cancelled'?'badge-off':'badge-on'}">${st==='cancelled'?'Cancelada':'Terminada'}</span>
         </div>
@@ -5982,6 +6111,37 @@ async function tryAwardStampForOrder(orderId, order){
   if(newSellos>=STAMP_MAX) update.rewardAvailable=true;
   await cardDoc.ref.update(update);
   showToast('Sello añadido ('+newSellos+'/'+STAMP_MAX+')','ti-stamp');
+}
+
+/** Sello post-venta POS: tarjeta elegida en el carrito. Idempotente por ventaId. */
+async function tryAwardStampForSale(ventaId, stampCardCode, totalProd){
+  if(!ventaId||!stampCardCode) return;
+  if(!(totalProd>=1)) return;
+  const ref=db.collection('stamp-cards').doc(stampCardCode);
+  let awarded=false, newSellos=0;
+  await db.runTransaction(async t=>{
+    const snap=await t.get(ref);
+    if(!snap.exists) return;
+    const card=snap.data()||{};
+    if((card.status||'')!=='active') return;
+    const sellos=card.sellos||0;
+    if(sellos>=STAMP_MAX) return;
+    const ids=Array.isArray(card.stampOrderIds)?card.stampOrderIds:[];
+    if(ids.includes(ventaId)) return;
+    newSellos=Math.min(STAMP_MAX, sellos+1);
+    const update={
+      sellos:newSellos,
+      stampOrderIds:firebase.firestore.FieldValue.arrayUnion(ventaId),
+      updatedAt:Date.now()
+    };
+    if(newSellos>=STAMP_MAX) update.rewardAvailable=true;
+    t.update(ref, update);
+    awarded=true;
+  });
+  if(awarded){
+    try{ await db.collection('ventas').doc(ventaId).update({stampApplied:true, updatedAt:Date.now()}); }catch(_){}
+    showToast('Sello añadido ('+newSellos+'/'+STAMP_MAX+')','ti-stamp');
+  }
 }
 
 document.getElementById('dcode-edit-overlay').addEventListener('click',e=>{if(e.target.id==='dcode-edit-overlay')closeDiscountCodeEdit();});
