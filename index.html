@@ -414,6 +414,43 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 /* Columna descuento en tabla de ventas */
 .badge-descuento{background:var(--w50);color:var(--w600);border:1px solid var(--w100)}
 
+/* ── CÓDIGOS PROMO / TARJETAS SELLOS ── */
+.promo-help{font-size:13px;color:var(--ts);margin:-4px 0 14px;line-height:1.45;padding:0 2px}
+.promo-subtabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.promo-subtab{padding:8px 14px;border-radius:var(--rp);border:1.5px solid var(--b100);background:#fff;font-size:13px;font-weight:700;font-family:inherit;color:var(--ts);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:border-color var(--tr),background var(--tr),color var(--tr)}
+.promo-subtab.active{background:var(--b50);border-color:var(--b300);color:var(--b600)}
+.promo-check{display:flex;align-items:flex-start;gap:10px;background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:10px 12px;cursor:pointer;user-select:none}
+.promo-check input{margin-top:2px;width:16px;height:16px;accent-color:var(--b600);flex-shrink:0;cursor:pointer}
+.promo-check-title{font-size:13px;font-weight:600;color:var(--tp)}
+.promo-check-sub{font-size:11.5px;color:var(--tm);margin-top:1px}
+.dcode-card,.stamp-card{background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rmd);padding:14px 15px;display:flex;flex-direction:column;gap:10px;animation:fadeIn .22s ease;transition:border-color var(--tr),box-shadow var(--tr)}
+.dcode-card:hover,.stamp-card:hover{border-color:var(--b300);box-shadow:0 3px 14px rgba(74,168,232,.13)}
+.dcode-card.inactive,.stamp-card.inactive{opacity:.72;background:#f7fafc}
+.dcode-top,.stamp-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.dcode-code{font-size:15px;font-weight:800;letter-spacing:.04em;color:var(--b600);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.dcode-name,.stamp-name{font-size:14px;font-weight:700;color:var(--tp)}
+.dcode-meta,.stamp-meta{font-size:12px;color:var(--tm);display:flex;flex-wrap:wrap;gap:8px 12px}
+.dcode-actions,.stamp-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.btn-mini{padding:6px 10px;border-radius:8px;border:1.5px solid var(--b100);background:#fff;font-size:12px;font-weight:700;font-family:inherit;color:var(--tp);cursor:pointer;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.btn-mini:hover{border-color:var(--b300);background:var(--b50)}
+.btn-mini.warn{border-color:var(--w100);background:var(--w50);color:var(--w600)}
+.btn-mini.danger{border-color:var(--r100);background:var(--r50);color:var(--r600)}
+.btn-mini.ok{border-color:var(--g100);background:var(--g50);color:var(--g600)}
+.badge-on{background:var(--g50);color:var(--g600);border:1px solid var(--g100);font-size:11px;font-weight:700;padding:2px 8px;border-radius:var(--rp)}
+.badge-off{background:var(--r50);color:var(--r600);border:1px solid var(--r100);font-size:11px;font-weight:700;padding:2px 8px;border-radius:var(--rp)}
+.badge-reward{background:linear-gradient(135deg,var(--w50),#fef3c7);color:var(--w600);border:1px solid var(--w100);font-size:11px;font-weight:800;padding:3px 9px;border-radius:var(--rp)}
+.stamp-sellos{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.stamp-dots{display:flex;gap:5px;flex-wrap:wrap}
+.stamp-dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--b200);background:#fff}
+.stamp-dot.filled{background:var(--b500);border-color:var(--b600)}
+.stamp-count{font-size:13px;font-weight:800;color:var(--b600)}
+.qr-modal-box{max-width:420px}
+.qr-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px 0 4px}
+.qr-canvas-host{width:280px;height:280px;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:18px;border:1.5px solid var(--b100);box-shadow:var(--sc)}
+.qr-link{font-size:12px;color:var(--ts);word-break:break-all;text-align:center;max-width:100%}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:640px){.form-row-2{grid-template-columns:1fr}}
+
 /* ── PIN OVERLAY ── */
 .pin-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:150;background:rgba(15,63,99,.52);backdrop-filter:blur(7px);padding:20px;display:none}
 .pin-card{background:#fff;border-radius:24px;width:100%;max-width:340px;box-shadow:0 20px 60px rgba(15,63,99,.24);overflow:hidden}
@@ -564,6 +601,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.9.2/lib/qr-code-styling.js"></script>
 </head>
 <body>
 
@@ -615,6 +653,15 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       <button class="tab-btn" onclick="switchTab('inv-descuentos',this)"><i class="ti ti-ticket-off"></i>Descuentos</button>
       <button class="tab-btn" onclick="switchTab('inv-categorias',this)"><i class="ti ti-category"></i>Categorías</button>
       <button class="tab-btn" onclick="switchTab('inv-papelera',this)"><i class="ti ti-trash"></i>Papelera</button>
+    </div>
+  </div>
+
+  <!-- GRUPO TABS: PROMOCIONES -->
+  <div class="tabs-group">
+    <div class="tabs-label">Promociones</div>
+    <div class="tabs">
+      <button class="tab-btn" onclick="switchTab('inv-codigos',this)"><i class="ti ti-discount-2"></i>Códigos promo</button>
+      <button class="tab-btn" onclick="switchTab('inv-tarjetas',this)"><i class="ti ti-stamp"></i>Tarjetas sellos</button>
     </div>
   </div>
 
@@ -1315,6 +1362,90 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     </div>
   </div>
 
+  <!-- ═══ CÓDIGOS PROMOCIONALES ═══ -->
+  <div class="tab-content" id="tab-inv-codigos">
+    <div class="panel" style="margin-bottom:14px">
+      <div class="panel-hd"><div class="phd-icon" style="background:linear-gradient(135deg,var(--w600),#f59e0b)"><i class="ti ti-discount-2"></i></div><div><div class="ptitle">Códigos promocionales</div><div class="psub">Códigos que el cliente escribe en el carrito de la tienda</div></div></div>
+      <div class="form-body" style="padding-top:12px;padding-bottom:4px">
+        <p class="promo-help">El cliente inicia sesión en la tienda, escribe el código en el carrito y solo puede usar un descuento a la vez.</p>
+      </div>
+    </div>
+    <div class="descuentos-layout">
+      <div class="panel">
+        <div class="panel-hd"><div class="phd-icon" style="background:linear-gradient(135deg,var(--w600),#f59e0b)"><i class="ti ti-plus"></i></div><div><div class="ptitle">Crear código</div><div class="psub">Se guarda en mayúsculas</div></div></div>
+        <div class="form-body">
+          <div class="field"><label>Código</label><input type="text" id="dcode-f-code" placeholder="Ej. VERANO20" maxlength="32" autocomplete="off" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"></div>
+          <div class="field"><label>Nombre</label><input type="text" id="dcode-f-nombre" placeholder="Ej. Promo verano" maxlength="60" autocomplete="off"></div>
+          <div class="form-row-2">
+            <div class="field"><label>Porcentaje (%)</label><input type="number" id="dcode-f-pct" placeholder="10" min="1" max="99" step="1"></div>
+            <div class="field"><label>Monto mínimo ($)</label><input type="number" id="dcode-f-min" placeholder="0" min="0" step="0.01"></div>
+          </div>
+          <div class="form-row-2">
+            <div class="field"><label>Máx. usos (opcional)</label><input type="number" id="dcode-f-max" placeholder="Sin límite" min="1" step="1"></div>
+            <div class="field"><label>Vence (opcional)</label><input type="date" id="dcode-f-vence"></div>
+          </div>
+          <label class="promo-check"><input type="checkbox" id="dcode-f-activo" checked><div><div class="promo-check-title">Activo</div><div class="promo-check-sub">Si está apagado, la tienda no lo acepta</div></div></label>
+          <label class="promo-check"><input type="checkbox" id="dcode-f-once" checked><div><div class="promo-check-title">Un solo uso por usuario</div><div class="promo-check-sub">Cada cuenta solo puede canjearlo una vez</div></div></label>
+          <button class="btn-add" style="background:linear-gradient(135deg,var(--w600),#f59e0b);box-shadow:0 4px 14px rgba(181,106,0,.3)" onclick="addDiscountCode()"><i class="ti ti-plus"></i>Crear código</button>
+          <div class="form-error" id="dcode-form-error"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="list-meta" style="padding:13px 15px 10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+          <span class="list-count" id="dcode-list-count"></span>
+          <div class="search-wrap" style="max-width:220px;margin:0"><i class="ti ti-search"></i><input type="text" id="dcode-search" placeholder="Buscar código…" oninput="renderDiscountCodes()"></div>
+        </div>
+        <div class="list-area" id="dcode-list-area" style="max-height:560px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TARJETAS DE SELLOS ═══ -->
+  <div class="tab-content" id="tab-inv-tarjetas">
+    <div class="panel" style="margin-bottom:14px">
+      <div class="panel-hd"><div class="phd-icon" style="background:linear-gradient(135deg,var(--b600),var(--s400))"><i class="ti ti-stamp"></i></div><div><div class="ptitle">Tarjetas de sellos</div><div class="psub">8 sellos = 40% de descuento una sola vez</div></div></div>
+      <div class="form-body" style="padding-top:12px;padding-bottom:4px">
+        <p class="promo-help">Cada compra entregada de $1 o más (retiro o domicilio) suma un sello automáticamente. Solo hay una tarjeta activa por correo.</p>
+      </div>
+    </div>
+    <div class="promo-subtabs">
+      <button class="promo-subtab active" id="stamp-tab-active-btn" onclick="switchStampSubtab('active')"><i class="ti ti-circle-check"></i>Tarjetas activas</button>
+      <button class="promo-subtab" id="stamp-tab-done-btn" onclick="switchStampSubtab('done')"><i class="ti ti-archive"></i>Terminadas / vencidas</button>
+    </div>
+
+    <div id="stamp-pane-active">
+      <div class="descuentos-layout">
+        <div class="panel">
+          <div class="panel-hd"><div class="phd-icon" style="background:linear-gradient(135deg,var(--b600),var(--s400))"><i class="ti ti-qrcode"></i></div><div><div class="ptitle">Crear tarjeta nueva</div><div class="psub">Genera código, QR y link de la tienda</div></div></div>
+          <div class="form-body">
+            <div class="field"><label>Nombre del cliente</label><input type="text" id="stamp-f-nombre" placeholder="Ej. María López" maxlength="80" autocomplete="off"></div>
+            <div class="field"><label>Correo</label><input type="email" id="stamp-f-email" placeholder="cliente@correo.com" maxlength="120" autocomplete="off"></div>
+            <div class="field"><label>Fecha (opcional)</label><input type="date" id="stamp-f-fecha"></div>
+            <button class="btn-add" onclick="createStampCard()"><i class="ti ti-plus"></i>Crear tarjeta nueva</button>
+            <div class="form-error" id="stamp-form-error"></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="list-meta" style="padding:13px 15px 10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+            <span class="list-count" id="stamp-active-count"></span>
+            <div class="search-wrap" style="max-width:220px;margin:0"><i class="ti ti-search"></i><input type="text" id="stamp-active-search" placeholder="Buscar…" oninput="renderStampCards()"></div>
+          </div>
+          <div class="list-area" id="stamp-active-list" style="max-height:560px"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="stamp-pane-done" style="display:none">
+      <div class="panel">
+        <div class="list-meta" style="padding:13px 15px 10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+          <span class="list-count" id="stamp-done-count"></span>
+          <div class="search-wrap" style="max-width:260px;margin:0"><i class="ti ti-search"></i><input type="text" id="stamp-done-search" placeholder="Buscar por nombre, correo o código…" oninput="renderStampCards()"></div>
+        </div>
+        <div class="list-area" id="stamp-done-list" style="max-height:620px"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- ═══ PAPELERA ═══ -->
   <div class="tab-content" id="tab-inv-papelera">
     <div class="panel">
@@ -1508,6 +1639,68 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
   </div>
 </div>
 
+<!-- MODAL: editar código promocional -->
+<div class="overlay" id="dcode-edit-overlay">
+  <div class="modal-box" style="max-width:440px">
+    <div class="pm-header" style="background:linear-gradient(135deg,var(--w600),#f59e0b)"><div class="pm-name">Editar código</div><div class="pm-desc" id="dcode-edit-code-label">—</div></div>
+    <div class="form-body">
+      <input type="hidden" id="dcode-edit-id">
+      <div class="field"><label>Nombre</label><input type="text" id="dcode-edit-nombre" maxlength="60"></div>
+      <div class="form-row-2">
+        <div class="field"><label>Porcentaje (%)</label><input type="number" id="dcode-edit-pct" min="1" max="99" step="1"></div>
+        <div class="field"><label>Monto mínimo ($)</label><input type="number" id="dcode-edit-min" min="0" step="0.01"></div>
+      </div>
+      <div class="form-row-2">
+        <div class="field"><label>Máx. usos (vacío = sin límite)</label><input type="number" id="dcode-edit-max" min="1" step="1" placeholder="Sin límite"></div>
+        <div class="field"><label>Vence (opcional)</label><input type="date" id="dcode-edit-vence"></div>
+      </div>
+      <label class="promo-check"><input type="checkbox" id="dcode-edit-activo"><div><div class="promo-check-title">Activo</div></div></label>
+      <label class="promo-check"><input type="checkbox" id="dcode-edit-once"><div><div class="promo-check-title">Un solo uso por usuario</div></div></label>
+      <div class="form-error" id="dcode-edit-error"></div>
+      <div class="pm-footer" style="padding:0;border:0;margin-top:8px">
+        <button class="btn-secondary" onclick="closeDiscountCodeEdit()">Cancelar</button>
+        <button class="btn-save" style="background:linear-gradient(135deg,var(--w600),#f59e0b)" onclick="saveDiscountCodeEdit()"><i class="ti ti-check"></i>Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: editar tarjeta de sellos -->
+<div class="overlay" id="stamp-edit-overlay">
+  <div class="modal-box" style="max-width:420px">
+    <div class="pm-header"><div class="pm-name">Editar tarjeta</div><div class="pm-desc" id="stamp-edit-code-label">—</div></div>
+    <div class="form-body">
+      <input type="hidden" id="stamp-edit-code">
+      <div class="field"><label>Nombre</label><input type="text" id="stamp-edit-nombre" maxlength="80"></div>
+      <div class="field"><label>Correo</label><input type="email" id="stamp-edit-email" maxlength="120"></div>
+      <div class="field"><label>Fecha (opcional)</label><input type="date" id="stamp-edit-fecha"></div>
+      <div class="form-error" id="stamp-edit-error"></div>
+      <div class="pm-footer" style="padding:0;border:0;margin-top:8px">
+        <button class="btn-secondary" onclick="closeStampEdit()">Cancelar</button>
+        <button class="btn-save" onclick="saveStampEdit()"><i class="ti ti-check"></i>Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: QR de tarjeta -->
+<div class="overlay" id="stamp-qr-overlay">
+  <div class="modal-box qr-modal-box">
+    <div class="pm-header"><div class="pm-name">Tarjeta creada</div><div class="pm-desc" id="stamp-qr-title">—</div></div>
+    <div class="form-body">
+      <div class="qr-wrap">
+        <div class="qr-canvas-host" id="stamp-qr-host"></div>
+        <div class="dcode-code" id="stamp-qr-code">—</div>
+        <div class="qr-link" id="stamp-qr-link"></div>
+      </div>
+      <div class="pm-footer" style="padding:0;border:0;margin-top:10px;flex-wrap:wrap;justify-content:center">
+        <button class="btn-secondary" onclick="copyStampQrLink()"><i class="ti ti-copy"></i>Copiar link</button>
+        <button class="btn-save" onclick="downloadStampQrPng()"><i class="ti ti-download"></i>Descargar PNG</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- PIN OVERLAY: ESTADÍSTICAS -->
 <div class="pin-overlay" id="pin-overlay" style="display:none">
   <div class="pin-card">
@@ -1574,10 +1767,10 @@ db.enablePersistence({ synchronizeTabs: true }).catch(e=>{
 });
 
 // ── ESTADO ──
-let products=[], sales=[], deletedSales=[], orders=[], descuentos=[], gastos=[], categorias=[];
+let products=[], sales=[], deletedSales=[], orders=[], descuentos=[], gastos=[], categorias=[], discountCodes=[], stampCards=[];
 let sortAsc={exsal:false,cdb:false,total:false};
 let activePid=null, activeSucursal=null;
-let unsubProd=null, unsubSales=null, unsubDeleted=null, unsubOrders=null, unsubRestock=null, unsubDescuentos=null, unsubGastos=null, unsubEstadisticas=null, unsubCategorias=null;
+let unsubProd=null, unsubSales=null, unsubDeleted=null, unsubOrders=null, unsubRestock=null, unsubDescuentos=null, unsubGastos=null, unsubEstadisticas=null, unsubCategorias=null, unsubDiscountCodes=null, unsubStampCards=null;
 let restockHistory=[];
 let restockPendingData=null;
 // Estado de carga de ventas por mes (nuevo apartado ventas)
@@ -1723,8 +1916,8 @@ auth.onAuthStateChanged(async user=>{
     startListeners();
   }else{
     overlay.style.display='flex';
-    if(unsubProd){unsubProd();unsubProd=null;}if(unsubSales){unsubSales();unsubSales=null;}if(unsubDeleted){unsubDeleted();unsubDeleted=null;}if(unsubOrders){unsubOrders();unsubOrders=null;}if(unsubRestock){unsubRestock();unsubRestock=null;}if(unsubDescuentos){unsubDescuentos();unsubDescuentos=null;}if(unsubGastos){unsubGastos();unsubGastos=null;}if(unsubEstadisticas){unsubEstadisticas();unsubEstadisticas=null;}if(unsubCategorias){unsubCategorias();unsubCategorias=null;}
-    products=[];sales=[];deletedSales=[];orders=[];descuentos=[];categorias=[];
+    if(unsubProd){unsubProd();unsubProd=null;}if(unsubSales){unsubSales();unsubSales=null;}if(unsubDeleted){unsubDeleted();unsubDeleted=null;}if(unsubOrders){unsubOrders();unsubOrders=null;}if(unsubRestock){unsubRestock();unsubRestock=null;}if(unsubDescuentos){unsubDescuentos();unsubDescuentos=null;}if(unsubGastos){unsubGastos();unsubGastos=null;}if(unsubEstadisticas){unsubEstadisticas();unsubEstadisticas=null;}if(unsubCategorias){unsubCategorias();unsubCategorias=null;}if(unsubDiscountCodes){unsubDiscountCodes();unsubDiscountCodes=null;}if(unsubStampCards){unsubStampCards();unsubStampCards=null;}
+    products=[];sales=[];deletedSales=[];orders=[];descuentos=[];categorias=[];discountCodes=[];stampCards=[];
     salesExtra=[];ordersExtra=[];restockExtra=[];
     salesLastVisible=null;ordersLastVisible=null;restockLastVisible=null;
     salesAllLoaded=false;ordersAllLoaded=false;restockAllLoaded=false;
@@ -1946,6 +2139,24 @@ function startListeners(){
     renderDescuentos();
     populateDiscountSelect();
   });
+
+  // Códigos promocionales (tienda)
+  if(unsubDiscountCodes){unsubDiscountCodes();unsubDiscountCodes=null;}
+  unsubDiscountCodes=db.collection("discount-codes").onSnapshot(snap=>{
+    discountCodes=[];
+    snap.forEach(doc=>discountCodes.push({id:doc.id,...doc.data()}));
+    discountCodes.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+    renderDiscountCodes();
+  },err=>console.warn('discount-codes listener:',err));
+
+  // Tarjetas de sellos
+  if(unsubStampCards){unsubStampCards();unsubStampCards=null;}
+  unsubStampCards=db.collection("stamp-cards").onSnapshot(snap=>{
+    stampCards=[];
+    snap.forEach(doc=>stampCards.push({id:doc.id,...doc.data()}));
+    stampCards.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+    renderStampCards();
+  },err=>console.warn('stamp-cards listener:',err));
 
   // ── CATEGORÍAS: lista maestra administrable (doc único config/categorias) ──
   if(unsubCategorias){unsubCategorias();unsubCategorias=null;}
@@ -4478,6 +4689,9 @@ async function deliverOrder(orderId){
 
     await batch.commit();
     showToast('Pedido entregado','ti-circle-check');
+    // Sellos: idempotente y no bloquea la entrega si falla
+    try{ await tryAwardStampForOrder(orderId, freshData); }
+    catch(e){ console.warn('Sello no actualizado:',e); showToast('Pedido entregado · no se pudo sumar el sello','ti-stamp'); }
   }catch(e){
     console.error(e);
     showToast('Error al entregar pedido','ti-alert-circle');
@@ -5264,6 +5478,515 @@ function populateDiscountSelect(){
     descuentos.map(d=>`<option value="${d.id}">${esc(d.nombre)} (${d.porcentaje}%)</option>`).join('');
   if(currentVal) sel.value=currentVal;
 }
+
+// ════════════════════════════════════════════════════════════════
+//  CÓDIGOS PROMOCIONALES (colección discount-codes)
+// ════════════════════════════════════════════════════════════════
+function dcodeVenceToInput(venceAt){
+  if(!venceAt) return '';
+  try{
+    const d=venceAt.toDate?venceAt.toDate():new Date(venceAt);
+    if(isNaN(d.getTime())) return '';
+    return d.toISOString().slice(0,10);
+  }catch(_){ return ''; }
+}
+function dcodeParseVence(dateStr){
+  if(!dateStr) return null;
+  const d=new Date(dateStr+'T23:59:59');
+  return isNaN(d.getTime())?null:d.getTime();
+}
+function dcodeFmtVence(venceAt){
+  if(!venceAt) return 'Sin vencimiento';
+  try{
+    const d=venceAt.toDate?venceAt.toDate():new Date(venceAt);
+    if(isNaN(d.getTime())) return 'Sin vencimiento';
+    return 'Vence '+d.toLocaleDateString('es');
+  }catch(_){ return 'Sin vencimiento'; }
+}
+function dcodeUsosLabel(c){
+  const usados=c.usosActuales||0;
+  if(c.maxUsos==null||c.maxUsos==='') return usados+' usos · sin límite';
+  return usados+'/'+c.maxUsos+' usos';
+}
+
+async function addDiscountCode(){
+  const err=document.getElementById('dcode-form-error');
+  const codeRaw=(document.getElementById('dcode-f-code').value||'').trim().toUpperCase().replace(/\s+/g,'');
+  const nombre=(document.getElementById('dcode-f-nombre').value||'').trim();
+  const pct=parseInt(document.getElementById('dcode-f-pct').value,10);
+  const minStr=document.getElementById('dcode-f-min').value;
+  const maxStr=document.getElementById('dcode-f-max').value;
+  const venceStr=document.getElementById('dcode-f-vence').value;
+  const activo=!!document.getElementById('dcode-f-activo').checked;
+  const once=!!document.getElementById('dcode-f-once').checked;
+  if(!codeRaw||!/^[A-Z0-9_-]{2,32}$/.test(codeRaw)){err.textContent='Código inválido (2–32: letras, números, _ o -).';return;}
+  if(!nombre){err.textContent='El nombre es obligatorio.';return;}
+  if(isNaN(pct)||pct<1||pct>99){err.textContent='Porcentaje entre 1 y 99.';return;}
+  const montoMinimo=minStr===''?0:parseFloat(minStr);
+  if(isNaN(montoMinimo)||montoMinimo<0){err.textContent='Monto mínimo inválido.';return;}
+  let maxUsos=null;
+  if(maxStr!==''){ maxUsos=parseInt(maxStr,10); if(isNaN(maxUsos)||maxUsos<1){err.textContent='Máx. usos inválido.';return;} }
+  err.textContent='';
+  try{
+    const ref=db.collection('discount-codes').doc(codeRaw);
+    const exists=await ref.get();
+    if(exists.exists){err.textContent='Ese código ya existe.';return;}
+    const now=Date.now();
+    await ref.set({
+      code:codeRaw, nombre, porcentaje:pct, activo,
+      maxUsos, usosActuales:0,
+      unSoloUsoPorUsuario:once,
+      montoMinimo:+(+montoMinimo).toFixed(2),
+      venceAt:dcodeParseVence(venceStr),
+      createdAt:now, updatedAt:now
+    });
+    document.getElementById('dcode-f-code').value='';
+    document.getElementById('dcode-f-nombre').value='';
+    document.getElementById('dcode-f-pct').value='';
+    document.getElementById('dcode-f-min').value='';
+    document.getElementById('dcode-f-max').value='';
+    document.getElementById('dcode-f-vence').value='';
+    document.getElementById('dcode-f-activo').checked=true;
+    document.getElementById('dcode-f-once').checked=true;
+    showToast('Código '+codeRaw+' creado','ti-discount-2');
+  }catch(e){console.error(e);err.textContent='Error al guardar el código.';}
+}
+
+function openDiscountCodeEdit(id){
+  const c=discountCodes.find(x=>x.id===id);
+  if(!c)return;
+  document.getElementById('dcode-edit-id').value=c.id;
+  document.getElementById('dcode-edit-code-label').textContent=c.code||c.id;
+  document.getElementById('dcode-edit-nombre').value=c.nombre||'';
+  document.getElementById('dcode-edit-pct').value=c.porcentaje||'';
+  document.getElementById('dcode-edit-min').value=(c.montoMinimo!=null?c.montoMinimo:0);
+  document.getElementById('dcode-edit-max').value=(c.maxUsos!=null?c.maxUsos:'');
+  document.getElementById('dcode-edit-vence').value=dcodeVenceToInput(c.venceAt);
+  document.getElementById('dcode-edit-activo').checked=!!c.activo;
+  document.getElementById('dcode-edit-once').checked=!!c.unSoloUsoPorUsuario;
+  document.getElementById('dcode-edit-error').textContent='';
+  document.getElementById('dcode-edit-overlay').classList.add('open');
+}
+function closeDiscountCodeEdit(){document.getElementById('dcode-edit-overlay').classList.remove('open');}
+
+async function saveDiscountCodeEdit(){
+  const err=document.getElementById('dcode-edit-error');
+  const id=document.getElementById('dcode-edit-id').value;
+  const nombre=(document.getElementById('dcode-edit-nombre').value||'').trim();
+  const pct=parseInt(document.getElementById('dcode-edit-pct').value,10);
+  const minStr=document.getElementById('dcode-edit-min').value;
+  const maxStr=document.getElementById('dcode-edit-max').value;
+  const venceStr=document.getElementById('dcode-edit-vence').value;
+  if(!nombre){err.textContent='El nombre es obligatorio.';return;}
+  if(isNaN(pct)||pct<1||pct>99){err.textContent='Porcentaje entre 1 y 99.';return;}
+  const montoMinimo=minStr===''?0:parseFloat(minStr);
+  if(isNaN(montoMinimo)||montoMinimo<0){err.textContent='Monto mínimo inválido.';return;}
+  let maxUsos=null;
+  if(maxStr!==''){ maxUsos=parseInt(maxStr,10); if(isNaN(maxUsos)||maxUsos<1){err.textContent='Máx. usos inválido.';return;} }
+  err.textContent='';
+  try{
+    await db.collection('discount-codes').doc(id).update({
+      nombre, porcentaje:pct, activo:!!document.getElementById('dcode-edit-activo').checked,
+      maxUsos, unSoloUsoPorUsuario:!!document.getElementById('dcode-edit-once').checked,
+      montoMinimo:+(+montoMinimo).toFixed(2),
+      venceAt:dcodeParseVence(venceStr),
+      updatedAt:Date.now()
+    });
+    closeDiscountCodeEdit();
+    showToast('Código actualizado','ti-check');
+  }catch(e){console.error(e);err.textContent='Error al guardar.';}
+}
+
+async function toggleDiscountCodeActive(id, makeActive){
+  try{
+    await db.collection('discount-codes').doc(id).update({activo:!!makeActive, updatedAt:Date.now()});
+    showToast(makeActive?'Código activado':'Código desactivado', makeActive?'ti-circle-check':'ti-circle-off');
+  }catch(e){console.error(e);showToast('Error al actualizar','ti-alert-circle');}
+}
+
+async function deactivateDiscountCode(id){
+  if(!confirm('¿Desactivar este código? La tienda dejará de aceptarlo.'))return;
+  await toggleDiscountCodeActive(id,false);
+}
+
+function renderDiscountCodes(){
+  const area=document.getElementById('dcode-list-area');
+  const cnt=document.getElementById('dcode-list-count');
+  if(!area)return;
+  const q=((document.getElementById('dcode-search')||{}).value||'').trim().toLowerCase();
+  let list=discountCodes.slice();
+  if(q) list=list.filter(c=>((c.code||'')+(c.nombre||'')).toLowerCase().includes(q));
+  list.sort((a,b)=>{
+    if(!!a.activo!==!!b.activo) return a.activo?-1:1;
+    return (b.updatedAt||0)-(a.updatedAt||0);
+  });
+  cnt.textContent=list.length+' código'+(list.length!==1?'s':'')+(discountCodes.length!==list.length?' (filtrados)':'');
+  if(!list.length){
+    area.innerHTML=`<div class="empty-state"><div class="empty-icon"><i class="ti ti-discount-2"></i></div><p>No hay códigos promocionales.</p></div>`;
+    return;
+  }
+  area.innerHTML=list.map(c=>{
+    const activo=!!c.activo;
+    return `<div class="dcode-card ${activo?'':'inactive'}">
+      <div class="dcode-top">
+        <div>
+          <div class="dcode-code">${esc(c.code||c.id)}</div>
+          <div class="dcode-name">${esc(c.nombre||'')} · ${c.porcentaje||0}%</div>
+        </div>
+        <span class="${activo?'badge-on':'badge-off'}">${activo?'Activo':'Inactivo'}</span>
+      </div>
+      <div class="dcode-meta">
+        <span><i class="ti ti-users"></i> ${esc(dcodeUsosLabel(c))}</span>
+        <span><i class="ti ti-calendar"></i> ${esc(dcodeFmtVence(c.venceAt))}</span>
+        <span>Mín. ${fmt(c.montoMinimo||0)}</span>
+        ${c.unSoloUsoPorUsuario?'<span>1 uso / usuario</span>':''}
+      </div>
+      <div class="dcode-actions">
+        <button class="btn-mini" onclick="openDiscountCodeEdit('${esc(c.id)}')"><i class="ti ti-pencil"></i>Editar</button>
+        ${activo
+          ?`<button class="btn-mini warn" onclick="deactivateDiscountCode('${esc(c.id)}')"><i class="ti ti-circle-off"></i>Desactivar</button>`
+          :`<button class="btn-mini ok" onclick="toggleDiscountCodeActive('${esc(c.id)}',true)"><i class="ti ti-circle-check"></i>Activar</button>`}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════════════
+//  TARJETAS DE SELLOS (colección stamp-cards)
+// ════════════════════════════════════════════════════════════════
+const STAMP_MAX=8;
+const STAMP_REWARD_PCT=40;
+const STAMP_URL_BASE='https://picosv.com/tarjetas/';
+let stampSubtab='active';
+let stampQrInstance=null;
+let stampQrCurrentCode='';
+let stampQrLogoDataUrl=null;
+
+function switchStampSubtab(which){
+  stampSubtab=which==='done'?'done':'active';
+  document.getElementById('stamp-pane-active').style.display=stampSubtab==='active'?'':'none';
+  document.getElementById('stamp-pane-done').style.display=stampSubtab==='done'?'':'none';
+  document.getElementById('stamp-tab-active-btn').classList.toggle('active',stampSubtab==='active');
+  document.getElementById('stamp-tab-done-btn').classList.toggle('active',stampSubtab==='done');
+}
+
+function genStampCode(){
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s='';
+  for(let i=0;i<6;i++) s+=chars[Math.floor(Math.random()*chars.length)];
+  return 'PICO-'+s;
+}
+
+function stampDotsHtml(n){
+  const filled=Math.max(0,Math.min(STAMP_MAX,n|0));
+  let dots='';
+  for(let i=0;i<STAMP_MAX;i++) dots+=`<span class="stamp-dot ${i<filled?'filled':''}"></span>`;
+  return `<div class="stamp-sellos"><div class="stamp-dots">${dots}</div><span class="stamp-count">${filled}/${STAMP_MAX}</span></div>`;
+}
+
+async function ensureStampQrLogo(){
+  if(stampQrLogoDataUrl) return stampQrLogoDataUrl;
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    img.crossOrigin='anonymous';
+    img.onload=()=>{
+      try{
+        // Fondo cuadrado redondeado ~30% del QR (280px → ~84px) con logo ~15% (~42px)
+        const size=168; // se escala con imageSize 0.3 sobre QR 280 → ~84px; canvas hi-res
+        const canvas=document.createElement('canvas');
+        canvas.width=size; canvas.height=size;
+        const ctx=canvas.getContext('2d');
+        const r=size*0.22;
+        ctx.fillStyle='#ffffff';
+        ctx.beginPath();
+        ctx.moveTo(r,0); ctx.arcTo(size,0,size,size,r); ctx.arcTo(size,size,0,size,r);
+        ctx.arcTo(0,size,0,0,r); ctx.arcTo(0,0,size,0,r); ctx.closePath(); ctx.fill();
+        const logoSize=size*0.5; // mitad del fondo → ~15% del QR cuando el fondo es 30%
+        const x=(size-logoSize)/2, y=(size-logoSize)/2;
+        ctx.drawImage(img,x,y,logoSize,logoSize);
+        stampQrLogoDataUrl=canvas.toDataURL('image/png');
+        resolve(stampQrLogoDataUrl);
+      }catch(e){reject(e);}
+    };
+    img.onerror=()=>reject(new Error('No se pudo cargar logo.png'));
+    img.src='logo.png';
+  });
+}
+
+async function buildStampQr(code, hostEl){
+  if(typeof QRCodeStyling==='undefined') throw new Error('Librería QR no cargada');
+  const logo=await ensureStampQrLogo();
+  const url=STAMP_URL_BASE+code;
+  hostEl.innerHTML='';
+  stampQrInstance=new QRCodeStyling({
+    width:280, height:280, type:'canvas', data:url, image:logo,
+    margin:8,
+    qrOptions:{ errorCorrectionLevel:'H' },
+    dotsOptions:{ color:'#1E72B0', type:'rounded' },
+    backgroundOptions:{ color:'#ffffff' },
+    cornersSquareOptions:{ type:'extra-rounded', color:'#1E72B0' },
+    cornersDotOptions:{ type:'dot', color:'#1E72B0' },
+    imageOptions:{ crossOrigin:'anonymous', margin:4, imageSize:0.30, hideBackgroundDots:true }
+  });
+  stampQrInstance.append(hostEl);
+  stampQrCurrentCode=code;
+  return url;
+}
+
+async function showStampQrModal(code, nombre){
+  document.getElementById('stamp-qr-title').textContent=(nombre||'')+' · '+code;
+  document.getElementById('stamp-qr-code').textContent=code;
+  const link=STAMP_URL_BASE+code;
+  document.getElementById('stamp-qr-link').textContent=link;
+  document.getElementById('stamp-qr-overlay').classList.add('open');
+  try{
+    await buildStampQr(code, document.getElementById('stamp-qr-host'));
+  }catch(e){
+    console.error(e);
+    document.getElementById('stamp-qr-host').innerHTML='<div style="padding:20px;color:var(--r600);text-align:center;font-size:13px">No se pudo generar el QR</div>';
+  }
+}
+function closeStampQr(){ document.getElementById('stamp-qr-overlay').classList.remove('open'); }
+async function copyStampQrLink(){
+  const link=STAMP_URL_BASE+(stampQrCurrentCode||'');
+  try{ await navigator.clipboard.writeText(link); showToast('Link copiado','ti-copy'); }
+  catch(_){ showToast(link,'ti-link'); }
+}
+async function downloadStampQrPng(){
+  if(!stampQrInstance||!stampQrCurrentCode){showToast('QR no disponible','ti-alert-circle');return;}
+  try{ await stampQrInstance.download({ name:'tarjeta-'+stampQrCurrentCode, extension:'png' }); }
+  catch(e){ console.error(e); showToast('No se pudo descargar','ti-alert-circle'); }
+}
+
+async function createStampCard(){
+  const err=document.getElementById('stamp-form-error');
+  const nombre=(document.getElementById('stamp-f-nombre').value||'').trim();
+  const email=(document.getElementById('stamp-f-email').value||'').trim();
+  const fecha=document.getElementById('stamp-f-fecha').value||'';
+  const emailLower=email.toLowerCase();
+  if(!nombre){err.textContent='El nombre es obligatorio.';return;}
+  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.textContent='Correo inválido.';return;}
+  err.textContent='';
+  try{
+    const existing=await db.collection('stamp-cards').where('emailLower','==',emailLower).get();
+    const hasActive=existing.docs.some(d=>(d.data().status||'')==='active');
+    if(hasActive){err.textContent='Ya hay una tarjeta activa para ese correo.';return;}
+
+    let code='', tries=0;
+    while(tries<8){
+      code=genStampCode();
+      const hit=await db.collection('stamp-cards').doc(code).get();
+      if(!hit.exists) break;
+      tries++; code='';
+    }
+    if(!code){err.textContent='No se pudo generar un código único.';return;}
+
+    const now=Date.now();
+    const user=firebase.auth().currentUser;
+    const data={
+      code, nombre, email, emailLower,
+      sellos:0, status:'active',
+      rewardPct:STAMP_REWARD_PCT,
+      rewardAvailable:false, rewardUsed:false, rewardUsedAt:null,
+      rewardUsedInPerson:false, rewardUsedOrderId:null,
+      stampOrderIds:[],
+      createdAt:now, updatedAt:now, completedAt:null,
+      createdBy:user?user.email:'admin'
+    };
+    if(fecha) data.fecha=fecha;
+    await db.collection('stamp-cards').doc(code).set(data);
+    document.getElementById('stamp-f-nombre').value='';
+    document.getElementById('stamp-f-email').value='';
+    document.getElementById('stamp-f-fecha').value='';
+    showToast('Tarjeta '+code+' creada','ti-stamp');
+    await showStampQrModal(code, nombre);
+  }catch(e){console.error(e);err.textContent='Error al crear la tarjeta.';}
+}
+
+async function adjustStamp(code, delta){
+  const card=stampCards.find(c=>c.id===code||c.code===code);
+  if(!card||card.status!=='active'){showToast('Solo tarjetas activas','ti-alert-circle');return;}
+  const cur=card.sellos||0;
+  const next=Math.max(0,Math.min(STAMP_MAX, cur+delta));
+  if(next===cur) return;
+  const update={ sellos:next, updatedAt:Date.now() };
+  if(!card.rewardUsed){
+    update.rewardAvailable=(next>=STAMP_MAX);
+  }
+  try{
+    await db.collection('stamp-cards').doc(card.code||card.id).update(update);
+    showToast(delta>0?'Sello añadido':'Sello quitado','ti-stamp');
+  }catch(e){console.error(e);showToast('Error al actualizar sellos','ti-alert-circle');}
+}
+
+function openStampEdit(code){
+  const card=stampCards.find(c=>c.id===code||c.code===code);
+  if(!card)return;
+  document.getElementById('stamp-edit-code').value=card.code||card.id;
+  document.getElementById('stamp-edit-code-label').textContent=card.code||card.id;
+  document.getElementById('stamp-edit-nombre').value=card.nombre||'';
+  document.getElementById('stamp-edit-email').value=card.email||'';
+  document.getElementById('stamp-edit-fecha').value=card.fecha||'';
+  document.getElementById('stamp-edit-error').textContent='';
+  document.getElementById('stamp-edit-overlay').classList.add('open');
+}
+function closeStampEdit(){ document.getElementById('stamp-edit-overlay').classList.remove('open'); }
+
+async function saveStampEdit(){
+  const err=document.getElementById('stamp-edit-error');
+  const code=document.getElementById('stamp-edit-code').value;
+  const nombre=(document.getElementById('stamp-edit-nombre').value||'').trim();
+  const email=(document.getElementById('stamp-edit-email').value||'').trim();
+  const fecha=document.getElementById('stamp-edit-fecha').value||'';
+  const emailLower=email.toLowerCase();
+  if(!nombre){err.textContent='El nombre es obligatorio.';return;}
+  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.textContent='Correo inválido.';return;}
+  err.textContent='';
+  try{
+    const card=stampCards.find(c=>c.id===code||c.code===code);
+    if(card && card.status==='active' && emailLower!==(card.emailLower||'')){
+      const existing=await db.collection('stamp-cards').where('emailLower','==',emailLower).get();
+      const clash=existing.docs.some(d=>d.id!==code && (d.data().status||'')==='active');
+      if(clash){err.textContent='Ya hay una tarjeta activa para ese correo.';return;}
+    }
+    const update={ nombre, email, emailLower, updatedAt:Date.now() };
+    if(fecha) update.fecha=fecha;
+    else update.fecha=firebase.firestore.FieldValue.delete();
+    await db.collection('stamp-cards').doc(code).update(update);
+    closeStampEdit();
+    showToast('Tarjeta actualizada','ti-check');
+  }catch(e){console.error(e);err.textContent='Error al guardar.';}
+}
+
+async function markStampRewardUsedInPerson(code){
+  const card=stampCards.find(c=>c.id===code||c.code===code);
+  if(!card||card.status!=='active'){showToast('Tarjeta no activa','ti-alert-circle');return;}
+  if((card.sellos||0)<STAMP_MAX && !card.rewardAvailable){
+    if(!confirm('Esta tarjeta aún no tiene 8 sellos. ¿Marcar el 40% como usado en persona de todos modos y archivar?'))return;
+  }else{
+    if(!confirm('¿Marcar el 40% como usado en persona? La tarjeta pasará a Terminadas y habrá que crear una nueva.'))return;
+  }
+  const now=Date.now();
+  try{
+    await db.collection('stamp-cards').doc(card.code||card.id).update({
+      status:'completed',
+      rewardUsed:true,
+      rewardAvailable:false,
+      rewardUsedInPerson:true,
+      rewardUsedAt:now,
+      completedAt:now,
+      updatedAt:now
+    });
+    showToast('Tarjeta archivada · 40% usado en persona','ti-archive');
+  }catch(e){console.error(e);showToast('Error al archivar','ti-alert-circle');}
+}
+
+function openStampQrAgain(code){
+  const card=stampCards.find(c=>c.id===code||c.code===code);
+  if(!card)return;
+  showStampQrModal(card.code||card.id, card.nombre||'');
+}
+
+function renderStampCards(){
+  const activeArea=document.getElementById('stamp-active-list');
+  const doneArea=document.getElementById('stamp-done-list');
+  if(!activeArea||!doneArea)return;
+  const qActive=((document.getElementById('stamp-active-search')||{}).value||'').trim().toLowerCase();
+  const qDone=((document.getElementById('stamp-done-search')||{}).value||'').trim().toLowerCase();
+
+  let active=stampCards.filter(c=>(c.status||'')==='active');
+  let done=stampCards.filter(c=>{
+    const st=c.status||'';
+    return st==='completed'||st==='cancelled';
+  });
+  if(qActive) active=active.filter(c=>((c.nombre||'')+(c.email||'')+(c.code||'')).toLowerCase().includes(qActive));
+  if(qDone) done=done.filter(c=>((c.nombre||'')+(c.email||'')+(c.code||'')).toLowerCase().includes(qDone));
+
+  document.getElementById('stamp-active-count').textContent=active.length+' activa'+(active.length!==1?'s':'');
+  document.getElementById('stamp-done-count').textContent=done.length+' terminada'+(done.length!==1?'s':'');
+
+  if(!active.length){
+    activeArea.innerHTML=`<div class="empty-state"><div class="empty-icon"><i class="ti ti-stamp"></i></div><p>No hay tarjetas activas.</p></div>`;
+  }else{
+    activeArea.innerHTML=active.map(c=>{
+      const sellos=c.sellos||0;
+      const rewardReady=!!c.rewardAvailable || sellos>=STAMP_MAX;
+      return `<div class="stamp-card">
+        <div class="stamp-top">
+          <div>
+            <div class="stamp-name">${esc(c.nombre||'—')}</div>
+            <div class="stamp-meta"><span>${esc(c.email||'')}</span><span class="dcode-code" style="font-size:12px">${esc(c.code||c.id)}</span>${c.fecha?`<span>${esc(c.fecha)}</span>`:''}</div>
+          </div>
+          ${rewardReady?'<span class="badge-reward">40% disponible</span>':''}
+        </div>
+        ${stampDotsHtml(sellos)}
+        <div class="stamp-actions">
+          <button class="btn-mini ok" onclick="adjustStamp('${esc(c.code||c.id)}',1)" title="+1 sello"><i class="ti ti-plus"></i>+1</button>
+          <button class="btn-mini" onclick="adjustStamp('${esc(c.code||c.id)}',-1)" title="-1 sello"><i class="ti ti-minus"></i>−1</button>
+          <button class="btn-mini" onclick="openStampEdit('${esc(c.code||c.id)}')"><i class="ti ti-pencil"></i>Editar</button>
+          <button class="btn-mini" onclick="openStampQrAgain('${esc(c.code||c.id)}')"><i class="ti ti-qrcode"></i>QR</button>
+          <button class="btn-mini warn" onclick="markStampRewardUsedInPerson('${esc(c.code||c.id)}')"><i class="ti ti-discount-check"></i>Marcar 40% usado en persona</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  if(!done.length){
+    doneArea.innerHTML=`<div class="empty-state"><div class="empty-icon"><i class="ti ti-archive"></i></div><p>Aún no hay tarjetas terminadas.</p></div>`;
+  }else{
+    doneArea.innerHTML=done.map(c=>{
+      const st=c.status||'completed';
+      const usedLabel=c.rewardUsedInPerson?'Usado en persona':(c.rewardUsed?'Canjeado online':'—');
+      let when='';
+      try{
+        const t=c.completedAt||c.rewardUsedAt||c.updatedAt;
+        if(t){ const d=t.toDate?t.toDate():new Date(t); when=d.toLocaleDateString('es'); }
+      }catch(_){}
+      return `<div class="stamp-card inactive">
+        <div class="stamp-top">
+          <div>
+            <div class="stamp-name">${esc(c.nombre||'—')}</div>
+            <div class="stamp-meta"><span>${esc(c.email||'')}</span><span class="dcode-code" style="font-size:12px">${esc(c.code||c.id)}</span></div>
+          </div>
+          <span class="${st==='cancelled'?'badge-off':'badge-on'}">${st==='cancelled'?'Cancelada':'Terminada'}</span>
+        </div>
+        ${stampDotsHtml(c.sellos||0)}
+        <div class="stamp-meta"><span>${esc(usedLabel)}</span>${when?`<span>${esc(when)}</span>`:''}</div>
+      </div>`;
+    }).join('');
+  }
+}
+
+/** Sello automático al entregar: total productos >= $1, una vez por orderId. No revierte la entrega. */
+async function tryAwardStampForOrder(orderId, order){
+  const email=(order.email||'').trim().toLowerCase();
+  if(!email) return;
+  const totalProd=typeof order.totalConDescuento==='number'?order.totalConDescuento:(order.total||0);
+  if(!(totalProd>=1)) return;
+
+  const snap=await db.collection('stamp-cards').where('emailLower','==',email).get();
+  const cardDoc=snap.docs.find(d=>(d.data().status||'')==='active');
+  if(!cardDoc) return;
+  const card=cardDoc.data()||{};
+  const sellos=card.sellos||0;
+  if(sellos>=STAMP_MAX) return;
+  const ids=Array.isArray(card.stampOrderIds)?card.stampOrderIds:[];
+  if(ids.includes(orderId)) return;
+
+  const newSellos=Math.min(STAMP_MAX, sellos+1);
+  const update={
+    sellos:newSellos,
+    stampOrderIds:firebase.firestore.FieldValue.arrayUnion(orderId),
+    updatedAt:Date.now()
+  };
+  if(newSellos>=STAMP_MAX) update.rewardAvailable=true;
+  await cardDoc.ref.update(update);
+  showToast('Sello añadido ('+newSellos+'/'+STAMP_MAX+')','ti-stamp');
+}
+
+document.getElementById('dcode-edit-overlay').addEventListener('click',e=>{if(e.target.id==='dcode-edit-overlay')closeDiscountCodeEdit();});
+document.getElementById('stamp-edit-overlay').addEventListener('click',e=>{if(e.target.id==='stamp-edit-overlay')closeStampEdit();});
+document.getElementById('stamp-qr-overlay').addEventListener('click',e=>{if(e.target.id==='stamp-qr-overlay')closeStampQr();});
 
 // ── CATEGORÍAS (lista maestra en config/categorias.lista) ──
 const CATEGORIAS_REF=()=>db.collection('config').doc('categorias');
