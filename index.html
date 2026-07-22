@@ -676,11 +676,10 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
   <div class="tabs-group">
     <div class="tabs-label">Inventario</div>
     <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('inv-exsal',this)"><i class="ti ti-clipboard-list"></i>EXSAL</button>
-      <button class="tab-btn" onclick="switchTab('inv-cdb',this)"><i class="ti ti-clipboard-list"></i>CDB</button>
+      <button class="tab-btn active" onclick="switchTab('inv-cdb',this)"><i class="ti ti-clipboard-list"></i>CDB</button>
+      <button class="tab-btn" onclick="switchTab('inv-exsal',this)"><i class="ti ti-clipboard-list"></i>EXSAL</button>
       <button class="tab-btn" onclick="switchTab('inv-total',this)"><i class="ti ti-layers-intersect"></i>Total</button>
       <button class="tab-btn" onclick="switchTab('inv-restock',this)"><i class="ti ti-package-import"></i>Restock</button>
-      <button class="tab-btn" onclick="switchTab('inv-descuentos',this)"><i class="ti ti-ticket-off"></i>Descuentos</button>
       <button class="tab-btn" onclick="switchTab('inv-categorias',this)"><i class="ti ti-category"></i>Categorías</button>
       <button class="tab-btn" onclick="switchTab('inv-papelera',this)"><i class="ti ti-trash"></i>Papelera</button>
     </div>
@@ -690,6 +689,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
   <div class="tabs-group">
     <div class="tabs-label">Promociones</div>
     <div class="tabs">
+      <button class="tab-btn" onclick="switchTab('inv-descuentos',this)"><i class="ti ti-ticket-off"></i>Descuentos</button>
       <button class="tab-btn" onclick="switchTab('inv-codigos',this)"><i class="ti ti-discount-2"></i>Códigos promo</button>
       <button class="tab-btn" onclick="switchTab('inv-tarjetas',this)"><i class="ti ti-stamp"></i>Tarjetas sellos</button>
     </div>
@@ -746,7 +746,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     <div class="main-content">
 
   <!-- ═══ INVENTARIO EXSAL ═══ -->
-  <div class="tab-content active" id="tab-inv-exsal">
+  <div class="tab-content" id="tab-inv-exsal">
     <div class="stats-row">
       <div class="stat-card"><div class="stat-icon si-blue"><i class="ti ti-box"></i></div><div class="stat-label">Productos EXSAL</div><div class="stat-value" id="exsal-si-total">0</div></div>
       <div class="stat-card"><div class="stat-icon si-blue"><i class="ti ti-stack"></i></div><div class="stat-label">Stock EXSAL</div><div class="stat-value" id="exsal-si-stock">0</div></div>
@@ -804,8 +804,8 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     </div>
   </div>
 
-  <!-- ═══ INVENTARIO CDB ═══ -->
-  <div class="tab-content" id="tab-inv-cdb">
+  <!-- ═══ INVENTARIO CDB (sede principal) ═══ -->
+  <div class="tab-content active" id="tab-inv-cdb">
     <div class="stats-row">
       <div class="stat-card"><div class="stat-icon si-blue"><i class="ti ti-box"></i></div><div class="stat-label">Productos CDB</div><div class="stat-value" id="cdb-si-total">0</div></div>
       <div class="stat-card"><div class="stat-icon si-blue"><i class="ti ti-stack"></i></div><div class="stat-label">Stock CDB</div><div class="stat-value" id="cdb-si-stock">0</div></div>
@@ -1293,8 +1293,8 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     <div class="stats-month-bar" style="flex-wrap:wrap;gap:10px">
       <div class="smb-icon"><i class="ti ti-file-invoice"></i></div>
       <div class="fac-toggle" id="fac-sede-toggle">
-        <button class="active" data-sede="exsal" onclick="setFacSede('exsal')">EXSAL</button>
-        <button data-sede="cdb" onclick="setFacSede('cdb')">CDB</button>
+        <button data-sede="exsal" onclick="setFacSede('exsal')">EXSAL</button>
+        <button class="active" data-sede="cdb" onclick="setFacSede('cdb')">CDB</button>
       </div>
       <label>Mes</label>
       <div class="smb-select-wrap">
@@ -1307,7 +1307,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     </div>
     <div class="sales-wrap">
       <div class="sales-hd">
-        <div class="shd-title"><i class="ti ti-file-invoice"></i>Facturas · <span id="fac-sede-label">EXSAL</span></div>
+        <div class="shd-title"><i class="ti ti-file-invoice"></i>Facturas · <span id="fac-sede-label">CDB</span></div>
       </div>
       <div style="padding:14px" id="fac-list-body"><div class="fac-empty">Selecciona una sede y un mes, luego presiona <b>Cargar</b>.</div></div>
       <div id="fac-load-more-row" class="load-more-row" style="display:none">
@@ -1624,8 +1624,8 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       <div class="emailjs-note" id="emailjs-note">📧 Se usa la misma plantilla de correo de ventas, con el número FAC correcto.</div>
     </div>
     <div class="fact-footer">
-      <button class="btn-secondary" onclick="cerrarModalFactura()">Cancelar</button>
-      <button class="btn-gen-pdf" onclick="generarFactura()"><i class="ti ti-file-invoice"></i>Generar y Enviar PDF</button>
+      <button type="button" class="btn-secondary" onclick="cerrarModalFactura()">Cancelar</button>
+      <button type="button" class="btn-gen-pdf" id="btn-gen-pdf" onclick="generarFactura()"><i class="ti ti-mail"></i>Enviar factura</button>
     </div>
   </div>
 </div>
@@ -1874,7 +1874,7 @@ function cartSedeOf(){ return activeCart().sede; }
 function cartStampOf(){ return activeCart().stampCode; }
 function totalOpenCartItems(){ return carts.reduce((s,c)=>s+(c.items||[]).length,0); }
 // ── FACTURAS: carga paginada por mes y bajo demanda (sin onSnapshot) ──
-let facSede='exsal';
+let facSede='cdb';
 let facLoaded=false;
 let facMesActual='';
 let facPaginadas=[];
@@ -1935,7 +1935,7 @@ function lockStats(){
   const activeProtected=document.querySelector('.tab-content.active[id^="tab-stats-"],.tab-content.active[id^="tab-ventas-"],.tab-content.active#tab-facturas');
   if(activeProtected){
     const firstInvBtn=document.querySelector('.tab-btn');
-    doSwitchTab('inv-exsal',firstInvBtn);
+    doSwitchTab('inv-cdb',firstInvBtn);
   }
   showToast('Estadísticas y ventas bloqueadas','ti-lock');
 }
@@ -4523,6 +4523,42 @@ const LOGO_DATA_URI="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/4QAiRXhp
 const EMAILJS_SERVICE_ID='service_2wyr2eg';   // ← Reemplaza con tu Service ID de EmailJS
 const EMAILJS_TEMPLATE_ID='template_j0tbqfb'; // ← Reemplaza con tu Template ID de EmailJS
 const EMAILJS_PUBLIC_KEY='fDEqYQfxIAemU-QSp';   // ← Reemplaza con tu Public Key de EmailJS
+let emailjsReady=false;
+
+function ensureEmailjs(){
+  if(typeof emailjs==='undefined'){
+    throw new Error('EmailJS no cargó. Revisa la conexión e intenta de nuevo.');
+  }
+  if(!emailjsReady){
+    // API v4: objeto { publicKey }. En móvil conviene init una sola vez.
+    emailjs.init({publicKey:EMAILJS_PUBLIC_KEY});
+    emailjsReady=true;
+  }
+}
+
+async function sendFacturaEmail(payload){
+  ensureEmailjs();
+  return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, payload);
+}
+
+/** Descarga PDF sin bloquear/cancelar el envío de email en iOS/Android. */
+function downloadPdfDoc(doc, pdfName){
+  try{
+    const blob=doc.output('blob');
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download=pdfName||'factura.pdf';
+    a.rel='noopener';
+    a.style.display='none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{ try{ URL.revokeObjectURL(url); a.remove(); }catch(_){} },2000);
+  }catch(e){
+    console.warn('Descarga blob falló, usando doc.save:',e);
+    try{ doc.save(pdfName||'factura.pdf'); }catch(e2){ console.warn('No se pudo descargar PDF:',e2); }
+  }
+}
 
 function resolveVentasFacturaNumero(ventasSel){
   const nums=[...new Set(ventasSel.map(v=>v.facturaNum).filter(Boolean))];
@@ -4598,10 +4634,11 @@ function buildProductosHtmlFromLineas(lineas){
     const qty=v.qty||1;
     const total=+(v.total||0);
     const precioUd=qty>0?(total/qty).toFixed(2):'0.00';
-    const orden=v.orderNumber||v.numFactura||'—';
+    const orden=esc(v.orderNumber||v.numFactura||'—');
+    const nombre=esc(v.productName||'');
     return `<tr>
     <td class="muted">${i+1}</td>
-    <td><div class="product-name">${v.productName||''}</div>
+    <td><div class="product-name">${nombre}</div>
         <span class="order-chip">${orden}</span></td>
     <td class="right"><span class="qty-pill">${qty}</span></td>
     <td class="right price-val">$${precioUd}</td>
@@ -4649,8 +4686,9 @@ async function generarFactura(){
   const vendedor=user?user.email:'—';
   const fechaHoy=new Date().toLocaleDateString('es',{day:'2-digit',month:'2-digit',year:'numeric'});
 
+  const btnSend=document.getElementById('btn-gen-pdf')||document.querySelector('.btn-gen-pdf');
   document.getElementById('fact-sending').classList.add('show');
-  document.querySelector('.btn-gen-pdf').disabled=true;
+  if(btnSend) btnSend.disabled=true;
 
   try{
     const { jsPDF }=window.jspdf;
@@ -4666,36 +4704,40 @@ async function generarFactura(){
         orderNumber:numFactura, numFactura
       }));
       totalGeneral=+(fac.total||lineasSel.reduce((s,x)=>s+x.total,0)).toFixed(2);
-      pdfName=numFactura+'.pdf';
+      pdfName=String(numFactura).replace(/[^\w.-]+/g,'_')+'.pdf';
 
       const doc=new jsPDF({orientation:'p',unit:'mm',format:'a4'});
       const facForPdf=Object.assign({},fac,{cliente:nombre||fac.cliente||''});
       buildFacturaPDF(doc, facForPdf);
-      doc.save(pdfName);
 
+      // IMPORTANTE (móvil): enviar correo ANTES de descargar el PDF.
+      // doc.save() puede cancelar la petición de EmailJS en iOS/Android.
       const productosHtml=buildProductosHtmlFromLineas(lineasSel);
-      if(typeof emailjs!=='undefined'){
-        try{
-          emailjs.init(EMAILJS_PUBLIC_KEY);
-          await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-            to_name: nombre,
-            to_email: correo,
-            from_name: 'PICO Electrónica',
-            factura_numero: numFactura,
-            fecha: fac.date||fechaHoy,
-            vendedor: fac.seller||vendedor,
-            sede: sucursalLabel,
-            identificacion: idCliente||'No proporcionada',
-            total: '$'+totalGeneral.toFixed(2),
-            productos_html: productosHtml
-          });
-          await markFacturaEmailSent(facId, correo, nombre);
-          showToast('✓ Factura '+numFactura+' enviada a '+correo,'ti-mail');
-        }catch(emailErr){
-          console.warn('EmailJS error:',emailErr);
-          showToast('PDF generado · Fallo al enviar email','ti-alert-circle');
-        }
+      try{
+        await sendFacturaEmail({
+          to_name: nombre,
+          to_email: correo,
+          from_name: 'PICO Electrónica',
+          factura_numero: numFactura,
+          fecha: fac.date||fechaHoy,
+          vendedor: fac.seller||vendedor,
+          sede: sucursalLabel,
+          identificacion: idCliente||'No proporcionada',
+          total: '$'+totalGeneral.toFixed(2),
+          productos_html: productosHtml
+        });
+        await markFacturaEmailSent(facId, correo, nombre);
+        showToast('✓ Factura '+numFactura+' enviada a '+correo,'ti-mail');
+      }catch(emailErr){
+        console.warn('EmailJS error:',emailErr);
+        const msg=(emailErr&&(emailErr.text||emailErr.message))||'Fallo al enviar email';
+        errEl.textContent=msg;
+        showToast('No se pudo enviar el email','ti-alert-circle');
+        // Igual ofrecemos el PDF por si el usuario lo necesita
+        downloadPdfDoc(doc, pdfName);
+        return;
       }
+      downloadPdfDoc(doc, pdfName);
       cerrarModalFactura();
       return;
     }
@@ -4805,33 +4847,34 @@ async function generarFactura(){
     doc.setFontSize(7.5);doc.setTextColor(...grisT);
     doc.text('Documento generado el '+new Date().toLocaleString('es')+' · Factura N° '+numFactura,W/2,290,{align:'center'});
 
-    if(typeof emailjs!=='undefined'){
-      try{
-        emailjs.init(EMAILJS_PUBLIC_KEY);
-        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-          to_name: nombre,
-          to_email: correo,
-          from_name: 'PICO Electrónica',
-          factura_numero: numFactura,
-          fecha: fechaHoy,
-          vendedor: vendedor,
-          sede: sucursalLabel,
-          identificacion: idCliente||'No proporcionada',
-          total: '$'+totalGeneral.toFixed(2),
-          productos_html: productosHtml
-        });
-        showToast('✓ Factura '+numFactura+' enviada a '+correo,'ti-mail');
-        const facIds=[...new Set(ventasSel.map(v=>v.facturaId).filter(Boolean))];
-        for(const fid of facIds){
-          await markFacturaEmailSent(fid, correo, nombre);
-        }
-      }catch(emailErr){
-        console.warn('EmailJS error:',emailErr);
-        showToast('PDF generado · Fallo al enviar email','ti-alert-circle');
+    try{
+      await sendFacturaEmail({
+        to_name: nombre,
+        to_email: correo,
+        from_name: 'PICO Electrónica',
+        factura_numero: numFactura,
+        fecha: fechaHoy,
+        vendedor: vendedor,
+        sede: sucursalLabel,
+        identificacion: idCliente||'No proporcionada',
+        total: '$'+totalGeneral.toFixed(2),
+        productos_html: productosHtml
+      });
+      showToast('✓ Factura '+numFactura+' enviada a '+correo,'ti-mail');
+      const facIds=[...new Set(ventasSel.map(v=>v.facturaId).filter(Boolean))];
+      for(const fid of facIds){
+        await markFacturaEmailSent(fid, correo, nombre);
       }
+    }catch(emailErr){
+      console.warn('EmailJS error:',emailErr);
+      const msg=(emailErr&&(emailErr.text||emailErr.message))||'Fallo al enviar email';
+      errEl.textContent=msg;
+      showToast('No se pudo enviar el email','ti-alert-circle');
+      downloadPdfDoc(doc, pdfName);
+      return;
     }
 
-    doc.save(pdfName);
+    downloadPdfDoc(doc, pdfName);
     cerrarModalFactura();
     selectedSales[suc].clear();
     updateSelBar(suc);
@@ -4839,10 +4882,11 @@ async function generarFactura(){
 
   }catch(err){
     console.error(err);
-    document.getElementById('fact-error').textContent='Error al generar PDF: '+err.message;
+    document.getElementById('fact-error').textContent='Error al generar factura: '+err.message;
   }finally{
     document.getElementById('fact-sending').classList.remove('show');
-    document.querySelector('.btn-gen-pdf').disabled=false;
+    const btn=document.getElementById('btn-gen-pdf')||document.querySelector('.btn-gen-pdf');
+    if(btn) btn.disabled=false;
   }
 }
 
