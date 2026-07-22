@@ -544,17 +544,26 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .pedido-code{font-size:11px;font-weight:700;color:var(--b600);background:var(--b50);border:1px solid var(--b100);border-radius:6px;padding:2px 8px;display:inline-block}
 @media(max-width:900px){.pedidos-stats-row{grid-template-columns:1fr 1fr}.pedidos-filter-bar{flex-direction:column;align-items:stretch}}
 /* ── CARRITO DE VENTA ── */
-#cart-panel{position:fixed;right:20px;bottom:20px;width:340px;max-width:calc(100vw - 32px);background:#fff;border:1.5px solid var(--b100);border-radius:16px;box-shadow:0 18px 50px rgba(15,63,99,.28);z-index:8000;display:none;flex-direction:column;overflow:hidden;font-family:inherit}
+#cart-panel{position:fixed;right:20px;bottom:20px;width:360px;max-width:calc(100vw - 32px);background:#fff;border:1.5px solid var(--b100);border-radius:16px;box-shadow:0 18px 50px rgba(15,63,99,.28);z-index:8000;display:none;flex-direction:column;overflow:hidden;font-family:inherit}
 #cart-panel.open{display:flex;animation:cartIn .22s ease}
 @keyframes cartIn{from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1}}
-.cart-hd{background:linear-gradient(135deg,var(--b400),var(--s400));color:#fff;padding:12px 15px;display:flex;align-items:center;justify-content:space-between}
+.cart-hd{background:linear-gradient(135deg,var(--b400),var(--s400));color:#fff;padding:10px 12px 8px}
+.cart-hd-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
 .cart-hd-title{font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:7px}
 .cart-hd-badge{font-size:11px;font-weight:700;background:rgba(255,255,255,.22);padding:2px 9px;border-radius:20px}
 .cart-sede{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;opacity:.85}
+.cart-tabs{display:flex;gap:5px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+.cart-tab{flex-shrink:0;border:1.5px solid rgba(255,255,255,.28);background:rgba(255,255,255,.12);color:#fff;border-radius:999px;padding:4px 10px;font-size:11.5px;font-weight:700;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.cart-tab.active{background:#fff;color:var(--b600);border-color:#fff}
+.cart-tab-add{width:28px;height:28px;padding:0;justify-content:center;border-radius:50%}
 .cart-body{padding:11px 13px;max-height:46vh;overflow-y:auto}
 .cart-client{margin-bottom:9px}
 .cart-client input{width:100%;padding:8px 11px;border:1.5px solid var(--b100);border-radius:9px;font-size:13px;font-family:inherit;background:var(--b50);color:var(--tp)}
 .cart-client input:focus{outline:none;border-color:var(--b400);background:#fff}
+.cart-sale-disc{margin-bottom:10px;background:var(--w50);border:1.5px solid var(--w100);border-radius:10px;padding:9px 10px}
+.cart-sale-disc label{display:block;font-size:11px;font-weight:700;color:var(--w600);margin-bottom:5px}
+.cart-sale-disc select{width:100%;padding:7px 10px;border:1.5px solid var(--w100);border-radius:8px;font-size:12.5px;font-family:inherit;background:#fff;color:var(--tp)}
+.cart-sale-disc-hint{font-size:11px;color:var(--tm);margin-top:5px;line-height:1.35}
 .cart-stamp{margin-bottom:10px;background:var(--b50);border:1.5px solid var(--b100);border-radius:10px;padding:9px 10px}
 .cart-stamp-label{font-size:11px;font-weight:700;color:var(--ts);margin-bottom:6px;display:flex;align-items:center;gap:5px}
 .cart-stamp-search{position:relative}
@@ -607,8 +616,11 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .fac-info-sub{font-size:11.5px;color:var(--tm);margin-top:2px}
 .fac-info-items{font-size:11.5px;color:var(--ts);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .fac-total{font-size:15px;font-weight:800;color:var(--g600);white-space:nowrap}
-.btn-fac-dl{flex-shrink:0;background:var(--b50);border:1.5px solid var(--b100);color:var(--b600);border-radius:9px;padding:8px 11px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px}
-.btn-fac-dl:hover{background:var(--b100)}
+.btn-fac-dl,.btn-fac-mail{flex-shrink:0;background:var(--b50);border:1.5px solid var(--b100);color:var(--b600);border-radius:9px;padding:8px 11px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px}
+.btn-fac-dl:hover,.btn-fac-mail:hover{background:var(--b100)}
+.btn-fac-mail{color:var(--ts)}
+.fac-actions{display:flex;flex-direction:column;gap:5px;flex-shrink:0}
+.fac-email-badge{display:inline-flex;align-items:center;gap:4px;margin-top:4px;font-size:11px;font-weight:700;color:var(--g600);background:var(--g50);border:1px solid var(--g100);border-radius:999px;padding:2px 8px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .fac-empty{text-align:center;color:var(--tm);padding:30px 16px;font-size:13px}
 .btn-fac-month{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;background:linear-gradient(135deg,#e25555,#b91c1c);color:#fff;border:none;border-radius:10px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(226,85,85,.3)}
 .btn-fac-month:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
@@ -1592,16 +1604,16 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 </div>
 
 
-<!-- MODAL: FACTURA -->
+<!-- MODAL: FACTURA (ventas seleccionadas O factura existente) -->
 <div class="overlay" id="factura-overlay">
   <div class="modal-box">
     <div class="pm-header">
-      <div class="pm-name"><i class="ti ti-file-invoice" style="margin-right:8px"></i>Generar Factura</div>
-      <div class="pm-desc">Los datos del cliente no se almacenan en ningún servidor</div>
+      <div class="pm-name"><i class="ti ti-file-invoice" style="margin-right:8px"></i><span id="fact-modal-title">Generar Factura</span></div>
+      <div class="pm-desc" id="fact-modal-desc">Los datos del cliente no se almacenan en ningún servidor</div>
     </div>
     <div class="fact-body">
       <div class="fact-preview" id="fact-preview-items">
-        <div class="fact-preview-title"><i class="ti ti-shopping-cart"></i> Productos seleccionados</div>
+        <div class="fact-preview-title"><i class="ti ti-shopping-cart"></i> <span id="fact-preview-heading">Productos seleccionados</span></div>
         <div id="fact-preview-rows"></div>
       </div>
       <div class="field"><label><i class="ti ti-user" style="margin-right:4px"></i>Nombre del cliente</label><input type="text" id="fact-nombre" placeholder="Ej. Juan García" autocomplete="off"></div>
@@ -1609,7 +1621,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       <div class="field"><label><i class="ti ti-id-badge" style="margin-right:4px"></i>Identificación <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label><input type="text" id="fact-id" placeholder="DUI, NIT, etc." autocomplete="off"></div>
       <div class="form-error" id="fact-error"></div>
       <div class="fact-sending" id="fact-sending"><i class="ti ti-send" style="margin-right:6px"></i>Generando PDF y enviando factura...</div>
-      <div class="emailjs-note" id="emailjs-note">📧 El PDF se generará en tu navegador y se enviará directamente al correo del cliente.</div>
+      <div class="emailjs-note" id="emailjs-note">📧 Se usa la misma plantilla de correo de ventas, con el número FAC correcto.</div>
     </div>
     <div class="fact-footer">
       <button class="btn-secondary" onclick="cerrarModalFactura()">Cancelar</button>
@@ -1745,15 +1757,25 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 <!-- ═══ CARRITO DE VENTA EN CURSO ═══ -->
 <div id="cart-panel">
   <div class="cart-hd">
-    <div class="cart-hd-title"><i class="ti ti-shopping-cart"></i>Venta en curso <span class="cart-sede" id="cart-sede-label"></span></div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <span class="cart-hd-badge" id="cart-count">0</span>
-      <button onclick="toggleCartPanel(false)" style="background:none;border:none;color:#fff;cursor:pointer;font-size:16px;display:flex"><i class="ti ti-minus"></i></button>
+    <div class="cart-hd-row">
+      <div class="cart-hd-title"><i class="ti ti-shopping-cart"></i>Ventas <span class="cart-sede" id="cart-sede-label"></span></div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="cart-hd-badge" id="cart-count">0</span>
+        <button onclick="toggleCartPanel(false)" style="background:none;border:none;color:#fff;cursor:pointer;font-size:16px;display:flex"><i class="ti ti-minus"></i></button>
+      </div>
     </div>
+    <div class="cart-tabs" id="cart-tabs"></div>
   </div>
   <div class="cart-body" id="cart-body">
     <div class="cart-client">
-      <input type="text" id="cart-cliente" maxlength="60" placeholder="Nombre del cliente (opcional)">
+      <input type="text" id="cart-cliente" maxlength="60" placeholder="Nombre del cliente (opcional)" oninput="onCartClienteInput()">
+    </div>
+    <div class="cart-sale-disc">
+      <label><i class="ti ti-ticket-off"></i> Descuento a toda la venta (opcional)</label>
+      <select id="cart-sale-discount" onchange="onCartSaleDiscountChange()">
+        <option value="">Sin descuento global</option>
+      </select>
+      <div class="cart-sale-disc-hint">Se aplica solo a productos sin descuento individual. No se acumula con otro descuento de línea.</div>
     </div>
     <div class="cart-stamp">
       <div class="cart-stamp-label"><i class="ti ti-stamp"></i>¿Sumar sello a un cliente?</div>
@@ -1778,11 +1800,11 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     </div>
     <div class="cart-actions">
       <button class="btn-cart-confirm" id="cart-confirm-btn" onclick="confirmarVenta()"><i class="ti ti-check"></i>Confirmar venta (<span id="cart-confirm-count">0</span>)</button>
-      <button class="btn-cart-clear" onclick="vaciarCarrito()" title="Vaciar"><i class="ti ti-trash"></i></button>
+      <button class="btn-cart-clear" onclick="vaciarCarrito()" title="Vaciar esta venta"><i class="ti ti-trash"></i></button>
     </div>
   </div>
 </div>
-<button class="cart-fab" id="cart-fab" onclick="toggleCartPanel(true)"><i class="ti ti-shopping-cart"></i>Venta <span class="cart-fab-badge" id="cart-fab-count">0</span></button>
+<button class="cart-fab" id="cart-fab" onclick="toggleCartPanel(true)"><i class="ti ti-shopping-cart"></i>Ventas <span class="cart-fab-badge" id="cart-fab-count">0</span></button>
 
 <div class="toast" id="toast"></div>
 
@@ -1819,10 +1841,38 @@ let domLoaded=false, domLoading=false, domAllLoaded=false;
 let domVentas=[], domCursor=null;
 let domTotals={count:0,envioCobrado:0,envioReal:0,comision:0};
 const DOM_PAGE_SIZE=15;
-// ── CARRITO DE VENTA EN CURSO (en memoria, 0 lecturas) ──
-let cart=[];          // {pid,productName,qty,price,cost,discPct,discId,discNombre,subtotal,total,costTotal}
-let cartSede=null;    // 'exsal' | 'cdb' — una venta = una sede
-let cartStampCode=null; // código de stamp-card activa elegida (opcional)
+// ── CARRITOS DE VENTA (multi-venta en memoria → 0 lecturas) ──
+// Cada carrito: {id, items[], sede, cliente, stampCode, saleDiscId, saleDiscPct, saleDiscNombre}
+let carts=[];
+let activeCartId=null;
+const SALE_DISC_MARK='__sale__'; // marca interna: descuento global de la venta (no de línea)
+
+function makeCartSession(n){
+  return {
+    id:'c'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),
+    label:'Venta '+(n||1),
+    items:[],
+    sede:null,
+    cliente:'',
+    stampCode:null,
+    saleDiscId:'',
+    saleDiscPct:0,
+    saleDiscNombre:''
+  };
+}
+function ensureCarts(){
+  if(!carts.length){
+    const c=makeCartSession(1);
+    carts=[c];
+    activeCartId=c.id;
+  }
+  if(!carts.some(c=>c.id===activeCartId)) activeCartId=carts[0].id;
+}
+function activeCart(){ ensureCarts(); return carts.find(c=>c.id===activeCartId)||carts[0]; }
+function cartItems(){ return activeCart().items; }
+function cartSedeOf(){ return activeCart().sede; }
+function cartStampOf(){ return activeCart().stampCode; }
+function totalOpenCartItems(){ return carts.reduce((s,c)=>s+(c.items||[]).length,0); }
 // ── FACTURAS: carga paginada por mes y bajo demanda (sin onSnapshot) ──
 let facSede='exsal';
 let facLoaded=false;
@@ -2779,63 +2829,193 @@ function onDiscountChange(){
 }
 
 // ══════════════════════════════════════════════
-//  CARRITO DE VENTA EN CURSO  (multi-producto, en memoria → 0 lecturas)
+//  CARRITOS DE VENTA (multi-venta + descuento global)
 // ══════════════════════════════════════════════
 function recalcCartItem(it){
-  it.subtotal=+(it.price*it.qty).toFixed(2);                       // sin descuento
-  it.total=+(it.subtotal*(1-(it.discPct||0)/100)).toFixed(2);      // con descuento
+  it.subtotal=+(it.price*it.qty).toFixed(2);
+  it.total=+(it.subtotal*(1-(it.discPct||0)/100)).toFixed(2);
   it.costTotal=+(it.cost*it.qty).toFixed(2);
 }
 
+function isItemOwnDiscount(it){
+  return !!(it.discId && it.discId!==SALE_DISC_MARK && (it.discPct||0)>0);
+}
+
+function applySaleDiscountToActiveCart(){
+  const c=activeCart();
+  const pct=c.saleDiscPct||0;
+  const nombre=c.saleDiscNombre||'';
+  c.items.forEach(it=>{
+    if(isItemOwnDiscount(it)) return; // no tocar descuentos individuales
+    if(pct>0){
+      it.discPct=pct; it.discId=SALE_DISC_MARK; it.discNombre=nombre;
+    } else if(it.discId===SALE_DISC_MARK || (!it.discId && (it.discPct||0)>0 && !it._itemDisc)){
+      it.discPct=0; it.discId=''; it.discNombre='';
+    }
+    recalcCartItem(it);
+  });
+}
+
+function populateCartSaleDiscountSelect(){
+  const sel=document.getElementById('cart-sale-discount');
+  if(!sel)return;
+  const c=activeCart();
+  const cur=c.saleDiscId||'';
+  sel.innerHTML='<option value="">Sin descuento global</option>'+
+    descuentos.map(d=>`<option value="${d.id}">${esc(d.nombre)} (${d.porcentaje}%)</option>`).join('');
+  sel.value=descuentos.some(d=>d.id===cur)?cur:'';
+}
+
+function onCartSaleDiscountChange(){
+  const c=activeCart();
+  const sel=document.getElementById('cart-sale-discount');
+  const id=sel?sel.value:'';
+  const d=id?descuentos.find(x=>x.id===id):null;
+  c.saleDiscId=d?d.id:'';
+  c.saleDiscPct=d?d.porcentaje:0;
+  c.saleDiscNombre=d?d.nombre:'';
+  applySaleDiscountToActiveCart();
+  renderCart();
+}
+
+function onCartClienteInput(){
+  activeCart().cliente=(document.getElementById('cart-cliente').value||'');
+}
+
+function renderCartTabs(){
+  ensureCarts();
+  const el=document.getElementById('cart-tabs');
+  if(!el)return;
+  el.innerHTML=carts.map((c,i)=>{
+    const n=(c.items||[]).length;
+    const active=c.id===activeCartId?' active':'';
+    const label=c.cliente?String(c.cliente).slice(0,12):(c.label||('Venta '+(i+1)));
+    return `<button type="button" class="cart-tab${active}" onclick="switchCart('${c.id}')">${esc(label)}${n?` · ${n}`:''}</button>`;
+  }).join('')+`<button type="button" class="cart-tab cart-tab-add" onclick="addNewCart()" title="Nueva venta"><i class="ti ti-plus"></i></button>`;
+}
+
+function switchCart(id){
+  if(!carts.some(c=>c.id===id))return;
+  // guardar cliente actual antes de cambiar
+  const prev=activeCart();
+  if(prev) prev.cliente=(document.getElementById('cart-cliente').value||'');
+  activeCartId=id;
+  syncCartFormFromActive();
+  renderCart();
+  toggleCartPanel(true);
+}
+
+function addNewCart(){
+  if(carts.length>=6){showToast('Máximo 6 ventas abiertas','ti-alert-circle');return;}
+  const prev=activeCart();
+  if(prev) prev.cliente=(document.getElementById('cart-cliente').value||'');
+  const c=makeCartSession(carts.length+1);
+  carts.push(c);
+  activeCartId=c.id;
+  syncCartFormFromActive();
+  renderCart();
+  toggleCartPanel(true);
+  showToast('Nueva venta abierta','ti-shopping-cart');
+}
+
+function syncCartFormFromActive(){
+  const c=activeCart();
+  const cli=document.getElementById('cart-cliente');
+  if(cli) cli.value=c.cliente||'';
+  populateCartSaleDiscountSelect();
+  // stamp chip
+  const chip=document.getElementById('cart-stamp-chip');
+  const qEl=document.getElementById('cart-stamp-q');
+  const box=document.getElementById('cart-stamp-results');
+  if(qEl) qEl.value='';
+  if(box){box.classList.remove('show');box.innerHTML='';}
+  if(c.stampCode){
+    const card=stampCards.find(x=>(x.code||x.id)===c.stampCode);
+    if(card && chip){
+      document.getElementById('cart-stamp-chip-name').textContent=card.nombre||'Sin nombre';
+      document.getElementById('cart-stamp-chip-meta').textContent=(card.email||'')+' · '+(card.sellos||0)+'/8';
+      chip.classList.add('show');
+    } else if(chip) chip.classList.remove('show');
+  } else if(chip) chip.classList.remove('show');
+}
+
+function closeActiveCartSession(){
+  const id=activeCartId;
+  carts=carts.filter(c=>c.id!==id);
+  if(!carts.length){
+    const c=makeCartSession(1);
+    carts=[c];
+    activeCartId=c.id;
+  } else {
+    activeCartId=carts[0].id;
+  }
+  syncCartFormFromActive();
+}
+
 function addToCart(){
+  ensureCarts();
+  const c=activeCart();
   const p=products.find(x=>x.id===activePid);if(!p)return;
   const suc=activeSucursal;
   if(suc!=='exsal'&&suc!=='cdb'){showToast('Selecciona una sucursal (EXSAL o CDB) para vender','ti-alert-circle');return;}
   const qty=parseInt(document.getElementById('pm-sell-qty-display').textContent)||0;
   if(isNaN(qty)||qty<=0){showToast('Selecciona al menos 1 unidad','ti-alert-circle');return;}
-  // Una venta = una sede
-  if(cart.length&&cartSede&&cartSede!==suc){
-    showToast('La venta en curso es de '+(cartSede==='exsal'?'EXSAL':'CDB')+'. Confírmala o vacíala antes de cambiar de sede.','ti-alert-circle');
+  if(c.items.length&&c.sede&&c.sede!==suc){
+    showToast('Esta venta es de '+(c.sede==='exsal'?'EXSAL':'CDB')+'. Ábrela otra o confírmala antes de cambiar de sede.','ti-alert-circle');
     return;
   }
-  // Descuento seleccionado
-  const discPct=getSelectedDiscountPct();
+  // Descuento de línea del modal (tiene prioridad sobre el global)
+  let discPct=getSelectedDiscountPct();
   const selDisc=document.getElementById('pm-discount-select');
-  const discId=selDisc&&selDisc.value?selDisc.value:'';
+  let discId=selDisc&&selDisc.value?selDisc.value:'';
   const discObj=discId?descuentos.find(x=>x.id===discId):null;
-  const discNombre=discObj?discObj.nombre:'';
-  // Validar stock contra lo ya acumulado en el carrito para este producto
-  const yaEnCarrito=cart.filter(it=>it.pid===p.id).reduce((s,it)=>s+it.qty,0);
+  let discNombre=discObj?discObj.nombre:'';
+  // Si no hay descuento de línea y sí hay global → aplicar global (sin acumular)
+  if(!discId && c.saleDiscPct>0){
+    discPct=c.saleDiscPct; discId=SALE_DISC_MARK; discNombre=c.saleDiscNombre||'';
+  }
+  const yaEnCarrito=c.items.filter(it=>it.pid===p.id).reduce((s,it)=>s+it.qty,0);
   if(yaEnCarrito+qty>getStock(p,suc)){
-    showToast('Stock insuficiente'+(yaEnCarrito?' (ya hay '+yaEnCarrito+' en la venta)':''),'ti-alert-circle');
+    showToast('Stock insuficiente'+(yaEnCarrito?' (ya hay '+yaEnCarrito+' en esta venta)':''),'ti-alert-circle');
     return;
   }
-  cartSede=suc;
-  // Fusionar líneas iguales (mismo producto + mismo descuento)
-  const existing=cart.find(it=>it.pid===p.id&&it.discId===discId);
+  c.sede=suc;
+  const existing=c.items.find(it=>it.pid===p.id&&it.discId===discId);
   if(existing){existing.qty+=qty;recalcCartItem(existing);}
-  else{const item={pid:p.id,productName:p.name,qty,price:p.price,cost:p.cost,discPct,discId,discNombre};recalcCartItem(item);cart.push(item);}
+  else{
+    const item={pid:p.id,productName:p.name,qty,price:p.price,cost:p.cost,discPct,discId,discNombre};
+    recalcCartItem(item); c.items.push(item);
+  }
   renderCart();
   toggleCartPanel(true);
-  showToast('Añadido a la venta · '+p.name,'ti-cart-plus');
+  showToast('Añadido a '+ (c.label||'la venta') +' · '+p.name,'ti-cart-plus');
   closePM();
 }
 
 function renderCart(){
+  ensureCarts();
+  const c=activeCart();
+  const cart=c.items;
   const itemsEl=document.getElementById('cart-items');
   const n=cart.length;
   const total=cart.reduce((s,it)=>s+it.total,0);
+  const openN=totalOpenCartItems();
   document.getElementById('cart-count').textContent=n;
-  document.getElementById('cart-fab-count').textContent=n;
+  document.getElementById('cart-fab-count').textContent=openN;
   document.getElementById('cart-confirm-count').textContent=n;
   document.getElementById('cart-total').textContent=fmt(total);
   document.getElementById('cart-confirm-btn').disabled=n===0;
-  document.getElementById('cart-sede-label').textContent=cartSede==='exsal'?'· EXSAL':cartSede==='cdb'?'· CDB':'';
+  document.getElementById('cart-sede-label').textContent=c.sede==='exsal'?'· EXSAL':c.sede==='cdb'?'· CDB':'';
+  renderCartTabs();
+  populateCartSaleDiscountSelect();
   if(!n){
-    itemsEl.innerHTML='<div class="cart-empty">Aún no has añadido productos.</div>';
+    itemsEl.innerHTML='<div class="cart-empty">Aún no has añadido productos a esta venta.</div>';
   }else{
     itemsEl.innerHTML=cart.map((it,i)=>{
-      const descTxt=it.discPct>0?` · -${it.discPct}%`:'';
+      let descTxt='';
+      if(it.discPct>0){
+        descTxt=it.discId===SALE_DISC_MARK?` · -${it.discPct}% (venta)`:` · -${it.discPct}%`;
+      }
       return `<div class="cart-item">
         <div class="cart-item-info">
           <div class="cart-item-name">${esc(it.productName)}</div>
@@ -2846,28 +3026,33 @@ function renderCart(){
       </div>`;
     }).join('');
   }
-  if(n===0){toggleCartPanel(false);}
+  const panel=document.getElementById('cart-panel');
+  const fab=document.getElementById('cart-fab');
+  if(openN===0 && !panel.classList.contains('open')) fab.classList.remove('show');
 }
 
 function toggleCartPanel(show){
+  ensureCarts();
   const panel=document.getElementById('cart-panel');
   const fab=document.getElementById('cart-fab');
-  if(show&&cart.length){panel.classList.add('open');fab.classList.remove('show');}
-  else{panel.classList.remove('open');if(cart.length)fab.classList.add('show');else fab.classList.remove('show');}
+  const openN=totalOpenCartItems();
+  if(show){panel.classList.add('open');fab.classList.remove('show');}
+  else{panel.classList.remove('open');if(openN)fab.classList.add('show');else fab.classList.remove('show');}
 }
 
 function removeCartItem(i){
-  cart.splice(i,1);
-  if(!cart.length)cartSede=null;
+  const c=activeCart();
+  c.items.splice(i,1);
+  if(!c.items.length) c.sede=null;
   renderCart();
 }
 
 function vaciarCarrito(){
-  cart=[];cartSede=null;
-  document.getElementById('cart-cliente').value='';
-  clearCartStamp();
+  const c=activeCart();
+  if(c.items.length && !confirm('¿Vaciar y cerrar esta venta?')) return;
+  closeActiveCartSession();
   renderCart();
-  toggleCartPanel(false);
+  if(totalOpenCartItems()===0) toggleCartPanel(false);
 }
 
 function getActiveStampCardsWithEmail(){
@@ -2898,7 +3083,8 @@ function onCartStampSearch(){
 function selectCartStamp(code){
   const card=stampCards.find(c=>(c.code||c.id)===code && (c.status||'')==='active');
   if(!card||!(card.emailLower||card.email)){showToast('Esa tarjeta no tiene correo asignado','ti-alert-circle');return;}
-  cartStampCode=card.code||card.id;
+  const c=activeCart();
+  c.stampCode=card.code||card.id;
   const chip=document.getElementById('cart-stamp-chip');
   document.getElementById('cart-stamp-chip-name').textContent=card.nombre||'Sin nombre';
   document.getElementById('cart-stamp-chip-meta').textContent=(card.email||'')+' · '+(card.sellos||0)+'/8';
@@ -2908,10 +3094,13 @@ function selectCartStamp(code){
   const box=document.getElementById('cart-stamp-results');
   if(box){box.classList.remove('show');box.innerHTML='';}
   const clienteEl=document.getElementById('cart-cliente');
-  if(clienteEl && !clienteEl.value.trim() && card.nombre) clienteEl.value=card.nombre;
+  if(clienteEl && !clienteEl.value.trim() && card.nombre){
+    clienteEl.value=card.nombre;
+    c.cliente=card.nombre;
+  }
 }
 function clearCartStamp(){
-  cartStampCode=null;
+  activeCart().stampCode=null;
   const chip=document.getElementById('cart-stamp-chip');
   if(chip) chip.classList.remove('show');
   const qEl=document.getElementById('cart-stamp-q');
@@ -2929,15 +3118,21 @@ document.addEventListener('click',e=>{
 
 // ── CONFIRMAR VENTA: transacción atómica con contador secuencial de facturas ──
 async function confirmarVenta(){
+  ensureCarts();
+  const c=activeCart();
+  const cart=c.items;
+  const cartSede=c.sede;
+  const cartStampCode=c.stampCode;
   if(!cart.length){showToast('La venta está vacía','ti-alert-circle');return;}
   if(cartSede!=='exsal'&&cartSede!=='cdb'){showToast('Sede inválida','ti-alert-circle');return;}
   const btn=document.getElementById('cart-confirm-btn');
   btn.disabled=true;
   const user=firebase.auth().currentUser;
   const sellerEmail=user?user.email:'Desconocido';
-  let cliente=document.getElementById('cart-cliente').value.trim();
+  let cliente=(document.getElementById('cart-cliente').value||c.cliente||'').trim();
+  c.cliente=cliente;
   const stampCard=cartStampCode
-    ? stampCards.find(c=>(c.code||c.id)===cartStampCode && (c.status||'')==='active')
+    ? stampCards.find(x=>(x.code||x.id)===cartStampCode && (x.status||'')==='active')
     : null;
   const stampCardCode=stampCard?(stampCard.code||stampCard.id):null;
   const stampNombre=stampCard?(stampCard.nombre||''):'';
@@ -2949,7 +3144,6 @@ async function confirmarVenta(){
   const ts=Date.now();
   const mes=getMonthKey();
   const fecha=new Date().toLocaleDateString('es');
-  // Copia inmutable del carrito
   const lineas=cart.map(it=>({...it}));
   const totalVenta=+(lineas.reduce((s,it)=>s+it.total,0)).toFixed(2);
   const subtotalVenta=+(lineas.reduce((s,it)=>s+it.subtotal,0)).toFixed(2);
@@ -2963,12 +3157,9 @@ async function confirmarVenta(){
   try{
     let seq=0;
     await db.runTransaction(async t=>{
-      // ── LECTURA (única) — contador secuencial ──
       const metaSnap=await t.get(metaRef);
       seq=((metaSnap.exists&&metaSnap.data().facturaSeq)||0)+1;
       const numFactura='FAC-'+String(seq).padStart(5,'0');
-      // ── ESCRITURAS ──
-      // Un solo documento de venta con todos los productos (lógica nueva), vinculado a su factura.
       const ventaItems=lineas.map(it=>({
         pid:it.pid,productName:it.productName,qty:it.qty,
         precioUnit:it.price,costTotal:it.costTotal,total:it.total,
@@ -2982,8 +3173,12 @@ async function confirmarVenta(){
         date:fecha,timestamp:ts,mes,
         facturaNum:numFactura,facturaId:facRef.id
       };
-      const lineaDesc=lineas.find(it=>it.discPct>0);
-      if(lineaDesc){ventaData.descuentoAplicado={nombre:lineaDesc.discNombre,porcentaje:lineaDesc.discPct};}
+      if(c.saleDiscPct>0){
+        ventaData.descuentoAplicado={nombre:c.saleDiscNombre||'Descuento venta',porcentaje:c.saleDiscPct};
+      } else {
+        const lineaDesc=lineas.find(it=>it.discPct>0);
+        if(lineaDesc){ventaData.descuentoAplicado={nombre:lineaDesc.discNombre,porcentaje:lineaDesc.discPct};}
+      }
       if(stampCardCode){
         ventaData.stampCardCode=stampCardCode;
         ventaData.clienteNombre=stampNombre||cliente||'';
@@ -2991,17 +3186,14 @@ async function confirmarVenta(){
         ventaData.stampApplied=false;
       }
       t.set(ventaRef,ventaData);
-      // Descontar el stock de cada producto
       lineas.forEach(it=>{
         t.update(db.collection('productos').doc(it.pid),{[stockField]:INC(-it.qty),updatedAt:ts});
       });
-      // Estadísticas acumuladas — 'numero de ventas' cuenta ventas reales (1 por venta)
       t.update(db.collection('estadisticas').doc(statDocId),{
         'ventas':INC(totalVenta),
         'unidades vendidas':INC(totalUnidades),
         'numero de ventas':INC(1)
       });
-      // Documento de FACTURA (liviano, solo texto — el PDF se genera en el navegador), vinculado a la venta
       const facData={
         numero:seq,numFactura,sucursal:suc,
         cliente:cliente||stampNombre||'',seller:sellerEmail,
@@ -3010,27 +3202,28 @@ async function confirmarVenta(){
         ventaId:ventaRef.id,
         items:lineas.map(it=>({productName:it.productName,qty:it.qty,precioUnit:it.price,descPct:it.discPct||0,descNombre:it.discNombre||'',subtotal:it.subtotal,total:it.total}))
       };
+      if(c.saleDiscPct>0){
+        facData.descuentoAplicado={nombre:c.saleDiscNombre||'Descuento venta',porcentaje:c.saleDiscPct};
+        facData.totalProductos=totalVenta;
+      }
       if(stampCardCode){
         facData.stampCardCode=stampCardCode;
         facData.clienteNombre=stampNombre||cliente||'';
         facData.clienteEmail=stampEmail;
       }
       t.set(facRef,facData);
-      // Avanzar el contador (merge para no pisar otros campos de _meta)
       t.set(metaRef,{facturaSeq:seq,updatedAt:ts},{merge:true});
     });
 
     showToast('✓ Venta confirmada · FAC-'+String(seq).padStart(5,'0'),'ti-file-invoice');
-    // Sello post-venta (aislado): no altera totales ni revierte la venta
     if(stampCardCode){
       try{ await tryAwardStampForSale(ventaRef.id, stampCardCode, totalVenta); }
       catch(e){ console.warn('Sello POS no actualizado:',e); showToast('Venta ok · no se pudo sumar el sello','ti-stamp'); }
     }
-    cart=[];cartSede=null;
-    document.getElementById('cart-cliente').value='';
-    clearCartStamp();
+    closeActiveCartSession();
     renderCart();
-    toggleCartPanel(false);
+    if(totalOpenCartItems()===0) toggleCartPanel(false);
+    else toggleCartPanel(true);
   }catch(e){
     console.error('Error al confirmar venta',e);
     showToast('Error al confirmar la venta','ti-alert-circle');
@@ -3113,15 +3306,23 @@ function renderFacturasList(){
     const cli=f.cliente?' · '+esc(f.cliente):'';
     const anulada=f.anulada===true;
     const envioTxt=(f.envioCosto>0)?` · 🚚 $${(+f.envioCosto).toFixed(2)}`:'';
+    const sentTo=f.emailSentTo||(Array.isArray(f.emailsSent)&&f.emailsSent.length?f.emailsSent[f.emailsSent.length-1].to:'');
+    const emailBadge=(f.emailSent||sentTo)
+      ?`<div class="fac-email-badge" title="${esc(sentTo||'')}"><i class="ti ti-mail-check"></i>Enviado${sentTo?' · '+esc(sentTo):''}</div>`
+      :'';
     return `<div class="fac-card"${anulada?' style="opacity:.6"':''}>
       <div class="fac-num"><span class="fac-num-hash">FAC</span><span class="fac-num-val">${f.numero||'—'}</span></div>
       <div class="fac-info">
         <div class="fac-info-top">${esc(f.numFactura||'')}${anulada?' <span style="background:#fee2e2;color:#dc2626;border-radius:999px;padding:1px 8px;font-size:10px;font-weight:800;letter-spacing:.4px;vertical-align:middle">ANULADA</span>':''}<span style="font-weight:600;color:var(--tm);font-size:11.5px">${esc(f.date||'')}${cli}</span></div>
         <div class="fac-info-sub">${(f.items||[]).length} producto(s) · ${f.unidades||0} uds. · ${esc((f.seller||'').split('@')[0])}${envioTxt}</div>
         <div class="fac-info-items">${itemsTxt}</div>
+        ${emailBadge}
       </div>
       <span class="fac-total"${anulada?' style="text-decoration:line-through"':''}>${fmt(f.total)}</span>
-      <button class="btn-fac-dl" onclick="downloadFacturaPDF('${f.id}')"><i class="ti ti-download"></i>PDF</button>
+      <div class="fac-actions">
+        <button class="btn-fac-dl" onclick="downloadFacturaPDF('${f.id}')"><i class="ti ti-download"></i>PDF</button>
+        ${anulada?'':`<button class="btn-fac-mail" onclick="abrirModalEmailFactura('${f.id}')"><i class="ti ti-mail"></i>Email</button>`}
+      </div>
     </div>`;
   }).join('');
   row.style.display=facAllLoaded?'none':'block';
@@ -4323,17 +4524,21 @@ const EMAILJS_SERVICE_ID='service_2wyr2eg';   // ← Reemplaza con tu Service ID
 const EMAILJS_TEMPLATE_ID='template_j0tbqfb'; // ← Reemplaza con tu Template ID de EmailJS
 const EMAILJS_PUBLIC_KEY='fDEqYQfxIAemU-QSp';   // ← Reemplaza con tu Public Key de EmailJS
 
+function resolveVentasFacturaNumero(ventasSel){
+  const nums=[...new Set(ventasSel.map(v=>v.facturaNum).filter(Boolean))];
+  if(nums.length===1) return nums[0];
+  if(nums.length>1) return nums.join(' · ');
+  return '';
+}
+
 function abrirModalFactura(suc){
   const sel=selectedSales[suc];
   if(!sel.size){showToast('Selecciona al menos una venta','ti-alert-circle');return;}
-  // Use ventasPaginadas instead of global sales
   const ventasSel=(ventasPaginadas[suc]||[]).filter(v=>sel.has(v.id));
-  // Aplanar a líneas de producto (soporta venta unificada items[] y formato antiguo)
   const lineasSel=ventasSel.flatMap(v=>Array.isArray(v.items)
     ? v.items.map(it=>({productName:it.productName,qty:it.qty,total:it.total,orderNumber:v.orderNumber,timestamp:v.timestamp}))
     : [{productName:v.productName,qty:v.qty,total:v.total,orderNumber:v.orderNumber,timestamp:v.timestamp}]);
 
-  // Preview
   const rowsEl=document.getElementById('fact-preview-rows');
   let total=0;
   rowsEl.innerHTML=lineasSel.map(v=>{
@@ -4341,13 +4546,46 @@ function abrirModalFactura(suc){
     return `<div class="fact-preview-row"><span>${esc(v.productName)} ×${v.qty}</span><span>${fmt(v.total)}</span></div>`;
   }).join('')+`<div class="fact-preview-row"><span>TOTAL</span><span>${fmt(total)}</span></div>`;
 
+  const facNum=resolveVentasFacturaNumero(ventasSel);
+  document.getElementById('fact-modal-title').textContent='Enviar factura';
+  document.getElementById('fact-modal-desc').textContent=facNum?('Número: '+facNum):'Se usará el FAC vinculado a la(s) venta(s)';
+  document.getElementById('fact-preview-heading').textContent='Productos seleccionados';
   document.getElementById('fact-nombre').value='';
   document.getElementById('fact-correo').value='';
   document.getElementById('fact-id').value='';
   document.getElementById('fact-error').textContent='';
   document.getElementById('fact-sending').classList.remove('show');
-  document.getElementById('factura-overlay').dataset.suc=suc;
-  document.getElementById('factura-overlay').classList.add('open');
+  const ov=document.getElementById('factura-overlay');
+  ov.dataset.mode='ventas';
+  ov.dataset.suc=suc;
+  ov.dataset.facId='';
+  ov.classList.add('open');
+}
+
+function abrirModalEmailFactura(facId){
+  const fac=facPaginadas.find(f=>f.id===facId);
+  if(!fac){showToast('Factura no encontrada','ti-alert-circle');return;}
+  if(fac.anulada){showToast('No se puede enviar una factura anulada','ti-alert-circle');return;}
+  const items=fac.items||[];
+  const rowsEl=document.getElementById('fact-preview-rows');
+  let total=+(fac.total||0);
+  rowsEl.innerHTML=items.map(it=>{
+    return `<div class="fact-preview-row"><span>${esc(it.productName)} ×${it.qty||1}</span><span>${fmt(it.total)}</span></div>`;
+  }).join('')+`<div class="fact-preview-row"><span>TOTAL</span><span>${fmt(total)}</span></div>`;
+
+  document.getElementById('fact-modal-title').textContent='Enviar '+ (fac.numFactura||'factura');
+  document.getElementById('fact-modal-desc').textContent='Misma plantilla de correo · PDF con el FAC correcto';
+  document.getElementById('fact-preview-heading').textContent=fac.numFactura||'Factura';
+  document.getElementById('fact-nombre').value=fac.cliente||fac.clienteNombre||'';
+  document.getElementById('fact-correo').value=fac.emailSentTo||fac.clienteEmail||'';
+  document.getElementById('fact-id').value='';
+  document.getElementById('fact-error').textContent='';
+  document.getElementById('fact-sending').classList.remove('show');
+  const ov=document.getElementById('factura-overlay');
+  ov.dataset.mode='factura';
+  ov.dataset.suc=fac.sucursal||facSede||'';
+  ov.dataset.facId=facId;
+  ov.classList.add('open');
 }
 
 function cerrarModalFactura(){
@@ -4355,8 +4593,49 @@ function cerrarModalFactura(){
 }
 document.getElementById('factura-overlay').addEventListener('click',e=>{if(e.target.id==='factura-overlay')cerrarModalFactura();});
 
+function buildProductosHtmlFromLineas(lineas){
+  return lineas.map((v,i)=>{
+    const qty=v.qty||1;
+    const total=+(v.total||0);
+    const precioUd=qty>0?(total/qty).toFixed(2):'0.00';
+    const orden=v.orderNumber||v.numFactura||'—';
+    return `<tr>
+    <td class="muted">${i+1}</td>
+    <td><div class="product-name">${v.productName||''}</div>
+        <span class="order-chip">${orden}</span></td>
+    <td class="right"><span class="qty-pill">${qty}</span></td>
+    <td class="right price-val">$${precioUd}</td>
+    <td class="right subtotal-val">$${total.toFixed(2)}</td>
+  </tr>`;
+  }).join('');
+}
+
+async function markFacturaEmailSent(facId, correo, nombre){
+  if(!facId) return;
+  const entry={to:correo, at:Date.now(), nombre:nombre||''};
+  try{
+    await db.collection('facturas').doc(facId).update({
+      emailSent:true,
+      emailSentTo:correo,
+      emailSentAt:Date.now(),
+      emailsSent:firebase.firestore.FieldValue.arrayUnion(entry)
+    });
+    const local=facPaginadas.find(f=>f.id===facId);
+    if(local){
+      local.emailSent=true;
+      local.emailSentTo=correo;
+      local.emailSentAt=Date.now();
+      local.emailsSent=Array.isArray(local.emailsSent)?local.emailsSent.concat([entry]):[entry];
+    }
+    if(facLoaded) renderFacturasList();
+  }catch(e){ console.warn('No se pudo marcar email enviado en factura:',e); }
+}
+
 async function generarFactura(){
-  const suc=document.getElementById('factura-overlay').dataset.suc;
+  const ov=document.getElementById('factura-overlay');
+  const mode=ov.dataset.mode||'ventas';
+  const suc=ov.dataset.suc;
+  const facId=ov.dataset.facId||'';
   const nombre=document.getElementById('fact-nombre').value.trim();
   const correo=document.getElementById('fact-correo').value.trim();
   const idCliente=document.getElementById('fact-id').value.trim();
@@ -4366,92 +4645,118 @@ async function generarFactura(){
   if(!correo||!/^[^@]+@[^@]+\.[^@]+$/.test(correo)){errEl.textContent='Ingresa un correo válido.';return;}
   errEl.textContent='';
 
-  const sel=selectedSales[suc];
-  const ventasSel=(ventasPaginadas[suc]||[]).filter(v=>sel.has(v.id));
-  // Aplanar a líneas de producto (soporta venta unificada items[] y formato antiguo)
-  const lineasSel=ventasSel.flatMap(v=>Array.isArray(v.items)
-    ? v.items.map(it=>({productName:it.productName,qty:it.qty,total:it.total,orderNumber:v.orderNumber,timestamp:v.timestamp}))
-    : [{productName:v.productName,qty:v.qty,total:v.total,orderNumber:v.orderNumber,timestamp:v.timestamp}]);
   const user=firebase.auth().currentUser;
   const vendedor=user?user.email:'—';
-
-  // Número de orden global de la factura
-  const numFactura='FAC-'+Date.now().toString().slice(-8);
   const fechaHoy=new Date().toLocaleDateString('es',{day:'2-digit',month:'2-digit',year:'numeric'});
-  const sucursalLabel=suc==='exsal'?'EXSAL':suc==='cdb'?'CDB':'Todas';
 
   document.getElementById('fact-sending').classList.add('show');
   document.querySelector('.btn-gen-pdf').disabled=true;
 
   try{
-    // ── GENERAR PDF CON jsPDF ──
     const { jsPDF }=window.jspdf;
+    let numFactura='', sucursalLabel='', lineasSel=[], totalGeneral=0, pdfName='factura.pdf';
+
+    if(mode==='factura'){
+      const fac=facPaginadas.find(f=>f.id===facId);
+      if(!fac) throw new Error('Factura no encontrada');
+      numFactura=fac.numFactura||('FAC-'+(fac.numero||''));
+      sucursalLabel=fac.sucursal==='exsal'?'EXSAL':fac.sucursal==='cdb'?'CDB':'—';
+      lineasSel=(fac.items||[]).map(it=>({
+        productName:it.productName, qty:it.qty||1, total:+(it.total||0),
+        orderNumber:numFactura, numFactura
+      }));
+      totalGeneral=+(fac.total||lineasSel.reduce((s,x)=>s+x.total,0)).toFixed(2);
+      pdfName=numFactura+'.pdf';
+
+      const doc=new jsPDF({orientation:'p',unit:'mm',format:'a4'});
+      const facForPdf=Object.assign({},fac,{cliente:nombre||fac.cliente||''});
+      buildFacturaPDF(doc, facForPdf);
+      doc.save(pdfName);
+
+      const productosHtml=buildProductosHtmlFromLineas(lineasSel);
+      if(typeof emailjs!=='undefined'){
+        try{
+          emailjs.init(EMAILJS_PUBLIC_KEY);
+          await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+            to_name: nombre,
+            to_email: correo,
+            from_name: 'PICO Electrónica',
+            factura_numero: numFactura,
+            fecha: fac.date||fechaHoy,
+            vendedor: fac.seller||vendedor,
+            sede: sucursalLabel,
+            identificacion: idCliente||'No proporcionada',
+            total: '$'+totalGeneral.toFixed(2),
+            productos_html: productosHtml
+          });
+          await markFacturaEmailSent(facId, correo, nombre);
+          showToast('✓ Factura '+numFactura+' enviada a '+correo,'ti-mail');
+        }catch(emailErr){
+          console.warn('EmailJS error:',emailErr);
+          showToast('PDF generado · Fallo al enviar email','ti-alert-circle');
+        }
+      }
+      cerrarModalFactura();
+      return;
+    }
+
+    // Modo ventas
+    const sel=selectedSales[suc];
+    const ventasSel=(ventasPaginadas[suc]||[]).filter(v=>sel.has(v.id));
+    lineasSel=ventasSel.flatMap(v=>Array.isArray(v.items)
+      ? v.items.map(it=>({productName:it.productName,qty:it.qty,total:it.total,orderNumber:v.orderNumber,timestamp:v.timestamp,facturaNum:v.facturaNum}))
+      : [{productName:v.productName,qty:v.qty,total:v.total,orderNumber:v.orderNumber,timestamp:v.timestamp,facturaNum:v.facturaNum}]);
+    numFactura=resolveVentasFacturaNumero(ventasSel) || ('FAC-'+Date.now().toString().slice(-8));
+    sucursalLabel=suc==='exsal'?'EXSAL':suc==='cdb'?'CDB':'Todas';
+    totalGeneral=lineasSel.reduce((s,v)=>s+(+v.total||0),0);
+    pdfName=String(numFactura).split(' · ')[0].replace(/[^\w.-]+/g,'_')+'.pdf';
+
     const doc=new jsPDF({orientation:'p',unit:'mm',format:'a4'});
     const W=210, pad=18;
-
-    // Paleta
     const azul=[74,168,232], azulOsc=[23,118,176], gris=[240,248,253], grisL=[197,227,249];
     const negro=[15,63,99], grisT=[74,137,176], blanco=[255,255,255];
 
-    // ── Header degradado ──
     doc.setFillColor(...azul);
     doc.rect(0,0,W,42,'F');
-
-    // Logo
-    try{
-      doc.addImage(LOGO_DATA_URI,'JPEG',pad,6,28,28);
-    }catch(e){/* logo opcional */}
-
-    // Título FACTURA
+    try{ doc.addImage(LOGO_DATA_URI,'JPEG',pad,6,28,28); }catch(e){}
     doc.setFont('helvetica','bold');
     doc.setFontSize(22);
     doc.setTextColor(...blanco);
     doc.text('FACTURA',W-pad,18,{align:'right'});
     doc.setFontSize(10);
     doc.setFont('helvetica','normal');
-    doc.text(numFactura,W-pad,25,{align:'right'});
+    doc.text(String(numFactura),W-pad,25,{align:'right'});
     doc.text('Fecha: '+fechaHoy,W-pad,31,{align:'right'});
     doc.text('Sede: '+sucursalLabel,W-pad,37,{align:'right'});
-
-    // Empresa
     doc.setFontSize(13);doc.setFont('helvetica','bold');
     doc.text('PICO Electrónica',pad+32,17);
     doc.setFontSize(9);doc.setFont('helvetica','normal');
     doc.text('Sistema de inventario y ventas',pad+32,23);
 
     let y=52;
-
-    // ── Info cliente / vendedor ──
     doc.setFillColor(...gris);
     doc.roundedRect(pad,y,W-pad*2,32,3,3,'F');
     doc.setDrawColor(...grisL);
     doc.setLineWidth(0.4);
     doc.roundedRect(pad,y,W-pad*2,32,3,3,'S');
-
     doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...grisT);
     doc.text('DATOS DEL CLIENTE',pad+5,y+7);
     doc.text('ATENDIDO POR',W/2+5,y+7);
-
     doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(...negro);
     doc.text(nombre,pad+5,y+14);
     doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(...grisT);
     doc.text(correo,pad+5,y+20);
     if(idCliente) doc.text('ID: '+idCliente,pad+5,y+26);
-
     doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(...negro);
     doc.text(vendedor.split('@')[0],W/2+5,y+14);
     doc.setFontSize(8);doc.setTextColor(...grisT);
     doc.text(vendedor,W/2+5,y+20);
-
     y+=38;
 
-    // ── Tabla ──
-    const cols=[10,70,20,30,30,30];  // anchos columnas
+    const cols=[10,70,20,30,30,30];
     const headers=['#','Producto','Cant.','Precio/ud','Subtotal','Orden'];
     const colX=[pad, pad+cols[0], pad+cols[0]+cols[1], pad+cols[0]+cols[1]+cols[2],
                 pad+cols[0]+cols[1]+cols[2]+cols[3], pad+cols[0]+cols[1]+cols[2]+cols[3]+cols[4]];
-
-    // Cabecera tabla
     doc.setFillColor(...azul);
     doc.rect(pad,y,W-pad*2,8,'F');
     doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...blanco);
@@ -4461,20 +4766,9 @@ async function generarFactura(){
       doc.text(h,x,y+5.5,{align});
     });
     y+=8;
-const productosHtml = lineasSel.map((v, i) => {
-  const precioUd = v.qty > 0 ? (v.total / v.qty).toFixed(2) : '0.00';
-  const orden = v.orderNumber || '—';
-  return `<tr>
-    <td class="muted">${i + 1}</td>
-    <td><div class="product-name">${v.productName}</div>
-        <span class="order-chip">${orden}</span></td>
-    <td class="right"><span class="qty-pill">${v.qty}</span></td>
-    <td class="right price-val">$${precioUd}</td>
-    <td class="right subtotal-val">$${v.total.toFixed(2)}</td>
-  </tr>`;
-}).join('');
 
-    let totalGeneral=0;
+    const productosHtml=buildProductosHtmlFromLineas(lineasSel);
+    totalGeneral=0;
     lineasSel.forEach((v,idx)=>{
       const precioUd=v.qty>0?(v.total/v.qty):0;
       const rowBg=idx%2===0?blanco:gris;
@@ -4482,43 +4776,35 @@ const productosHtml = lineasSel.map((v, i) => {
       doc.rect(pad,y,W-pad*2,7,'F');
       doc.setDrawColor(...grisL);doc.setLineWidth(0.2);
       doc.line(pad,y+7,W-pad,y+7);
-
       doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(...negro);
       doc.text(String(idx+1),colX[0]+2,y+5);
-      // Truncar nombre si es muy largo
-      const nm=v.productName.length>38?v.productName.slice(0,36)+'…':v.productName;
+      const nm=(v.productName||'').length>38?(v.productName||'').slice(0,36)+'…':(v.productName||'');
       doc.text(nm,colX[1]+2,y+5);
       doc.text(String(v.qty),colX[2]+cols[2]-2,y+5,{align:'right'});
       doc.text('$'+precioUd.toFixed(2),colX[3]+cols[3]-2,y+5,{align:'right'});
-      doc.text('$'+v.total.toFixed(2),colX[4]+cols[4]-2,y+5,{align:'right'});
+      doc.text('$'+Number(v.total).toFixed(2),colX[4]+cols[4]-2,y+5,{align:'right'});
       doc.setFontSize(7);doc.setTextColor(...grisT);
       const onum=v.orderNumber||('ORD-'+(String(v.timestamp||0).slice(-6)));
       doc.text(onum,colX[5]+cols[5]-2,y+5,{align:'right'});
-      totalGeneral+=v.total;
+      totalGeneral+=Number(v.total)||0;
       y+=7;
     });
 
-    // Línea total
     doc.setFillColor(...azulOsc);
     doc.rect(pad,y,W-pad*2,9,'F');
     doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(...blanco);
     doc.text('TOTAL',colX[3]+cols[3]-2,y+6,{align:'right'});
     doc.text('$'+totalGeneral.toFixed(2),colX[4]+cols[4]-2,y+6,{align:'right'});
     y+=18;
-
-    // ── Mensaje de agradecimiento ──
     doc.setFillColor(...gris);
     doc.roundedRect(pad,y,W-pad*2,22,3,3,'F');
     doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(...azul);
     doc.text('¡Gracias por tu compra!',W/2,y+9,{align:'center'});
     doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(...grisT);
     doc.text('En PICO Electrónica valoramos tu confianza. Ante cualquier consulta, contáctanos.',W/2,y+16,{align:'center'});
-
-    // ── Pie de página ──
     doc.setFontSize(7.5);doc.setTextColor(...grisT);
     doc.text('Documento generado el '+new Date().toLocaleString('es')+' · Factura N° '+numFactura,W/2,290,{align:'center'});
 
-    // ── ENVIAR POR EMAILJS ──
     if(typeof emailjs!=='undefined'){
       try{
         emailjs.init(EMAILJS_PUBLIC_KEY);
@@ -4534,18 +4820,19 @@ const productosHtml = lineasSel.map((v, i) => {
           total: '$'+totalGeneral.toFixed(2),
           productos_html: productosHtml
         });
-        showToast('✓ Factura enviada a '+correo,'ti-mail');
+        showToast('✓ Factura '+numFactura+' enviada a '+correo,'ti-mail');
+        const facIds=[...new Set(ventasSel.map(v=>v.facturaId).filter(Boolean))];
+        for(const fid of facIds){
+          await markFacturaEmailSent(fid, correo, nombre);
+        }
       }catch(emailErr){
         console.warn('EmailJS error:',emailErr);
         showToast('PDF generado · Fallo al enviar email','ti-alert-circle');
       }
     }
 
-    // Descarga local del PDF
-    doc.save(numFactura+'.pdf');
-
+    doc.save(pdfName);
     cerrarModalFactura();
-    // Limpiar selección
     selectedSales[suc].clear();
     updateSelBar(suc);
     if(ventasLoaded[suc]) renderVentasTable(suc,false);
@@ -5589,11 +5876,13 @@ function renderDescuentos(){
 
 function populateDiscountSelect(){
   const sel=document.getElementById('pm-discount-select');
-  if(!sel)return;
-  const currentVal=sel.value;
-  sel.innerHTML='<option value="">Sin descuento</option>'+
-    descuentos.map(d=>`<option value="${d.id}">${esc(d.nombre)} (${d.porcentaje}%)</option>`).join('');
-  if(currentVal) sel.value=currentVal;
+  if(sel){
+    const currentVal=sel.value;
+    sel.innerHTML='<option value="">Sin descuento</option>'+
+      descuentos.map(d=>`<option value="${d.id}">${esc(d.nombre)} (${d.porcentaje}%)</option>`).join('');
+    if(currentVal) sel.value=currentVal;
+  }
+  populateCartSaleDiscountSelect();
 }
 
 // ════════════════════════════════════════════════════════════════
