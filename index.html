@@ -1307,6 +1307,20 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
         <div class="form-error" id="total-grp-error"></div>
       </div>
     </div>
+
+    <!-- Arreglo puntual: nombres con prefijo de grupo -->
+    <div class="panel group-panel" id="fix-name-prefix-panel">
+      <div class="panel-hd"><div class="phd-icon"><i class="ti ti-typography"></i></div><div><div class="ptitle">Quitar prefijo de nombres</div><div class="psub">Uso puntual: productos que quedaron como “Resistencias 330Ω” vuelven a “330Ω”</div></div></div>
+      <div class="form-body">
+        <div class="field" style="margin:0">
+          <label>Prefijo a quitar</label>
+          <input type="text" id="fix-name-prefix" value="Resistencias " maxlength="80" autocomplete="off">
+          <div style="font-size:10.5px;color:var(--tm);margin-top:3px">Solo afecta nombres que <strong>empiezan</strong> con ese texto (incluye el espacio final si lo dejas).</div>
+        </div>
+        <button class="btn-add" type="button" style="margin-top:10px;background:linear-gradient(135deg,#64748b,#475569);box-shadow:0 4px 14px rgba(71,85,105,.35)" onclick="stripNamePrefixOnce()"><i class="ti ti-eraser"></i>Quitar prefijo a todos los que apliquen</button>
+        <div class="form-error" id="fix-name-prefix-error"></div>
+      </div>
+    </div>
   </div>
 
   <!-- ═══ RESTOCK ═══ -->
@@ -3953,6 +3967,50 @@ async function ungroupEntireGroup(groupId){
     closePM();
     showToast('Grupo desagrupado · nombres restaurados','ti-unlink');
   }catch(e){console.error(e);showToast('Error al desagrupar el grupo','ti-alert-circle');}
+}
+
+/** Quita un prefijo del name de todos los productos que lo tienen al inicio. */
+async function stripNamePrefixOnce(){
+  const err=document.getElementById('fix-name-prefix-error');
+  if(err) err.textContent='';
+  const prefix=((document.getElementById('fix-name-prefix')||{}).value||'');
+  if(!prefix){if(err)err.textContent='Escribe el prefijo a quitar (ej. Resistencias ).';return;}
+  const hits=products.filter(p=>typeof p.name==='string'&&p.name.startsWith(prefix)&&p.name.length>prefix.length);
+  if(!hits.length){
+    if(err)err.textContent='Ningun producto empieza con "'+prefix+'".';
+    showToast('Nada que cambiar','ti-info-circle');
+    return;
+  }
+  const preview=hits.slice(0,8).map(p=>'- '+p.name+' -> '+p.name.slice(prefix.length)).join('\n');
+  const more=hits.length>8?'\n... y '+(hits.length-8)+' mas':'';
+  if(!confirm('Se quitara el prefijo "'+prefix+'" de '+hits.length+' producto(s).\n\nEjemplos:\n'+preview+more+'\n\nContinuar?')) return;
+  try{
+    const now=Date.now();
+    const CHUNK=400;
+    for(let i=0;i<hits.length;i+=CHUNK){
+      const slice=hits.slice(i,i+CHUNK);
+      const batch=db.batch();
+      slice.forEach(p=>{
+        const newName=p.name.slice(prefix.length);
+        const upd={name:newName,updatedAt:now};
+        // Si nameOriginal también tenía el prefijo, límpialo
+        if(typeof p.nameOriginal==='string'&&p.nameOriginal.startsWith(prefix)&&p.nameOriginal.length>prefix.length){
+          upd.nameOriginal=p.nameOriginal.slice(prefix.length);
+        }
+        batch.update(db.collection('productos').doc(p.id),upd);
+        p.name=newName;
+        if(upd.nameOriginal) p.nameOriginal=upd.nameOriginal;
+      });
+      await batch.commit();
+    }
+    ['exsal','cdb','total'].forEach(suc=>{if(typeof renderList==='function') try{renderList(suc);}catch(e){}});
+    showToast(hits.length+' nombres corregidos','ti-eraser');
+    if(err) err.textContent='';
+  }catch(e){
+    console.error(e);
+    if(err)err.textContent='Error al actualizar nombres.';
+    showToast('Error al quitar prefijo','ti-alert-circle');
+  }
 }
 
 // ── MODAL PRODUCTO ──
