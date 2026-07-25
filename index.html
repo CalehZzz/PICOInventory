@@ -197,6 +197,8 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .group-empty-msg{padding:16px 13px;font-size:12px;color:var(--tm);text-align:center}
 .group-selected-list{display:flex;flex-direction:column;gap:7px}
 .group-selected-row{display:grid;grid-template-columns:1fr 120px auto;gap:7px;align-items:center;background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:8px 10px}
+.group-selected-row.gs-color{grid-template-columns:1fr 120px 110px auto}
+.group-selected-row.gs-color select{background:var(--wh);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:6px 9px;font-size:12.5px;font-family:inherit;color:var(--tp);outline:none;width:100%;box-sizing:border-box}
 .group-selected-row .gs-name{font-size:12.5px;font-weight:600;color:var(--tp);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .group-selected-row input{background:var(--wh);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:6px 9px;font-size:12.5px;font-family:inherit;color:var(--tp);outline:none;width:100%;box-sizing:border-box}
 .group-color-chips{display:flex;flex-wrap:wrap;gap:7px}
@@ -223,7 +225,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .btn-mini-group:hover{background:var(--b50)}
 .btn-mini-group.danger{border-color:var(--r100);color:var(--r600)}
 .btn-mini-group.danger:hover{background:var(--r50)}
-@media(max-width:700px){.group-selected-row{grid-template-columns:1fr;}.group-color-detail-row{grid-template-columns:1fr;}}
+@media(max-width:700px){.group-selected-row,.group-selected-row.gs-color{grid-template-columns:1fr;}.group-color-detail-row{grid-template-columns:1fr;}}
 .pm-price-val .badge-descuento-pct{font-size:12px;vertical-align:middle;margin-left:8px}
 .card-actions{display:flex;gap:5px;flex-shrink:0}
 .btn-icon{width:29px;height:29px;background:none;border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:background var(--tr),color var(--tr);color:var(--tm)}
@@ -862,7 +864,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
               <input type="radio" name="exsal-grp-kind" value="color" onchange="onGrpBuilderKindChange('exsal')">
               <div>
                 <div style="font-size:13px;font-weight:700;color:var(--tp)">Por color</div>
-                <div style="font-size:11px;color:var(--tm);margin-top:2px">Un solo producto: marcas colores (mismo stock). Sin crear extras.</div>
+                <div style="font-size:11px;color:var(--tm);margin-top:2px">Stock compartido (1 producto) o stock por color (varios productos).</div>
               </div>
             </label>
           </div>
@@ -894,27 +896,65 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
           </div>
         </div>
 
-        <!-- Modo color: un producto + chips -->
+        <!-- Modo color: shared o productos -->
         <div id="exsal-grp-color-wrap" style="display:none">
-          <div class="field">
-            <label>Producto base</label>
-            <div class="search-wrap" style="margin-bottom:6px">
-              <i class="ti ti-search"></i>
-              <input type="text" id="exsal-grp-color-search" placeholder="Buscar producto…" oninput="renderGroupColorList('exsal')" autocomplete="off">
-            </div>
-            <div class="group-prod-list" id="exsal-grp-color-list"><div class="group-empty-msg">Cargando productos…</div></div>
-            <input type="hidden" id="exsal-grp-color-pid" value="">
-            <div class="restock-selected-pill" id="exsal-grp-color-pill" style="display:none;margin-top:6px">
-              <i class="ti ti-box"></i>
-              <span id="exsal-grp-color-pill-name">—</span>
-              <button type="button" class="restock-pill-clear" onclick="clearGroupColorProduct('exsal')" title="Quitar"><i class="ti ti-x"></i></button>
+          <div class="field" style="margin:0">
+            <label>Modo de stock</label>
+            <div class="group-kind-row">
+              <label class="group-kind-opt active" id="exsal-grp-cmode-shared-lab">
+                <input type="radio" name="exsal-grp-cmode" value="shared" checked onchange="onGrpColorModeChange('exsal')">
+                <div>
+                  <div style="font-size:13px;font-weight:700;color:var(--tp)">Stock compartido</div>
+                  <div style="font-size:11px;color:var(--tm);margin-top:2px">Un producto, varios colores. Mismo stock.</div>
+                </div>
+              </label>
+              <label class="group-kind-opt" id="exsal-grp-cmode-products-lab">
+                <input type="radio" name="exsal-grp-cmode" value="products" onchange="onGrpColorModeChange('exsal')">
+                <div>
+                  <div style="font-size:13px;font-weight:700;color:var(--tp)">Stock por color</div>
+                  <div style="font-size:11px;color:var(--tm);margin-top:2px">Productos distintos; cada color con su propio stock.</div>
+                </div>
+              </label>
             </div>
           </div>
-          <div class="field" style="margin:0">
-            <label>Colores disponibles</label>
-            <div class="group-color-chips" id="exsal-grp-color-chips"></div>
-            <div class="group-color-detail" id="exsal-grp-color-detail"></div>
-            <div style="font-size:10.5px;color:var(--tm);margin-top:6px">No se crean productos nuevos: el stock es el del producto original. Si se acaba un color, desactívalo al editar. La URL de imagen por color es opcional.</div>
+
+          <div id="exsal-grp-color-shared-wrap">
+            <div class="field">
+              <label>Producto base</label>
+              <div class="search-wrap" style="margin-bottom:6px">
+                <i class="ti ti-search"></i>
+                <input type="text" id="exsal-grp-color-search" placeholder="Buscar producto…" oninput="renderGroupColorList('exsal')" autocomplete="off">
+              </div>
+              <div class="group-prod-list" id="exsal-grp-color-list"><div class="group-empty-msg">Cargando productos…</div></div>
+              <input type="hidden" id="exsal-grp-color-pid" value="">
+              <div class="restock-selected-pill" id="exsal-grp-color-pill" style="display:none;margin-top:6px">
+                <i class="ti ti-box"></i>
+                <span id="exsal-grp-color-pill-name">—</span>
+                <button type="button" class="restock-pill-clear" onclick="clearGroupColorProduct('exsal')" title="Quitar"><i class="ti ti-x"></i></button>
+              </div>
+            </div>
+            <div class="field" style="margin:0">
+              <label>Colores disponibles</label>
+              <div class="group-color-chips" id="exsal-grp-color-chips"></div>
+              <div class="group-color-detail" id="exsal-grp-color-detail"></div>
+              <div style="font-size:10.5px;color:var(--tm);margin-top:6px">No se crean productos nuevos: el stock es el del producto original. Si se acaba un color, desactívalo al editar. La URL de imagen por color es opcional.</div>
+            </div>
+          </div>
+
+          <div id="exsal-grp-color-products-wrap" style="display:none">
+            <div class="field">
+              <label>Productos del grupo</label>
+              <div class="search-wrap" style="margin-bottom:6px">
+                <i class="ti ti-search"></i>
+                <input type="text" id="exsal-grp-color-prod-search" placeholder="Buscar para filtrar la lista…" oninput="renderGroupColorProdList('exsal')" autocomplete="off">
+              </div>
+              <div class="group-prod-list" id="exsal-grp-color-prod-list"><div class="group-empty-msg">Cargando productos…</div></div>
+              <div style="font-size:10.5px;color:var(--tm);margin-top:5px">Marca 2 o más productos (ej. LED Rojo, LED Azul). Cada uno lleva su stock.</div>
+            </div>
+            <div class="field" style="margin:0">
+              <label>Color y etiqueta de cada producto</label>
+              <div class="group-selected-list" id="exsal-grp-color-prod-selected"><div class="group-empty-msg">Aún no hay productos seleccionados.</div></div>
+            </div>
           </div>
         </div>
 
@@ -993,7 +1033,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
               <input type="radio" name="cdb-grp-kind" value="color" onchange="onGrpBuilderKindChange('cdb')">
               <div>
                 <div style="font-size:13px;font-weight:700;color:var(--tp)">Por color</div>
-                <div style="font-size:11px;color:var(--tm);margin-top:2px">Un solo producto: marcas colores (mismo stock). Sin crear extras.</div>
+                <div style="font-size:11px;color:var(--tm);margin-top:2px">Stock compartido (1 producto) o stock por color (varios productos).</div>
               </div>
             </label>
           </div>
@@ -1025,27 +1065,65 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
           </div>
         </div>
 
-        <!-- Modo color: un producto + chips -->
+        <!-- Modo color: shared o productos -->
         <div id="cdb-grp-color-wrap" style="display:none">
-          <div class="field">
-            <label>Producto base</label>
-            <div class="search-wrap" style="margin-bottom:6px">
-              <i class="ti ti-search"></i>
-              <input type="text" id="cdb-grp-color-search" placeholder="Buscar producto…" oninput="renderGroupColorList('cdb')" autocomplete="off">
-            </div>
-            <div class="group-prod-list" id="cdb-grp-color-list"><div class="group-empty-msg">Cargando productos…</div></div>
-            <input type="hidden" id="cdb-grp-color-pid" value="">
-            <div class="restock-selected-pill" id="cdb-grp-color-pill" style="display:none;margin-top:6px">
-              <i class="ti ti-box"></i>
-              <span id="cdb-grp-color-pill-name">—</span>
-              <button type="button" class="restock-pill-clear" onclick="clearGroupColorProduct('cdb')" title="Quitar"><i class="ti ti-x"></i></button>
+          <div class="field" style="margin:0">
+            <label>Modo de stock</label>
+            <div class="group-kind-row">
+              <label class="group-kind-opt active" id="cdb-grp-cmode-shared-lab">
+                <input type="radio" name="cdb-grp-cmode" value="shared" checked onchange="onGrpColorModeChange('cdb')">
+                <div>
+                  <div style="font-size:13px;font-weight:700;color:var(--tp)">Stock compartido</div>
+                  <div style="font-size:11px;color:var(--tm);margin-top:2px">Un producto, varios colores. Mismo stock.</div>
+                </div>
+              </label>
+              <label class="group-kind-opt" id="cdb-grp-cmode-products-lab">
+                <input type="radio" name="cdb-grp-cmode" value="products" onchange="onGrpColorModeChange('cdb')">
+                <div>
+                  <div style="font-size:13px;font-weight:700;color:var(--tp)">Stock por color</div>
+                  <div style="font-size:11px;color:var(--tm);margin-top:2px">Productos distintos; cada color con su propio stock.</div>
+                </div>
+              </label>
             </div>
           </div>
-          <div class="field" style="margin:0">
-            <label>Colores disponibles</label>
-            <div class="group-color-chips" id="cdb-grp-color-chips"></div>
-            <div class="group-color-detail" id="cdb-grp-color-detail"></div>
-            <div style="font-size:10.5px;color:var(--tm);margin-top:6px">No se crean productos nuevos: el stock es el del producto original. Si se acaba un color, desactívalo al editar. La URL de imagen por color es opcional.</div>
+
+          <div id="cdb-grp-color-shared-wrap">
+            <div class="field">
+              <label>Producto base</label>
+              <div class="search-wrap" style="margin-bottom:6px">
+                <i class="ti ti-search"></i>
+                <input type="text" id="cdb-grp-color-search" placeholder="Buscar producto…" oninput="renderGroupColorList('cdb')" autocomplete="off">
+              </div>
+              <div class="group-prod-list" id="cdb-grp-color-list"><div class="group-empty-msg">Cargando productos…</div></div>
+              <input type="hidden" id="cdb-grp-color-pid" value="">
+              <div class="restock-selected-pill" id="cdb-grp-color-pill" style="display:none;margin-top:6px">
+                <i class="ti ti-box"></i>
+                <span id="cdb-grp-color-pill-name">—</span>
+                <button type="button" class="restock-pill-clear" onclick="clearGroupColorProduct('cdb')" title="Quitar"><i class="ti ti-x"></i></button>
+              </div>
+            </div>
+            <div class="field" style="margin:0">
+              <label>Colores disponibles</label>
+              <div class="group-color-chips" id="cdb-grp-color-chips"></div>
+              <div class="group-color-detail" id="cdb-grp-color-detail"></div>
+              <div style="font-size:10.5px;color:var(--tm);margin-top:6px">No se crean productos nuevos: el stock es el del producto original. Si se acaba un color, desactívalo al editar. La URL de imagen por color es opcional.</div>
+            </div>
+          </div>
+
+          <div id="cdb-grp-color-products-wrap" style="display:none">
+            <div class="field">
+              <label>Productos del grupo</label>
+              <div class="search-wrap" style="margin-bottom:6px">
+                <i class="ti ti-search"></i>
+                <input type="text" id="cdb-grp-color-prod-search" placeholder="Buscar para filtrar la lista…" oninput="renderGroupColorProdList('cdb')" autocomplete="off">
+              </div>
+              <div class="group-prod-list" id="cdb-grp-color-prod-list"><div class="group-empty-msg">Cargando productos…</div></div>
+              <div style="font-size:10.5px;color:var(--tm);margin-top:5px">Marca 2 o más productos (ej. LED Rojo, LED Azul). Cada uno lleva su stock.</div>
+            </div>
+            <div class="field" style="margin:0">
+              <label>Color y etiqueta de cada producto</label>
+              <div class="group-selected-list" id="cdb-grp-color-prod-selected"><div class="group-empty-msg">Aún no hay productos seleccionados.</div></div>
+            </div>
           </div>
         </div>
 
@@ -1131,7 +1209,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
               <input type="radio" name="total-grp-kind" value="color" onchange="onGrpBuilderKindChange('total')">
               <div>
                 <div style="font-size:13px;font-weight:700;color:var(--tp)">Por color</div>
-                <div style="font-size:11px;color:var(--tm);margin-top:2px">Un solo producto: marcas colores (mismo stock). Sin crear extras.</div>
+                <div style="font-size:11px;color:var(--tm);margin-top:2px">Stock compartido (1 producto) o stock por color (varios productos).</div>
               </div>
             </label>
           </div>
@@ -1163,27 +1241,65 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
           </div>
         </div>
 
-        <!-- Modo color: un producto + chips -->
+        <!-- Modo color: shared o productos -->
         <div id="total-grp-color-wrap" style="display:none">
-          <div class="field">
-            <label>Producto base</label>
-            <div class="search-wrap" style="margin-bottom:6px">
-              <i class="ti ti-search"></i>
-              <input type="text" id="total-grp-color-search" placeholder="Buscar producto…" oninput="renderGroupColorList('total')" autocomplete="off">
-            </div>
-            <div class="group-prod-list" id="total-grp-color-list"><div class="group-empty-msg">Cargando productos…</div></div>
-            <input type="hidden" id="total-grp-color-pid" value="">
-            <div class="restock-selected-pill" id="total-grp-color-pill" style="display:none;margin-top:6px">
-              <i class="ti ti-box"></i>
-              <span id="total-grp-color-pill-name">—</span>
-              <button type="button" class="restock-pill-clear" onclick="clearGroupColorProduct('total')" title="Quitar"><i class="ti ti-x"></i></button>
+          <div class="field" style="margin:0">
+            <label>Modo de stock</label>
+            <div class="group-kind-row">
+              <label class="group-kind-opt active" id="total-grp-cmode-shared-lab">
+                <input type="radio" name="total-grp-cmode" value="shared" checked onchange="onGrpColorModeChange('total')">
+                <div>
+                  <div style="font-size:13px;font-weight:700;color:var(--tp)">Stock compartido</div>
+                  <div style="font-size:11px;color:var(--tm);margin-top:2px">Un producto, varios colores. Mismo stock.</div>
+                </div>
+              </label>
+              <label class="group-kind-opt" id="total-grp-cmode-products-lab">
+                <input type="radio" name="total-grp-cmode" value="products" onchange="onGrpColorModeChange('total')">
+                <div>
+                  <div style="font-size:13px;font-weight:700;color:var(--tp)">Stock por color</div>
+                  <div style="font-size:11px;color:var(--tm);margin-top:2px">Productos distintos; cada color con su propio stock.</div>
+                </div>
+              </label>
             </div>
           </div>
-          <div class="field" style="margin:0">
-            <label>Colores disponibles</label>
-            <div class="group-color-chips" id="total-grp-color-chips"></div>
-            <div class="group-color-detail" id="total-grp-color-detail"></div>
-            <div style="font-size:10.5px;color:var(--tm);margin-top:6px">No se crean productos nuevos: el stock es el del producto original. Si se acaba un color, desactívalo al editar. La URL de imagen por color es opcional.</div>
+
+          <div id="total-grp-color-shared-wrap">
+            <div class="field">
+              <label>Producto base</label>
+              <div class="search-wrap" style="margin-bottom:6px">
+                <i class="ti ti-search"></i>
+                <input type="text" id="total-grp-color-search" placeholder="Buscar producto…" oninput="renderGroupColorList('total')" autocomplete="off">
+              </div>
+              <div class="group-prod-list" id="total-grp-color-list"><div class="group-empty-msg">Cargando productos…</div></div>
+              <input type="hidden" id="total-grp-color-pid" value="">
+              <div class="restock-selected-pill" id="total-grp-color-pill" style="display:none;margin-top:6px">
+                <i class="ti ti-box"></i>
+                <span id="total-grp-color-pill-name">—</span>
+                <button type="button" class="restock-pill-clear" onclick="clearGroupColorProduct('total')" title="Quitar"><i class="ti ti-x"></i></button>
+              </div>
+            </div>
+            <div class="field" style="margin:0">
+              <label>Colores disponibles</label>
+              <div class="group-color-chips" id="total-grp-color-chips"></div>
+              <div class="group-color-detail" id="total-grp-color-detail"></div>
+              <div style="font-size:10.5px;color:var(--tm);margin-top:6px">No se crean productos nuevos: el stock es el del producto original. Si se acaba un color, desactívalo al editar. La URL de imagen por color es opcional.</div>
+            </div>
+          </div>
+
+          <div id="total-grp-color-products-wrap" style="display:none">
+            <div class="field">
+              <label>Productos del grupo</label>
+              <div class="search-wrap" style="margin-bottom:6px">
+                <i class="ti ti-search"></i>
+                <input type="text" id="total-grp-color-prod-search" placeholder="Buscar para filtrar la lista…" oninput="renderGroupColorProdList('total')" autocomplete="off">
+              </div>
+              <div class="group-prod-list" id="total-grp-color-prod-list"><div class="group-empty-msg">Cargando productos…</div></div>
+              <div style="font-size:10.5px;color:var(--tm);margin-top:5px">Marca 2 o más productos (ej. LED Rojo, LED Azul). Cada uno lleva su stock.</div>
+            </div>
+            <div class="field" style="margin:0">
+              <label>Color y etiqueta de cada producto</label>
+              <div class="group-selected-list" id="total-grp-color-prod-selected"><div class="group-empty-msg">Aún no hay productos seleccionados.</div></div>
+            </div>
           </div>
         </div>
 
@@ -1812,7 +1928,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
           <button type="button" class="btn-mini-group" style="margin-top:6px" onclick="savePmGroupDesc()"><i class="ti ti-device-floppy"></i> Guardar descripción</button>
         </div>
         <div id="pm-group-manage-list"></div>
-        <button type="button" class="btn-mini-group danger" style="width:100%;padding:9px;margin-top:10px" onclick="confirmDeleteEntireGroup()"><i class="ti ti-trash"></i> Eliminar grupo completo</button>
+        <button type="button" class="btn-mini-group" style="width:100%;padding:9px;margin-top:10px" onclick="confirmUngroupEntireGroup()"><i class="ti ti-unlink"></i> Desagrupar grupo completo</button>
       </div>
       <div class="pm-footer">
         <button class="btn-danger" id="pm-btn-delete" onclick="confirmDeleteFromModal()"><i class="ti ti-trash"></i>Eliminar</button>
@@ -1885,6 +2001,11 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
         </div>
         <div id="edit-group-valor-fields">
           <div class="field" style="margin:0"><label>Etiqueta de esta opción</label><input type="text" id="edit-variant-label" placeholder="Ej. 330Ω" maxlength="40" autocomplete="off"></div>
+          <div class="field" style="margin:0;display:none" id="edit-variant-color-wrap">
+            <label>Color de esta opción</label>
+            <select id="edit-variant-color"></select>
+            <div style="font-size:10.5px;color:var(--tm);margin-top:3px">Solo para grupos por color con stock separado (varios productos).</div>
+          </div>
           <label style="display:flex;align-items:flex-start;gap:10px;background:var(--wh);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:9px 11px;cursor:pointer;user-select:none;margin-top:8px">
             <input type="checkbox" id="edit-variant-enabled" checked style="margin-top:2px;width:15px;height:15px;accent-color:var(--b400);flex-shrink:0;cursor:pointer">
             <div>
@@ -1894,7 +2015,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
           </label>
         </div>
         <div id="edit-group-color-fields" style="display:none">
-          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--tm);margin-bottom:4px">Colores del producto</div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--tm);margin-bottom:4px">Colores del producto (stock compartido)</div>
           <div style="font-size:11px;color:var(--tm);margin-bottom:6px">Mismo stock para todos. Quita un color con la X (no borra el producto). Desactiva si se acabó.</div>
           <div class="edit-color-rows" id="edit-group-colors"></div>
           <div style="margin-top:8px">
@@ -1905,7 +2026,6 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
         <div id="edit-group-ungroup-wrap" style="display:none;margin-top:4px">
           <button type="button" class="btn-mini-group danger" style="width:100%;padding:8px" onclick="ungroupFromEditModal()"><i class="ti ti-unlink"></i> Sacar este producto del grupo (no lo elimina)</button>
         </div>
-        <input type="hidden" id="edit-variant-color" value="">
       </div>
       <!-- Checkbox: afectar costos en estadisticas -->
       <label style="display:flex;align-items:flex-start;gap:10px;background:var(--w50);border:1.5px solid var(--w100);border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none;margin-top:4px">
@@ -2746,12 +2866,16 @@ function renderList(suc){
       if(name.includes(q)||desc.includes(q)) return true;
       const gDesc=(p.groupDesc||'').toLowerCase();
       if(gDesc.includes(q)) return true;
-      // Color: un solo producto raíz; también encuentra por nombre de color
+      // Color compartido: raíz + labels de groupColors. Color multi: como valor + label
       if(p.groupKind==='color'){
         const gName=(p.groupName||'').toLowerCase();
         if(gName.includes(q)) return true;
-        const cols=Array.isArray(p.groupColors)?p.groupColors:[];
-        return cols.some(c=>c&&c.enabled!==false&&String(c.label||'').toLowerCase().includes(q));
+        if(isSharedColorGroup(p)){
+          const cols=Array.isArray(p.groupColors)?p.groupColors:[];
+          return cols.some(c=>c&&c.enabled!==false&&String(c.label||'').toLowerCase().includes(q));
+        }
+        const vLab=(p.variantLabel||'').toLowerCase();
+        return vLab.includes(q);
       }
       if(p.groupKind==='valor'){
         const gName=(p.groupName||'').toLowerCase();
@@ -2792,9 +2916,9 @@ function renderList(suc){
     }
     const descPct=parseDescuentoPct(p.descuentoPct);
     const descBadge=descPct>0?`<span class="badge badge-descuento-pct">−${descPct}%</span>`:'';
-    // Color: solo raíz + circulitos de colores (sin texto "grupo"/"color")
+    // Color compartido: varios dots. Color multi: un dot de esta ficha
     let colorDots='';
-    if(p.groupKind==='color'&&Array.isArray(p.groupColors)){
+    if(isSharedColorGroup(p)){
       const enabledCols=p.groupColors.filter(c=>c&&c.enabled!==false);
       if(enabledCols.length){
         colorDots=`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">${enabledCols.map(c=>{
@@ -2802,6 +2926,11 @@ function renderList(suc){
           if(!hx) return '';
           return `<span title="${esc(c.label||'')}" style="width:12px;height:12px;border-radius:50%;background:${hx};border:1px solid rgba(0,0,0,.15);display:inline-block;flex-shrink:0${hx==='#fafafa'?';box-shadow:inset 0 0 0 1px #ccc':''}"></span>`;
         }).join('')}</div>`;
+      }
+    } else if(isMultiColorGroup(p)){
+      const hx=normalizeHexColor(p.variantColor);
+      if(hx){
+        colorDots=`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px"><span title="${esc(p.variantLabel||'')}" style="width:12px;height:12px;border-radius:50%;background:${hx};border:1px solid rgba(0,0,0,.15);display:inline-block;flex-shrink:0${hx==='#fafafa'?';box-shadow:inset 0 0 0 1px #ccc':''}"></span></div>`;
       }
     }
     return `<div class="product-card" onclick="openPM('${p.id}','${suc}')" style="${cardBg}">
@@ -2884,15 +3013,59 @@ function normalizeHexColor(raw){
 }
 
 /** Estado del creador de grupos (por pestaña). */
+function emptyGroupBuilderState(){
+  return {valorIds:[],valorLabels:{},colorPid:'',colorOn:{},colorMode:'shared',colorProdIds:[],colorProdMeta:{}};
+}
 const groupBuilderState={
-  exsal:{valorIds:[],valorLabels:{},colorPid:'',colorOn:{}},
-  cdb:{valorIds:[],valorLabels:{},colorPid:'',colorOn:{}},
-  total:{valorIds:[],valorLabels:{},colorPid:'',colorOn:{}}
+  exsal:emptyGroupBuilderState(),
+  cdb:emptyGroupBuilderState(),
+  total:emptyGroupBuilderState()
 };
+
+/** Color con groupColors[] = stock compartido. Color con variantColor = productos distintos. */
+function isSharedColorGroup(p){
+  return !!(p&&p.groupKind==='color'&&Array.isArray(p.groupColors)&&p.groupColors.length);
+}
+function isMultiColorGroup(p){
+  return !!(p&&p.groupKind==='color'&&!isSharedColorGroup(p));
+}
+function colorPresetOptionsHtml(selectedHex){
+  const sel=normalizeHexColor(selectedHex)||'';
+  return COLOR_PRESETS.map(c=>{
+    const key=normalizeHexColor(c.hex)||c.hex.toLowerCase();
+    return `<option value="${key}" ${key===sel?'selected':''}>${c.name}</option>`;
+  }).join('');
+}
+function guessColorFromName(name){
+  const n=String(name||'').toLowerCase();
+  for(const c of COLOR_PRESETS){
+    if(n.includes(c.name.toLowerCase())) return {name:c.name,hex:normalizeHexColor(c.hex)};
+  }
+  return null;
+}
 
 function getGrpBuilderKind(suc){
   const el=document.querySelector('input[name="'+suc+'-grp-kind"]:checked');
   return (el&&el.value==='color')?'color':'valor';
+}
+function getGrpColorMode(suc){
+  const el=document.querySelector('input[name="'+suc+'-grp-cmode"]:checked');
+  return (el&&el.value==='products')?'products':'shared';
+}
+function onGrpColorModeChange(suc){
+  const st=groupBuilderState[suc];if(!st)return;
+  st.colorMode=getGrpColorMode(suc);
+  const shared=document.getElementById(suc+'-grp-color-shared-wrap');
+  const prods=document.getElementById(suc+'-grp-color-products-wrap');
+  const labS=document.getElementById(suc+'-grp-cmode-shared-lab');
+  const labP=document.getElementById(suc+'-grp-cmode-products-lab');
+  if(shared) shared.style.display=st.colorMode==='shared'?'':'none';
+  if(prods) prods.style.display=st.colorMode==='products'?'':'none';
+  if(labS) labS.classList.toggle('active',st.colorMode==='shared');
+  if(labP) labP.classList.toggle('active',st.colorMode==='products');
+  const err=document.getElementById(suc+'-grp-error');if(err)err.textContent='';
+  if(st.colorMode==='shared'){renderGroupColorList(suc);initGroupColorChips(suc);}
+  else {renderGroupColorProdList(suc);renderGroupColorProdSelected(suc);}
 }
 function onGrpBuilderKindChange(suc){
   const kind=getGrpBuilderKind(suc);
@@ -2906,7 +3079,7 @@ function onGrpBuilderKindChange(suc){
   if(labC) labC.classList.toggle('active',kind==='color');
   const err=document.getElementById(suc+'-grp-error');if(err)err.textContent='';
   if(kind==='valor'){renderGroupValorList(suc);renderGroupValorSelected(suc);}
-  else {renderGroupColorList(suc);initGroupColorChips(suc);}
+  else onGrpColorModeChange(suc);
 }
 
 function suggestVariantLabel(groupName, productName){
@@ -2924,7 +3097,7 @@ function renderAllGroupBuilders(){
   ['exsal','cdb','total'].forEach(suc=>{
     if(!document.getElementById(suc+'-group-panel')) return;
     const kind=getGrpBuilderKind(suc);
-    if(kind==='color') renderGroupColorList(suc);
+    if(kind==='color') onGrpColorModeChange(suc);
     else {renderGroupValorList(suc);renderGroupValorSelected(suc);}
   });
 }
@@ -3040,6 +3213,79 @@ function clearGroupColorProduct(suc){
   renderGroupColorList(suc);
 }
 
+function renderGroupColorProdList(suc){
+  const st=groupBuilderState[suc];if(!st)return;
+  const q=((document.getElementById(suc+'-grp-color-prod-search')||{}).value||'').toLowerCase().trim();
+  const area=document.getElementById(suc+'-grp-color-prod-list');
+  if(!area)return;
+  let list=products.slice().sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'es'));
+  if(q) list=list.filter(p=>String(p.name||'').toLowerCase().includes(q));
+  if(!list.length){
+    area.innerHTML=`<div class="group-empty-msg">${q?'Sin resultados':'Sin productos. Crea productos arriba y luego agrúpalos aquí.'}</div>`;
+    return;
+  }
+  area.innerHTML=list.map(p=>{
+    const on=st.colorProdIds.includes(p.id);
+    return `<label class="group-prod-item ${on?'selected':''}">
+      <input type="checkbox" ${on?'checked':''} onchange="toggleGroupColorProd('${suc}','${p.id}',this.checked)">
+      <span>${esc(p.name||'')}</span>
+    </label>`;
+  }).join('');
+}
+function toggleGroupColorProd(suc,pid,checked){
+  const st=groupBuilderState[suc];if(!st)return;
+  const p=products.find(x=>x.id===pid);
+  if(checked){
+    if(!st.colorProdIds.includes(pid)) st.colorProdIds.push(pid);
+    if(!st.colorProdMeta[pid]){
+      const guess=guessColorFromName(p?p.name:'');
+      const gname=((document.getElementById(suc+'-grp-name')||{}).value||'').trim();
+      const lab=guess?guess.name:suggestVariantLabel(gname, p?p.name:'');
+      st.colorProdMeta[pid]={label:lab,hex:guess?guess.hex:(normalizeHexColor(COLOR_PRESETS[0].hex))};
+    }
+  } else {
+    st.colorProdIds=st.colorProdIds.filter(id=>id!==pid);
+    delete st.colorProdMeta[pid];
+  }
+  renderGroupColorProdList(suc);
+  renderGroupColorProdSelected(suc);
+}
+function renderGroupColorProdSelected(suc){
+  const st=groupBuilderState[suc];if(!st)return;
+  const area=document.getElementById(suc+'-grp-color-prod-selected');
+  if(!area)return;
+  if(!st.colorProdIds.length){
+    area.innerHTML='<div class="group-empty-msg">Aún no hay productos seleccionados.</div>';
+    return;
+  }
+  area.innerHTML=st.colorProdIds.map(pid=>{
+    const p=products.find(x=>x.id===pid);
+    const name=p?p.name:pid;
+    const meta=st.colorProdMeta[pid]||{label:'',hex:normalizeHexColor(COLOR_PRESETS[0].hex)};
+    return `<div class="group-selected-row gs-color">
+      <div class="gs-name" title="${esc(name)}">${esc(name)}</div>
+      <select onchange="setGroupColorProdHex('${suc}','${pid}',this.value)">${colorPresetOptionsHtml(meta.hex)}</select>
+      <input type="text" maxlength="40" placeholder="Etiqueta" value="${esc(meta.label||'')}" oninput="setGroupColorProdLabel('${suc}','${pid}',this.value)">
+      <button type="button" class="btn-icon btn-del-sm" title="Quitar" onclick="toggleGroupColorProd('${suc}','${pid}',false)"><i class="ti ti-x"></i></button>
+    </div>`;
+  }).join('');
+}
+function setGroupColorProdHex(suc,pid,hex){
+  const st=groupBuilderState[suc];if(!st||!st.colorProdMeta[pid])return;
+  const key=normalizeHexColor(hex);
+  st.colorProdMeta[pid].hex=key;
+  const preset=COLOR_PRESETS.find(c=>normalizeHexColor(c.hex)===key);
+  // Si la etiqueta sigue siendo un nombre de color preset, sincronízala
+  const cur=(st.colorProdMeta[pid].label||'').trim();
+  const wasPreset=COLOR_PRESETS.some(c=>c.name===cur);
+  if(preset && (!cur || wasPreset)) st.colorProdMeta[pid].label=preset.name;
+  renderGroupColorProdSelected(suc);
+}
+function setGroupColorProdLabel(suc,pid,label){
+  const st=groupBuilderState[suc];if(!st||!st.colorProdMeta[pid])return;
+  st.colorProdMeta[pid].label=label;
+}
+
 function initGroupColorChips(suc){
   const st=groupBuilderState[suc];if(!st)return;
   const area=document.getElementById(suc+'-grp-color-chips');
@@ -3107,13 +3353,16 @@ function setGroupColorImageUrl(suc,hex,url){
 }
 
 function resetGroupBuilder(suc){
-  groupBuilderState[suc]={valorIds:[],valorLabels:{},colorPid:'',colorOn:{}};
+  groupBuilderState[suc]=emptyGroupBuilderState();
   const nameEl=document.getElementById(suc+'-grp-name');if(nameEl)nameEl.value='';
   const descEl=document.getElementById(suc+'-grp-desc');if(descEl)descEl.value='';
   const vs=document.getElementById(suc+'-grp-valor-search');if(vs)vs.value='';
   const cs=document.getElementById(suc+'-grp-color-search');if(cs){cs.value='';cs.style.display='block';}
+  const cps=document.getElementById(suc+'-grp-color-prod-search');if(cps)cps.value='';
   const kindV=document.querySelector('input[name="'+suc+'-grp-kind"][value="valor"]');
   if(kindV) kindV.checked=true;
+  const cmodeS=document.querySelector('input[name="'+suc+'-grp-cmode"][value="shared"]');
+  if(cmodeS) cmodeS.checked=true;
   clearGroupColorProduct(suc);
   onGrpBuilderKindChange(suc);
   const err=document.getElementById(suc+'-grp-error');if(err)err.textContent='';
@@ -3170,7 +3419,59 @@ async function createProductGroup(suc){
     return;
   }
 
-  // Por color: UN solo producto; colores en groupColors; mismo stock
+  // Por color
+  const colorMode=getGrpColorMode(suc);
+  st.colorMode=colorMode;
+  const DEL=firebase.firestore.FieldValue.delete();
+
+  // Stock por color: varios productos, cada uno con variantColor + stock propio
+  if(colorMode==='products'){
+    if(st.colorProdIds.length<2){if(err)err.textContent='Selecciona al menos 2 productos (uno por color).';return;}
+    const rows=st.colorProdIds.map(pid=>{
+      const p=products.find(x=>x.id===pid);
+      const meta=st.colorProdMeta[pid]||{};
+      const label=(meta.label||'').trim();
+      const hex=normalizeHexColor(meta.hex);
+      return {pid,p,label,hex};
+    });
+    if(rows.some(r=>!r.p)){if(err)err.textContent='Algún producto ya no existe. Recarga e intenta de nuevo.';return;}
+    if(rows.some(r=>!r.label)){if(err)err.textContent='Cada producto necesita una etiqueta (ej. Rojo).';return;}
+    if(rows.some(r=>!r.hex)){if(err)err.textContent='Cada producto necesita un color válido.';return;}
+    const hexes=rows.map(r=>r.hex);
+    if(new Set(hexes).size!==hexes.length){if(err)err.textContent='No repitas el mismo color en dos productos.';return;}
+    if(!groupName) groupName=rows[0].p.name;
+    try{
+      const batch=db.batch();
+      const groupId=newGroupId();
+      const now=Date.now();
+      rows.forEach(r=>{
+        const upd={
+          groupId,
+          groupName,
+          groupKind:'color',
+          variantLabel:r.label,
+          variantColor:r.hex,
+          variantEnabled:true,
+          groupColors:DEL,
+          name:groupName+' '+r.label,
+          updatedAt:now
+        };
+        if(groupDesc){ upd.groupDesc=groupDesc; upd.desc=groupDesc; }
+        else upd.groupDesc=DEL;
+        batch.update(db.collection('productos').doc(r.pid),upd);
+      });
+      await batch.commit();
+      resetGroupBuilder(suc);
+      showToast(rows.length+' colores con stock propio en "'+groupName+'"','ti-layers-linked');
+    }catch(e){
+      console.error(e);
+      if(err)err.textContent='No se pudo crear el grupo.';
+      showToast('Error al crear grupo','ti-alert-circle');
+    }
+    return;
+  }
+
+  // Stock compartido: UN solo producto; colores en groupColors
   if(!st.colorPid){if(err)err.textContent='Selecciona un producto base.';return;}
   const base=products.find(x=>x.id===st.colorPid);
   if(!base){if(err)err.textContent='El producto base ya no existe.';return;}
@@ -3188,14 +3489,12 @@ async function createProductGroup(suc){
   });
   try{
     const groupId=newGroupId();
-    const DEL=firebase.firestore.FieldValue.delete();
     const colorUpd={
       groupId,
       groupName,
       groupKind:'color',
       groupColors,
       name:groupName,
-      // Limpiar campos de variante por-doc (modelo valor)
       variantLabel:DEL,
       variantColor:DEL,
       variantEnabled:DEL,
@@ -3421,7 +3720,7 @@ async function clearProductGroupFields(id){
 
 async function ungroupCurrentProduct(){
   const p=products.find(x=>x.id===activePid);if(!p||!p.groupId)return;
-  if(p.groupKind==='color'){
+  if(isSharedColorGroup(p)){
     if(!confirm('¿Quitar todos los colores y dejar el producto sin grupo?\n\nEl producto NO se elimina.')) return;
   } else {
     if(!confirm('¿Sacar "'+p.name+'" del grupo?\n\nLas demás opciones del grupo se mantienen. Este producto NO se elimina.')) return;
@@ -3522,9 +3821,9 @@ function renderPmGroupManage(pid){
   if(ugBtn) ugBtn.style.display='inline-flex';
   if(descEl) descEl.value=p.groupDesc||p.desc||'';
 
-  if(p.groupKind==='color'){
+  if(isSharedColorGroup(p)){
     const cols=Array.isArray(p.groupColors)?p.groupColors:[];
-    sub.textContent='Producto único con varios colores (mismo stock). Quita un color sin borrar el producto. “Eliminar grupo completo” borra este producto y todos sus colores.';
+    sub.textContent='Producto único con varios colores (mismo stock). Quita un color sin borrar el producto. “Desagrupar grupo completo” quita todos los colores; el producto se queda.';
     if(!cols.length){
       list.innerHTML='<div class="group-empty-msg">Sin colores. Usa Editar para añadir.</div>';
       return;
@@ -3544,14 +3843,21 @@ function renderPmGroupManage(pid){
     return;
   }
 
-  // Por valor: varias fichas de producto
+  // Por valor o color multi-producto: varias fichas
   const siblings=products.filter(x=>x.groupId===p.groupId)
     .sort((a,b)=>String(a.variantLabel||a.name).localeCompare(String(b.variantLabel||b.name),'es',{numeric:true}));
-  sub.textContent='Cada fila es un producto del grupo. Puedes editarlo, sacarlo o eliminarlo solo a él. “Eliminar grupo completo” borra TODAS las opciones.';
+  if(isMultiColorGroup(p)){
+    sub.textContent='Cada fila es un producto-color con su propio stock. Puedes verlo, sacarlo o eliminarlo solo a él. “Desagrupar grupo completo” deja todas las fichas sin grupo (no las borra).';
+  } else {
+    sub.textContent='Cada fila es un producto del grupo. Puedes editarlo, sacarlo o eliminarlo solo a él. “Desagrupar grupo completo” deja todas las fichas sin grupo (no las borra).';
+  }
   list.innerHTML=siblings.map(s=>{
     const isSelf=s.id===pid;
     const lab=s.variantLabel||s.name;
+    const hx=normalizeHexColor(s.variantColor);
+    const dot=hx?`<span class="dot" style="background:${hx}${hx==='#fafafa'?';box-shadow:inset 0 0 0 1px #ccc':''}"></span>`:'';
     return `<div class="pm-group-opt" style="${isSelf?'border-color:var(--b300)':''}">
+      ${dot}
       <div class="pm-group-opt-name" title="${esc(s.name)}">${esc(lab)}${isSelf?' · este':''}</div>
       <div class="pm-group-opt-actions">
         ${isSelf?'':`<button type="button" class="btn-mini-group" onclick="openSiblingInModal('${s.id}')">Ver</button>`}
@@ -3568,7 +3874,7 @@ async function savePmGroupDesc(){
   const DEL=firebase.firestore.FieldValue.delete();
   const now=Date.now();
   try{
-    if(p.groupKind==='color'){
+    if(isSharedColorGroup(p)){
       const upd={groupDesc:desc||DEL,updatedAt:now};
       if(desc) upd.desc=desc;
       await db.collection('productos').doc(p.id).update(upd);
@@ -3589,42 +3895,44 @@ async function savePmGroupDesc(){
   }catch(e){console.error(e);showToast('Error al guardar descripción','ti-alert-circle');}
 }
 
-function confirmDeleteEntireGroup(){
+function confirmUngroupEntireGroup(){
   const p=products.find(x=>x.id===activePid);if(!p||!p.groupId)return;
   const gName=p.groupName||p.name||'este grupo';
   let msg;
-  if(p.groupKind==='color'){
-    msg='¿Eliminar el grupo "'+gName+'"?\n\nSe elimina el producto y TODOS sus colores. Esta acción manda el producto a la papelera.';
+  if(isSharedColorGroup(p)){
+    msg='¿Desagrupar "'+gName+'"?\n\nSe quitan todos los colores del producto. El producto NO se elimina.';
   } else {
     const n=products.filter(x=>x.groupId===p.groupId).length;
-    msg='¿Eliminar el grupo "'+gName+'" completo?\n\nSe eliminarán las '+n+' opciones del grupo (papelera). No se pueden deshacer en bloque desde aquí.';
+    msg='¿Desagrupar el grupo "'+gName+'" completo?\n\nLas '+n+' fichas quedan como productos sueltos. Ninguno se elimina.';
   }
   if(!confirm(msg)) return;
-  deleteEntireGroup(p.groupId, p.groupKind);
+  ungroupEntireGroup(p.groupId);
 }
 
-async function deleteEntireGroup(groupId, kind){
+async function ungroupEntireGroup(groupId){
   if(!groupId)return;
   try{
+    const siblings=products.filter(x=>x.groupId===groupId);
+    if(!siblings.length){showToast('Grupo no encontrado','ti-alert-circle');return;}
+    const batch=db.batch();
+    const DEL=firebase.firestore.FieldValue.delete();
     const now=Date.now();
-    if(kind==='color'){
-      // Un solo doc
-      const root=products.find(x=>x.groupId===groupId&&x.groupKind==='color')
-        || products.find(x=>x.groupId===groupId);
-      if(!root){showToast('Grupo no encontrado','ti-alert-circle');return;}
-      await db.collection('productos').doc(root.id).update({eliminado:true,updatedAt:now});
-    } else {
-      const siblings=products.filter(x=>x.groupId===groupId);
-      if(!siblings.length){showToast('Grupo no encontrado','ti-alert-circle');return;}
-      const batch=db.batch();
-      siblings.forEach(s=>{
-        batch.update(db.collection('productos').doc(s.id),{eliminado:true,updatedAt:now});
+    siblings.forEach(s=>{
+      batch.update(db.collection('productos').doc(s.id),{
+        groupId:DEL,groupName:DEL,groupKind:DEL,groupDesc:DEL,
+        variantLabel:DEL,variantColor:DEL,variantEnabled:DEL,
+        groupColors:DEL,updatedAt:now
       });
-      await batch.commit();
-    }
+    });
+    await batch.commit();
+    // Actualiza caché local
+    siblings.forEach(s=>{
+      delete s.groupId; delete s.groupName; delete s.groupKind; delete s.groupDesc;
+      delete s.variantLabel; delete s.variantColor; delete s.variantEnabled; delete s.groupColors;
+    });
     closePM();
-    showToast('Grupo eliminado','ti-trash');
-  }catch(e){console.error(e);showToast('Error al eliminar el grupo','ti-alert-circle');}
+    showToast('Grupo desagrupado · productos intactos','ti-unlink');
+  }catch(e){console.error(e);showToast('Error al desagrupar el grupo','ti-alert-circle');}
 }
 
 // ── MODAL PRODUCTO ──
@@ -4414,15 +4722,36 @@ document.getElementById('del-overlay').addEventListener('click',e=>{if(e.target.
 
 // ── EDITAR PRODUCTO ──
 let editGroupColorsState=[];
+let editColorMode='shared'; // shared | products (solo cuando kind=color)
+function fillEditVariantColorSelect(selectedHex){
+  const sel=document.getElementById('edit-variant-color');
+  if(!sel)return;
+  const cur=normalizeHexColor(selectedHex)||'';
+  let opts=colorPresetOptionsHtml(cur);
+  if(cur && !COLOR_PRESETS.some(c=>normalizeHexColor(c.hex)===cur)){
+    opts=`<option value="${cur}" selected>Personalizado (${cur})</option>`+opts;
+  }
+  sel.innerHTML=opts || '<option value="">—</option>';
+  if(cur) sel.value=cur;
+}
 function onEditGroupKindChange(){
   const kind=((document.getElementById('edit-group-kind')||{}).value||'').trim();
   const valor=document.getElementById('edit-group-valor-fields');
   const color=document.getElementById('edit-group-color-fields');
+  const colorWrap=document.getElementById('edit-variant-color-wrap');
   const ug=document.getElementById('edit-group-ungroup-wrap');
-  if(valor) valor.style.display=kind==='color'?'none':'';
-  if(color) color.style.display=kind==='color'?'':'none';
+  const shared=kind==='color'&&editColorMode==='shared';
+  const multi=kind==='color'&&editColorMode==='products';
+  if(valor) valor.style.display=(kind==='valor'||multi)?'':'none';
+  if(color) color.style.display=shared?'':'none';
+  if(colorWrap) colorWrap.style.display=multi?'':'none';
   if(ug) ug.style.display=(kind==='valor'||kind==='color')?'':'none';
-  if(kind==='color'){renderEditGroupColors();renderEditAddColorChips();}
+  if(shared){renderEditGroupColors();renderEditAddColorChips();}
+  if(multi){
+    const lab=document.getElementById('edit-variant-label');
+    if(lab && !lab.placeholder) lab.placeholder='Ej. Rojo';
+    if(lab) lab.placeholder='Ej. Rojo';
+  }
 }
 function renderEditGroupColors(){
   const area=document.getElementById('edit-group-colors');
@@ -4483,6 +4812,7 @@ function ungroupFromEditModal(){
   if(gname) gname.value='';
   if(gdesc) gdesc.value='';
   editGroupColorsState=[];
+  editColorMode='shared';
   onEditGroupKindChange();
   showToast('Marcado para sacar del grupo · pulsa Guardar','ti-unlink');
 }
@@ -4529,13 +4859,21 @@ function openEditModal(){
   if(gkindEl) gkindEl.value=(p.groupKind==='valor'||p.groupKind==='color')?p.groupKind:'';
   if(vlabEl) vlabEl.value=p.variantLabel||'';
   if(venEl) venEl.checked=p.variantEnabled!==false;
-  // Colores (modelo un solo producto)
+  // Colores: shared (groupColors) vs multi (variantColor)
   editGroupColorsState=Array.isArray(p.groupColors)?p.groupColors.map(c=>({
     label:c.label||'',
     color:normalizeHexColor(c.color)||'',
     imageUrl:c.imageUrl||'',
     enabled:c.enabled!==false
   })).filter(c=>c.label&&c.color):[];
+  if(p.groupKind==='color'&&editGroupColorsState.length){
+    editColorMode='shared';
+  } else if(p.groupKind==='color'){
+    editColorMode='products';
+  } else {
+    editColorMode='shared';
+  }
+  fillEditVariantColorSelect(p.variantColor||'');
   onEditGroupKindChange();
   // Mostrar preview si hay imagen
   const prev=document.getElementById('edit-imgpreview');
@@ -4594,7 +4932,7 @@ async function saveEdit(){
     updateData.groupKind=groupKind;
     updateData.groupDesc=groupDesc||DEL;
     if(groupDesc) updateData.desc=groupDesc;
-    if(groupKind==='color'){
+    if(groupKind==='color'&&editColorMode==='shared'){
       const cols=(editGroupColorsState||[]).map(c=>{
         const hex=normalizeHexColor(c.color);
         const row={label:(c.label||'').trim(),color:hex,enabled:c.enabled!==false};
@@ -4618,6 +4956,15 @@ async function saveEdit(){
         updateData.variantColor=DEL;
         updateData.variantEnabled=DEL;
       }
+    } else if(groupKind==='color'&&editColorMode==='products'){
+      const variantColor=normalizeHexColor(((document.getElementById('edit-variant-color')||{}).value||'').trim());
+      if(!variantLabel){err.textContent='La etiqueta de color es obligatoria.';return;}
+      if(!variantColor){err.textContent='Elige un color para esta opción.';return;}
+      updateData.variantLabel=variantLabel;
+      updateData.variantColor=variantColor;
+      updateData.variantEnabled=!!variantEnabled;
+      updateData.groupColors=DEL;
+      propagateGroupDescToSiblings=true;
     } else {
       updateData.variantLabel=variantLabel;
       updateData.variantEnabled=!!variantEnabled;
