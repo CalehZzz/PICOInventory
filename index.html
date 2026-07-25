@@ -211,6 +211,18 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .edit-color-rows{display:flex;flex-direction:column;gap:7px}
 .edit-color-row{display:flex;flex-direction:column;gap:6px;background:var(--wh);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:9px 10px}
 .edit-color-row-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pm-group-manage{margin-top:12px;background:var(--b50);border:1.5px solid var(--b200);border-radius:var(--rsm);padding:12px 13px}
+.pm-group-manage-hd{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--b500);margin-bottom:4px}
+.pm-group-manage-sub{font-size:11px;color:var(--tm);margin-bottom:8px;line-height:1.35}
+.pm-group-opt{display:flex;align-items:center;gap:8px;background:var(--wh);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:8px 10px;margin-bottom:6px}
+.pm-group-opt:last-child{margin-bottom:0}
+.pm-group-opt-name{flex:1;font-size:12.5px;font-weight:600;color:var(--tp);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pm-group-opt-actions{display:flex;gap:4px;flex-shrink:0}
+.pm-group-opt .dot{width:12px;height:12px;border-radius:50%;border:1px solid rgba(0,0,0,.15);flex-shrink:0;display:inline-block}
+.btn-mini-group{background:none;border:1.5px solid var(--b100);border-radius:var(--rsm);padding:4px 8px;font-size:11px;font-weight:700;color:var(--b600);cursor:pointer;font-family:inherit;white-space:nowrap}
+.btn-mini-group:hover{background:var(--b50)}
+.btn-mini-group.danger{border-color:var(--r100);color:var(--r600)}
+.btn-mini-group.danger:hover{background:var(--r50)}
 @media(max-width:700px){.group-selected-row{grid-template-columns:1fr;}.group-color-detail-row{grid-template-columns:1fr;}}
 .pm-price-val .badge-descuento-pct{font-size:12px;vertical-align:middle;margin-left:8px}
 .card-actions{display:flex;gap:5px;flex-shrink:0}
@@ -860,6 +872,10 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
           <input type="text" id="exsal-grp-name" placeholder="Ej. Resistencias o LED 5mm" maxlength="80" autocomplete="off">
           <div style="font-size:10.5px;color:var(--tm);margin-top:3px">Así aparece el producto en la tienda. Cada opción se suma al nombre (ej. “Resistencias 330Ω”).</div>
         </div>
+        <div class="field">
+          <label>Descripción del grupo <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
+          <textarea id="exsal-grp-desc" placeholder="Descripción que verá la tienda en este grupo…" maxlength="400" style="height:66px"></textarea>
+        </div>
 
         <!-- Modo valor: multi-select -->
         <div id="exsal-grp-valor-wrap">
@@ -986,6 +1002,10 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
           <label>Nombre del grupo</label>
           <input type="text" id="cdb-grp-name" placeholder="Ej. Resistencias o LED 5mm" maxlength="80" autocomplete="off">
           <div style="font-size:10.5px;color:var(--tm);margin-top:3px">Así aparece el producto en la tienda. Cada opción se suma al nombre (ej. “Resistencias 330Ω”).</div>
+        </div>
+        <div class="field">
+          <label>Descripción del grupo <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
+          <textarea id="cdb-grp-desc" placeholder="Descripción que verá la tienda en este grupo…" maxlength="400" style="height:66px"></textarea>
         </div>
 
         <!-- Modo valor: multi-select -->
@@ -1120,6 +1140,10 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
           <label>Nombre del grupo</label>
           <input type="text" id="total-grp-name" placeholder="Ej. Resistencias o LED 5mm" maxlength="80" autocomplete="off">
           <div style="font-size:10.5px;color:var(--tm);margin-top:3px">Así aparece el producto en la tienda. Cada opción se suma al nombre (ej. “Resistencias 330Ω”).</div>
+        </div>
+        <div class="field">
+          <label>Descripción del grupo <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
+          <textarea id="total-grp-desc" placeholder="Descripción que verá la tienda en este grupo…" maxlength="400" style="height:66px"></textarea>
         </div>
 
         <!-- Modo valor: multi-select -->
@@ -1778,8 +1802,21 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
           <button class="btn-sell" onclick="addToCart()" style="width:100%;justify-content:center"><i class="ti ti-cart-plus"></i>Añadir a la venta (<span id="pm-confirm-qty">0</span> uds.)</button>
         </div>
       </div>
+      <!-- Gestionar opciones del grupo (sin borrar todo el grupo) -->
+      <div class="pm-group-manage" id="pm-group-manage" style="display:none">
+        <div class="pm-group-manage-hd"><i class="ti ti-layers-linked" style="margin-right:4px"></i>Opciones del grupo</div>
+        <div class="pm-group-manage-sub" id="pm-group-manage-sub"></div>
+        <div class="field" style="margin:0 0 10px">
+          <label style="font-size:11px">Descripción del grupo</label>
+          <textarea id="pm-group-desc" placeholder="Descripción del grupo…" maxlength="400" style="height:60px;width:100%;background:var(--wh);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:8px 10px;font-size:13px;font-family:inherit;color:var(--tp);outline:none;resize:none;box-sizing:border-box"></textarea>
+          <button type="button" class="btn-mini-group" style="margin-top:6px" onclick="savePmGroupDesc()"><i class="ti ti-device-floppy"></i> Guardar descripción</button>
+        </div>
+        <div id="pm-group-manage-list"></div>
+        <button type="button" class="btn-mini-group danger" style="width:100%;padding:9px;margin-top:10px" onclick="confirmDeleteEntireGroup()"><i class="ti ti-trash"></i> Eliminar grupo completo</button>
+      </div>
       <div class="pm-footer">
-        <button class="btn-danger" onclick="confirmDeleteFromModal()"><i class="ti ti-trash"></i>Eliminar</button>
+        <button class="btn-danger" id="pm-btn-delete" onclick="confirmDeleteFromModal()"><i class="ti ti-trash"></i>Eliminar</button>
+        <button class="btn-secondary" id="pm-btn-ungroup" style="display:none" onclick="ungroupCurrentProduct()"><i class="ti ti-unlink"></i>Sacar del grupo</button>
         <button class="btn-secondary" onclick="openEditModal()"><i class="ti ti-pencil"></i>Editar</button>
         <button class="btn-secondary" onclick="closePM()">Cerrar</button>
       </div>
@@ -1837,6 +1874,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
         <div style="font-size:11px;color:var(--tm);margin-top:-4px">Si este producto es parte de un grupo. Déjalo vacío para sacarlo del grupo.</div>
         <div class="field" style="margin:0"><label>ID del grupo</label><input type="text" id="edit-group-id" placeholder="Vacío = sin grupo" autocomplete="off"></div>
         <div class="field" style="margin:0"><label>Nombre del grupo</label><input type="text" id="edit-group-name" placeholder="Ej. Resistencias" maxlength="80" autocomplete="off"></div>
+        <div class="field" style="margin:0"><label>Descripción del grupo</label><textarea id="edit-group-desc" placeholder="Descripción del grupo en tienda…" maxlength="400" style="height:66px"></textarea></div>
         <div class="field" style="margin:0">
           <label>Tipo</label>
           <select id="edit-group-kind" onchange="onEditGroupKindChange()">
@@ -1857,8 +1895,15 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
         </div>
         <div id="edit-group-color-fields" style="display:none">
           <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--tm);margin-bottom:4px">Colores del producto</div>
-          <div style="font-size:11px;color:var(--tm);margin-bottom:6px">Mismo stock para todos. Desactiva un color si se acabó.</div>
+          <div style="font-size:11px;color:var(--tm);margin-bottom:6px">Mismo stock para todos. Quita un color con la X (no borra el producto). Desactiva si se acabó.</div>
           <div class="edit-color-rows" id="edit-group-colors"></div>
+          <div style="margin-top:8px">
+            <div style="font-size:11px;font-weight:700;color:var(--tm);margin-bottom:5px">Añadir color</div>
+            <div class="group-color-chips" id="edit-add-color-chips"></div>
+          </div>
+        </div>
+        <div id="edit-group-ungroup-wrap" style="display:none;margin-top:4px">
+          <button type="button" class="btn-mini-group danger" style="width:100%;padding:8px" onclick="ungroupFromEditModal()"><i class="ti ti-unlink"></i> Sacar este producto del grupo (no lo elimina)</button>
         </div>
         <input type="hidden" id="edit-variant-color" value="">
       </div>
@@ -2464,7 +2509,14 @@ function startListeners(){
     renderAllGroupBuilders();
     if(activePid&&activeSucursal){
       const ap=products.find(x=>x.id===activePid);
-      if(ap) document.getElementById('pm-stock-num').textContent=getStock(ap,activeSucursal);
+      if(ap){
+        document.getElementById('pm-stock-num').textContent=getStock(ap,activeSucursal);
+        if(typeof renderPmGroupManage==='function') renderPmGroupManage(activePid);
+      } else {
+        // Producto eliminado mientras el modal estaba abierto
+        const wrap=document.getElementById('pm-group-manage');
+        if(wrap) wrap.style.display='none';
+      }
     }
   },()=>setSave('error','Error de conexión'));
 
@@ -2692,6 +2744,8 @@ function renderList(suc){
       const name=(p.name||'').toLowerCase();
       const desc=(p.desc||'').toLowerCase();
       if(name.includes(q)||desc.includes(q)) return true;
+      const gDesc=(p.groupDesc||'').toLowerCase();
+      if(gDesc.includes(q)) return true;
       // Color: un solo producto raíz; también encuentra por nombre de color
       if(p.groupKind==='color'){
         const gName=(p.groupName||'').toLowerCase();
@@ -3055,6 +3109,7 @@ function setGroupColorImageUrl(suc,hex,url){
 function resetGroupBuilder(suc){
   groupBuilderState[suc]={valorIds:[],valorLabels:{},colorPid:'',colorOn:{}};
   const nameEl=document.getElementById(suc+'-grp-name');if(nameEl)nameEl.value='';
+  const descEl=document.getElementById(suc+'-grp-desc');if(descEl)descEl.value='';
   const vs=document.getElementById(suc+'-grp-valor-search');if(vs)vs.value='';
   const cs=document.getElementById(suc+'-grp-color-search');if(cs){cs.value='';cs.style.display='block';}
   const kindV=document.querySelector('input[name="'+suc+'-grp-kind"][value="valor"]');
@@ -3070,6 +3125,7 @@ async function createProductGroup(suc){
   if(!st){if(err)err.textContent='Error interno.';return;}
   const kind=getGrpBuilderKind(suc);
   let groupName=((document.getElementById(suc+'-grp-name')||{}).value||'').trim();
+  const groupDesc=((document.getElementById(suc+'-grp-desc')||{}).value||'').trim();
   if(err)err.textContent='';
 
   if(kind==='valor'){
@@ -3087,7 +3143,7 @@ async function createProductGroup(suc){
       const groupId=newGroupId();
       const now=Date.now();
       rows.forEach(r=>{
-        batch.update(db.collection('productos').doc(r.pid),{
+        const upd={
           groupId,
           groupName,
           groupKind:'valor',
@@ -3097,7 +3153,11 @@ async function createProductGroup(suc){
           variantColor:firebase.firestore.FieldValue.delete(),
           name:groupName+' '+r.label,
           updatedAt:now
-        });
+        };
+        if(groupDesc) upd.groupDesc=groupDesc;
+        else upd.groupDesc=firebase.firestore.FieldValue.delete();
+        if(groupDesc) upd.desc=groupDesc; // descripción del grupo también en desc del producto
+        batch.update(db.collection('productos').doc(r.pid),upd);
       });
       await batch.commit();
       resetGroupBuilder(suc);
@@ -3129,7 +3189,7 @@ async function createProductGroup(suc){
   try{
     const groupId=newGroupId();
     const DEL=firebase.firestore.FieldValue.delete();
-    await db.collection('productos').doc(base.id).update({
+    const colorUpd={
       groupId,
       groupName,
       groupKind:'color',
@@ -3140,7 +3200,10 @@ async function createProductGroup(suc){
       variantColor:DEL,
       variantEnabled:DEL,
       updatedAt:Date.now()
-    });
+    };
+    if(groupDesc){ colorUpd.groupDesc=groupDesc; colorUpd.desc=groupDesc; }
+    else colorUpd.groupDesc=DEL;
+    await db.collection('productos').doc(base.id).update(colorUpd);
     resetGroupBuilder(suc);
     showToast(groupColors.length+' colores en "'+groupName+'" (mismo stock)','ti-layers-linked');
   }catch(e){
@@ -3247,9 +3310,20 @@ async function addProductTotal(){
 }
 
 // ── ELIMINAR PRODUCTO ──
+function _groupDeleteHint(p){
+  if(!p||!p.groupId) return '';
+  if(p.groupKind==='color'){
+    return ' Este es el producto raíz de un grupo por color: se eliminan todos sus colores juntos. Para quitar solo un color, usa “Opciones del grupo” o Editar.';
+  }
+  if(p.groupKind==='valor'){
+    const n=products.filter(x=>x.groupId===p.groupId).length;
+    if(n>1) return ' Solo se elimina ESTA opción. Las demás del grupo se mantienen.';
+  }
+  return '';
+}
 function openDelModal(id,onConfirm){
   const p=products.find(x=>x.id===id);if(!p)return;
-  document.getElementById('del-text').textContent=`Vas a eliminar "${p.name}".`;
+  document.getElementById('del-text').textContent=`Vas a eliminar "${p.name}".`+_groupDeleteHint(p);
   document.getElementById('del-confirm-btn').onclick=onConfirm;
   document.getElementById('del-overlay').classList.add('open');
 }
@@ -3258,6 +3332,7 @@ async function doDelete(id){
   // Borrado lógico: no se elimina el doc (eso rompería el caché eterno del
   // cliente). Se marca 'eliminado' + 'updatedAt' para que la tienda lo quite
   // del caché en su próxima sincronización incremental.
+  // Importante: solo toca ESTE id; no borra hermanos del grupo.
   try{await db.collection("productos").doc(id).update({eliminado:true,updatedAt:Date.now()});closeDelModal();showToast('Producto eliminado','ti-trash');}
   catch(e){showToast('Error al eliminar','ti-alert-circle');}
 }
@@ -3334,6 +3409,224 @@ async function purgeProduct(id){
 }
 function confirmDeleteFromModal(){openDelModal(activePid,()=>{doDelete(activePid);closePM();});}
 
+/** Limpia campos de grupo en Firestore (producto sigue existiendo). */
+async function clearProductGroupFields(id){
+  const DEL=firebase.firestore.FieldValue.delete();
+  await db.collection('productos').doc(id).update({
+    groupId:DEL,groupName:DEL,groupKind:DEL,groupDesc:DEL,
+    variantLabel:DEL,variantColor:DEL,variantEnabled:DEL,
+    groupColors:DEL,updatedAt:Date.now()
+  });
+}
+
+async function ungroupCurrentProduct(){
+  const p=products.find(x=>x.id===activePid);if(!p||!p.groupId)return;
+  if(p.groupKind==='color'){
+    if(!confirm('¿Quitar todos los colores y dejar el producto sin grupo?\n\nEl producto NO se elimina.')) return;
+  } else {
+    if(!confirm('¿Sacar "'+p.name+'" del grupo?\n\nLas demás opciones del grupo se mantienen. Este producto NO se elimina.')) return;
+  }
+  try{
+    await clearProductGroupFields(p.id);
+    showToast('Producto sacado del grupo','ti-unlink');
+    renderPmGroupManage(p.id);
+    // refrescar botones
+    const ug=document.getElementById('pm-btn-ungroup');
+    if(ug) ug.style.display='none';
+  }catch(e){console.error(e);showToast('Error al sacar del grupo','ti-alert-circle');}
+}
+
+async function ungroupProductById(id){
+  const p=products.find(x=>x.id===id);if(!p||!p.groupId)return;
+  if(!confirm('¿Sacar "'+p.name+'" del grupo?\n\nNo se elimina el producto. El resto del grupo sigue.')) return;
+  try{
+    await clearProductGroupFields(id);
+    showToast('Sacado del grupo','ti-unlink');
+    if(activePid) renderPmGroupManage(activePid);
+  }catch(e){console.error(e);showToast('Error al sacar del grupo','ti-alert-circle');}
+}
+
+function openSiblingInModal(id){
+  if(!activeSucursal) return;
+  openPM(id, activeSucursal);
+}
+
+function confirmDeleteGroupMember(id){
+  openDelModal(id, async()=>{
+    await doDelete(id);
+    if(activePid===id) closePM();
+    else if(activePid) renderPmGroupManage(activePid);
+  });
+}
+
+function _normalizeGroupColors(cols){
+  return (cols||[]).map(c=>{
+    const row={label:String(c.label||'').trim(),color:normalizeHexColor(c.color),enabled:c.enabled!==false};
+    const img=(c.imageUrl||'').trim();
+    if(img) row.imageUrl=img;
+    return row;
+  }).filter(c=>c.label&&c.color);
+}
+
+async function removeColorOptionFromProduct(pid, colorIdx){
+  const p=products.find(x=>x.id===pid);if(!p)return;
+  const cols=Array.isArray(p.groupColors)?p.groupColors.slice():[];
+  if(colorIdx<0||colorIdx>=cols.length)return;
+  const label=cols[colorIdx].label||'ese color';
+  if(!confirm('¿Quitar el color "'+label+'"?\n\nEl producto y los demás colores se mantienen.')) return;
+  cols.splice(colorIdx,1);
+  try{
+    if(!cols.length){
+      await clearProductGroupFields(pid);
+      const local=products.find(x=>x.id===pid);
+      if(local){delete local.groupId;delete local.groupName;delete local.groupKind;delete local.groupColors;}
+      showToast('Último color quitado · producto sin grupo','ti-unlink');
+    } else {
+      const cleaned=_normalizeGroupColors(cols);
+      await db.collection('productos').doc(pid).update({groupColors:cleaned,updatedAt:Date.now()});
+      const local=products.find(x=>x.id===pid);
+      if(local) local.groupColors=cleaned;
+      showToast('Color quitado','ti-x');
+    }
+    if(activePid===pid) renderPmGroupManage(pid);
+  }catch(e){console.error(e);showToast('Error al quitar color','ti-alert-circle');}
+}
+
+async function toggleColorOptionEnabled(pid, colorIdx, enabled){
+  const p=products.find(x=>x.id===pid);if(!p)return;
+  const cols=Array.isArray(p.groupColors)?p.groupColors.map(c=>({...c})):[];
+  if(colorIdx<0||colorIdx>=cols.length)return;
+  cols[colorIdx].enabled=!!enabled;
+  try{
+    const cleaned=_normalizeGroupColors(cols);
+    await db.collection('productos').doc(pid).update({groupColors:cleaned,updatedAt:Date.now()});
+    const local=products.find(x=>x.id===pid);
+    if(local) local.groupColors=cleaned;
+    if(activePid===pid) renderPmGroupManage(pid);
+  }catch(e){console.error(e);showToast('Error al actualizar color','ti-alert-circle');}
+}
+
+function renderPmGroupManage(pid){
+  const wrap=document.getElementById('pm-group-manage');
+  const list=document.getElementById('pm-group-manage-list');
+  const sub=document.getElementById('pm-group-manage-sub');
+  const ugBtn=document.getElementById('pm-btn-ungroup');
+  const descEl=document.getElementById('pm-group-desc');
+  const p=products.find(x=>x.id===pid);
+  if(!wrap||!list||!p||!p.groupId||(p.groupKind!=='valor'&&p.groupKind!=='color')){
+    if(wrap) wrap.style.display='none';
+    if(ugBtn) ugBtn.style.display='none';
+    return;
+  }
+  wrap.style.display='block';
+  if(ugBtn) ugBtn.style.display='inline-flex';
+  if(descEl) descEl.value=p.groupDesc||p.desc||'';
+
+  if(p.groupKind==='color'){
+    const cols=Array.isArray(p.groupColors)?p.groupColors:[];
+    sub.textContent='Producto único con varios colores (mismo stock). Quita un color sin borrar el producto. “Eliminar grupo completo” borra este producto y todos sus colores.';
+    if(!cols.length){
+      list.innerHTML='<div class="group-empty-msg">Sin colores. Usa Editar para añadir.</div>';
+      return;
+    }
+    list.innerHTML=cols.map((c,i)=>{
+      const hx=normalizeHexColor(c.color)||'#999';
+      const on=c.enabled!==false;
+      return `<div class="pm-group-opt">
+        <span class="dot" style="background:${hx}${hx==='#fafafa'?';box-shadow:inset 0 0 0 1px #ccc':''}"></span>
+        <div class="pm-group-opt-name">${esc(c.label||'Color')}${on?'':' · oculto'}</div>
+        <div class="pm-group-opt-actions">
+          <button type="button" class="btn-mini-group" onclick="toggleColorOptionEnabled('${pid}',${i},${on?'false':'true'})">${on?'Ocultar':'Mostrar'}</button>
+          <button type="button" class="btn-mini-group danger" onclick="removeColorOptionFromProduct('${pid}',${i})">Quitar</button>
+        </div>
+      </div>`;
+    }).join('');
+    return;
+  }
+
+  // Por valor: varias fichas de producto
+  const siblings=products.filter(x=>x.groupId===p.groupId)
+    .sort((a,b)=>String(a.variantLabel||a.name).localeCompare(String(b.variantLabel||b.name),'es',{numeric:true}));
+  sub.textContent='Cada fila es un producto del grupo. Puedes editarlo, sacarlo o eliminarlo solo a él. “Eliminar grupo completo” borra TODAS las opciones.';
+  list.innerHTML=siblings.map(s=>{
+    const isSelf=s.id===pid;
+    const lab=s.variantLabel||s.name;
+    return `<div class="pm-group-opt" style="${isSelf?'border-color:var(--b300)':''}">
+      <div class="pm-group-opt-name" title="${esc(s.name)}">${esc(lab)}${isSelf?' · este':''}</div>
+      <div class="pm-group-opt-actions">
+        ${isSelf?'':`<button type="button" class="btn-mini-group" onclick="openSiblingInModal('${s.id}')">Ver</button>`}
+        <button type="button" class="btn-mini-group" onclick="ungroupProductById('${s.id}')">Sacar</button>
+        <button type="button" class="btn-mini-group danger" onclick="confirmDeleteGroupMember('${s.id}')">Eliminar</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function savePmGroupDesc(){
+  const p=products.find(x=>x.id===activePid);if(!p||!p.groupId)return;
+  const desc=((document.getElementById('pm-group-desc')||{}).value||'').trim();
+  const DEL=firebase.firestore.FieldValue.delete();
+  const now=Date.now();
+  try{
+    if(p.groupKind==='color'){
+      const upd={groupDesc:desc||DEL,updatedAt:now};
+      if(desc) upd.desc=desc;
+      await db.collection('productos').doc(p.id).update(upd);
+      p.groupDesc=desc; if(desc) p.desc=desc;
+    } else {
+      const siblings=products.filter(x=>x.groupId===p.groupId);
+      const batch=db.batch();
+      siblings.forEach(s=>{
+        const upd={groupDesc:desc||DEL,updatedAt:now};
+        if(desc) upd.desc=desc;
+        batch.update(db.collection('productos').doc(s.id),upd);
+        s.groupDesc=desc; if(desc) s.desc=desc;
+      });
+      await batch.commit();
+    }
+    document.getElementById('pm-desc').textContent=desc||p.desc||'';
+    showToast('Descripción del grupo guardada','ti-device-floppy');
+  }catch(e){console.error(e);showToast('Error al guardar descripción','ti-alert-circle');}
+}
+
+function confirmDeleteEntireGroup(){
+  const p=products.find(x=>x.id===activePid);if(!p||!p.groupId)return;
+  const gName=p.groupName||p.name||'este grupo';
+  let msg;
+  if(p.groupKind==='color'){
+    msg='¿Eliminar el grupo "'+gName+'"?\n\nSe elimina el producto y TODOS sus colores. Esta acción manda el producto a la papelera.';
+  } else {
+    const n=products.filter(x=>x.groupId===p.groupId).length;
+    msg='¿Eliminar el grupo "'+gName+'" completo?\n\nSe eliminarán las '+n+' opciones del grupo (papelera). No se pueden deshacer en bloque desde aquí.';
+  }
+  if(!confirm(msg)) return;
+  deleteEntireGroup(p.groupId, p.groupKind);
+}
+
+async function deleteEntireGroup(groupId, kind){
+  if(!groupId)return;
+  try{
+    const now=Date.now();
+    if(kind==='color'){
+      // Un solo doc
+      const root=products.find(x=>x.groupId===groupId&&x.groupKind==='color')
+        || products.find(x=>x.groupId===groupId);
+      if(!root){showToast('Grupo no encontrado','ti-alert-circle');return;}
+      await db.collection('productos').doc(root.id).update({eliminado:true,updatedAt:now});
+    } else {
+      const siblings=products.filter(x=>x.groupId===groupId);
+      if(!siblings.length){showToast('Grupo no encontrado','ti-alert-circle');return;}
+      const batch=db.batch();
+      siblings.forEach(s=>{
+        batch.update(db.collection('productos').doc(s.id),{eliminado:true,updatedAt:now});
+      });
+      await batch.commit();
+    }
+    closePM();
+    showToast('Grupo eliminado','ti-trash');
+  }catch(e){console.error(e);showToast('Error al eliminar el grupo','ti-alert-circle');}
+}
+
 // ── MODAL PRODUCTO ──
 function openPM(id,suc){
   const p=products.find(x=>x.id===id);if(!p)return;
@@ -3370,6 +3663,8 @@ function openPM(id,suc){
   if(dsel) dsel.value='';
   const dprev=document.getElementById('pm-discount-preview');
   if(dprev) dprev.classList.remove('show');
+  // Grupo: gestionar opciones individuales
+  renderPmGroupManage(id);
   document.getElementById('pm-overlay').classList.add('open');
 }
 function closePM(){document.getElementById('pm-overlay').classList.remove('open');activePid=null;activeSucursal=null;}
@@ -4123,15 +4418,17 @@ function onEditGroupKindChange(){
   const kind=((document.getElementById('edit-group-kind')||{}).value||'').trim();
   const valor=document.getElementById('edit-group-valor-fields');
   const color=document.getElementById('edit-group-color-fields');
+  const ug=document.getElementById('edit-group-ungroup-wrap');
   if(valor) valor.style.display=kind==='color'?'none':'';
   if(color) color.style.display=kind==='color'?'':'none';
-  if(kind==='color') renderEditGroupColors();
+  if(ug) ug.style.display=(kind==='valor'||kind==='color')?'':'none';
+  if(kind==='color'){renderEditGroupColors();renderEditAddColorChips();}
 }
 function renderEditGroupColors(){
   const area=document.getElementById('edit-group-colors');
   if(!area)return;
   if(!editGroupColorsState.length){
-    area.innerHTML='<div class="group-empty-msg">Sin colores. Este producto no tiene opciones de color.</div>';
+    area.innerHTML='<div class="group-empty-msg">Sin colores. Añade abajo o deja el tipo en “Sin agrupar”.</div>';
     return;
   }
   area.innerHTML=editGroupColorsState.map((c,i)=>`
@@ -4153,6 +4450,41 @@ function renderEditGroupColors(){
 function removeEditGroupColor(idx){
   editGroupColorsState.splice(idx,1);
   renderEditGroupColors();
+  renderEditAddColorChips();
+}
+function renderEditAddColorChips(){
+  const area=document.getElementById('edit-add-color-chips');
+  if(!area||typeof COLOR_PRESETS==='undefined')return;
+  const used=new Set(editGroupColorsState.map(c=>normalizeHexColor(c.color)));
+  area.innerHTML=COLOR_PRESETS.map(c=>{
+    const key=normalizeHexColor(c.hex)||c.hex.toLowerCase();
+    const on=used.has(key);
+    return `<button type="button" class="group-color-chip ${on?'on':''}" ${on?'disabled style="opacity:.45;cursor:default"':''} onclick="addEditGroupColor('${c.hex}','${c.name}')">
+      <span class="dot" style="background:${c.hex}${c.hex==='#fafafa'?';box-shadow:inset 0 0 0 1px #ccc':''}"></span>
+      ${c.name}
+    </button>`;
+  }).join('');
+}
+function addEditGroupColor(hex,name){
+  const key=normalizeHexColor(hex);
+  if(!key)return;
+  if(editGroupColorsState.some(c=>normalizeHexColor(c.color)===key))return;
+  editGroupColorsState.push({label:name,color:key,imageUrl:'',enabled:true});
+  renderEditGroupColors();
+  renderEditAddColorChips();
+}
+function ungroupFromEditModal(){
+  const gid=document.getElementById('edit-group-id');
+  const gkind=document.getElementById('edit-group-kind');
+  const gname=document.getElementById('edit-group-name');
+  const gdesc=document.getElementById('edit-group-desc');
+  if(gid) gid.value='';
+  if(gkind) gkind.value='';
+  if(gname) gname.value='';
+  if(gdesc) gdesc.value='';
+  editGroupColorsState=[];
+  onEditGroupKindChange();
+  showToast('Marcado para sacar del grupo · pulsa Guardar','ti-unlink');
 }
 function openEditModal(){
   const p=products.find(x=>x.id===activePid);if(!p)return;
@@ -4187,11 +4519,13 @@ function openEditModal(){
   // Grupo en tienda
   const gidEl=document.getElementById('edit-group-id');
   const gnameEl=document.getElementById('edit-group-name');
+  const gdescEl=document.getElementById('edit-group-desc');
   const gkindEl=document.getElementById('edit-group-kind');
   const vlabEl=document.getElementById('edit-variant-label');
   const venEl=document.getElementById('edit-variant-enabled');
   if(gidEl) gidEl.value=p.groupId||'';
   if(gnameEl) gnameEl.value=p.groupName||'';
+  if(gdescEl) gdescEl.value=p.groupDesc||'';
   if(gkindEl) gkindEl.value=(p.groupKind==='valor'||p.groupKind==='color')?p.groupKind:'';
   if(vlabEl) vlabEl.value=p.variantLabel||'';
   if(venEl) venEl.checked=p.variantEnabled!==false;
@@ -4248,14 +4582,18 @@ async function saveEdit(){
   // Grupo en tienda
   const groupId=((document.getElementById('edit-group-id')||{}).value||'').trim();
   const groupName=((document.getElementById('edit-group-name')||{}).value||'').trim();
+  const groupDesc=((document.getElementById('edit-group-desc')||{}).value||'').trim();
   const groupKind=((document.getElementById('edit-group-kind')||{}).value||'').trim();
   const variantLabel=((document.getElementById('edit-variant-label')||{}).value||'').trim();
   const variantEnabled=(document.getElementById('edit-variant-enabled')||{checked:true}).checked;
   const DEL=firebase.firestore.FieldValue.delete();
+  let propagateGroupDescToSiblings=false;
   if(groupId&&(groupKind==='valor'||groupKind==='color')){
     updateData.groupId=groupId;
     updateData.groupName=groupName||name;
     updateData.groupKind=groupKind;
+    updateData.groupDesc=groupDesc||DEL;
+    if(groupDesc) updateData.desc=groupDesc;
     if(groupKind==='color'){
       const cols=(editGroupColorsState||[]).map(c=>{
         const hex=normalizeHexColor(c.color);
@@ -4264,21 +4602,34 @@ async function saveEdit(){
         if(img) row.imageUrl=img;
         return row;
       }).filter(c=>c.label&&c.color);
-      if(!cols.length){err.textContent='Agrega al menos un color válido, o quita el grupo.';return;}
-      updateData.groupColors=cols;
-      updateData.variantLabel=DEL;
-      updateData.variantColor=DEL;
-      updateData.variantEnabled=DEL;
+      if(!cols.length){
+        // Sin colores = sacar del grupo (producto se mantiene)
+        updateData.groupId=DEL;
+        updateData.groupName=DEL;
+        updateData.groupKind=DEL;
+        updateData.groupDesc=DEL;
+        updateData.groupColors=DEL;
+        updateData.variantLabel=DEL;
+        updateData.variantColor=DEL;
+        updateData.variantEnabled=DEL;
+      } else {
+        updateData.groupColors=cols;
+        updateData.variantLabel=DEL;
+        updateData.variantColor=DEL;
+        updateData.variantEnabled=DEL;
+      }
     } else {
       updateData.variantLabel=variantLabel;
       updateData.variantEnabled=!!variantEnabled;
       updateData.variantColor=DEL;
       updateData.groupColors=DEL;
+      propagateGroupDescToSiblings=true;
     }
   } else {
     updateData.groupId=DEL;
     updateData.groupName=DEL;
     updateData.groupKind=DEL;
+    updateData.groupDesc=DEL;
     updateData.variantLabel=DEL;
     updateData.variantColor=DEL;
     updateData.variantEnabled=DEL;
@@ -4287,6 +4638,14 @@ async function saveEdit(){
   try{
     const batch=db.batch();
     batch.update(db.collection("productos").doc(activePid),updateData);
+    // Propagar descripción/nombre de grupo a hermanos (valor)
+    if(propagateGroupDescToSiblings&&groupId){
+      products.filter(x=>x.groupId===groupId&&x.id!==activePid).forEach(s=>{
+        const sib={groupName:groupName||name,groupDesc:groupDesc||DEL,updatedAt:Date.now()};
+        if(groupDesc) sib.desc=groupDesc;
+        batch.update(db.collection('productos').doc(s.id),sib);
+      });
+    }
     // Si checkbox activado, afectar costos del mes por el cambio de stock.
     // Fórmula: (stock nuevo - stock anterior) * costo, por sucursal.
     // Pensado para registrar el costo de unidades nuevas cuando el stock
