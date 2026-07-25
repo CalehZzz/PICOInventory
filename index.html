@@ -175,8 +175,10 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .badge-ok{background:var(--b50);color:var(--b600);border:1px solid var(--b100)}
 .badge-low{background:var(--w50);color:var(--w600)}
 .badge-empty{background:var(--r50);color:var(--r600)}
+.badge-descuento-pct{background:var(--r50);color:var(--r600);border:1px solid var(--r100)}
 .badge-exsal{background:#e8f0fe;color:#1a56c4;border:1px solid #b8d0f8}
 .badge-cdb{background:#fce8ff;color:#8b1ac4;border:1px solid #e0b8f8}
+.pm-price-val .badge-descuento-pct{font-size:12px;vertical-align:middle;margin-left:8px}
 .card-actions{display:flex;gap:5px;flex-shrink:0}
 .btn-icon{width:29px;height:29px;background:none;border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:background var(--tr),color var(--tr);color:var(--tm)}
 .btn-icon:hover{background:rgba(255,255,255,.8);color:var(--b600)}
@@ -773,6 +775,11 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
             <div class="field"><label>Precio ($)</label><input type="number" id="exsal-f-price" placeholder="0.00" min="0" step="0.01"></div>
             <div class="field"><label>Stock</label><input type="number" id="exsal-f-stock" placeholder="0" min="0" step="1"></div>
           </div>
+          <div class="field">
+            <label>Descuento en tienda (%)</label>
+            <input type="number" id="exsal-f-descuento" placeholder="0" min="0" max="100" step="1">
+            <div style="font-size:10.5px;color:var(--tm);margin-top:3px">Si es &gt; 0, aparece en Descuentos de la tienda. No se combina con códigos/asignados/sellos.</div>
+          </div>
           <label class="variant-check-wrap" style="display:flex;align-items:flex-start;gap:10px;background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none">
             <input type="checkbox" id="exsal-f-variants" style="margin-top:2px;width:15px;height:15px;accent-color:var(--b400);flex-shrink:0;cursor:pointer">
             <div>
@@ -831,6 +838,11 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
             <div class="field"><label>Costo ($)</label><input type="number" id="cdb-f-cost" placeholder="0.00" min="0" step="0.01"></div>
             <div class="field"><label>Precio ($)</label><input type="number" id="cdb-f-price" placeholder="0.00" min="0" step="0.01"></div>
             <div class="field"><label>Stock</label><input type="number" id="cdb-f-stock" placeholder="0" min="0" step="1"></div>
+          </div>
+          <div class="field">
+            <label>Descuento en tienda (%)</label>
+            <input type="number" id="cdb-f-descuento" placeholder="0" min="0" max="100" step="1">
+            <div style="font-size:10.5px;color:var(--tm);margin-top:3px">Si es &gt; 0, aparece en Descuentos de la tienda. No se combina con códigos/asignados/sellos.</div>
           </div>
           <label class="variant-check-wrap" style="display:flex;align-items:flex-start;gap:10px;background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none">
             <input type="checkbox" id="cdb-f-variants" style="margin-top:2px;width:15px;height:15px;accent-color:var(--b400);flex-shrink:0;cursor:pointer">
@@ -897,6 +909,11 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
             <div class="field"><label>Costo ($)</label><input type="number" id="total-f-cost" placeholder="0.00" min="0" step="0.01"></div>
             <div class="field"><label>Precio ($)</label><input type="number" id="total-f-price" placeholder="0.00" min="0" step="0.01"></div>
             <div class="field"><label>Stock</label><input type="number" id="total-f-stock" placeholder="0" min="0" step="1"></div>
+          </div>
+          <div class="field">
+            <label>Descuento en tienda (%)</label>
+            <input type="number" id="total-f-descuento" placeholder="0" min="0" max="100" step="1">
+            <div style="font-size:10.5px;color:var(--tm);margin-top:3px">Si es &gt; 0, aparece en Descuentos de la tienda. No se combina con códigos/asignados/sellos.</div>
           </div>
           <label class="variant-check-wrap" style="display:flex;align-items:flex-start;gap:10px;background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none">
             <input type="checkbox" id="total-f-variants" style="margin-top:2px;width:15px;height:15px;accent-color:var(--b400);flex-shrink:0;cursor:pointer">
@@ -1585,6 +1602,11 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:4px">
         <div class="field"><label>Stock EXSAL</label><input type="number" id="edit-stock-exsal" min="0" step="1"></div>
         <div class="field"><label>Stock CDB</label><input type="number" id="edit-stock-cdb" min="0" step="1"></div>
+      </div>
+      <div class="field" style="margin-top:4px">
+        <label>Descuento en tienda (%)</label>
+        <input type="number" id="edit-descuento" placeholder="0" min="0" max="100" step="1">
+        <div style="font-size:10.5px;color:var(--tm);margin-top:3px">Si es &gt; 0, aparece en Descuentos de la tienda. No se combina con códigos/asignados/sellos.</div>
       </div>
       <!-- Checkbox: afectar costos en estadisticas -->
       <label style="display:flex;align-items:flex-start;gap:10px;background:var(--w50);border:1.5px solid var(--w100);border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none;margin-top:4px">
@@ -2287,6 +2309,23 @@ function startListeners(){
 // ── HELPERS ──
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function fmt(n){return '$'+parseFloat(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+/** Parsea descuentoPct: vacío/0 = sin oferta; 1–100 válido; otro = null (inválido). */
+function parseDescuentoPct(raw){
+  if(raw===''||raw==null||raw===undefined) return 0;
+  const n=parseInt(raw,10);
+  if(isNaN(n)||n<0||n>100) return null;
+  return n;
+}
+/** Aplica descuentoPct a un objeto Firestore: >0 guarda entero; 0 borra el campo. */
+function applyDescuentoPctToData(data, pct){
+  if(pct>0) data.descuentoPct=pct;
+  else data.descuentoPct=firebase.firestore.FieldValue.delete();
+}
+function fmtPriceWithDescuento(price, descuentoPct){
+  const pct=parseDescuentoPct(descuentoPct);
+  if(pct>0) return fmt(price)+` <span class="badge badge-descuento-pct">−${pct}%</span>`;
+  return fmt(price);
+}
 function setSave(state,txt){
   const dot=document.getElementById('save-dot'),t=document.getElementById('save-text');
   dot.className='save-dot'+(state==='saving'?' saving':state==='error'?' error':'');t.textContent=txt;
@@ -2423,11 +2462,13 @@ function renderList(suc){
       sucBadges+=`<span class="badge badge-exsal">EXSAL: ${getStock(p,'exsal')}</span>`;
       sucBadges+=`<span class="badge badge-cdb">CDB: ${getStock(p,'cdb')}</span>`;
     }
+    const descPct=parseDescuentoPct(p.descuentoPct);
+    const descBadge=descPct>0?`<span class="badge badge-descuento-pct">−${descPct}%</span>`:'';
     return `<div class="product-card" onclick="openPM('${p.id}','${suc}')" style="${cardBg}">
       <div class="card-top">${p.imageUrl?`<img src="${esc(p.imageUrl)}" alt="" style="width:42px;height:42px;object-fit:contain;border-radius:6px;border:1px solid var(--b100);background:var(--b50);flex-shrink:0;margin-right:2px" onerror="this.style.display='none'">`:''}
       <div style="flex:1"><div class="card-name">${esc(p.name)}</div></div>
       <div class="card-actions"><button class="btn-icon btn-del-sm" onclick="event.stopPropagation();confirmDeleteDirect('${p.id}')"><i class="ti ti-trash"></i></button></div></div>
-      <div class="card-badges"><span class="badge ${sc}">${sl}</span><span class="badge badge-price">Precio ${fmt(p.price)}</span>${sucBadges}</div>
+      <div class="card-badges"><span class="badge ${sc}">${sl}</span><span class="badge badge-price">Precio ${fmt(p.price)}</span>${descBadge}${sucBadges}</div>
     </div>`;
   }).join('');
 
@@ -2519,12 +2560,14 @@ async function addProduct(suc){
   const cv=document.getElementById(pre+'cost').value;
   const pv=document.getElementById(pre+'price').value;
   const sv=document.getElementById(pre+'stock').value;
+  const descuentoPct=parseDescuentoPct((document.getElementById(pre+'descuento')||{value:''}).value);
   const err=document.getElementById(suc+'-form-error');
   const hasVariants=(document.getElementById(pre+'variants')||{checked:false}).checked;
   if(!name){err.textContent='El nombre es obligatorio.';return;}
   const cost=parseFloat(cv);if(cv===''||isNaN(cost)||cost<0){err.textContent='Ingresa un costo válido.';return;}
   const price=parseFloat(pv);if(pv===''||isNaN(price)||price<0){err.textContent='Ingresa un precio válido.';return;}
   const stock=parseInt(sv);if(sv===''||isNaN(stock)||stock<0){err.textContent='Ingresa un stock válido.';return;}
+  if(descuentoPct===null){err.textContent='Descuento inválido (0–100).';return;}
   err.textContent='';
 
   if(hasVariants){
@@ -2540,10 +2583,11 @@ async function addProduct(suc){
         if(categoria) data.categoria=categoria;
         if(suc==='exsal') data.stockExsal=stock;
         else data.stockCdb=stock;
+        if(descuentoPct>0) applyDescuentoPctToData(data,descuentoPct);
         batch.set(db.collection("productos").doc(),data);
       });
       await batch.commit();
-      [pre+'name',pre+'desc',pre+'imageurl',pre+'cat',pre+'cost',pre+'price',pre+'stock'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+      [pre+'name',pre+'desc',pre+'imageurl',pre+'cat',pre+'cost',pre+'price',pre+'stock',pre+'descuento'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
       const cb=document.getElementById(pre+'variants');if(cb)cb.checked=false;
       const wrap=document.getElementById(pre+'variants-wrap');if(wrap)wrap.style.display='none';
       const list=document.getElementById(suc+'-variants-list');if(list)list.innerHTML='';
@@ -2559,6 +2603,7 @@ async function addProduct(suc){
     if(categoria) data.categoria=categoria;
     if(suc==='exsal') data.stockExsal=stock;
     else data.stockCdb=stock;
+    if(descuentoPct>0) applyDescuentoPctToData(data,descuentoPct);
     try{
       const affectCostos=(document.getElementById(pre+'affect-costos')||{checked:true}).checked;
       const batch=db.batch();
@@ -2571,7 +2616,7 @@ async function addProduct(suc){
         });
       }
       await batch.commit();
-      [pre+'name',pre+'desc',pre+'imageurl',pre+'cat',pre+'cost',pre+'price',pre+'stock'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+      [pre+'name',pre+'desc',pre+'imageurl',pre+'cat',pre+'cost',pre+'price',pre+'stock',pre+'descuento'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
       const acb=document.getElementById(pre+'affect-costos');if(acb)acb.checked=true;
       previewImg(suc);
       document.getElementById(pre+'name').focus();
@@ -2589,12 +2634,14 @@ async function addProductTotal(){
   const cv=document.getElementById('total-f-cost').value;
   const pv=document.getElementById('total-f-price').value;
   const sv=document.getElementById('total-f-stock').value;
+  const descuentoPct=parseDescuentoPct((document.getElementById('total-f-descuento')||{value:''}).value);
   const err=document.getElementById('total-form-error');
   const hasVariants=(document.getElementById('total-f-variants')||{checked:false}).checked;
   if(!name){err.textContent='El nombre es obligatorio.';return;}
   const cost=parseFloat(cv);if(cv===''||isNaN(cost)||cost<0){err.textContent='Ingresa un costo válido.';return;}
   const price=parseFloat(pv);if(pv===''||isNaN(price)||price<0){err.textContent='Ingresa un precio válido.';return;}
   const stock=parseInt(sv);if(sv===''||isNaN(stock)||stock<0){err.textContent='Ingresa un stock válido.';return;}
+  if(descuentoPct===null){err.textContent='Descuento inválido (0–100).';return;}
   err.textContent='';
 
   if(hasVariants){
@@ -2608,10 +2655,11 @@ async function addProductTotal(){
         if(imageUrl) data.imageUrl=imageUrl;
         if(categoria) data.categoria=categoria;
         if(suc==='exsal'){data.stockExsal=stock;}else{data.stockCdb=stock;}
+        if(descuentoPct>0) applyDescuentoPctToData(data,descuentoPct);
         batch.set(db.collection("productos").doc(),data);
       });
       await batch.commit();
-      ['total-f-name','total-f-desc','total-f-imageurl','total-f-cat','total-f-cost','total-f-price','total-f-stock'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+      ['total-f-name','total-f-desc','total-f-imageurl','total-f-cat','total-f-cost','total-f-price','total-f-stock','total-f-descuento'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
       const cb=document.getElementById('total-f-variants');if(cb)cb.checked=false;
       const wrap=document.getElementById('total-f-variants-wrap');if(wrap)wrap.style.display='none';
       const list=document.getElementById('total-variants-list');if(list)list.innerHTML='';
@@ -2625,6 +2673,7 @@ async function addProductTotal(){
     if(imageUrl) data.imageUrl=imageUrl;
     if(categoria) data.categoria=categoria;
     if(suc==='exsal'){data.stockExsal=stock;}else{data.stockCdb=stock;}
+    if(descuentoPct>0) applyDescuentoPctToData(data,descuentoPct);
     try{
       const affectCostos=(document.getElementById('total-f-affect-costos')||{checked:true}).checked;
       const batch=db.batch();
@@ -2637,7 +2686,7 @@ async function addProductTotal(){
         });
       }
       await batch.commit();
-      ['total-f-name','total-f-desc','total-f-imageurl','total-f-cat','total-f-cost','total-f-price','total-f-stock'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+      ['total-f-name','total-f-desc','total-f-imageurl','total-f-cat','total-f-cost','total-f-price','total-f-stock','total-f-descuento'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
       const acb=document.getElementById('total-f-affect-costos');if(acb)acb.checked=true;
       previewImg('total');
       document.getElementById('total-f-name').focus();
@@ -2741,7 +2790,7 @@ function openPM(id,suc){
   document.getElementById('pm-name').textContent=p.name;
   document.getElementById('pm-desc').textContent=p.desc||'';
   document.getElementById('pm-cost-val').textContent=fmt(p.cost);
-  document.getElementById('pm-price-val').textContent=fmt(p.price);
+  document.getElementById('pm-price-val').innerHTML=fmtPriceWithDescuento(p.price,p.descuentoPct);
   document.getElementById('pm-stock-num').textContent=getStock(p,suc);
   document.getElementById('pm-stock-sucursal-label').textContent=suc==='total'?'(Total)':suc==='exsal'?'· EXSAL':'· CDB';
   document.getElementById('pm-sell-qty-display').textContent=0;
@@ -3527,6 +3576,11 @@ function openEditModal(){
   document.getElementById('edit-price').value=p.price;
   document.getElementById('edit-stock-exsal').value=getStock(p,'exsal');
   document.getElementById('edit-stock-cdb').value=getStock(p,'cdb');
+  const editDescEl=document.getElementById('edit-descuento');
+  if(editDescEl){
+    const pct=parseDescuentoPct(p.descuentoPct);
+    editDescEl.value=(pct&&pct>0)?pct:'';
+  }
   // Categoría y orden en tienda
   populateCategorySelects();
   const catSel=document.getElementById('edit-cat');
@@ -3559,6 +3613,7 @@ async function saveEdit(){
   const price=parseFloat(document.getElementById('edit-price').value);
   const stockExsal=parseInt(document.getElementById('edit-stock-exsal').value);
   const stockCdb=parseInt(document.getElementById('edit-stock-cdb').value);
+  const descuentoPct=parseDescuentoPct((document.getElementById('edit-descuento')||{value:''}).value);
   const categoria=(document.getElementById('edit-cat')||{value:''}).value;
   const ordenRaw=(document.getElementById('edit-orden')||{value:''}).value;
   const affectCostos=(document.getElementById('edit-affect-costos')||{checked:false}).checked;
@@ -3568,6 +3623,7 @@ async function saveEdit(){
   if(isNaN(price)||price<0){err.textContent='Precio inválido.';return;}
   if(isNaN(stockExsal)||stockExsal<0){err.textContent='Stock EXSAL inválido.';return;}
   if(isNaN(stockCdb)||stockCdb<0){err.textContent='Stock CDB inválido.';return;}
+  if(descuentoPct===null){err.textContent='Descuento inválido (0–100).';return;}
   let orden=null;
   if(ordenRaw!==''){ orden=parseInt(ordenRaw); if(isNaN(orden)||orden<0){err.textContent='Orden inválido (usa un número ≥ 0 o déjalo vacío).';return;} }
   err.textContent='';
@@ -3582,6 +3638,7 @@ async function saveEdit(){
   updateData.categoria = categoria ? categoria : firebase.firestore.FieldValue.delete();
   // Orden manual en tienda: número, o borrar el campo si se dejó vacío (automático)
   updateData.orden = (orden===null) ? firebase.firestore.FieldValue.delete() : orden;
+  applyDescuentoPctToData(updateData,descuentoPct);
   try{
     const batch=db.batch();
     batch.update(db.collection("productos").doc(activePid),updateData);
@@ -3610,7 +3667,7 @@ async function saveEdit(){
     document.getElementById('pm-name').textContent=name;
     document.getElementById('pm-desc').textContent=desc;
     document.getElementById('pm-cost-val').textContent=fmt(cost);
-    document.getElementById('pm-price-val').textContent=fmt(price);
+    document.getElementById('pm-price-val').innerHTML=fmtPriceWithDescuento(price,descuentoPct);
     const s=activeSucursal==='exsal'?stockExsal:activeSucursal==='cdb'?stockCdb:stockExsal+stockCdb;
     document.getElementById('pm-stock-num').textContent=s;
     // Reset checkbox
