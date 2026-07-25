@@ -181,12 +181,30 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .badge-group{background:var(--b50);color:var(--b600);border:1px solid var(--b200)}
 .badge-group-off{background:var(--g50);color:var(--tm);border:1px solid var(--b100)}
 .card-group-sub{font-size:11px;color:var(--tm);margin-top:2px;line-height:1.3}
-.variant-row{display:flex;flex-direction:column;gap:7px;background:var(--wh);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:9px 10px}
-.variant-row input[type=text],.variant-row input[type=url],.variant-row input[type=color]{background:var(--wh);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:7px 10px;font-size:13px;font-family:inherit;color:var(--tp);outline:none;width:100%;box-sizing:border-box}
-.variant-color-swatches{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
-.variant-swatch{width:22px;height:22px;border-radius:50%;border:2px solid rgba(0,0,0,.12);cursor:pointer;padding:0;flex-shrink:0}
-.variant-swatch:hover{transform:scale(1.08)}
-.variant-swatch.active{outline:2px solid var(--b400);outline-offset:1px}
+.group-panel{margin-top:20px}
+.group-kind-row{display:flex;gap:10px;flex-wrap:wrap}
+.group-kind-opt{flex:1;min-width:140px;display:flex;align-items:flex-start;gap:10px;background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:10px 12px;cursor:pointer;user-select:none}
+.group-kind-opt.active{border-color:var(--b300);background:linear-gradient(135deg,var(--b50),#dbeafe)}
+.group-kind-opt input{margin-top:2px;accent-color:var(--b400);width:15px;height:15px;flex-shrink:0;cursor:pointer}
+.group-prod-list{background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rsm);max-height:200px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--b200) transparent}
+.group-prod-list::-webkit-scrollbar{width:4px}
+.group-prod-list::-webkit-scrollbar-thumb{background:var(--b200);border-radius:4px}
+.group-prod-item{padding:9px 12px;cursor:pointer;font-size:13px;font-weight:500;color:var(--tp);border-bottom:1px solid var(--b100);display:flex;align-items:center;gap:8px;transition:background var(--tr)}
+.group-prod-item:last-child{border:none}
+.group-prod-item:hover{background:var(--b100)}
+.group-prod-item.selected{background:linear-gradient(135deg,var(--b50),#dbeafe);color:var(--b600);font-weight:700}
+.group-prod-item input{accent-color:var(--b400);width:15px;height:15px;flex-shrink:0;cursor:pointer}
+.group-empty-msg{padding:16px 13px;font-size:12px;color:var(--tm);text-align:center}
+.group-selected-list{display:flex;flex-direction:column;gap:7px}
+.group-selected-row{display:grid;grid-template-columns:1fr 120px auto;gap:7px;align-items:center;background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:8px 10px}
+.group-selected-row .gs-name{font-size:12.5px;font-weight:600;color:var(--tp);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.group-selected-row input{background:var(--wh);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:6px 9px;font-size:12.5px;font-family:inherit;color:var(--tp);outline:none;width:100%;box-sizing:border-box}
+.group-color-chips{display:flex;flex-wrap:wrap;gap:7px}
+.group-color-chip{display:inline-flex;align-items:center;gap:7px;border:1.5px solid var(--b100);background:var(--wh);border-radius:999px;padding:6px 11px 6px 8px;font-size:12.5px;font-weight:600;color:var(--tp);cursor:pointer;user-select:none;font-family:inherit}
+.group-color-chip .dot{width:14px;height:14px;border-radius:50%;border:1px solid rgba(0,0,0,.15);flex-shrink:0}
+.group-color-chip.on{border-color:var(--b400);background:linear-gradient(135deg,var(--b50),#dbeafe);color:var(--b600)}
+.group-color-chip .chk{font-size:13px;color:var(--b400)}
+@media(max-width:700px){.group-selected-row{grid-template-columns:1fr;}}
 .pm-price-val .badge-descuento-pct{font-size:12px;vertical-align:middle;margin-left:8px}
 .card-actions{display:flex;gap:5px;flex-shrink:0}
 .btn-icon{width:29px;height:29px;background:none;border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:background var(--tr),color var(--tr);color:var(--tm)}
@@ -789,28 +807,6 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
             <input type="number" id="exsal-f-descuento" placeholder="0" min="0" max="100" step="1">
             <div style="font-size:10.5px;color:var(--tm);margin-top:3px">Si es &gt; 0, aparece en Descuentos de la tienda. No se combina con códigos/asignados/sellos.</div>
           </div>
-          <label class="variant-check-wrap" style="display:flex;align-items:flex-start;gap:10px;background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none">
-            <input type="checkbox" id="exsal-f-variants" style="margin-top:2px;width:15px;height:15px;accent-color:var(--b400);flex-shrink:0;cursor:pointer">
-            <div>
-              <div style="font-size:13px;font-weight:600;color:var(--tp)">Producto con variantes</div>
-              <div style="font-size:11px;color:var(--tm);margin-top:1px">Agrupa en la tienda como un solo producto por valor (ej. 330Ω) o por color. Comparten precio/costo/nombre base; imagen y etiqueta pueden diferir.</div>
-            </div>
-          </label>
-          <div id="exsal-f-variants-wrap" style="display:none;flex-direction:column;gap:8px;background:var(--b50);border:1.5px solid var(--b200);border-radius:var(--rsm);padding:12px 13px">
-            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--b500);margin-bottom:2px"><i class="ti ti-layers-subtract" style="margin-right:4px"></i>Variantes a agregar</div>
-            <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center">
-              <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--tp);cursor:pointer;user-select:none">
-                <input type="radio" name="exsal-group-kind" value="valor" checked onchange="onGroupKindChange('exsal')" style="accent-color:var(--b400);width:15px;height:15px;cursor:pointer">
-                Por valor
-              </label>
-              <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--tp);cursor:pointer;user-select:none">
-                <input type="radio" name="exsal-group-kind" value="color" onchange="onGroupKindChange('exsal')" style="accent-color:var(--b400);width:15px;height:15px;cursor:pointer">
-                Por color
-              </label>
-            </div>
-            <div id="exsal-variants-list" style="display:flex;flex-direction:column;gap:8px"></div>
-            <button type="button" onclick="addVariantRow('exsal')" style="background:none;border:1.5px dashed var(--b300);border-radius:var(--rsm);padding:7px;font-size:12px;font-weight:600;color:var(--b500);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;font-family:inherit"><i class="ti ti-plus"></i>Añadir variante</button>
-          </div>
           <label style="display:flex;align-items:flex-start;gap:10px;background:var(--g50);border:1.5px solid var(--g100);border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none;margin-bottom:10px">
             <input type="checkbox" id="exsal-f-affect-costos" checked style="margin-top:2px;width:15px;height:15px;accent-color:var(--g600);flex-shrink:0;cursor:pointer">
             <div>
@@ -826,6 +822,80 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
         <div class="list-controls"><div class="search-wrap"><i class="ti ti-search"></i><input type="text" id="exsal-search" placeholder="Buscar producto..." oninput="searchList('exsal')"></div></div>
         <div class="list-meta"><span class="list-count" id="exsal-list-count"></span><button class="sort-btn" onclick="toggleSort('exsal')"><i class="ti ti-arrows-sort"></i><span id="exsal-sort-label">Más recientes</span></button></div>
         <div class="list-area" id="exsal-list-area"></div>
+      </div>
+    </div>
+
+    <!-- Crear grupo en tienda -->
+    <div class="panel group-panel" id="exsal-group-panel">
+      <div class="panel-hd"><div class="phd-icon"><i class="ti ti-layers-linked"></i></div><div><div class="ptitle">Crear grupo en tienda</div><div class="psub">Apartado aparte: une productos ya creados para que en PICO se vean como uno solo</div></div></div>
+      <div class="form-body">
+        <div class="field" style="margin:0">
+          <label>Tipo de grupo</label>
+          <div class="group-kind-row">
+            <label class="group-kind-opt active" id="exsal-grp-kind-valor-lab">
+              <input type="radio" name="exsal-grp-kind" value="valor" checked onchange="onGrpBuilderKindChange('exsal')">
+              <div>
+                <div style="font-size:13px;font-weight:700;color:var(--tp)">Por valor</div>
+                <div style="font-size:11px;color:var(--tm);margin-top:2px">Elige varios productos (ej. 330Ω, 1k, 10k) y agrúpalos.</div>
+              </div>
+            </label>
+            <label class="group-kind-opt" id="exsal-grp-kind-color-lab">
+              <input type="radio" name="exsal-grp-kind" value="color" onchange="onGrpBuilderKindChange('exsal')">
+              <div>
+                <div style="font-size:13px;font-weight:700;color:var(--tp)">Por color</div>
+                <div style="font-size:11px;color:var(--tm);margin-top:2px">Elige un producto y marca los colores disponibles.</div>
+              </div>
+            </label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Nombre del grupo</label>
+          <input type="text" id="exsal-grp-name" placeholder="Ej. Resistencias o LED 5mm" maxlength="80" autocomplete="off">
+          <div style="font-size:10.5px;color:var(--tm);margin-top:3px">Así aparece el producto en la tienda. Cada opción se suma al nombre (ej. “Resistencias 330Ω”).</div>
+        </div>
+
+        <!-- Modo valor: multi-select -->
+        <div id="exsal-grp-valor-wrap">
+          <div class="field">
+            <label>Productos del grupo</label>
+            <div class="search-wrap" style="margin-bottom:6px">
+              <i class="ti ti-search"></i>
+              <input type="text" id="exsal-grp-valor-search" placeholder="Buscar para filtrar la lista…" oninput="renderGroupValorList('exsal')" autocomplete="off">
+            </div>
+            <div class="group-prod-list" id="exsal-grp-valor-list"><div class="group-empty-msg">Cargando productos…</div></div>
+            <div style="font-size:10.5px;color:var(--tm);margin-top:5px">Marca 2 o más productos en la lista. Luego ajusta la etiqueta de cada uno.</div>
+          </div>
+          <div class="field" style="margin:0">
+            <label>Etiquetas de cada opción</label>
+            <div class="group-selected-list" id="exsal-grp-valor-selected"><div class="group-empty-msg">Aún no hay productos seleccionados.</div></div>
+          </div>
+        </div>
+
+        <!-- Modo color: un producto + chips -->
+        <div id="exsal-grp-color-wrap" style="display:none">
+          <div class="field">
+            <label>Producto base</label>
+            <div class="search-wrap" style="margin-bottom:6px">
+              <i class="ti ti-search"></i>
+              <input type="text" id="exsal-grp-color-search" placeholder="Buscar producto…" oninput="renderGroupColorList('exsal')" autocomplete="off">
+            </div>
+            <div class="group-prod-list" id="exsal-grp-color-list"><div class="group-empty-msg">Cargando productos…</div></div>
+            <input type="hidden" id="exsal-grp-color-pid" value="">
+            <div class="restock-selected-pill" id="exsal-grp-color-pill" style="display:none;margin-top:6px">
+              <i class="ti ti-box"></i>
+              <span id="exsal-grp-color-pill-name">—</span>
+              <button type="button" class="restock-pill-clear" onclick="clearGroupColorProduct('exsal')" title="Quitar"><i class="ti ti-x"></i></button>
+            </div>
+          </div>
+          <div class="field" style="margin:0">
+            <label>Colores disponibles</label>
+            <div class="group-color-chips" id="exsal-grp-color-chips"></div>
+            <div style="font-size:10.5px;color:var(--tm);margin-top:6px">Toca los colores que existen. El producto elegido se convierte en el primero; el resto se crean con el mismo precio/costo.</div>
+          </div>
+        </div>
+
+        <button class="btn-add" type="button" onclick="createProductGroup('exsal')"><i class="ti ti-layers-linked"></i>Crear grupo</button>
+        <div class="form-error" id="exsal-grp-error"></div>
       </div>
     </div>
   </div>
@@ -863,28 +933,6 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
             <input type="number" id="cdb-f-descuento" placeholder="0" min="0" max="100" step="1">
             <div style="font-size:10.5px;color:var(--tm);margin-top:3px">Si es &gt; 0, aparece en Descuentos de la tienda. No se combina con códigos/asignados/sellos.</div>
           </div>
-          <label class="variant-check-wrap" style="display:flex;align-items:flex-start;gap:10px;background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none">
-            <input type="checkbox" id="cdb-f-variants" style="margin-top:2px;width:15px;height:15px;accent-color:var(--b400);flex-shrink:0;cursor:pointer">
-            <div>
-              <div style="font-size:13px;font-weight:600;color:var(--tp)">Producto con variantes</div>
-              <div style="font-size:11px;color:var(--tm);margin-top:1px">Agrupa en la tienda como un solo producto por valor (ej. 330Ω) o por color. Comparten precio/costo/nombre base; imagen y etiqueta pueden diferir.</div>
-            </div>
-          </label>
-          <div id="cdb-f-variants-wrap" style="display:none;flex-direction:column;gap:8px;background:var(--b50);border:1.5px solid var(--b200);border-radius:var(--rsm);padding:12px 13px">
-            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--b500);margin-bottom:2px"><i class="ti ti-layers-subtract" style="margin-right:4px"></i>Variantes a agregar</div>
-            <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center">
-              <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--tp);cursor:pointer;user-select:none">
-                <input type="radio" name="cdb-group-kind" value="valor" checked onchange="onGroupKindChange('cdb')" style="accent-color:var(--b400);width:15px;height:15px;cursor:pointer">
-                Por valor
-              </label>
-              <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--tp);cursor:pointer;user-select:none">
-                <input type="radio" name="cdb-group-kind" value="color" onchange="onGroupKindChange('cdb')" style="accent-color:var(--b400);width:15px;height:15px;cursor:pointer">
-                Por color
-              </label>
-            </div>
-            <div id="cdb-variants-list" style="display:flex;flex-direction:column;gap:8px"></div>
-            <button type="button" onclick="addVariantRow('cdb')" style="background:none;border:1.5px dashed var(--b300);border-radius:var(--rsm);padding:7px;font-size:12px;font-weight:600;color:var(--b500);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;font-family:inherit"><i class="ti ti-plus"></i>Añadir variante</button>
-          </div>
           <label style="display:flex;align-items:flex-start;gap:10px;background:var(--g50);border:1.5px solid var(--g100);border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none;margin-bottom:10px">
             <input type="checkbox" id="cdb-f-affect-costos" checked style="margin-top:2px;width:15px;height:15px;accent-color:var(--g600);flex-shrink:0;cursor:pointer">
             <div>
@@ -900,6 +948,80 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
         <div class="list-controls"><div class="search-wrap"><i class="ti ti-search"></i><input type="text" id="cdb-search" placeholder="Buscar producto..." oninput="searchList('cdb')"></div></div>
         <div class="list-meta"><span class="list-count" id="cdb-list-count"></span><button class="sort-btn" onclick="toggleSort('cdb')"><i class="ti ti-arrows-sort"></i><span id="cdb-sort-label">Más recientes</span></button></div>
         <div class="list-area" id="cdb-list-area"></div>
+      </div>
+    </div>
+
+    <!-- Crear grupo en tienda -->
+    <div class="panel group-panel" id="cdb-group-panel">
+      <div class="panel-hd"><div class="phd-icon"><i class="ti ti-layers-linked"></i></div><div><div class="ptitle">Crear grupo en tienda</div><div class="psub">Apartado aparte: une productos ya creados para que en PICO se vean como uno solo</div></div></div>
+      <div class="form-body">
+        <div class="field" style="margin:0">
+          <label>Tipo de grupo</label>
+          <div class="group-kind-row">
+            <label class="group-kind-opt active" id="cdb-grp-kind-valor-lab">
+              <input type="radio" name="cdb-grp-kind" value="valor" checked onchange="onGrpBuilderKindChange('cdb')">
+              <div>
+                <div style="font-size:13px;font-weight:700;color:var(--tp)">Por valor</div>
+                <div style="font-size:11px;color:var(--tm);margin-top:2px">Elige varios productos (ej. 330Ω, 1k, 10k) y agrúpalos.</div>
+              </div>
+            </label>
+            <label class="group-kind-opt" id="cdb-grp-kind-color-lab">
+              <input type="radio" name="cdb-grp-kind" value="color" onchange="onGrpBuilderKindChange('cdb')">
+              <div>
+                <div style="font-size:13px;font-weight:700;color:var(--tp)">Por color</div>
+                <div style="font-size:11px;color:var(--tm);margin-top:2px">Elige un producto y marca los colores disponibles.</div>
+              </div>
+            </label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Nombre del grupo</label>
+          <input type="text" id="cdb-grp-name" placeholder="Ej. Resistencias o LED 5mm" maxlength="80" autocomplete="off">
+          <div style="font-size:10.5px;color:var(--tm);margin-top:3px">Así aparece el producto en la tienda. Cada opción se suma al nombre (ej. “Resistencias 330Ω”).</div>
+        </div>
+
+        <!-- Modo valor: multi-select -->
+        <div id="cdb-grp-valor-wrap">
+          <div class="field">
+            <label>Productos del grupo</label>
+            <div class="search-wrap" style="margin-bottom:6px">
+              <i class="ti ti-search"></i>
+              <input type="text" id="cdb-grp-valor-search" placeholder="Buscar para filtrar la lista…" oninput="renderGroupValorList('cdb')" autocomplete="off">
+            </div>
+            <div class="group-prod-list" id="cdb-grp-valor-list"><div class="group-empty-msg">Cargando productos…</div></div>
+            <div style="font-size:10.5px;color:var(--tm);margin-top:5px">Marca 2 o más productos en la lista. Luego ajusta la etiqueta de cada uno.</div>
+          </div>
+          <div class="field" style="margin:0">
+            <label>Etiquetas de cada opción</label>
+            <div class="group-selected-list" id="cdb-grp-valor-selected"><div class="group-empty-msg">Aún no hay productos seleccionados.</div></div>
+          </div>
+        </div>
+
+        <!-- Modo color: un producto + chips -->
+        <div id="cdb-grp-color-wrap" style="display:none">
+          <div class="field">
+            <label>Producto base</label>
+            <div class="search-wrap" style="margin-bottom:6px">
+              <i class="ti ti-search"></i>
+              <input type="text" id="cdb-grp-color-search" placeholder="Buscar producto…" oninput="renderGroupColorList('cdb')" autocomplete="off">
+            </div>
+            <div class="group-prod-list" id="cdb-grp-color-list"><div class="group-empty-msg">Cargando productos…</div></div>
+            <input type="hidden" id="cdb-grp-color-pid" value="">
+            <div class="restock-selected-pill" id="cdb-grp-color-pill" style="display:none;margin-top:6px">
+              <i class="ti ti-box"></i>
+              <span id="cdb-grp-color-pill-name">—</span>
+              <button type="button" class="restock-pill-clear" onclick="clearGroupColorProduct('cdb')" title="Quitar"><i class="ti ti-x"></i></button>
+            </div>
+          </div>
+          <div class="field" style="margin:0">
+            <label>Colores disponibles</label>
+            <div class="group-color-chips" id="cdb-grp-color-chips"></div>
+            <div style="font-size:10.5px;color:var(--tm);margin-top:6px">Toca los colores que existen. El producto elegido se convierte en el primero; el resto se crean con el mismo precio/costo.</div>
+          </div>
+        </div>
+
+        <button class="btn-add" type="button" onclick="createProductGroup('cdb')"><i class="ti ti-layers-linked"></i>Crear grupo</button>
+        <div class="form-error" id="cdb-grp-error"></div>
       </div>
     </div>
   </div>
@@ -944,28 +1066,6 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
             <input type="number" id="total-f-descuento" placeholder="0" min="0" max="100" step="1">
             <div style="font-size:10.5px;color:var(--tm);margin-top:3px">Si es &gt; 0, aparece en Descuentos de la tienda. No se combina con códigos/asignados/sellos.</div>
           </div>
-          <label class="variant-check-wrap" style="display:flex;align-items:flex-start;gap:10px;background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none">
-            <input type="checkbox" id="total-f-variants" style="margin-top:2px;width:15px;height:15px;accent-color:var(--b400);flex-shrink:0;cursor:pointer">
-            <div>
-              <div style="font-size:13px;font-weight:600;color:var(--tp)">Producto con variantes</div>
-              <div style="font-size:11px;color:var(--tm);margin-top:1px">Agrupa en la tienda como un solo producto por valor (ej. 330Ω) o por color. Comparten precio/costo/nombre base; imagen y etiqueta pueden diferir.</div>
-            </div>
-          </label>
-          <div id="total-f-variants-wrap" style="display:none;flex-direction:column;gap:8px;background:var(--b50);border:1.5px solid var(--b200);border-radius:var(--rsm);padding:12px 13px">
-            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--b500);margin-bottom:2px"><i class="ti ti-layers-subtract" style="margin-right:4px"></i>Variantes a agregar</div>
-            <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center">
-              <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--tp);cursor:pointer;user-select:none">
-                <input type="radio" name="total-group-kind" value="valor" checked onchange="onGroupKindChange('total')" style="accent-color:var(--b400);width:15px;height:15px;cursor:pointer">
-                Por valor
-              </label>
-              <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--tp);cursor:pointer;user-select:none">
-                <input type="radio" name="total-group-kind" value="color" onchange="onGroupKindChange('total')" style="accent-color:var(--b400);width:15px;height:15px;cursor:pointer">
-                Por color
-              </label>
-            </div>
-            <div id="total-variants-list" style="display:flex;flex-direction:column;gap:8px"></div>
-            <button type="button" onclick="addVariantRow('total')" style="background:none;border:1.5px dashed var(--b300);border-radius:var(--rsm);padding:7px;font-size:12px;font-weight:600;color:var(--b500);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;font-family:inherit"><i class="ti ti-plus"></i>Añadir variante</button>
-          </div>
           <label style="display:flex;align-items:flex-start;gap:10px;background:var(--g50);border:1.5px solid var(--g100);border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none;margin-bottom:10px">
             <input type="checkbox" id="total-f-affect-costos" checked style="margin-top:2px;width:15px;height:15px;accent-color:var(--g600);flex-shrink:0;cursor:pointer">
             <div>
@@ -981,6 +1081,80 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
         <div class="list-controls"><div class="search-wrap"><i class="ti ti-search"></i><input type="text" id="total-search" placeholder="Buscar producto..." oninput="searchList('total')"></div></div>
         <div class="list-meta"><span class="list-count" id="total-list-count"></span><button class="sort-btn" onclick="toggleSort('total')"><i class="ti ti-arrows-sort"></i><span id="total-sort-label">Más recientes</span></button></div>
         <div class="list-area" id="total-list-area"></div>
+      </div>
+    </div>
+
+    <!-- Crear grupo en tienda -->
+    <div class="panel group-panel" id="total-group-panel">
+      <div class="panel-hd"><div class="phd-icon"><i class="ti ti-layers-linked"></i></div><div><div class="ptitle">Crear grupo en tienda</div><div class="psub">Apartado aparte: une productos ya creados para que en PICO se vean como uno solo</div></div></div>
+      <div class="form-body">
+        <div class="field" style="margin:0">
+          <label>Tipo de grupo</label>
+          <div class="group-kind-row">
+            <label class="group-kind-opt active" id="total-grp-kind-valor-lab">
+              <input type="radio" name="total-grp-kind" value="valor" checked onchange="onGrpBuilderKindChange('total')">
+              <div>
+                <div style="font-size:13px;font-weight:700;color:var(--tp)">Por valor</div>
+                <div style="font-size:11px;color:var(--tm);margin-top:2px">Elige varios productos (ej. 330Ω, 1k, 10k) y agrúpalos.</div>
+              </div>
+            </label>
+            <label class="group-kind-opt" id="total-grp-kind-color-lab">
+              <input type="radio" name="total-grp-kind" value="color" onchange="onGrpBuilderKindChange('total')">
+              <div>
+                <div style="font-size:13px;font-weight:700;color:var(--tp)">Por color</div>
+                <div style="font-size:11px;color:var(--tm);margin-top:2px">Elige un producto y marca los colores disponibles.</div>
+              </div>
+            </label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Nombre del grupo</label>
+          <input type="text" id="total-grp-name" placeholder="Ej. Resistencias o LED 5mm" maxlength="80" autocomplete="off">
+          <div style="font-size:10.5px;color:var(--tm);margin-top:3px">Así aparece el producto en la tienda. Cada opción se suma al nombre (ej. “Resistencias 330Ω”).</div>
+        </div>
+
+        <!-- Modo valor: multi-select -->
+        <div id="total-grp-valor-wrap">
+          <div class="field">
+            <label>Productos del grupo</label>
+            <div class="search-wrap" style="margin-bottom:6px">
+              <i class="ti ti-search"></i>
+              <input type="text" id="total-grp-valor-search" placeholder="Buscar para filtrar la lista…" oninput="renderGroupValorList('total')" autocomplete="off">
+            </div>
+            <div class="group-prod-list" id="total-grp-valor-list"><div class="group-empty-msg">Cargando productos…</div></div>
+            <div style="font-size:10.5px;color:var(--tm);margin-top:5px">Marca 2 o más productos en la lista. Luego ajusta la etiqueta de cada uno.</div>
+          </div>
+          <div class="field" style="margin:0">
+            <label>Etiquetas de cada opción</label>
+            <div class="group-selected-list" id="total-grp-valor-selected"><div class="group-empty-msg">Aún no hay productos seleccionados.</div></div>
+          </div>
+        </div>
+
+        <!-- Modo color: un producto + chips -->
+        <div id="total-grp-color-wrap" style="display:none">
+          <div class="field">
+            <label>Producto base</label>
+            <div class="search-wrap" style="margin-bottom:6px">
+              <i class="ti ti-search"></i>
+              <input type="text" id="total-grp-color-search" placeholder="Buscar producto…" oninput="renderGroupColorList('total')" autocomplete="off">
+            </div>
+            <div class="group-prod-list" id="total-grp-color-list"><div class="group-empty-msg">Cargando productos…</div></div>
+            <input type="hidden" id="total-grp-color-pid" value="">
+            <div class="restock-selected-pill" id="total-grp-color-pill" style="display:none;margin-top:6px">
+              <i class="ti ti-box"></i>
+              <span id="total-grp-color-pill-name">—</span>
+              <button type="button" class="restock-pill-clear" onclick="clearGroupColorProduct('total')" title="Quitar"><i class="ti ti-x"></i></button>
+            </div>
+          </div>
+          <div class="field" style="margin:0">
+            <label>Colores disponibles</label>
+            <div class="group-color-chips" id="total-grp-color-chips"></div>
+            <div style="font-size:10.5px;color:var(--tm);margin-top:6px">Toca los colores que existen. El producto elegido se convierte en el primero; el resto se crean con el mismo precio/costo.</div>
+          </div>
+        </div>
+
+        <button class="btn-add" type="button" onclick="createProductGroup('total')"><i class="ti ti-layers-linked"></i>Crear grupo</button>
+        <div class="form-error" id="total-grp-error"></div>
       </div>
     </div>
   </div>
@@ -1650,24 +1824,24 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       <!-- Grupo en tienda (variantes PICO) -->
       <div style="margin-top:8px;background:var(--b50);border:1.5px solid var(--b200);border-radius:var(--rsm);padding:12px 13px;display:flex;flex-direction:column;gap:9px">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--b500)"><i class="ti ti-layers-linked" style="margin-right:4px"></i>Grupo en tienda</div>
-        <div style="font-size:11px;color:var(--tm);margin-top:-4px">Variantes con el mismo groupId se muestran como un solo producto. Vacío = sin agrupar.</div>
-        <div class="field" style="margin:0"><label>groupId</label><input type="text" id="edit-group-id" placeholder="Vacío = sin grupo (ej. grp_…)" autocomplete="off"></div>
-        <div class="field" style="margin:0"><label>groupName (nombre base)</label><input type="text" id="edit-group-name" placeholder="Ej. Resistencias" maxlength="80" autocomplete="off"></div>
+        <div style="font-size:11px;color:var(--tm);margin-top:-4px">Si este producto es parte de un grupo. Déjalo vacío para sacarlo del grupo.</div>
+        <div class="field" style="margin:0"><label>ID del grupo</label><input type="text" id="edit-group-id" placeholder="Vacío = sin grupo" autocomplete="off"></div>
+        <div class="field" style="margin:0"><label>Nombre del grupo</label><input type="text" id="edit-group-name" placeholder="Ej. Resistencias" maxlength="80" autocomplete="off"></div>
         <div class="field" style="margin:0">
-          <label>groupKind</label>
+          <label>Tipo</label>
           <select id="edit-group-kind">
             <option value="">Sin agrupar</option>
             <option value="valor">Por valor</option>
             <option value="color">Por color</option>
           </select>
         </div>
-        <div class="field" style="margin:0"><label>variantLabel</label><input type="text" id="edit-variant-label" placeholder="Ej. 330Ω o Rojo" maxlength="40" autocomplete="off"></div>
-        <div class="field" style="margin:0"><label>variantColor (hex, solo color)</label><input type="text" id="edit-variant-color" placeholder="#e53935" maxlength="7" autocomplete="off"></div>
+        <div class="field" style="margin:0"><label>Etiqueta de esta opción</label><input type="text" id="edit-variant-label" placeholder="Ej. 330Ω o Rojo" maxlength="40" autocomplete="off"></div>
+        <div class="field" style="margin:0"><label>Color (hex, solo si es por color)</label><input type="text" id="edit-variant-color" placeholder="#e53935" maxlength="7" autocomplete="off"></div>
         <label style="display:flex;align-items:flex-start;gap:10px;background:var(--wh);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:9px 11px;cursor:pointer;user-select:none">
           <input type="checkbox" id="edit-variant-enabled" checked style="margin-top:2px;width:15px;height:15px;accent-color:var(--b400);flex-shrink:0;cursor:pointer">
           <div>
-            <div style="font-size:13px;font-weight:600;color:var(--tp)">Habilitada en tienda</div>
-            <div style="font-size:11px;color:var(--tm);margin-top:1px">Desactiva si no hay stock para que no aparezca seleccionable.</div>
+            <div style="font-size:13px;font-weight:600;color:var(--tp)">Visible en tienda</div>
+            <div style="font-size:11px;color:var(--tm);margin-top:1px">Desactiva si no hay stock para que no se pueda elegir.</div>
           </div>
         </label>
       </div>
@@ -2270,6 +2444,7 @@ function startListeners(){
     renderAllLists();updateAllInvStats();
     setSave('ok','Sincronizado ✓');
     renderRestockProductList();
+    renderAllGroupBuilders();
     if(activePid&&activeSucursal){
       const ap=products.find(x=>x.id===activePid);
       if(ap) document.getElementById('pm-stock-num').textContent=getStock(ap,activeSucursal);
@@ -2589,16 +2764,8 @@ function previewEditImg(){
 
 document.addEventListener('DOMContentLoaded',()=>{
   ['exsal','cdb','total'].forEach(suc=>{
-    const cb=document.getElementById(suc+'-f-variants');
-    const wrap=document.getElementById(suc+'-f-variants-wrap');
-    if(cb&&wrap){
-      cb.addEventListener('change',()=>{
-        wrap.style.display=cb.checked?'flex':'none';
-        if(cb.checked&&document.getElementById(suc+'-variants-list').children.length===0){
-          addVariantRow(suc);
-        }
-      });
-    }
+    initGroupColorChips(suc);
+    onGrpBuilderKindChange(suc);
   });
 });
 
@@ -2614,6 +2781,7 @@ const COLOR_PRESETS=[
   {name:'Gris',hex:'#757575'},
   {name:'Café',hex:'#6d4c41'}
 ];
+
 function newGroupId(){
   return 'grp_'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 }
@@ -2628,114 +2796,318 @@ function normalizeHexColor(raw){
   if(!/^#[0-9A-Fa-f]{6}$/.test(h))return'';
   return h.toLowerCase();
 }
-function getGroupKind(suc){
-  const el=document.querySelector('input[name="'+suc+'-group-kind"]:checked');
+
+/** Estado del creador de grupos (por pestaña). */
+const groupBuilderState={
+  exsal:{valorIds:[],valorLabels:{},colorPid:'',colorOn:{}},
+  cdb:{valorIds:[],valorLabels:{},colorPid:'',colorOn:{}},
+  total:{valorIds:[],valorLabels:{},colorPid:'',colorOn:{}}
+};
+
+function getGrpBuilderKind(suc){
+  const el=document.querySelector('input[name="'+suc+'-grp-kind"]:checked');
   return (el&&el.value==='color')?'color':'valor';
 }
-function onGroupKindChange(suc){
-  const rows=getVariantRows(suc);
-  const list=document.getElementById(suc+'-variants-list');
-  if(!list)return;
-  list.innerHTML='';
-  if(rows.length) rows.forEach(r=>addVariantRow(suc,r));
-  else addVariantRow(suc);
-}
-let variantCounters={exsal:0,cdb:0,total:0};
-function applyVariantColorPreset(suc,rowId,hex,label){
-  const row=document.getElementById(rowId);if(!row)return;
-  const hexNorm=normalizeHexColor(hex);
-  const hexInp=row.querySelector('.v-color-hex');
-  const pick=row.querySelector('.v-color-picker');
-  const lab=row.querySelector('.v-label');
-  if(hexInp)hexInp.value=hexNorm||hex;
-  if(pick&&hexNorm)pick.value=hexNorm;
-  if(lab&&label&&!lab.value.trim())lab.value=label;
-  row.querySelectorAll('.variant-swatch').forEach(btn=>{
-    btn.classList.toggle('active',normalizeHexColor(btn.dataset.hex)===hexNorm);
-  });
-}
-function syncVariantColorInputs(row,from){
-  if(!row)return;
-  const hexInp=row.querySelector('.v-color-hex');
-  const pick=row.querySelector('.v-color-picker');
-  if(!hexInp||!pick)return;
-  if(from==='picker'){
-    hexInp.value=pick.value;
-  } else {
-    const n=normalizeHexColor(hexInp.value);
-    if(n){hexInp.value=n;pick.value=n;}
-  }
-  const hexNorm=normalizeHexColor(hexInp.value);
-  row.querySelectorAll('.variant-swatch').forEach(btn=>{
-    btn.classList.toggle('active',normalizeHexColor(btn.dataset.hex)===hexNorm);
-  });
-}
-function addVariantRow(suc,preset){
-  const list=document.getElementById(suc+'-variants-list');
-  if(!list)return;
-  const kind=getGroupKind(suc);
-  const idx=variantCounters[suc]++;
-  const rowId=suc+'-vrow-'+idx;
-  const p=preset||{};
-  const label=p.label||'';
-  const imageUrl=p.imageUrl||'';
-  const color=normalizeHexColor(p.color)||'#e53935';
-  const enabled=p.enabled!==false;
-  const row=document.createElement('div');
-  row.id=rowId;
-  row.className='variant-row';
-  const ph=kind==='color'?'Ej. Rojo, Azul…':'Ej. 330Ω, 1k, 10k…';
-  const swatches=COLOR_PRESETS.map(c=>
-    `<button type="button" class="variant-swatch${normalizeHexColor(c.hex)===color?' active':''}" title="${c.name}" data-hex="${c.hex}"
-      onclick="applyVariantColorPreset('${suc}','${rowId}','${c.hex}','${c.name}')"
-      style="background:${c.hex}${c.hex==='#fafafa'?';box-shadow:inset 0 0 0 1px #ccc':''}"></button>`
-  ).join('');
-  row.innerHTML=`
-    <div style="display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center">
-      <input type="text" class="v-label" placeholder="${ph}" maxlength="40" autocomplete="off" value="${esc(label)}">
-      <button type="button" onclick="removeVariantRow('${suc}','${rowId}')"
-        style="width:28px;height:28px;background:var(--r50);border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--r600);flex-shrink:0">
-        <i class="ti ti-x" style="font-size:13px"></i>
-      </button>
-    </div>
-    <div class="v-color-wrap" style="display:${kind==='color'?'flex':'none'};flex-direction:column;gap:6px">
-      <div class="variant-color-swatches">${swatches}</div>
-      <div style="display:grid;grid-template-columns:42px 1fr;gap:6px;align-items:center">
-        <input type="color" class="v-color-picker" value="${color}" style="padding:2px;height:34px;cursor:pointer" oninput="syncVariantColorInputs(this.closest('.variant-row'),'picker')">
-        <input type="text" class="v-color-hex" placeholder="#e53935" maxlength="7" autocomplete="off" value="${color}" oninput="syncVariantColorInputs(this.closest('.variant-row'),'hex')">
-      </div>
-    </div>
-    <input type="url" class="v-image" placeholder="URL de imagen de esta variante (opcional)" autocomplete="off" value="${esc(imageUrl)}">
-    <label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--tp);cursor:pointer;user-select:none">
-      <input type="checkbox" class="v-enabled" ${enabled?'checked':''} style="margin-top:1px;width:14px;height:14px;accent-color:var(--b400);flex-shrink:0;cursor:pointer">
-      <span>Habilitada en tienda <span style="color:var(--tm)">(desactiva si no hay stock)</span></span>
-    </label>`;
-  list.appendChild(row);
-  const focusEl=row.querySelector('.v-label');
-  if(focusEl&&!preset) focusEl.focus();
-}
-function removeVariantRow(suc,rowId){
-  const row=document.getElementById(rowId);
-  if(row)row.remove();
-}
-function getVariantRows(suc){
-  const list=document.getElementById(suc+'-variants-list');
-  if(!list)return[];
-  return [...list.querySelectorAll('.variant-row')].map(row=>{
-    const label=((row.querySelector('.v-label')||{}).value||'').trim();
-    const imageUrl=((row.querySelector('.v-image')||{}).value||'').trim();
-    const color=normalizeHexColor(((row.querySelector('.v-color-hex')||{}).value||''));
-    const enEl=row.querySelector('.v-enabled');
-    const enabled=enEl?!!enEl.checked:true;
-    return {label,imageUrl,color,enabled};
-  }).filter(r=>r.label);
-}
-/** Alias: etiquetas de variante (compat). */
-function getVariantSuffixes(suc){
-  return getVariantRows(suc).map(r=>r.label);
+function onGrpBuilderKindChange(suc){
+  const kind=getGrpBuilderKind(suc);
+  const valorWrap=document.getElementById(suc+'-grp-valor-wrap');
+  const colorWrap=document.getElementById(suc+'-grp-color-wrap');
+  const labV=document.getElementById(suc+'-grp-kind-valor-lab');
+  const labC=document.getElementById(suc+'-grp-kind-color-lab');
+  if(valorWrap) valorWrap.style.display=kind==='valor'?'':'none';
+  if(colorWrap) colorWrap.style.display=kind==='color'?'':'none';
+  if(labV) labV.classList.toggle('active',kind==='valor');
+  if(labC) labC.classList.toggle('active',kind==='color');
+  const err=document.getElementById(suc+'-grp-error');if(err)err.textContent='';
+  if(kind==='valor'){renderGroupValorList(suc);renderGroupValorSelected(suc);}
+  else {renderGroupColorList(suc);initGroupColorChips(suc);}
 }
 
+function suggestVariantLabel(groupName, productName){
+  const g=(groupName||'').trim();
+  const n=(productName||'').trim();
+  if(!n) return '';
+  if(g && n.toLowerCase().startsWith(g.toLowerCase())){
+    const rest=n.slice(g.length).trim();
+    return rest || n;
+  }
+  return n;
+}
+
+function renderAllGroupBuilders(){
+  ['exsal','cdb','total'].forEach(suc=>{
+    if(!document.getElementById(suc+'-group-panel')) return;
+    const kind=getGrpBuilderKind(suc);
+    if(kind==='color') renderGroupColorList(suc);
+    else {renderGroupValorList(suc);renderGroupValorSelected(suc);}
+  });
+}
+
+function renderGroupValorList(suc){
+  const st=groupBuilderState[suc];if(!st)return;
+  const q=((document.getElementById(suc+'-grp-valor-search')||{}).value||'').toLowerCase().trim();
+  const area=document.getElementById(suc+'-grp-valor-list');
+  if(!area)return;
+  let list=products.slice().sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'es'));
+  if(q) list=list.filter(p=>String(p.name||'').toLowerCase().includes(q));
+  if(!list.length){
+    area.innerHTML=`<div class="group-empty-msg">${q?'Sin resultados':'Sin productos. Crea productos arriba y luego agrúpalos aquí.'}</div>`;
+    return;
+  }
+  area.innerHTML=list.map(p=>{
+    const on=st.valorIds.includes(p.id);
+    return `<label class="group-prod-item ${on?'selected':''}">
+      <input type="checkbox" ${on?'checked':''} onchange="toggleGroupValorProduct('${suc}','${p.id}',this.checked)">
+      <span>${esc(p.name||'')}</span>
+      ${p.groupId?'<span class="badge badge-group" style="margin-left:auto">Ya en grupo</span>':''}
+    </label>`;
+  }).join('');
+}
+
+function toggleGroupValorProduct(suc,pid,checked){
+  const st=groupBuilderState[suc];if(!st)return;
+  const p=products.find(x=>x.id===pid);
+  if(checked){
+    if(!st.valorIds.includes(pid)) st.valorIds.push(pid);
+    if(!st.valorLabels[pid]){
+      const gname=((document.getElementById(suc+'-grp-name')||{}).value||'').trim();
+      st.valorLabels[pid]=suggestVariantLabel(gname, p?p.name:'');
+    }
+  } else {
+    st.valorIds=st.valorIds.filter(id=>id!==pid);
+    delete st.valorLabels[pid];
+  }
+  renderGroupValorList(suc);
+  renderGroupValorSelected(suc);
+}
+
+function renderGroupValorSelected(suc){
+  const st=groupBuilderState[suc];if(!st)return;
+  const area=document.getElementById(suc+'-grp-valor-selected');
+  if(!area)return;
+  if(!st.valorIds.length){
+    area.innerHTML='<div class="group-empty-msg">Aún no hay productos seleccionados.</div>';
+    return;
+  }
+  area.innerHTML=st.valorIds.map(pid=>{
+    const p=products.find(x=>x.id===pid);
+    const name=p?p.name:pid;
+    const lab=st.valorLabels[pid]||'';
+    return `<div class="group-selected-row">
+      <div class="gs-name" title="${esc(name)}">${esc(name)}</div>
+      <input type="text" maxlength="40" placeholder="Etiqueta" value="${esc(lab)}" oninput="groupBuilderState['${suc}'].valorLabels['${pid}']=this.value">
+      <button type="button" class="btn-icon btn-del-sm" title="Quitar" onclick="toggleGroupValorProduct('${suc}','${pid}',false)"><i class="ti ti-x"></i></button>
+    </div>`;
+  }).join('');
+}
+
+function renderGroupColorList(suc){
+  const st=groupBuilderState[suc];if(!st)return;
+  const q=((document.getElementById(suc+'-grp-color-search')||{}).value||'').toLowerCase().trim();
+  const area=document.getElementById(suc+'-grp-color-list');
+  if(!area)return;
+  // Si ya hay producto elegido, ocultamos lista (como restock)
+  if(st.colorPid){
+    area.style.display='none';
+    return;
+  }
+  area.style.display='block';
+  let list=products.slice().sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'es'));
+  if(q) list=list.filter(p=>String(p.name||'').toLowerCase().includes(q));
+  if(!list.length){
+    area.innerHTML=`<div class="group-empty-msg">${q?'Sin resultados':'Sin productos disponibles.'}</div>`;
+    return;
+  }
+  area.innerHTML=list.map(p=>`
+    <div class="group-prod-item ${p.id===st.colorPid?'selected':''}" onclick="selectGroupColorProduct('${suc}','${p.id}')">
+      <i class="ti ti-box" style="font-size:13px;color:var(--b300);flex-shrink:0"></i>
+      <span>${esc(p.name||'')}</span>
+    </div>
+  `).join('');
+}
+
+function selectGroupColorProduct(suc,pid){
+  const st=groupBuilderState[suc];if(!st)return;
+  const p=products.find(x=>x.id===pid);if(!p)return;
+  st.colorPid=pid;
+  const pill=document.getElementById(suc+'-grp-color-pill');
+  const nameEl=document.getElementById(suc+'-grp-color-pill-name');
+  const hid=document.getElementById(suc+'-grp-color-pid');
+  const search=document.getElementById(suc+'-grp-color-search');
+  if(hid) hid.value=pid;
+  if(nameEl) nameEl.textContent=p.name||'';
+  if(pill) pill.style.display='flex';
+  if(search) search.style.display='none';
+  const gnameEl=document.getElementById(suc+'-grp-name');
+  if(gnameEl && !gnameEl.value.trim()) gnameEl.value=p.name||'';
+  renderGroupColorList(suc);
+}
+
+function clearGroupColorProduct(suc){
+  const st=groupBuilderState[suc];if(!st)return;
+  st.colorPid='';
+  const pill=document.getElementById(suc+'-grp-color-pill');
+  const hid=document.getElementById(suc+'-grp-color-pid');
+  const search=document.getElementById(suc+'-grp-color-search');
+  if(hid) hid.value='';
+  if(pill) pill.style.display='none';
+  if(search){search.style.display='block';search.value='';}
+  renderGroupColorList(suc);
+}
+
+function initGroupColorChips(suc){
+  const st=groupBuilderState[suc];if(!st)return;
+  const area=document.getElementById(suc+'-grp-color-chips');
+  if(!area)return;
+  if(!Object.keys(st.colorOn).length){
+    // nada preseleccionado
+  }
+  area.innerHTML=COLOR_PRESETS.map(c=>{
+    const key=c.hex.toLowerCase();
+    const on=!!st.colorOn[key];
+    return `<button type="button" class="group-color-chip ${on?'on':''}" onclick="toggleGroupColorChip('${suc}','${c.hex}','${c.name}')">
+      <span class="dot" style="background:${c.hex}${c.hex==='#fafafa'?';box-shadow:inset 0 0 0 1px #ccc':''}"></span>
+      ${c.name}
+      ${on?'<i class="ti ti-check chk"></i>':''}
+    </button>`;
+  }).join('');
+}
+
+function toggleGroupColorChip(suc,hex,name){
+  const st=groupBuilderState[suc];if(!st)return;
+  const key=normalizeHexColor(hex)||hex.toLowerCase();
+  if(st.colorOn[key]) delete st.colorOn[key];
+  else st.colorOn[key]={name,hex:key};
+  initGroupColorChips(suc);
+}
+
+function resetGroupBuilder(suc){
+  groupBuilderState[suc]={valorIds:[],valorLabels:{},colorPid:'',colorOn:{}};
+  const nameEl=document.getElementById(suc+'-grp-name');if(nameEl)nameEl.value='';
+  const vs=document.getElementById(suc+'-grp-valor-search');if(vs)vs.value='';
+  const cs=document.getElementById(suc+'-grp-color-search');if(cs){cs.value='';cs.style.display='block';}
+  const kindV=document.querySelector('input[name="'+suc+'-grp-kind"][value="valor"]');
+  if(kindV) kindV.checked=true;
+  clearGroupColorProduct(suc);
+  onGrpBuilderKindChange(suc);
+  const err=document.getElementById(suc+'-grp-error');if(err)err.textContent='';
+}
+
+async function createProductGroup(suc){
+  const err=document.getElementById(suc+'-grp-error');
+  const st=groupBuilderState[suc];
+  if(!st){if(err)err.textContent='Error interno.';return;}
+  const kind=getGrpBuilderKind(suc);
+  let groupName=((document.getElementById(suc+'-grp-name')||{}).value||'').trim();
+  if(err)err.textContent='';
+
+  if(kind==='valor'){
+    if(st.valorIds.length<2){if(err)err.textContent='Selecciona al menos 2 productos para agrupar por valor.';return;}
+    const rows=st.valorIds.map(pid=>{
+      const p=products.find(x=>x.id===pid);
+      const label=(st.valorLabels[pid]||'').trim();
+      return {pid,p,label};
+    });
+    if(rows.some(r=>!r.p)){if(err)err.textContent='Algún producto ya no existe. Recarga e intenta de nuevo.';return;}
+    if(rows.some(r=>!r.label)){if(err)err.textContent='Cada producto necesita una etiqueta (ej. 330Ω).';return;}
+    if(!groupName) groupName=rows[0].p.name;
+    try{
+      const batch=db.batch();
+      const groupId=newGroupId();
+      const now=Date.now();
+      rows.forEach(r=>{
+        batch.update(db.collection('productos').doc(r.pid),{
+          groupId,
+          groupName,
+          groupKind:'valor',
+          variantLabel:r.label,
+          variantEnabled:true,
+          name:groupName+' '+r.label,
+          updatedAt:now
+        });
+      });
+      await batch.commit();
+      resetGroupBuilder(suc);
+      showToast(rows.length+' variantes agrupadas de "'+groupName+'"','ti-layers-linked');
+    }catch(e){
+      console.error(e);
+      if(err)err.textContent='No se pudo crear el grupo.';
+      showToast('Error al crear grupo','ti-alert-circle');
+    }
+    return;
+  }
+
+  // Por color: 1 producto + colores
+  if(!st.colorPid){if(err)err.textContent='Selecciona un producto base.';return;}
+  const base=products.find(x=>x.id===st.colorPid);
+  if(!base){if(err)err.textContent='El producto base ya no existe.';return;}
+  const colors=Object.values(st.colorOn);
+  if(!colors.length){if(err)err.textContent='Marca al menos un color disponible.';return;}
+  if(colors.some(c=>!normalizeHexColor(c.hex))){if(err)err.textContent='Hay un color con hex inválido.';return;}
+  if(!groupName) groupName=base.name||'Producto';
+  try{
+    const batch=db.batch();
+    const groupId=newGroupId();
+    const now=Date.now();
+    // Primer color = actualiza el producto base
+    const first=colors[0];
+    const firstHex=normalizeHexColor(first.hex);
+    batch.update(db.collection('productos').doc(base.id),{
+      groupId,
+      groupName,
+      groupKind:'color',
+      variantLabel:first.name,
+      variantColor:firstHex,
+      variantEnabled:true,
+      name:groupName+' '+first.name,
+      updatedAt:now
+    });
+    // Resto = clonar con mismo precio/costo/desc (stock 0)
+    for(let i=1;i<colors.length;i++){
+      const c=colors[i];
+      const hex=normalizeHexColor(c.hex);
+      const data={
+        name:groupName+' '+c.name,
+        desc:base.desc||'',
+        cost:base.cost||0,
+        price:base.price||0,
+        stockExsal:0,
+        stockCdb:0,
+        createdAt:now,
+        updatedAt:now,
+        groupId,
+        groupName,
+        groupKind:'color',
+        variantLabel:c.name,
+        variantColor:hex,
+        variantEnabled:true
+      };
+      if(base.imageUrl) data.imageUrl=base.imageUrl;
+      if(base.categoria) data.categoria=base.categoria;
+      if(typeof base.orden==='number') data.orden=base.orden;
+      const pct=parseDescuentoPct(base.descuentoPct);
+      if(pct>0) applyDescuentoPctToData(data,pct);
+      batch.set(db.collection('productos').doc(),data);
+    }
+    await batch.commit();
+    resetGroupBuilder(suc);
+    showToast(colors.length+' variantes agrupadas de "'+groupName+'"','ti-layers-linked');
+  }catch(e){
+    console.error(e);
+    if(err)err.textContent='No se pudo crear el grupo.';
+    showToast('Error al crear grupo','ti-alert-circle');
+  }
+}
+
+// Compat aliases (por si quedan referencias)
+function getGroupKind(suc){return getGrpBuilderKind(suc);}
+function getVariantRows(suc){return [];}
+function getVariantSuffixes(suc){return [];}
+function addVariantRow(){}
+function onGroupKindChange(suc){onGrpBuilderKindChange(suc);}
+
 // ── AGREGAR PRODUCTOS ──
+
 async function addProduct(suc){
   const pre=suc+'-f-';
   const name=document.getElementById(pre+'name').value.trim();
@@ -2747,7 +3119,6 @@ async function addProduct(suc){
   const sv=document.getElementById(pre+'stock').value;
   const descuentoPct=parseDescuentoPct((document.getElementById(pre+'descuento')||{value:''}).value);
   const err=document.getElementById(suc+'-form-error');
-  const hasVariants=(document.getElementById(pre+'variants')||{checked:false}).checked;
   if(!name){err.textContent='El nombre es obligatorio.';return;}
   const cost=parseFloat(cv);if(cv===''||isNaN(cost)||cost<0){err.textContent='Ingresa un costo válido.';return;}
   const price=parseFloat(pv);if(pv===''||isNaN(price)||price<0){err.textContent='Ingresa un precio válido.';return;}
@@ -2755,72 +3126,30 @@ async function addProduct(suc){
   if(descuentoPct===null){err.textContent='Descuento inválido (0–100).';return;}
   err.textContent='';
 
-  if(hasVariants){
-    // Modo variantes: crear un grupo enlazado (mismo groupId) para la tienda PICO
-    const rows=getVariantRows(suc);
-    if(!rows.length){err.textContent='Agrega al menos una variante o desmarca la casilla.';return;}
-    const groupKind=getGroupKind(suc);
-    if(groupKind==='color'&&rows.some(r=>!r.color)){
-      err.textContent='Cada variante de color necesita un hex válido (ej. #e53935).';return;
-    }
-    try{
-      const batch=db.batch();
-      const groupId=newGroupId();
-      const now=Date.now();
-      rows.forEach(row=>{
-        const vname=name+' '+row.label;
-        const data={
-          name:vname,desc,cost,price,stockExsal:0,stockCdb:0,createdAt:now,updatedAt:now,
-          groupId,groupName:name,groupKind,variantLabel:row.label,variantEnabled:row.enabled!==false
-        };
-        if(groupKind==='color') data.variantColor=row.color;
-        const img=(row.imageUrl||imageUrl||'').trim();
-        if(img) data.imageUrl=img;
-        if(categoria) data.categoria=categoria;
-        if(suc==='exsal') data.stockExsal=stock;
-        else data.stockCdb=stock;
-        if(descuentoPct>0) applyDescuentoPctToData(data,descuentoPct);
-        batch.set(db.collection("productos").doc(),data);
+  const data={name,desc,cost,price,stockExsal:0,stockCdb:0,createdAt:Date.now(),updatedAt:Date.now()};
+  if(imageUrl) data.imageUrl=imageUrl;
+  if(categoria) data.categoria=categoria;
+  if(suc==='exsal') data.stockExsal=stock;
+  else data.stockCdb=stock;
+  if(descuentoPct>0) applyDescuentoPctToData(data,descuentoPct);
+  try{
+    const affectCostos=(document.getElementById(pre+'affect-costos')||{checked:true}).checked;
+    const batch=db.batch();
+    batch.set(db.collection("productos").doc(),data);
+    // Sumar costo inicial a estadisticas de la sede (solo si se marcó la casilla)
+    if(stock>0&&affectCostos){
+      const statDocId=suc==='exsal'?'ColegioExsal':'ColegioDonBosco';
+      batch.update(db.collection("estadisticas").doc(statDocId),{
+        'costos':firebase.firestore.FieldValue.increment(+(cost*stock).toFixed(4))
       });
-      await batch.commit();
-      [pre+'name',pre+'desc',pre+'imageurl',pre+'cat',pre+'cost',pre+'price',pre+'stock',pre+'descuento'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-      const cb=document.getElementById(pre+'variants');if(cb)cb.checked=false;
-      const wrap=document.getElementById(pre+'variants-wrap');if(wrap)wrap.style.display='none';
-      const list=document.getElementById(suc+'-variants-list');if(list)list.innerHTML='';
-      variantCounters[suc]=0;
-      const kindRadio=document.querySelector('input[name="'+suc+'-group-kind"][value="valor"]');
-      if(kindRadio)kindRadio.checked=true;
-      previewImg(suc);
-      document.getElementById(pre+'name').focus();
-      showToast(rows.length+' variantes agrupadas de "'+name+'"','ti-layers-subtract');
-    }catch(e){showToast('Error al guardar','ti-alert-circle');}
-  } else {
-    // Modo normal: un solo producto
-    const data={name,desc,cost,price,stockExsal:0,stockCdb:0,createdAt:Date.now(),updatedAt:Date.now()};
-    if(imageUrl) data.imageUrl=imageUrl;
-    if(categoria) data.categoria=categoria;
-    if(suc==='exsal') data.stockExsal=stock;
-    else data.stockCdb=stock;
-    if(descuentoPct>0) applyDescuentoPctToData(data,descuentoPct);
-    try{
-      const affectCostos=(document.getElementById(pre+'affect-costos')||{checked:true}).checked;
-      const batch=db.batch();
-      batch.set(db.collection("productos").doc(),data);
-      // Sumar costo inicial a estadisticas de la sede (solo si se marcó la casilla)
-      if(stock>0&&affectCostos){
-        const statDocId=suc==='exsal'?'ColegioExsal':'ColegioDonBosco';
-        batch.update(db.collection("estadisticas").doc(statDocId),{
-          'costos':firebase.firestore.FieldValue.increment(+(cost*stock).toFixed(4))
-        });
-      }
-      await batch.commit();
-      [pre+'name',pre+'desc',pre+'imageurl',pre+'cat',pre+'cost',pre+'price',pre+'stock',pre+'descuento'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-      const acb=document.getElementById(pre+'affect-costos');if(acb)acb.checked=true;
-      previewImg(suc);
-      document.getElementById(pre+'name').focus();
-      showToast('Producto agregado a '+suc.toUpperCase()+(stock>0&&!affectCostos?' (sin afectar costos)':''),'ti-circle-check');
-    }catch(e){showToast('Error al guardar','ti-alert-circle');}
-  }
+    }
+    await batch.commit();
+    [pre+'name',pre+'desc',pre+'imageurl',pre+'cat',pre+'cost',pre+'price',pre+'stock',pre+'descuento'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    const acb=document.getElementById(pre+'affect-costos');if(acb)acb.checked=true;
+    previewImg(suc);
+    document.getElementById(pre+'name').focus();
+    showToast('Producto agregado a '+suc.toUpperCase()+(stock>0&&!affectCostos?' (sin afectar costos)':''),'ti-circle-check');
+  }catch(e){showToast('Error al guardar','ti-alert-circle');}
 }
 
 async function addProductTotal(){
@@ -2834,7 +3163,6 @@ async function addProductTotal(){
   const sv=document.getElementById('total-f-stock').value;
   const descuentoPct=parseDescuentoPct((document.getElementById('total-f-descuento')||{value:''}).value);
   const err=document.getElementById('total-form-error');
-  const hasVariants=(document.getElementById('total-f-variants')||{checked:false}).checked;
   if(!name){err.textContent='El nombre es obligatorio.';return;}
   const cost=parseFloat(cv);if(cv===''||isNaN(cost)||cost<0){err.textContent='Ingresa un costo válido.';return;}
   const price=parseFloat(pv);if(pv===''||isNaN(price)||price<0){err.textContent='Ingresa un precio válido.';return;}
@@ -2842,68 +3170,29 @@ async function addProductTotal(){
   if(descuentoPct===null){err.textContent='Descuento inválido (0–100).';return;}
   err.textContent='';
 
-  if(hasVariants){
-    const rows=getVariantRows('total');
-    if(!rows.length){err.textContent='Agrega al menos una variante o desmarca la casilla.';return;}
-    const groupKind=getGroupKind('total');
-    if(groupKind==='color'&&rows.some(r=>!r.color)){
-      err.textContent='Cada variante de color necesita un hex válido (ej. #e53935).';return;
-    }
-    try{
-      const batch=db.batch();
-      const groupId=newGroupId();
-      const now=Date.now();
-      rows.forEach(row=>{
-        const vname=name+' '+row.label;
-        const data={
-          name:vname,desc,cost,price,stockExsal:0,stockCdb:0,createdAt:now,updatedAt:now,
-          groupId,groupName:name,groupKind,variantLabel:row.label,variantEnabled:row.enabled!==false
-        };
-        if(groupKind==='color') data.variantColor=row.color;
-        const img=(row.imageUrl||imageUrl||'').trim();
-        if(img) data.imageUrl=img;
-        if(categoria) data.categoria=categoria;
-        if(suc==='exsal'){data.stockExsal=stock;}else{data.stockCdb=stock;}
-        if(descuentoPct>0) applyDescuentoPctToData(data,descuentoPct);
-        batch.set(db.collection("productos").doc(),data);
+  const data={name,desc,cost,price,stockExsal:0,stockCdb:0,createdAt:Date.now(),updatedAt:Date.now()};
+  if(imageUrl) data.imageUrl=imageUrl;
+  if(categoria) data.categoria=categoria;
+  if(suc==='exsal'){data.stockExsal=stock;}else{data.stockCdb=stock;}
+  if(descuentoPct>0) applyDescuentoPctToData(data,descuentoPct);
+  try{
+    const affectCostos=(document.getElementById('total-f-affect-costos')||{checked:true}).checked;
+    const batch=db.batch();
+    batch.set(db.collection("productos").doc(),data);
+    // Sumar costo inicial a estadisticas de la sede (solo si se marcó la casilla)
+    if(stock>0&&affectCostos){
+      const statDocId=suc==='exsal'?'ColegioExsal':'ColegioDonBosco';
+      batch.update(db.collection("estadisticas").doc(statDocId),{
+        'costos':firebase.firestore.FieldValue.increment(+(cost*stock).toFixed(4))
       });
-      await batch.commit();
-      ['total-f-name','total-f-desc','total-f-imageurl','total-f-cat','total-f-cost','total-f-price','total-f-stock','total-f-descuento'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-      const cb=document.getElementById('total-f-variants');if(cb)cb.checked=false;
-      const wrap=document.getElementById('total-f-variants-wrap');if(wrap)wrap.style.display='none';
-      const list=document.getElementById('total-variants-list');if(list)list.innerHTML='';
-      variantCounters['total']=0;
-      const kindRadio=document.querySelector('input[name="total-group-kind"][value="valor"]');
-      if(kindRadio)kindRadio.checked=true;
-      previewImg('total');
-      document.getElementById('total-f-name').focus();
-      showToast(rows.length+' variantes agrupadas de "'+name+'"','ti-layers-subtract');
-    }catch(e){showToast('Error al guardar','ti-alert-circle');}
-  } else {
-    const data={name,desc,cost,price,stockExsal:0,stockCdb:0,createdAt:Date.now(),updatedAt:Date.now()};
-    if(imageUrl) data.imageUrl=imageUrl;
-    if(categoria) data.categoria=categoria;
-    if(suc==='exsal'){data.stockExsal=stock;}else{data.stockCdb=stock;}
-    if(descuentoPct>0) applyDescuentoPctToData(data,descuentoPct);
-    try{
-      const affectCostos=(document.getElementById('total-f-affect-costos')||{checked:true}).checked;
-      const batch=db.batch();
-      batch.set(db.collection("productos").doc(),data);
-      // Sumar costo inicial a estadisticas de la sede (solo si se marcó la casilla)
-      if(stock>0&&affectCostos){
-        const statDocId=suc==='exsal'?'ColegioExsal':'ColegioDonBosco';
-        batch.update(db.collection("estadisticas").doc(statDocId),{
-          'costos':firebase.firestore.FieldValue.increment(+(cost*stock).toFixed(4))
-        });
-      }
-      await batch.commit();
-      ['total-f-name','total-f-desc','total-f-imageurl','total-f-cat','total-f-cost','total-f-price','total-f-stock','total-f-descuento'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-      const acb=document.getElementById('total-f-affect-costos');if(acb)acb.checked=true;
-      previewImg('total');
-      document.getElementById('total-f-name').focus();
-      showToast('Producto agregado a '+suc.toUpperCase()+(stock>0&&!affectCostos?' (sin afectar costos)':''),'ti-circle-check');
-    }catch(e){showToast('Error al guardar','ti-alert-circle');}
-  }
+    }
+    await batch.commit();
+    ['total-f-name','total-f-desc','total-f-imageurl','total-f-cat','total-f-cost','total-f-price','total-f-stock','total-f-descuento'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    const acb=document.getElementById('total-f-affect-costos');if(acb)acb.checked=true;
+    previewImg('total');
+    document.getElementById('total-f-name').focus();
+    showToast('Producto agregado a '+suc.toUpperCase()+(stock>0&&!affectCostos?' (sin afectar costos)':''),'ti-circle-check');
+  }catch(e){showToast('Error al guardar','ti-alert-circle');}
 }
 
 // ── ELIMINAR PRODUCTO ──
