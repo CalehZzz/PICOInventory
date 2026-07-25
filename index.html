@@ -872,6 +872,10 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
           <input type="text" id="exsal-grp-name" placeholder="Ej. Resistencias o LED 5mm" maxlength="80" autocomplete="off">
           <div style="font-size:10.5px;color:var(--tm);margin-top:3px">Así aparece el producto en la tienda. Cada opción se suma al nombre (ej. “Resistencias 330Ω”).</div>
         </div>
+        <div class="field">
+          <label>Descripción del grupo <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
+          <textarea id="exsal-grp-desc" placeholder="Descripción que verá la tienda en este grupo…" maxlength="400" style="height:66px"></textarea>
+        </div>
 
         <!-- Modo valor: multi-select -->
         <div id="exsal-grp-valor-wrap">
@@ -998,6 +1002,10 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
           <label>Nombre del grupo</label>
           <input type="text" id="cdb-grp-name" placeholder="Ej. Resistencias o LED 5mm" maxlength="80" autocomplete="off">
           <div style="font-size:10.5px;color:var(--tm);margin-top:3px">Así aparece el producto en la tienda. Cada opción se suma al nombre (ej. “Resistencias 330Ω”).</div>
+        </div>
+        <div class="field">
+          <label>Descripción del grupo <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
+          <textarea id="cdb-grp-desc" placeholder="Descripción que verá la tienda en este grupo…" maxlength="400" style="height:66px"></textarea>
         </div>
 
         <!-- Modo valor: multi-select -->
@@ -1132,6 +1140,10 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
           <label>Nombre del grupo</label>
           <input type="text" id="total-grp-name" placeholder="Ej. Resistencias o LED 5mm" maxlength="80" autocomplete="off">
           <div style="font-size:10.5px;color:var(--tm);margin-top:3px">Así aparece el producto en la tienda. Cada opción se suma al nombre (ej. “Resistencias 330Ω”).</div>
+        </div>
+        <div class="field">
+          <label>Descripción del grupo <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
+          <textarea id="total-grp-desc" placeholder="Descripción que verá la tienda en este grupo…" maxlength="400" style="height:66px"></textarea>
         </div>
 
         <!-- Modo valor: multi-select -->
@@ -1794,7 +1806,13 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       <div class="pm-group-manage" id="pm-group-manage" style="display:none">
         <div class="pm-group-manage-hd"><i class="ti ti-layers-linked" style="margin-right:4px"></i>Opciones del grupo</div>
         <div class="pm-group-manage-sub" id="pm-group-manage-sub"></div>
+        <div class="field" style="margin:0 0 10px">
+          <label style="font-size:11px">Descripción del grupo</label>
+          <textarea id="pm-group-desc" placeholder="Descripción del grupo…" maxlength="400" style="height:60px;width:100%;background:var(--wh);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:8px 10px;font-size:13px;font-family:inherit;color:var(--tp);outline:none;resize:none;box-sizing:border-box"></textarea>
+          <button type="button" class="btn-mini-group" style="margin-top:6px" onclick="savePmGroupDesc()"><i class="ti ti-device-floppy"></i> Guardar descripción</button>
+        </div>
         <div id="pm-group-manage-list"></div>
+        <button type="button" class="btn-mini-group danger" style="width:100%;padding:9px;margin-top:10px" onclick="confirmDeleteEntireGroup()"><i class="ti ti-trash"></i> Eliminar grupo completo</button>
       </div>
       <div class="pm-footer">
         <button class="btn-danger" id="pm-btn-delete" onclick="confirmDeleteFromModal()"><i class="ti ti-trash"></i>Eliminar</button>
@@ -1856,6 +1874,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
         <div style="font-size:11px;color:var(--tm);margin-top:-4px">Si este producto es parte de un grupo. Déjalo vacío para sacarlo del grupo.</div>
         <div class="field" style="margin:0"><label>ID del grupo</label><input type="text" id="edit-group-id" placeholder="Vacío = sin grupo" autocomplete="off"></div>
         <div class="field" style="margin:0"><label>Nombre del grupo</label><input type="text" id="edit-group-name" placeholder="Ej. Resistencias" maxlength="80" autocomplete="off"></div>
+        <div class="field" style="margin:0"><label>Descripción del grupo</label><textarea id="edit-group-desc" placeholder="Descripción del grupo en tienda…" maxlength="400" style="height:66px"></textarea></div>
         <div class="field" style="margin:0">
           <label>Tipo</label>
           <select id="edit-group-kind" onchange="onEditGroupKindChange()">
@@ -2725,6 +2744,8 @@ function renderList(suc){
       const name=(p.name||'').toLowerCase();
       const desc=(p.desc||'').toLowerCase();
       if(name.includes(q)||desc.includes(q)) return true;
+      const gDesc=(p.groupDesc||'').toLowerCase();
+      if(gDesc.includes(q)) return true;
       // Color: un solo producto raíz; también encuentra por nombre de color
       if(p.groupKind==='color'){
         const gName=(p.groupName||'').toLowerCase();
@@ -3088,6 +3109,7 @@ function setGroupColorImageUrl(suc,hex,url){
 function resetGroupBuilder(suc){
   groupBuilderState[suc]={valorIds:[],valorLabels:{},colorPid:'',colorOn:{}};
   const nameEl=document.getElementById(suc+'-grp-name');if(nameEl)nameEl.value='';
+  const descEl=document.getElementById(suc+'-grp-desc');if(descEl)descEl.value='';
   const vs=document.getElementById(suc+'-grp-valor-search');if(vs)vs.value='';
   const cs=document.getElementById(suc+'-grp-color-search');if(cs){cs.value='';cs.style.display='block';}
   const kindV=document.querySelector('input[name="'+suc+'-grp-kind"][value="valor"]');
@@ -3103,6 +3125,7 @@ async function createProductGroup(suc){
   if(!st){if(err)err.textContent='Error interno.';return;}
   const kind=getGrpBuilderKind(suc);
   let groupName=((document.getElementById(suc+'-grp-name')||{}).value||'').trim();
+  const groupDesc=((document.getElementById(suc+'-grp-desc')||{}).value||'').trim();
   if(err)err.textContent='';
 
   if(kind==='valor'){
@@ -3120,7 +3143,7 @@ async function createProductGroup(suc){
       const groupId=newGroupId();
       const now=Date.now();
       rows.forEach(r=>{
-        batch.update(db.collection('productos').doc(r.pid),{
+        const upd={
           groupId,
           groupName,
           groupKind:'valor',
@@ -3130,7 +3153,11 @@ async function createProductGroup(suc){
           variantColor:firebase.firestore.FieldValue.delete(),
           name:groupName+' '+r.label,
           updatedAt:now
-        });
+        };
+        if(groupDesc) upd.groupDesc=groupDesc;
+        else upd.groupDesc=firebase.firestore.FieldValue.delete();
+        if(groupDesc) upd.desc=groupDesc; // descripción del grupo también en desc del producto
+        batch.update(db.collection('productos').doc(r.pid),upd);
       });
       await batch.commit();
       resetGroupBuilder(suc);
@@ -3162,7 +3189,7 @@ async function createProductGroup(suc){
   try{
     const groupId=newGroupId();
     const DEL=firebase.firestore.FieldValue.delete();
-    await db.collection('productos').doc(base.id).update({
+    const colorUpd={
       groupId,
       groupName,
       groupKind:'color',
@@ -3173,7 +3200,10 @@ async function createProductGroup(suc){
       variantColor:DEL,
       variantEnabled:DEL,
       updatedAt:Date.now()
-    });
+    };
+    if(groupDesc){ colorUpd.groupDesc=groupDesc; colorUpd.desc=groupDesc; }
+    else colorUpd.groupDesc=DEL;
+    await db.collection('productos').doc(base.id).update(colorUpd);
     resetGroupBuilder(suc);
     showToast(groupColors.length+' colores en "'+groupName+'" (mismo stock)','ti-layers-linked');
   }catch(e){
@@ -3383,7 +3413,7 @@ function confirmDeleteFromModal(){openDelModal(activePid,()=>{doDelete(activePid
 async function clearProductGroupFields(id){
   const DEL=firebase.firestore.FieldValue.delete();
   await db.collection('productos').doc(id).update({
-    groupId:DEL,groupName:DEL,groupKind:DEL,
+    groupId:DEL,groupName:DEL,groupKind:DEL,groupDesc:DEL,
     variantLabel:DEL,variantColor:DEL,variantEnabled:DEL,
     groupColors:DEL,updatedAt:Date.now()
   });
@@ -3481,6 +3511,7 @@ function renderPmGroupManage(pid){
   const list=document.getElementById('pm-group-manage-list');
   const sub=document.getElementById('pm-group-manage-sub');
   const ugBtn=document.getElementById('pm-btn-ungroup');
+  const descEl=document.getElementById('pm-group-desc');
   const p=products.find(x=>x.id===pid);
   if(!wrap||!list||!p||!p.groupId||(p.groupKind!=='valor'&&p.groupKind!=='color')){
     if(wrap) wrap.style.display='none';
@@ -3489,10 +3520,11 @@ function renderPmGroupManage(pid){
   }
   wrap.style.display='block';
   if(ugBtn) ugBtn.style.display='inline-flex';
+  if(descEl) descEl.value=p.groupDesc||p.desc||'';
 
   if(p.groupKind==='color'){
     const cols=Array.isArray(p.groupColors)?p.groupColors:[];
-    sub.textContent='Producto único con varios colores (mismo stock). Quita un color sin borrar el producto. “Eliminar” borra el producto entero.';
+    sub.textContent='Producto único con varios colores (mismo stock). Quita un color sin borrar el producto. “Eliminar grupo completo” borra este producto y todos sus colores.';
     if(!cols.length){
       list.innerHTML='<div class="group-empty-msg">Sin colores. Usa Editar para añadir.</div>';
       return;
@@ -3515,7 +3547,7 @@ function renderPmGroupManage(pid){
   // Por valor: varias fichas de producto
   const siblings=products.filter(x=>x.groupId===p.groupId)
     .sort((a,b)=>String(a.variantLabel||a.name).localeCompare(String(b.variantLabel||b.name),'es',{numeric:true}));
-  sub.textContent='Cada fila es un producto del grupo. Puedes editarlo, sacarlo del grupo o eliminarlo solo a él (el resto sigue).';
+  sub.textContent='Cada fila es un producto del grupo. Puedes editarlo, sacarlo o eliminarlo solo a él. “Eliminar grupo completo” borra TODAS las opciones.';
   list.innerHTML=siblings.map(s=>{
     const isSelf=s.id===pid;
     const lab=s.variantLabel||s.name;
@@ -3528,6 +3560,71 @@ function renderPmGroupManage(pid){
       </div>
     </div>`;
   }).join('');
+}
+
+async function savePmGroupDesc(){
+  const p=products.find(x=>x.id===activePid);if(!p||!p.groupId)return;
+  const desc=((document.getElementById('pm-group-desc')||{}).value||'').trim();
+  const DEL=firebase.firestore.FieldValue.delete();
+  const now=Date.now();
+  try{
+    if(p.groupKind==='color'){
+      const upd={groupDesc:desc||DEL,updatedAt:now};
+      if(desc) upd.desc=desc;
+      await db.collection('productos').doc(p.id).update(upd);
+      p.groupDesc=desc; if(desc) p.desc=desc;
+    } else {
+      const siblings=products.filter(x=>x.groupId===p.groupId);
+      const batch=db.batch();
+      siblings.forEach(s=>{
+        const upd={groupDesc:desc||DEL,updatedAt:now};
+        if(desc) upd.desc=desc;
+        batch.update(db.collection('productos').doc(s.id),upd);
+        s.groupDesc=desc; if(desc) s.desc=desc;
+      });
+      await batch.commit();
+    }
+    document.getElementById('pm-desc').textContent=desc||p.desc||'';
+    showToast('Descripción del grupo guardada','ti-device-floppy');
+  }catch(e){console.error(e);showToast('Error al guardar descripción','ti-alert-circle');}
+}
+
+function confirmDeleteEntireGroup(){
+  const p=products.find(x=>x.id===activePid);if(!p||!p.groupId)return;
+  const gName=p.groupName||p.name||'este grupo';
+  let msg;
+  if(p.groupKind==='color'){
+    msg='¿Eliminar el grupo "'+gName+'"?\n\nSe elimina el producto y TODOS sus colores. Esta acción manda el producto a la papelera.';
+  } else {
+    const n=products.filter(x=>x.groupId===p.groupId).length;
+    msg='¿Eliminar el grupo "'+gName+'" completo?\n\nSe eliminarán las '+n+' opciones del grupo (papelera). No se pueden deshacer en bloque desde aquí.';
+  }
+  if(!confirm(msg)) return;
+  deleteEntireGroup(p.groupId, p.groupKind);
+}
+
+async function deleteEntireGroup(groupId, kind){
+  if(!groupId)return;
+  try{
+    const now=Date.now();
+    if(kind==='color'){
+      // Un solo doc
+      const root=products.find(x=>x.groupId===groupId&&x.groupKind==='color')
+        || products.find(x=>x.groupId===groupId);
+      if(!root){showToast('Grupo no encontrado','ti-alert-circle');return;}
+      await db.collection('productos').doc(root.id).update({eliminado:true,updatedAt:now});
+    } else {
+      const siblings=products.filter(x=>x.groupId===groupId);
+      if(!siblings.length){showToast('Grupo no encontrado','ti-alert-circle');return;}
+      const batch=db.batch();
+      siblings.forEach(s=>{
+        batch.update(db.collection('productos').doc(s.id),{eliminado:true,updatedAt:now});
+      });
+      await batch.commit();
+    }
+    closePM();
+    showToast('Grupo eliminado','ti-trash');
+  }catch(e){console.error(e);showToast('Error al eliminar el grupo','ti-alert-circle');}
 }
 
 // ── MODAL PRODUCTO ──
@@ -4380,9 +4477,11 @@ function ungroupFromEditModal(){
   const gid=document.getElementById('edit-group-id');
   const gkind=document.getElementById('edit-group-kind');
   const gname=document.getElementById('edit-group-name');
+  const gdesc=document.getElementById('edit-group-desc');
   if(gid) gid.value='';
   if(gkind) gkind.value='';
   if(gname) gname.value='';
+  if(gdesc) gdesc.value='';
   editGroupColorsState=[];
   onEditGroupKindChange();
   showToast('Marcado para sacar del grupo · pulsa Guardar','ti-unlink');
@@ -4420,11 +4519,13 @@ function openEditModal(){
   // Grupo en tienda
   const gidEl=document.getElementById('edit-group-id');
   const gnameEl=document.getElementById('edit-group-name');
+  const gdescEl=document.getElementById('edit-group-desc');
   const gkindEl=document.getElementById('edit-group-kind');
   const vlabEl=document.getElementById('edit-variant-label');
   const venEl=document.getElementById('edit-variant-enabled');
   if(gidEl) gidEl.value=p.groupId||'';
   if(gnameEl) gnameEl.value=p.groupName||'';
+  if(gdescEl) gdescEl.value=p.groupDesc||'';
   if(gkindEl) gkindEl.value=(p.groupKind==='valor'||p.groupKind==='color')?p.groupKind:'';
   if(vlabEl) vlabEl.value=p.variantLabel||'';
   if(venEl) venEl.checked=p.variantEnabled!==false;
@@ -4481,14 +4582,18 @@ async function saveEdit(){
   // Grupo en tienda
   const groupId=((document.getElementById('edit-group-id')||{}).value||'').trim();
   const groupName=((document.getElementById('edit-group-name')||{}).value||'').trim();
+  const groupDesc=((document.getElementById('edit-group-desc')||{}).value||'').trim();
   const groupKind=((document.getElementById('edit-group-kind')||{}).value||'').trim();
   const variantLabel=((document.getElementById('edit-variant-label')||{}).value||'').trim();
   const variantEnabled=(document.getElementById('edit-variant-enabled')||{checked:true}).checked;
   const DEL=firebase.firestore.FieldValue.delete();
+  let propagateGroupDescToSiblings=false;
   if(groupId&&(groupKind==='valor'||groupKind==='color')){
     updateData.groupId=groupId;
     updateData.groupName=groupName||name;
     updateData.groupKind=groupKind;
+    updateData.groupDesc=groupDesc||DEL;
+    if(groupDesc) updateData.desc=groupDesc;
     if(groupKind==='color'){
       const cols=(editGroupColorsState||[]).map(c=>{
         const hex=normalizeHexColor(c.color);
@@ -4502,6 +4607,7 @@ async function saveEdit(){
         updateData.groupId=DEL;
         updateData.groupName=DEL;
         updateData.groupKind=DEL;
+        updateData.groupDesc=DEL;
         updateData.groupColors=DEL;
         updateData.variantLabel=DEL;
         updateData.variantColor=DEL;
@@ -4517,11 +4623,13 @@ async function saveEdit(){
       updateData.variantEnabled=!!variantEnabled;
       updateData.variantColor=DEL;
       updateData.groupColors=DEL;
+      propagateGroupDescToSiblings=true;
     }
   } else {
     updateData.groupId=DEL;
     updateData.groupName=DEL;
     updateData.groupKind=DEL;
+    updateData.groupDesc=DEL;
     updateData.variantLabel=DEL;
     updateData.variantColor=DEL;
     updateData.variantEnabled=DEL;
@@ -4530,6 +4638,14 @@ async function saveEdit(){
   try{
     const batch=db.batch();
     batch.update(db.collection("productos").doc(activePid),updateData);
+    // Propagar descripción/nombre de grupo a hermanos (valor)
+    if(propagateGroupDescToSiblings&&groupId){
+      products.filter(x=>x.groupId===groupId&&x.id!==activePid).forEach(s=>{
+        const sib={groupName:groupName||name,groupDesc:groupDesc||DEL,updatedAt:Date.now()};
+        if(groupDesc) sib.desc=groupDesc;
+        batch.update(db.collection('productos').doc(s.id),sib);
+      });
+    }
     // Si checkbox activado, afectar costos del mes por el cambio de stock.
     // Fórmula: (stock nuevo - stock anterior) * costo, por sucursal.
     // Pensado para registrar el costo de unidades nuevas cuando el stock
