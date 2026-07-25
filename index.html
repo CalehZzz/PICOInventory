@@ -178,6 +178,15 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .badge-descuento-pct{background:var(--r50);color:var(--r600);border:1px solid var(--r100)}
 .badge-exsal{background:#e8f0fe;color:#1a56c4;border:1px solid #b8d0f8}
 .badge-cdb{background:#fce8ff;color:#8b1ac4;border:1px solid #e0b8f8}
+.badge-group{background:var(--b50);color:var(--b600);border:1px solid var(--b200)}
+.badge-group-off{background:var(--g50);color:var(--tm);border:1px solid var(--b100)}
+.card-group-sub{font-size:11px;color:var(--tm);margin-top:2px;line-height:1.3}
+.variant-row{display:flex;flex-direction:column;gap:7px;background:var(--wh);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:9px 10px}
+.variant-row input[type=text],.variant-row input[type=url],.variant-row input[type=color]{background:var(--wh);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:7px 10px;font-size:13px;font-family:inherit;color:var(--tp);outline:none;width:100%;box-sizing:border-box}
+.variant-color-swatches{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.variant-swatch{width:22px;height:22px;border-radius:50%;border:2px solid rgba(0,0,0,.12);cursor:pointer;padding:0;flex-shrink:0}
+.variant-swatch:hover{transform:scale(1.08)}
+.variant-swatch.active{outline:2px solid var(--b400);outline-offset:1px}
 .pm-price-val .badge-descuento-pct{font-size:12px;vertical-align:middle;margin-left:8px}
 .card-actions{display:flex;gap:5px;flex-shrink:0}
 .btn-icon{width:29px;height:29px;background:none;border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:background var(--tr),color var(--tr);color:var(--tm)}
@@ -784,12 +793,22 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
             <input type="checkbox" id="exsal-f-variants" style="margin-top:2px;width:15px;height:15px;accent-color:var(--b400);flex-shrink:0;cursor:pointer">
             <div>
               <div style="font-size:13px;font-weight:600;color:var(--tp)">Producto con variantes</div>
-              <div style="font-size:11px;color:var(--tm);margin-top:1px">Activa si hay variantes del mismo producto (ej: Resistencia 1k, 2k, 1M…). Comparten imagen base.</div>
+              <div style="font-size:11px;color:var(--tm);margin-top:1px">Agrupa en la tienda como un solo producto por valor (ej. 330Ω) o por color. Comparten precio/costo/nombre base; imagen y etiqueta pueden diferir.</div>
             </div>
           </label>
           <div id="exsal-f-variants-wrap" style="display:none;flex-direction:column;gap:8px;background:var(--b50);border:1.5px solid var(--b200);border-radius:var(--rsm);padding:12px 13px">
-            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--b500);margin-bottom:4px"><i class="ti ti-layers-subtract" style="margin-right:4px"></i>Variantes a agregar</div>
-            <div id="exsal-variants-list" style="display:flex;flex-direction:column;gap:6px"></div>
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--b500);margin-bottom:2px"><i class="ti ti-layers-subtract" style="margin-right:4px"></i>Variantes a agregar</div>
+            <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center">
+              <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--tp);cursor:pointer;user-select:none">
+                <input type="radio" name="exsal-group-kind" value="valor" checked onchange="onGroupKindChange('exsal')" style="accent-color:var(--b400);width:15px;height:15px;cursor:pointer">
+                Por valor
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--tp);cursor:pointer;user-select:none">
+                <input type="radio" name="exsal-group-kind" value="color" onchange="onGroupKindChange('exsal')" style="accent-color:var(--b400);width:15px;height:15px;cursor:pointer">
+                Por color
+              </label>
+            </div>
+            <div id="exsal-variants-list" style="display:flex;flex-direction:column;gap:8px"></div>
             <button type="button" onclick="addVariantRow('exsal')" style="background:none;border:1.5px dashed var(--b300);border-radius:var(--rsm);padding:7px;font-size:12px;font-weight:600;color:var(--b500);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;font-family:inherit"><i class="ti ti-plus"></i>Añadir variante</button>
           </div>
           <label style="display:flex;align-items:flex-start;gap:10px;background:var(--g50);border:1.5px solid var(--g100);border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none;margin-bottom:10px">
@@ -848,12 +867,22 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
             <input type="checkbox" id="cdb-f-variants" style="margin-top:2px;width:15px;height:15px;accent-color:var(--b400);flex-shrink:0;cursor:pointer">
             <div>
               <div style="font-size:13px;font-weight:600;color:var(--tp)">Producto con variantes</div>
-              <div style="font-size:11px;color:var(--tm);margin-top:1px">Activa si hay variantes del mismo producto (ej: Resistencia 1k, 2k, 1M…). Comparten imagen base.</div>
+              <div style="font-size:11px;color:var(--tm);margin-top:1px">Agrupa en la tienda como un solo producto por valor (ej. 330Ω) o por color. Comparten precio/costo/nombre base; imagen y etiqueta pueden diferir.</div>
             </div>
           </label>
           <div id="cdb-f-variants-wrap" style="display:none;flex-direction:column;gap:8px;background:var(--b50);border:1.5px solid var(--b200);border-radius:var(--rsm);padding:12px 13px">
-            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--b500);margin-bottom:4px"><i class="ti ti-layers-subtract" style="margin-right:4px"></i>Variantes a agregar</div>
-            <div id="cdb-variants-list" style="display:flex;flex-direction:column;gap:6px"></div>
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--b500);margin-bottom:2px"><i class="ti ti-layers-subtract" style="margin-right:4px"></i>Variantes a agregar</div>
+            <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center">
+              <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--tp);cursor:pointer;user-select:none">
+                <input type="radio" name="cdb-group-kind" value="valor" checked onchange="onGroupKindChange('cdb')" style="accent-color:var(--b400);width:15px;height:15px;cursor:pointer">
+                Por valor
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--tp);cursor:pointer;user-select:none">
+                <input type="radio" name="cdb-group-kind" value="color" onchange="onGroupKindChange('cdb')" style="accent-color:var(--b400);width:15px;height:15px;cursor:pointer">
+                Por color
+              </label>
+            </div>
+            <div id="cdb-variants-list" style="display:flex;flex-direction:column;gap:8px"></div>
             <button type="button" onclick="addVariantRow('cdb')" style="background:none;border:1.5px dashed var(--b300);border-radius:var(--rsm);padding:7px;font-size:12px;font-weight:600;color:var(--b500);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;font-family:inherit"><i class="ti ti-plus"></i>Añadir variante</button>
           </div>
           <label style="display:flex;align-items:flex-start;gap:10px;background:var(--g50);border:1.5px solid var(--g100);border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none;margin-bottom:10px">
@@ -919,12 +948,22 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
             <input type="checkbox" id="total-f-variants" style="margin-top:2px;width:15px;height:15px;accent-color:var(--b400);flex-shrink:0;cursor:pointer">
             <div>
               <div style="font-size:13px;font-weight:600;color:var(--tp)">Producto con variantes</div>
-              <div style="font-size:11px;color:var(--tm);margin-top:1px">Activa si hay variantes del mismo producto (ej: Resistencia 1k, 2k, 1M…). Comparten imagen base.</div>
+              <div style="font-size:11px;color:var(--tm);margin-top:1px">Agrupa en la tienda como un solo producto por valor (ej. 330Ω) o por color. Comparten precio/costo/nombre base; imagen y etiqueta pueden diferir.</div>
             </div>
           </label>
           <div id="total-f-variants-wrap" style="display:none;flex-direction:column;gap:8px;background:var(--b50);border:1.5px solid var(--b200);border-radius:var(--rsm);padding:12px 13px">
-            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--b500);margin-bottom:4px"><i class="ti ti-layers-subtract" style="margin-right:4px"></i>Variantes a agregar</div>
-            <div id="total-variants-list" style="display:flex;flex-direction:column;gap:6px"></div>
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--b500);margin-bottom:2px"><i class="ti ti-layers-subtract" style="margin-right:4px"></i>Variantes a agregar</div>
+            <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center">
+              <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--tp);cursor:pointer;user-select:none">
+                <input type="radio" name="total-group-kind" value="valor" checked onchange="onGroupKindChange('total')" style="accent-color:var(--b400);width:15px;height:15px;cursor:pointer">
+                Por valor
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--tp);cursor:pointer;user-select:none">
+                <input type="radio" name="total-group-kind" value="color" onchange="onGroupKindChange('total')" style="accent-color:var(--b400);width:15px;height:15px;cursor:pointer">
+                Por color
+              </label>
+            </div>
+            <div id="total-variants-list" style="display:flex;flex-direction:column;gap:8px"></div>
             <button type="button" onclick="addVariantRow('total')" style="background:none;border:1.5px dashed var(--b300);border-radius:var(--rsm);padding:7px;font-size:12px;font-weight:600;color:var(--b500);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;font-family:inherit"><i class="ti ti-plus"></i>Añadir variante</button>
           </div>
           <label style="display:flex;align-items:flex-start;gap:10px;background:var(--g50);border:1.5px solid var(--g100);border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none;margin-bottom:10px">
@@ -1607,6 +1646,30 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
         <label>Descuento en tienda (%)</label>
         <input type="number" id="edit-descuento" placeholder="0" min="0" max="100" step="1">
         <div style="font-size:10.5px;color:var(--tm);margin-top:3px">Si es &gt; 0, aparece en Descuentos de la tienda. No se combina con códigos/asignados/sellos.</div>
+      </div>
+      <!-- Grupo en tienda (variantes PICO) -->
+      <div style="margin-top:8px;background:var(--b50);border:1.5px solid var(--b200);border-radius:var(--rsm);padding:12px 13px;display:flex;flex-direction:column;gap:9px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--b500)"><i class="ti ti-layers-linked" style="margin-right:4px"></i>Grupo en tienda</div>
+        <div style="font-size:11px;color:var(--tm);margin-top:-4px">Variantes con el mismo groupId se muestran como un solo producto. Vacío = sin agrupar.</div>
+        <div class="field" style="margin:0"><label>groupId</label><input type="text" id="edit-group-id" placeholder="Vacío = sin grupo (ej. grp_…)" autocomplete="off"></div>
+        <div class="field" style="margin:0"><label>groupName (nombre base)</label><input type="text" id="edit-group-name" placeholder="Ej. Resistencias" maxlength="80" autocomplete="off"></div>
+        <div class="field" style="margin:0">
+          <label>groupKind</label>
+          <select id="edit-group-kind">
+            <option value="">Sin agrupar</option>
+            <option value="valor">Por valor</option>
+            <option value="color">Por color</option>
+          </select>
+        </div>
+        <div class="field" style="margin:0"><label>variantLabel</label><input type="text" id="edit-variant-label" placeholder="Ej. 330Ω o Rojo" maxlength="40" autocomplete="off"></div>
+        <div class="field" style="margin:0"><label>variantColor (hex, solo color)</label><input type="text" id="edit-variant-color" placeholder="#e53935" maxlength="7" autocomplete="off"></div>
+        <label style="display:flex;align-items:flex-start;gap:10px;background:var(--wh);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:9px 11px;cursor:pointer;user-select:none">
+          <input type="checkbox" id="edit-variant-enabled" checked style="margin-top:2px;width:15px;height:15px;accent-color:var(--b400);flex-shrink:0;cursor:pointer">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--tp)">Habilitada en tienda</div>
+            <div style="font-size:11px;color:var(--tm);margin-top:1px">Desactiva si no hay stock para que no aparezca seleccionable.</div>
+          </div>
+        </label>
       </div>
       <!-- Checkbox: afectar costos en estadisticas -->
       <label style="display:flex;align-items:flex-start;gap:10px;background:var(--w50);border:1.5px solid var(--w100);border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none;margin-top:4px">
@@ -2464,11 +2527,27 @@ function renderList(suc){
     }
     const descPct=parseDescuentoPct(p.descuentoPct);
     const descBadge=descPct>0?`<span class="badge badge-descuento-pct">−${descPct}%</span>`:'';
+    let groupBadge='';
+    let groupSub='';
+    if(p.groupId&&(p.groupKind==='valor'||p.groupKind==='color')){
+      const off=p.variantEnabled===false;
+      const kindLbl=p.groupKind==='color'?'Color':'Valor';
+      const hexOk=normalizeHexColor(p.variantColor);
+      const swatch=(p.groupKind==='color'&&hexOk)
+        ?`<span style="width:10px;height:10px;border-radius:50%;background:${hexOk};border:1px solid rgba(0,0,0,.15);display:inline-block;flex-shrink:0"></span>`
+        :'';
+      groupBadge=`<span class="badge ${off?'badge-group-off':'badge-group'}">${swatch}${kindLbl}${off?' · off':''}</span>`;
+      const gName=p.groupName||'';
+      const vLab=p.variantLabel||'';
+      if(gName||vLab){
+        groupSub=`<div class="card-group-sub">Grupo: ${esc(gName)}${vLab?' · '+esc(vLab):''}</div>`;
+      }
+    }
     return `<div class="product-card" onclick="openPM('${p.id}','${suc}')" style="${cardBg}">
       <div class="card-top">${p.imageUrl?`<img src="${esc(p.imageUrl)}" alt="" style="width:42px;height:42px;object-fit:contain;border-radius:6px;border:1px solid var(--b100);background:var(--b50);flex-shrink:0;margin-right:2px" onerror="this.style.display='none'">`:''}
-      <div style="flex:1"><div class="card-name">${esc(p.name)}</div></div>
+      <div style="flex:1"><div class="card-name">${esc(p.name)}</div>${groupSub}</div>
       <div class="card-actions"><button class="btn-icon btn-del-sm" onclick="event.stopPropagation();confirmDeleteDirect('${p.id}')"><i class="ti ti-trash"></i></button></div></div>
-      <div class="card-badges"><span class="badge ${sc}">${sl}</span><span class="badge badge-price">Precio ${fmt(p.price)}</span>${descBadge}${sucBadges}</div>
+      <div class="card-badges"><span class="badge ${sc}">${sl}</span><span class="badge badge-price">Precio ${fmt(p.price)}</span>${descBadge}${groupBadge}${sucBadges}</div>
     </div>`;
   }).join('');
 
@@ -2523,31 +2602,137 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
 });
 
-let variantCounters={exsal:0,cdb:0,total:0};
-function addVariantRow(suc){
+const COLOR_PRESETS=[
+  {name:'Rojo',hex:'#e53935'},
+  {name:'Naranja',hex:'#fb8c00'},
+  {name:'Amarillo',hex:'#fdd835'},
+  {name:'Verde',hex:'#43a047'},
+  {name:'Azul',hex:'#1e88e5'},
+  {name:'Violeta',hex:'#8e24aa'},
+  {name:'Negro',hex:'#212121'},
+  {name:'Blanco',hex:'#fafafa'},
+  {name:'Gris',hex:'#757575'},
+  {name:'Café',hex:'#6d4c41'}
+];
+function newGroupId(){
+  return 'grp_'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+}
+function normalizeHexColor(raw){
+  if(!raw)return'';
+  let h=String(raw).trim();
+  if(!h)return'';
+  if(h[0]!=='#')h='#'+h;
+  if(/^#[0-9A-Fa-f]{3}$/.test(h)){
+    h='#'+h[1]+h[1]+h[2]+h[2]+h[3]+h[3];
+  }
+  if(!/^#[0-9A-Fa-f]{6}$/.test(h))return'';
+  return h.toLowerCase();
+}
+function getGroupKind(suc){
+  const el=document.querySelector('input[name="'+suc+'-group-kind"]:checked');
+  return (el&&el.value==='color')?'color':'valor';
+}
+function onGroupKindChange(suc){
+  const rows=getVariantRows(suc);
   const list=document.getElementById(suc+'-variants-list');
   if(!list)return;
+  list.innerHTML='';
+  if(rows.length) rows.forEach(r=>addVariantRow(suc,r));
+  else addVariantRow(suc);
+}
+let variantCounters={exsal:0,cdb:0,total:0};
+function applyVariantColorPreset(suc,rowId,hex,label){
+  const row=document.getElementById(rowId);if(!row)return;
+  const hexNorm=normalizeHexColor(hex);
+  const hexInp=row.querySelector('.v-color-hex');
+  const pick=row.querySelector('.v-color-picker');
+  const lab=row.querySelector('.v-label');
+  if(hexInp)hexInp.value=hexNorm||hex;
+  if(pick&&hexNorm)pick.value=hexNorm;
+  if(lab&&label&&!lab.value.trim())lab.value=label;
+  row.querySelectorAll('.variant-swatch').forEach(btn=>{
+    btn.classList.toggle('active',normalizeHexColor(btn.dataset.hex)===hexNorm);
+  });
+}
+function syncVariantColorInputs(row,from){
+  if(!row)return;
+  const hexInp=row.querySelector('.v-color-hex');
+  const pick=row.querySelector('.v-color-picker');
+  if(!hexInp||!pick)return;
+  if(from==='picker'){
+    hexInp.value=pick.value;
+  } else {
+    const n=normalizeHexColor(hexInp.value);
+    if(n){hexInp.value=n;pick.value=n;}
+  }
+  const hexNorm=normalizeHexColor(hexInp.value);
+  row.querySelectorAll('.variant-swatch').forEach(btn=>{
+    btn.classList.toggle('active',normalizeHexColor(btn.dataset.hex)===hexNorm);
+  });
+}
+function addVariantRow(suc,preset){
+  const list=document.getElementById(suc+'-variants-list');
+  if(!list)return;
+  const kind=getGroupKind(suc);
   const idx=variantCounters[suc]++;
+  const rowId=suc+'-vrow-'+idx;
+  const p=preset||{};
+  const label=p.label||'';
+  const imageUrl=p.imageUrl||'';
+  const color=normalizeHexColor(p.color)||'#e53935';
+  const enabled=p.enabled!==false;
   const row=document.createElement('div');
-  row.id=suc+'-vrow-'+idx;
-  row.style.cssText='display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center';
-  row.innerHTML=`<input type="text" placeholder="Ej. 1k, 10k, 1M…" maxlength="40" autocomplete="off"
-    style="background:var(--wh);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:8px 11px;font-size:13px;font-family:inherit;color:var(--tp);outline:none;width:100%">
-    <button type="button" onclick="removeVariantRow('${suc}','${suc}-vrow-${idx}')"
-      style="width:28px;height:28px;background:var(--r50);border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--r600);flex-shrink:0">
-      <i class="ti ti-x" style="font-size:13px"></i>
-    </button>`;
+  row.id=rowId;
+  row.className='variant-row';
+  const ph=kind==='color'?'Ej. Rojo, Azul…':'Ej. 330Ω, 1k, 10k…';
+  const swatches=COLOR_PRESETS.map(c=>
+    `<button type="button" class="variant-swatch${normalizeHexColor(c.hex)===color?' active':''}" title="${c.name}" data-hex="${c.hex}"
+      onclick="applyVariantColorPreset('${suc}','${rowId}','${c.hex}','${c.name}')"
+      style="background:${c.hex}${c.hex==='#fafafa'?';box-shadow:inset 0 0 0 1px #ccc':''}"></button>`
+  ).join('');
+  row.innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center">
+      <input type="text" class="v-label" placeholder="${ph}" maxlength="40" autocomplete="off" value="${esc(label)}">
+      <button type="button" onclick="removeVariantRow('${suc}','${rowId}')"
+        style="width:28px;height:28px;background:var(--r50);border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--r600);flex-shrink:0">
+        <i class="ti ti-x" style="font-size:13px"></i>
+      </button>
+    </div>
+    <div class="v-color-wrap" style="display:${kind==='color'?'flex':'none'};flex-direction:column;gap:6px">
+      <div class="variant-color-swatches">${swatches}</div>
+      <div style="display:grid;grid-template-columns:42px 1fr;gap:6px;align-items:center">
+        <input type="color" class="v-color-picker" value="${color}" style="padding:2px;height:34px;cursor:pointer" oninput="syncVariantColorInputs(this.closest('.variant-row'),'picker')">
+        <input type="text" class="v-color-hex" placeholder="#e53935" maxlength="7" autocomplete="off" value="${color}" oninput="syncVariantColorInputs(this.closest('.variant-row'),'hex')">
+      </div>
+    </div>
+    <input type="url" class="v-image" placeholder="URL de imagen de esta variante (opcional)" autocomplete="off" value="${esc(imageUrl)}">
+    <label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--tp);cursor:pointer;user-select:none">
+      <input type="checkbox" class="v-enabled" ${enabled?'checked':''} style="margin-top:1px;width:14px;height:14px;accent-color:var(--b400);flex-shrink:0;cursor:pointer">
+      <span>Habilitada en tienda <span style="color:var(--tm)">(desactiva si no hay stock)</span></span>
+    </label>`;
   list.appendChild(row);
-  row.querySelector('input').focus();
+  const focusEl=row.querySelector('.v-label');
+  if(focusEl&&!preset) focusEl.focus();
 }
 function removeVariantRow(suc,rowId){
   const row=document.getElementById(rowId);
   if(row)row.remove();
 }
-function getVariantSuffixes(suc){
+function getVariantRows(suc){
   const list=document.getElementById(suc+'-variants-list');
   if(!list)return[];
-  return [...list.querySelectorAll('input')].map(i=>i.value.trim()).filter(Boolean);
+  return [...list.querySelectorAll('.variant-row')].map(row=>{
+    const label=((row.querySelector('.v-label')||{}).value||'').trim();
+    const imageUrl=((row.querySelector('.v-image')||{}).value||'').trim();
+    const color=normalizeHexColor(((row.querySelector('.v-color-hex')||{}).value||''));
+    const enEl=row.querySelector('.v-enabled');
+    const enabled=enEl?!!enEl.checked:true;
+    return {label,imageUrl,color,enabled};
+  }).filter(r=>r.label);
+}
+/** Alias: etiquetas de variante (compat). */
+function getVariantSuffixes(suc){
+  return getVariantRows(suc).map(r=>r.label);
 }
 
 // ── AGREGAR PRODUCTOS ──
@@ -2571,15 +2756,26 @@ async function addProduct(suc){
   err.textContent='';
 
   if(hasVariants){
-    // Modo variantes: crear un producto por cada variante
-    const suffixes=getVariantSuffixes(suc);
-    if(!suffixes.length){err.textContent='Agrega al menos una variante o desmarca la casilla.';return;}
+    // Modo variantes: crear un grupo enlazado (mismo groupId) para la tienda PICO
+    const rows=getVariantRows(suc);
+    if(!rows.length){err.textContent='Agrega al menos una variante o desmarca la casilla.';return;}
+    const groupKind=getGroupKind(suc);
+    if(groupKind==='color'&&rows.some(r=>!r.color)){
+      err.textContent='Cada variante de color necesita un hex válido (ej. #e53935).';return;
+    }
     try{
       const batch=db.batch();
-      suffixes.forEach(sfx=>{
-        const vname=name+' '+sfx;
-        const data={name:vname,desc,cost,price,stockExsal:0,stockCdb:0,createdAt:Date.now(),updatedAt:Date.now()};
-        if(imageUrl) data.imageUrl=imageUrl;
+      const groupId=newGroupId();
+      const now=Date.now();
+      rows.forEach(row=>{
+        const vname=name+' '+row.label;
+        const data={
+          name:vname,desc,cost,price,stockExsal:0,stockCdb:0,createdAt:now,updatedAt:now,
+          groupId,groupName:name,groupKind,variantLabel:row.label,variantEnabled:row.enabled!==false
+        };
+        if(groupKind==='color') data.variantColor=row.color;
+        const img=(row.imageUrl||imageUrl||'').trim();
+        if(img) data.imageUrl=img;
         if(categoria) data.categoria=categoria;
         if(suc==='exsal') data.stockExsal=stock;
         else data.stockCdb=stock;
@@ -2592,9 +2788,11 @@ async function addProduct(suc){
       const wrap=document.getElementById(pre+'variants-wrap');if(wrap)wrap.style.display='none';
       const list=document.getElementById(suc+'-variants-list');if(list)list.innerHTML='';
       variantCounters[suc]=0;
+      const kindRadio=document.querySelector('input[name="'+suc+'-group-kind"][value="valor"]');
+      if(kindRadio)kindRadio.checked=true;
       previewImg(suc);
       document.getElementById(pre+'name').focus();
-      showToast(suffixes.length+' variantes de "'+name+'" agregadas','ti-layers-subtract');
+      showToast(rows.length+' variantes agrupadas de "'+name+'"','ti-layers-subtract');
     }catch(e){showToast('Error al guardar','ti-alert-circle');}
   } else {
     // Modo normal: un solo producto
@@ -2645,14 +2843,25 @@ async function addProductTotal(){
   err.textContent='';
 
   if(hasVariants){
-    const suffixes=getVariantSuffixes('total');
-    if(!suffixes.length){err.textContent='Agrega al menos una variante o desmarca la casilla.';return;}
+    const rows=getVariantRows('total');
+    if(!rows.length){err.textContent='Agrega al menos una variante o desmarca la casilla.';return;}
+    const groupKind=getGroupKind('total');
+    if(groupKind==='color'&&rows.some(r=>!r.color)){
+      err.textContent='Cada variante de color necesita un hex válido (ej. #e53935).';return;
+    }
     try{
       const batch=db.batch();
-      suffixes.forEach(sfx=>{
-        const vname=name+' '+sfx;
-        const data={name:vname,desc,cost,price,stockExsal:0,stockCdb:0,createdAt:Date.now(),updatedAt:Date.now()};
-        if(imageUrl) data.imageUrl=imageUrl;
+      const groupId=newGroupId();
+      const now=Date.now();
+      rows.forEach(row=>{
+        const vname=name+' '+row.label;
+        const data={
+          name:vname,desc,cost,price,stockExsal:0,stockCdb:0,createdAt:now,updatedAt:now,
+          groupId,groupName:name,groupKind,variantLabel:row.label,variantEnabled:row.enabled!==false
+        };
+        if(groupKind==='color') data.variantColor=row.color;
+        const img=(row.imageUrl||imageUrl||'').trim();
+        if(img) data.imageUrl=img;
         if(categoria) data.categoria=categoria;
         if(suc==='exsal'){data.stockExsal=stock;}else{data.stockCdb=stock;}
         if(descuentoPct>0) applyDescuentoPctToData(data,descuentoPct);
@@ -2664,9 +2873,11 @@ async function addProductTotal(){
       const wrap=document.getElementById('total-f-variants-wrap');if(wrap)wrap.style.display='none';
       const list=document.getElementById('total-variants-list');if(list)list.innerHTML='';
       variantCounters['total']=0;
+      const kindRadio=document.querySelector('input[name="total-group-kind"][value="valor"]');
+      if(kindRadio)kindRadio.checked=true;
       previewImg('total');
       document.getElementById('total-f-name').focus();
-      showToast(suffixes.length+' variantes de "'+name+'" agregadas','ti-layers-subtract');
+      showToast(rows.length+' variantes agrupadas de "'+name+'"','ti-layers-subtract');
     }catch(e){showToast('Error al guardar','ti-alert-circle');}
   } else {
     const data={name,desc,cost,price,stockExsal:0,stockCdb:0,createdAt:Date.now(),updatedAt:Date.now()};
@@ -3597,6 +3808,19 @@ function openEditModal(){
   const ordEl=document.getElementById('edit-orden');
   if(ordEl) ordEl.value=(typeof p.orden==='number'&&isFinite(p.orden))?p.orden:'';
   document.getElementById('edit-error').textContent='';
+  // Grupo en tienda
+  const gidEl=document.getElementById('edit-group-id');
+  const gnameEl=document.getElementById('edit-group-name');
+  const gkindEl=document.getElementById('edit-group-kind');
+  const vlabEl=document.getElementById('edit-variant-label');
+  const vcolEl=document.getElementById('edit-variant-color');
+  const venEl=document.getElementById('edit-variant-enabled');
+  if(gidEl) gidEl.value=p.groupId||'';
+  if(gnameEl) gnameEl.value=p.groupName||'';
+  if(gkindEl) gkindEl.value=(p.groupKind==='valor'||p.groupKind==='color')?p.groupKind:'';
+  if(vlabEl) vlabEl.value=p.variantLabel||'';
+  if(vcolEl) vcolEl.value=p.variantColor||'';
+  if(venEl) venEl.checked=p.variantEnabled!==false;
   // Mostrar preview si hay imagen
   const prev=document.getElementById('edit-imgpreview');
   const thumb=document.getElementById('edit-imgthumb');
@@ -3639,6 +3863,35 @@ async function saveEdit(){
   // Orden manual en tienda: número, o borrar el campo si se dejó vacío (automático)
   updateData.orden = (orden===null) ? firebase.firestore.FieldValue.delete() : orden;
   applyDescuentoPctToData(updateData,descuentoPct);
+  // Grupo en tienda
+  const groupId=((document.getElementById('edit-group-id')||{}).value||'').trim();
+  const groupName=((document.getElementById('edit-group-name')||{}).value||'').trim();
+  const groupKind=((document.getElementById('edit-group-kind')||{}).value||'').trim();
+  const variantLabel=((document.getElementById('edit-variant-label')||{}).value||'').trim();
+  const variantColorRaw=((document.getElementById('edit-variant-color')||{}).value||'').trim();
+  const variantEnabled=(document.getElementById('edit-variant-enabled')||{checked:true}).checked;
+  const DEL=firebase.firestore.FieldValue.delete();
+  if(groupId&&(groupKind==='valor'||groupKind==='color')){
+    if(groupKind==='color'){
+      const hex=normalizeHexColor(variantColorRaw);
+      if(!hex){err.textContent='variantColor inválido: usa un hex (#rrggbb) para grupos por color.';return;}
+      updateData.variantColor=hex;
+    } else {
+      updateData.variantColor=DEL;
+    }
+    updateData.groupId=groupId;
+    updateData.groupName=groupName||name;
+    updateData.groupKind=groupKind;
+    updateData.variantLabel=variantLabel;
+    updateData.variantEnabled=!!variantEnabled;
+  } else {
+    updateData.groupId=DEL;
+    updateData.groupName=DEL;
+    updateData.groupKind=DEL;
+    updateData.variantLabel=DEL;
+    updateData.variantColor=DEL;
+    updateData.variantEnabled=DEL;
+  }
   try{
     const batch=db.batch();
     batch.update(db.collection("productos").doc(activePid),updateData);
