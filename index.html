@@ -2490,7 +2490,14 @@ function startListeners(){
     renderAllGroupBuilders();
     if(activePid&&activeSucursal){
       const ap=products.find(x=>x.id===activePid);
-      if(ap) document.getElementById('pm-stock-num').textContent=getStock(ap,activeSucursal);
+      if(ap){
+        document.getElementById('pm-stock-num').textContent=getStock(ap,activeSucursal);
+        if(typeof renderPmGroupManage==='function') renderPmGroupManage(activePid);
+      } else {
+        // Producto eliminado mientras el modal estaba abierto
+        const wrap=document.getElementById('pm-group-manage');
+        if(wrap) wrap.style.display='none';
+      }
     }
   },()=>setSave('error','Error de conexión'));
 
