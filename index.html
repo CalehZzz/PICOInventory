@@ -3392,6 +3392,7 @@ async function createProductGroup(suc){
       const groupId=newGroupId();
       const now=Date.now();
       rows.forEach(r=>{
+        // Conserva el nombre del producto; la tienda usa groupName + variantLabel
         const upd={
           groupId,
           groupName,
@@ -3400,7 +3401,6 @@ async function createProductGroup(suc){
           variantEnabled:true,
           groupColors:firebase.firestore.FieldValue.delete(),
           variantColor:firebase.firestore.FieldValue.delete(),
-          name:groupName+' '+r.label,
           updatedAt:now
         };
         if(groupDesc) upd.groupDesc=groupDesc;
@@ -3453,7 +3453,6 @@ async function createProductGroup(suc){
           variantColor:r.hex,
           variantEnabled:true,
           groupColors:DEL,
-          name:groupName+' '+r.label,
           updatedAt:now
         };
         if(groupDesc){ upd.groupDesc=groupDesc; upd.desc=groupDesc; }
@@ -3494,7 +3493,7 @@ async function createProductGroup(suc){
       groupName,
       groupKind:'color',
       groupColors,
-      name:groupName,
+      // No renombrar: el producto conserva su name
       variantLabel:DEL,
       variantColor:DEL,
       variantEnabled:DEL,
@@ -3708,14 +3707,44 @@ async function purgeProduct(id){
 }
 function confirmDeleteFromModal(){openDelModal(activePid,()=>{doDelete(activePid);closePM();});}
 
-/** Limpia campos de grupo en Firestore (producto sigue existiendo). */
-async function clearProductGroupFields(id){
+/** Nombre a conservar al agrupar (para restaurar al desagrupar). */
+function pickNameOriginal(p){
+  if(!p) return '';
+  const orig=String(p.nameOriginal||'').trim();
+  if(orig) return orig;
+  return String(p.name||'').trim();
+}
+
+/** Update Firestore + caché local al quitar campos de grupo (restaura name). */
+function buildUngroupUpdate(p){
   const DEL=firebase.firestore.FieldValue.delete();
-  await db.collection('productos').doc(id).update({
+  const upd={
     groupId:DEL,groupName:DEL,groupKind:DEL,groupDesc:DEL,
     variantLabel:DEL,variantColor:DEL,variantEnabled:DEL,
-    groupColors:DEL,updatedAt:Date.now()
-  });
+    groupColors:DEL,nameOriginal:DEL,updatedAt:Date.now()
+  };
+  const orig=p && String(p.nameOriginal||'').trim();
+  if(orig) upd.name=orig;
+  return upd;
+}
+function applyLocalUngroup(p, upd){
+  if(!p) return;
+  delete p.groupId; delete p.groupName; delete p.groupKind; delete p.groupDesc;
+  delete p.variantLabel; delete p.variantColor; delete p.variantEnabled; delete p.groupColors;
+  delete p.nameOriginal;
+  if(upd && upd.name) p.name=upd.name;
+  if(activePid===p.id){
+    const el=document.getElementById('pm-name');
+    if(el) el.textContent=p.name||'';
+  }
+}
+
+/** Limpia campos de grupo en Firestore (producto sigue existiendo; restaura nombre). */
+async function clearProductGroupFields(id){
+  const p=products.find(x=>x.id===id);
+  const upd=buildUngroupUpdate(p||{});
+  await db.collection('productos').doc(id).update(upd);
+  applyLocalUngroup(p, upd);
 }
 
 async function ungroupCurrentProduct(){
@@ -3726,10 +3755,10 @@ async function ungroupCurrentProduct(){
     if(!confirm('¿Sacar "'+p.name+'" del grupo?\n\nLas demás opciones del grupo se mantienen. Este producto NO se elimina.')) return;
   }
   try{
+    const hadOrig=!!(p.nameOriginal&&String(p.nameOriginal).trim());
     await clearProductGroupFields(p.id);
-    showToast('Producto sacado del grupo','ti-unlink');
+    showToast(hadOrig?'Sacado del grupo · nombre restaurado':'Producto sacado del grupo','ti-unlink');
     renderPmGroupManage(p.id);
-    // refrescar botones
     const ug=document.getElementById('pm-btn-ungroup');
     if(ug) ug.style.display='none';
   }catch(e){console.error(e);showToast('Error al sacar del grupo','ti-alert-circle');}
@@ -3739,8 +3768,9 @@ async function ungroupProductById(id){
   const p=products.find(x=>x.id===id);if(!p||!p.groupId)return;
   if(!confirm('¿Sacar "'+p.name+'" del grupo?\n\nNo se elimina el producto. El resto del grupo sigue.')) return;
   try{
+    const hadOrig=!!(p.nameOriginal&&String(p.nameOriginal).trim());
     await clearProductGroupFields(id);
-    showToast('Sacado del grupo','ti-unlink');
+    showToast(hadOrig?'Sacado del grupo · nombre restaurado':'Sacado del grupo','ti-unlink');
     if(activePid) renderPmGroupManage(activePid);
   }catch(e){console.error(e);showToast('Error al sacar del grupo','ti-alert-circle');}
 }
@@ -3777,8 +3807,6 @@ async function removeColorOptionFromProduct(pid, colorIdx){
   try{
     if(!cols.length){
       await clearProductGroupFields(pid);
-      const local=products.find(x=>x.id===pid);
-      if(local){delete local.groupId;delete local.groupName;delete local.groupKind;delete local.groupColors;}
       showToast('Último color quitado · producto sin grupo','ti-unlink');
     } else {
       const cleaned=_normalizeGroupColors(cols);
@@ -3915,23 +3943,15 @@ async function ungroupEntireGroup(groupId){
     const siblings=products.filter(x=>x.groupId===groupId);
     if(!siblings.length){showToast('Grupo no encontrado','ti-alert-circle');return;}
     const batch=db.batch();
-    const DEL=firebase.firestore.FieldValue.delete();
-    const now=Date.now();
-    siblings.forEach(s=>{
-      batch.update(db.collection('productos').doc(s.id),{
-        groupId:DEL,groupName:DEL,groupKind:DEL,groupDesc:DEL,
-        variantLabel:DEL,variantColor:DEL,variantEnabled:DEL,
-        groupColors:DEL,updatedAt:now
-      });
+    const updates=siblings.map(s=>{
+      const upd=buildUngroupUpdate(s);
+      batch.update(db.collection('productos').doc(s.id),upd);
+      return {s,upd};
     });
     await batch.commit();
-    // Actualiza caché local
-    siblings.forEach(s=>{
-      delete s.groupId; delete s.groupName; delete s.groupKind; delete s.groupDesc;
-      delete s.variantLabel; delete s.variantColor; delete s.variantEnabled; delete s.groupColors;
-    });
+    updates.forEach(({s,upd})=>applyLocalUngroup(s,upd));
     closePM();
-    showToast('Grupo desagrupado · productos intactos','ti-unlink');
+    showToast('Grupo desagrupado · nombres restaurados','ti-unlink');
   }catch(e){console.error(e);showToast('Error al desagrupar el grupo','ti-alert-circle');}
 }
 
@@ -4950,6 +4970,10 @@ async function saveEdit(){
         updateData.variantLabel=DEL;
         updateData.variantColor=DEL;
         updateData.variantEnabled=DEL;
+        updateData.nameOriginal=DEL;
+        if(oldProd && oldProd.nameOriginal && name===oldProd.name){
+          updateData.name=String(oldProd.nameOriginal).trim();
+        }
       } else {
         updateData.groupColors=cols;
         updateData.variantLabel=DEL;
@@ -4981,6 +5005,11 @@ async function saveEdit(){
     updateData.variantColor=DEL;
     updateData.variantEnabled=DEL;
     updateData.groupColors=DEL;
+    updateData.nameOriginal=DEL;
+    // Si el nombre del form sigue siendo el de grupo, restaurar el original
+    if(oldProd && oldProd.nameOriginal && name===oldProd.name){
+      updateData.name=String(oldProd.nameOriginal).trim();
+    }
   }
   try{
     const batch=db.batch();
