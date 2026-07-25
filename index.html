@@ -2687,7 +2687,26 @@ function renderList(suc){
     if((sa===0)!==(sb===0)) return sa===0?1:-1;
     return sortAsc[suc]?a.createdAt-b.createdAt:b.createdAt-a.createdAt;
   });
-  if(q) list=list.filter(p=>p.name.toLowerCase().includes(q)||(p.desc&&p.desc.toLowerCase().includes(q)));
+  if(q){
+    list=list.filter(p=>{
+      const name=(p.name||'').toLowerCase();
+      const desc=(p.desc||'').toLowerCase();
+      if(name.includes(q)||desc.includes(q)) return true;
+      // Color: un solo producto raíz; también encuentra por nombre de color
+      if(p.groupKind==='color'){
+        const gName=(p.groupName||'').toLowerCase();
+        if(gName.includes(q)) return true;
+        const cols=Array.isArray(p.groupColors)?p.groupColors:[];
+        return cols.some(c=>c&&c.enabled!==false&&String(c.label||'').toLowerCase().includes(q));
+      }
+      if(p.groupKind==='valor'){
+        const gName=(p.groupName||'').toLowerCase();
+        const vLab=(p.variantLabel||'').toLowerCase();
+        return gName.includes(q)||vLab.includes(q);
+      }
+      return false;
+    });
+  }
 
   const area=document.getElementById(suc+'-list-area');
   const cnt=document.getElementById(suc+'-list-count');
@@ -2719,35 +2738,23 @@ function renderList(suc){
     }
     const descPct=parseDescuentoPct(p.descuentoPct);
     const descBadge=descPct>0?`<span class="badge badge-descuento-pct">−${descPct}%</span>`:'';
-    let groupBadge='';
-    let groupSub='';
-    if(p.groupId&&(p.groupKind==='valor'||p.groupKind==='color')){
-      if(p.groupKind==='color'){
-        const cols=Array.isArray(p.groupColors)?p.groupColors:[];
-        const enabledCols=cols.filter(c=>c&&c.enabled!==false);
-        const swatches=enabledCols.slice(0,5).map(c=>{
+    // Color: solo raíz + circulitos de colores (sin texto "grupo"/"color")
+    let colorDots='';
+    if(p.groupKind==='color'&&Array.isArray(p.groupColors)){
+      const enabledCols=p.groupColors.filter(c=>c&&c.enabled!==false);
+      if(enabledCols.length){
+        colorDots=`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">${enabledCols.map(c=>{
           const hx=normalizeHexColor(c.color);
-          return hx?`<span style="width:10px;height:10px;border-radius:50%;background:${hx};border:1px solid rgba(0,0,0,.15);display:inline-block;flex-shrink:0"></span>`:'';
-        }).join('');
-        groupBadge=`<span class="badge badge-group">${swatches}Color${cols.length?' · '+cols.length:''}</span>`;
-        const gName=p.groupName||p.name||'';
-        const labels=enabledCols.map(c=>c.label).filter(Boolean).join(', ');
-        groupSub=`<div class="card-group-sub">Grupo: ${esc(gName)}${labels?' · '+esc(labels):''}</div>`;
-      } else {
-        const off=p.variantEnabled===false;
-        groupBadge=`<span class="badge ${off?'badge-group-off':'badge-group'}">Valor${off?' · off':''}</span>`;
-        const gName=p.groupName||'';
-        const vLab=p.variantLabel||'';
-        if(gName||vLab){
-          groupSub=`<div class="card-group-sub">Grupo: ${esc(gName)}${vLab?' · '+esc(vLab):''}</div>`;
-        }
+          if(!hx) return '';
+          return `<span title="${esc(c.label||'')}" style="width:12px;height:12px;border-radius:50%;background:${hx};border:1px solid rgba(0,0,0,.15);display:inline-block;flex-shrink:0${hx==='#fafafa'?';box-shadow:inset 0 0 0 1px #ccc':''}"></span>`;
+        }).join('')}</div>`;
       }
     }
     return `<div class="product-card" onclick="openPM('${p.id}','${suc}')" style="${cardBg}">
       <div class="card-top">${p.imageUrl?`<img src="${esc(p.imageUrl)}" alt="" style="width:42px;height:42px;object-fit:contain;border-radius:6px;border:1px solid var(--b100);background:var(--b50);flex-shrink:0;margin-right:2px" onerror="this.style.display='none'">`:''}
-      <div style="flex:1"><div class="card-name">${esc(p.name)}</div>${groupSub}</div>
+      <div style="flex:1"><div class="card-name">${esc(p.name)}</div>${colorDots}</div>
       <div class="card-actions"><button class="btn-icon btn-del-sm" onclick="event.stopPropagation();confirmDeleteDirect('${p.id}')"><i class="ti ti-trash"></i></button></div></div>
-      <div class="card-badges"><span class="badge ${sc}">${sl}</span><span class="badge badge-price">Precio ${fmt(p.price)}</span>${descBadge}${groupBadge}${sucBadges}</div>
+      <div class="card-badges"><span class="badge ${sc}">${sl}</span><span class="badge badge-price">Precio ${fmt(p.price)}</span>${descBadge}${sucBadges}</div>
     </div>`;
   }).join('');
 
@@ -2884,7 +2891,6 @@ function renderGroupValorList(suc){
     return `<label class="group-prod-item ${on?'selected':''}">
       <input type="checkbox" ${on?'checked':''} onchange="toggleGroupValorProduct('${suc}','${p.id}',this.checked)">
       <span>${esc(p.name||'')}</span>
-      ${p.groupId?'<span class="badge badge-group" style="margin-left:auto">Ya en grupo</span>':''}
     </label>`;
   }).join('');
 }
