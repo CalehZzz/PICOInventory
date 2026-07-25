@@ -200,11 +200,18 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .group-selected-row .gs-name{font-size:12.5px;font-weight:600;color:var(--tp);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .group-selected-row input{background:var(--wh);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:6px 9px;font-size:12.5px;font-family:inherit;color:var(--tp);outline:none;width:100%;box-sizing:border-box}
 .group-color-chips{display:flex;flex-wrap:wrap;gap:7px}
-.group-color-chip{display:inline-flex;align-items:center;gap:7px;border:1.5px solid var(--b100);background:var(--wh);border-radius:999px;padding:6px 11px 6px 8px;font-size:12.5px;font-weight:600;color:var(--tp);cursor:pointer;user-select:none;font-family:inherit}
+.group-color-chip{display:inline-flex;align-items:center;gap:7px;border:1.5px solid var(--b100);background:var(--wh);border-radius:999px;padding:6px 11px 6px 8px;font-size:12.5px;font-weight:600;color:var(--tp);cursor:pointer;user-select:none;font-family:inherit;transition:none;transform:none;animation:none}
 .group-color-chip .dot{width:14px;height:14px;border-radius:50%;border:1px solid rgba(0,0,0,.15);flex-shrink:0}
-.group-color-chip.on{border-color:var(--b400);background:linear-gradient(135deg,var(--b50),#dbeafe);color:var(--b600)}
+.group-color-chip.on{border-color:var(--b400);background:var(--b50);color:var(--b600)}
 .group-color-chip .chk{font-size:13px;color:var(--b400)}
-@media(max-width:700px){.group-selected-row{grid-template-columns:1fr;}}
+.group-color-detail{display:flex;flex-direction:column;gap:7px;margin-top:8px}
+.group-color-detail-row{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:8px 10px}
+.group-color-detail-row .gcd-lab{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;color:var(--tp);white-space:nowrap}
+.group-color-detail-row input[type=url]{background:var(--wh);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:6px 9px;font-size:12.5px;font-family:inherit;color:var(--tp);outline:none;width:100%;box-sizing:border-box}
+.edit-color-rows{display:flex;flex-direction:column;gap:7px}
+.edit-color-row{display:flex;flex-direction:column;gap:6px;background:var(--wh);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:9px 10px}
+.edit-color-row-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+@media(max-width:700px){.group-selected-row{grid-template-columns:1fr;}.group-color-detail-row{grid-template-columns:1fr;}}
 .pm-price-val .badge-descuento-pct{font-size:12px;vertical-align:middle;margin-left:8px}
 .card-actions{display:flex;gap:5px;flex-shrink:0}
 .btn-icon{width:29px;height:29px;background:none;border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:background var(--tr),color var(--tr);color:var(--tm)}
@@ -843,7 +850,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
               <input type="radio" name="exsal-grp-kind" value="color" onchange="onGrpBuilderKindChange('exsal')">
               <div>
                 <div style="font-size:13px;font-weight:700;color:var(--tp)">Por color</div>
-                <div style="font-size:11px;color:var(--tm);margin-top:2px">Elige un producto y marca los colores disponibles.</div>
+                <div style="font-size:11px;color:var(--tm);margin-top:2px">Un solo producto: marcas colores (mismo stock). Sin crear extras.</div>
               </div>
             </label>
           </div>
@@ -890,7 +897,8 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
           <div class="field" style="margin:0">
             <label>Colores disponibles</label>
             <div class="group-color-chips" id="exsal-grp-color-chips"></div>
-            <div style="font-size:10.5px;color:var(--tm);margin-top:6px">Toca los colores que existen. El producto elegido se convierte en el primero; el resto se crean con el mismo precio/costo.</div>
+            <div class="group-color-detail" id="exsal-grp-color-detail"></div>
+            <div style="font-size:10.5px;color:var(--tm);margin-top:6px">No se crean productos nuevos: el stock es el del producto original. Si se acaba un color, desactívalo al editar. La URL de imagen por color es opcional.</div>
           </div>
         </div>
 
@@ -969,7 +977,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
               <input type="radio" name="cdb-grp-kind" value="color" onchange="onGrpBuilderKindChange('cdb')">
               <div>
                 <div style="font-size:13px;font-weight:700;color:var(--tp)">Por color</div>
-                <div style="font-size:11px;color:var(--tm);margin-top:2px">Elige un producto y marca los colores disponibles.</div>
+                <div style="font-size:11px;color:var(--tm);margin-top:2px">Un solo producto: marcas colores (mismo stock). Sin crear extras.</div>
               </div>
             </label>
           </div>
@@ -1016,7 +1024,8 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
           <div class="field" style="margin:0">
             <label>Colores disponibles</label>
             <div class="group-color-chips" id="cdb-grp-color-chips"></div>
-            <div style="font-size:10.5px;color:var(--tm);margin-top:6px">Toca los colores que existen. El producto elegido se convierte en el primero; el resto se crean con el mismo precio/costo.</div>
+            <div class="group-color-detail" id="cdb-grp-color-detail"></div>
+            <div style="font-size:10.5px;color:var(--tm);margin-top:6px">No se crean productos nuevos: el stock es el del producto original. Si se acaba un color, desactívalo al editar. La URL de imagen por color es opcional.</div>
           </div>
         </div>
 
@@ -1102,7 +1111,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
               <input type="radio" name="total-grp-kind" value="color" onchange="onGrpBuilderKindChange('total')">
               <div>
                 <div style="font-size:13px;font-weight:700;color:var(--tp)">Por color</div>
-                <div style="font-size:11px;color:var(--tm);margin-top:2px">Elige un producto y marca los colores disponibles.</div>
+                <div style="font-size:11px;color:var(--tm);margin-top:2px">Un solo producto: marcas colores (mismo stock). Sin crear extras.</div>
               </div>
             </label>
           </div>
@@ -1149,7 +1158,8 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
           <div class="field" style="margin:0">
             <label>Colores disponibles</label>
             <div class="group-color-chips" id="total-grp-color-chips"></div>
-            <div style="font-size:10.5px;color:var(--tm);margin-top:6px">Toca los colores que existen. El producto elegido se convierte en el primero; el resto se crean con el mismo precio/costo.</div>
+            <div class="group-color-detail" id="total-grp-color-detail"></div>
+            <div style="font-size:10.5px;color:var(--tm);margin-top:6px">No se crean productos nuevos: el stock es el del producto original. Si se acaba un color, desactívalo al editar. La URL de imagen por color es opcional.</div>
           </div>
         </div>
 
@@ -1829,21 +1839,28 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
         <div class="field" style="margin:0"><label>Nombre del grupo</label><input type="text" id="edit-group-name" placeholder="Ej. Resistencias" maxlength="80" autocomplete="off"></div>
         <div class="field" style="margin:0">
           <label>Tipo</label>
-          <select id="edit-group-kind">
+          <select id="edit-group-kind" onchange="onEditGroupKindChange()">
             <option value="">Sin agrupar</option>
             <option value="valor">Por valor</option>
             <option value="color">Por color</option>
           </select>
         </div>
-        <div class="field" style="margin:0"><label>Etiqueta de esta opción</label><input type="text" id="edit-variant-label" placeholder="Ej. 330Ω o Rojo" maxlength="40" autocomplete="off"></div>
-        <div class="field" style="margin:0"><label>Color (hex, solo si es por color)</label><input type="text" id="edit-variant-color" placeholder="#e53935" maxlength="7" autocomplete="off"></div>
-        <label style="display:flex;align-items:flex-start;gap:10px;background:var(--wh);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:9px 11px;cursor:pointer;user-select:none">
-          <input type="checkbox" id="edit-variant-enabled" checked style="margin-top:2px;width:15px;height:15px;accent-color:var(--b400);flex-shrink:0;cursor:pointer">
-          <div>
-            <div style="font-size:13px;font-weight:600;color:var(--tp)">Visible en tienda</div>
-            <div style="font-size:11px;color:var(--tm);margin-top:1px">Desactiva si no hay stock para que no se pueda elegir.</div>
-          </div>
-        </label>
+        <div id="edit-group-valor-fields">
+          <div class="field" style="margin:0"><label>Etiqueta de esta opción</label><input type="text" id="edit-variant-label" placeholder="Ej. 330Ω" maxlength="40" autocomplete="off"></div>
+          <label style="display:flex;align-items:flex-start;gap:10px;background:var(--wh);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:9px 11px;cursor:pointer;user-select:none;margin-top:8px">
+            <input type="checkbox" id="edit-variant-enabled" checked style="margin-top:2px;width:15px;height:15px;accent-color:var(--b400);flex-shrink:0;cursor:pointer">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--tp)">Visible en tienda</div>
+              <div style="font-size:11px;color:var(--tm);margin-top:1px">Desactiva si no hay stock para que no se pueda elegir.</div>
+            </div>
+          </label>
+        </div>
+        <div id="edit-group-color-fields" style="display:none">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--tm);margin-bottom:4px">Colores del producto</div>
+          <div style="font-size:11px;color:var(--tm);margin-bottom:6px">Mismo stock para todos. Desactiva un color si se acabó.</div>
+          <div class="edit-color-rows" id="edit-group-colors"></div>
+        </div>
+        <input type="hidden" id="edit-variant-color" value="">
       </div>
       <!-- Checkbox: afectar costos en estadisticas -->
       <label style="display:flex;align-items:flex-start;gap:10px;background:var(--w50);border:1.5px solid var(--w100);border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none;margin-top:4px">
@@ -2705,17 +2722,25 @@ function renderList(suc){
     let groupBadge='';
     let groupSub='';
     if(p.groupId&&(p.groupKind==='valor'||p.groupKind==='color')){
-      const off=p.variantEnabled===false;
-      const kindLbl=p.groupKind==='color'?'Color':'Valor';
-      const hexOk=normalizeHexColor(p.variantColor);
-      const swatch=(p.groupKind==='color'&&hexOk)
-        ?`<span style="width:10px;height:10px;border-radius:50%;background:${hexOk};border:1px solid rgba(0,0,0,.15);display:inline-block;flex-shrink:0"></span>`
-        :'';
-      groupBadge=`<span class="badge ${off?'badge-group-off':'badge-group'}">${swatch}${kindLbl}${off?' · off':''}</span>`;
-      const gName=p.groupName||'';
-      const vLab=p.variantLabel||'';
-      if(gName||vLab){
-        groupSub=`<div class="card-group-sub">Grupo: ${esc(gName)}${vLab?' · '+esc(vLab):''}</div>`;
+      if(p.groupKind==='color'){
+        const cols=Array.isArray(p.groupColors)?p.groupColors:[];
+        const enabledCols=cols.filter(c=>c&&c.enabled!==false);
+        const swatches=enabledCols.slice(0,5).map(c=>{
+          const hx=normalizeHexColor(c.color);
+          return hx?`<span style="width:10px;height:10px;border-radius:50%;background:${hx};border:1px solid rgba(0,0,0,.15);display:inline-block;flex-shrink:0"></span>`:'';
+        }).join('');
+        groupBadge=`<span class="badge badge-group">${swatches}Color${cols.length?' · '+cols.length:''}</span>`;
+        const gName=p.groupName||p.name||'';
+        const labels=enabledCols.map(c=>c.label).filter(Boolean).join(', ');
+        groupSub=`<div class="card-group-sub">Grupo: ${esc(gName)}${labels?' · '+esc(labels):''}</div>`;
+      } else {
+        const off=p.variantEnabled===false;
+        groupBadge=`<span class="badge ${off?'badge-group-off':'badge-group'}">Valor${off?' · off':''}</span>`;
+        const gName=p.groupName||'';
+        const vLab=p.variantLabel||'';
+        if(gName||vLab){
+          groupSub=`<div class="card-group-sub">Grupo: ${esc(gName)}${vLab?' · '+esc(vLab):''}</div>`;
+        }
       }
     }
     return `<div class="product-card" onclick="openPM('${p.id}','${suc}')" style="${cardBg}">
@@ -2959,26 +2984,66 @@ function initGroupColorChips(suc){
   const st=groupBuilderState[suc];if(!st)return;
   const area=document.getElementById(suc+'-grp-color-chips');
   if(!area)return;
-  if(!Object.keys(st.colorOn).length){
-    // nada preseleccionado
-  }
   area.innerHTML=COLOR_PRESETS.map(c=>{
-    const key=c.hex.toLowerCase();
+    const key=normalizeHexColor(c.hex)||c.hex.toLowerCase();
     const on=!!st.colorOn[key];
-    return `<button type="button" class="group-color-chip ${on?'on':''}" onclick="toggleGroupColorChip('${suc}','${c.hex}','${c.name}')">
+    return `<button type="button" class="group-color-chip ${on?'on':''}" data-hex="${key}" onclick="toggleGroupColorChip('${suc}','${c.hex}','${c.name}')">
       <span class="dot" style="background:${c.hex}${c.hex==='#fafafa'?';box-shadow:inset 0 0 0 1px #ccc':''}"></span>
-      ${c.name}
-      ${on?'<i class="ti ti-check chk"></i>':''}
+      <span>${c.name}</span>
+      <i class="ti ti-check chk" style="display:${on?'inline':'none'}"></i>
     </button>`;
   }).join('');
+  renderGroupColorDetails(suc);
 }
 
 function toggleGroupColorChip(suc,hex,name){
   const st=groupBuilderState[suc];if(!st)return;
   const key=normalizeHexColor(hex)||hex.toLowerCase();
   if(st.colorOn[key]) delete st.colorOn[key];
-  else st.colorOn[key]={name,hex:key};
-  initGroupColorChips(suc);
+  else st.colorOn[key]={name,hex:key,imageUrl:''};
+  // Actualiza chip in-place (sin re-render animado)
+  const area=document.getElementById(suc+'-grp-color-chips');
+  if(area){
+    const btn=area.querySelector('.group-color-chip[data-hex="'+key+'"]');
+    if(btn){
+      const on=!!st.colorOn[key];
+      btn.classList.toggle('on',on);
+      const chk=btn.querySelector('.chk');
+      if(chk) chk.style.display=on?'inline':'none';
+    }
+  }
+  renderGroupColorDetails(suc);
+}
+
+function renderGroupColorDetails(suc){
+  const st=groupBuilderState[suc];if(!st)return;
+  const area=document.getElementById(suc+'-grp-color-detail');
+  if(!area)return;
+  const colors=Object.values(st.colorOn);
+  if(!colors.length){area.innerHTML='';return;}
+  // Mantener orden de presets
+  const order=COLOR_PRESETS.map(c=>normalizeHexColor(c.hex));
+  colors.sort((a,b)=>order.indexOf(a.hex)-order.indexOf(b.hex));
+  area.innerHTML=colors.map(c=>{
+    const img=c.imageUrl||'';
+    return `<div class="group-color-detail-row">
+      <div class="gcd-lab"><span class="dot" style="width:14px;height:14px;border-radius:50%;background:${c.hex};border:1px solid rgba(0,0,0,.15);display:inline-block${c.hex==='#fafafa'?';box-shadow:inset 0 0 0 1px #ccc':''}"></span>${esc(c.name)}</div>
+      <input type="url" placeholder="URL imagen de este color (opcional)" value="${esc(img)}" oninput="setGroupColorImageUrl('${suc}','${c.hex}',this.value)">
+      <button type="button" class="btn-icon btn-del-sm" title="Quitar color" onclick="removeGroupColorSelection('${suc}','${c.hex}')"><i class="ti ti-x"></i></button>
+    </div>`;
+  }).join('');
+}
+function removeGroupColorSelection(suc,hex){
+  const st=groupBuilderState[suc];if(!st)return;
+  const key=normalizeHexColor(hex)||hex.toLowerCase();
+  const name=(st.colorOn[key]&&st.colorOn[key].name)||'';
+  toggleGroupColorChip(suc,key,name);
+}
+
+function setGroupColorImageUrl(suc,hex,url){
+  const st=groupBuilderState[suc];if(!st)return;
+  const key=normalizeHexColor(hex)||hex.toLowerCase();
+  if(st.colorOn[key]) st.colorOn[key].imageUrl=(url||'').trim();
 }
 
 function resetGroupBuilder(suc){
@@ -3022,6 +3087,8 @@ async function createProductGroup(suc){
           groupKind:'valor',
           variantLabel:r.label,
           variantEnabled:true,
+          groupColors:firebase.firestore.FieldValue.delete(),
+          variantColor:firebase.firestore.FieldValue.delete(),
           name:groupName+' '+r.label,
           updatedAt:now
         });
@@ -3037,7 +3104,7 @@ async function createProductGroup(suc){
     return;
   }
 
-  // Por color: 1 producto + colores
+  // Por color: UN solo producto; colores en groupColors; mismo stock
   if(!st.colorPid){if(err)err.textContent='Selecciona un producto base.';return;}
   const base=products.find(x=>x.id===st.colorPid);
   if(!base){if(err)err.textContent='El producto base ya no existe.';return;}
@@ -3045,53 +3112,31 @@ async function createProductGroup(suc){
   if(!colors.length){if(err)err.textContent='Marca al menos un color disponible.';return;}
   if(colors.some(c=>!normalizeHexColor(c.hex))){if(err)err.textContent='Hay un color con hex inválido.';return;}
   if(!groupName) groupName=base.name||'Producto';
+  const order=COLOR_PRESETS.map(c=>normalizeHexColor(c.hex));
+  colors.sort((a,b)=>order.indexOf(a.hex)-order.indexOf(b.hex));
+  const groupColors=colors.map(c=>{
+    const row={label:c.name,color:normalizeHexColor(c.hex),enabled:true};
+    const img=(c.imageUrl||'').trim();
+    if(img) row.imageUrl=img;
+    return row;
+  });
   try{
-    const batch=db.batch();
     const groupId=newGroupId();
-    const now=Date.now();
-    // Primer color = actualiza el producto base
-    const first=colors[0];
-    const firstHex=normalizeHexColor(first.hex);
-    batch.update(db.collection('productos').doc(base.id),{
+    const DEL=firebase.firestore.FieldValue.delete();
+    await db.collection('productos').doc(base.id).update({
       groupId,
       groupName,
       groupKind:'color',
-      variantLabel:first.name,
-      variantColor:firstHex,
-      variantEnabled:true,
-      name:groupName+' '+first.name,
-      updatedAt:now
+      groupColors,
+      name:groupName,
+      // Limpiar campos de variante por-doc (modelo valor)
+      variantLabel:DEL,
+      variantColor:DEL,
+      variantEnabled:DEL,
+      updatedAt:Date.now()
     });
-    // Resto = clonar con mismo precio/costo/desc (stock 0)
-    for(let i=1;i<colors.length;i++){
-      const c=colors[i];
-      const hex=normalizeHexColor(c.hex);
-      const data={
-        name:groupName+' '+c.name,
-        desc:base.desc||'',
-        cost:base.cost||0,
-        price:base.price||0,
-        stockExsal:0,
-        stockCdb:0,
-        createdAt:now,
-        updatedAt:now,
-        groupId,
-        groupName,
-        groupKind:'color',
-        variantLabel:c.name,
-        variantColor:hex,
-        variantEnabled:true
-      };
-      if(base.imageUrl) data.imageUrl=base.imageUrl;
-      if(base.categoria) data.categoria=base.categoria;
-      if(typeof base.orden==='number') data.orden=base.orden;
-      const pct=parseDescuentoPct(base.descuentoPct);
-      if(pct>0) applyDescuentoPctToData(data,pct);
-      batch.set(db.collection('productos').doc(),data);
-    }
-    await batch.commit();
     resetGroupBuilder(suc);
-    showToast(colors.length+' variantes agrupadas de "'+groupName+'"','ti-layers-linked');
+    showToast(groupColors.length+' colores en "'+groupName+'" (mismo stock)','ti-layers-linked');
   }catch(e){
     console.error(e);
     if(err)err.textContent='No se pudo crear el grupo.';
@@ -4067,6 +4112,42 @@ document.getElementById('pm-overlay').addEventListener('click',e=>{if(e.target.i
 document.getElementById('del-overlay').addEventListener('click',e=>{if(e.target.id==='del-overlay')closeDelModal();});
 
 // ── EDITAR PRODUCTO ──
+let editGroupColorsState=[];
+function onEditGroupKindChange(){
+  const kind=((document.getElementById('edit-group-kind')||{}).value||'').trim();
+  const valor=document.getElementById('edit-group-valor-fields');
+  const color=document.getElementById('edit-group-color-fields');
+  if(valor) valor.style.display=kind==='color'?'none':'';
+  if(color) color.style.display=kind==='color'?'':'none';
+  if(kind==='color') renderEditGroupColors();
+}
+function renderEditGroupColors(){
+  const area=document.getElementById('edit-group-colors');
+  if(!area)return;
+  if(!editGroupColorsState.length){
+    area.innerHTML='<div class="group-empty-msg">Sin colores. Este producto no tiene opciones de color.</div>';
+    return;
+  }
+  area.innerHTML=editGroupColorsState.map((c,i)=>`
+    <div class="edit-color-row">
+      <div class="edit-color-row-top">
+        <span style="width:14px;height:14px;border-radius:50%;background:${esc(c.color)};border:1px solid rgba(0,0,0,.15);flex-shrink:0;display:inline-block"></span>
+        <strong style="font-size:13px;color:var(--tp)">${esc(c.label)}</strong>
+        <span style="font-size:11px;color:var(--tm)">${esc(c.color)}</span>
+        <label style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--tp);cursor:pointer;user-select:none">
+          <input type="checkbox" ${c.enabled!==false?'checked':''} onchange="editGroupColorsState[${i}].enabled=this.checked" style="accent-color:var(--b400);width:14px;height:14px;cursor:pointer">
+          Visible
+        </label>
+        <button type="button" class="btn-icon btn-del-sm" title="Quitar color" onclick="removeEditGroupColor(${i})"><i class="ti ti-x"></i></button>
+      </div>
+      <input type="url" placeholder="URL imagen de este color (opcional)" value="${esc(c.imageUrl||'')}" oninput="editGroupColorsState[${i}].imageUrl=this.value" style="background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:7px 10px;font-size:12.5px;font-family:inherit;color:var(--tp);outline:none;width:100%;box-sizing:border-box">
+    </div>
+  `).join('');
+}
+function removeEditGroupColor(idx){
+  editGroupColorsState.splice(idx,1);
+  renderEditGroupColors();
+}
 function openEditModal(){
   const p=products.find(x=>x.id===activePid);if(!p)return;
   document.getElementById('edit-name').value=p.name;
@@ -4102,14 +4183,20 @@ function openEditModal(){
   const gnameEl=document.getElementById('edit-group-name');
   const gkindEl=document.getElementById('edit-group-kind');
   const vlabEl=document.getElementById('edit-variant-label');
-  const vcolEl=document.getElementById('edit-variant-color');
   const venEl=document.getElementById('edit-variant-enabled');
   if(gidEl) gidEl.value=p.groupId||'';
   if(gnameEl) gnameEl.value=p.groupName||'';
   if(gkindEl) gkindEl.value=(p.groupKind==='valor'||p.groupKind==='color')?p.groupKind:'';
   if(vlabEl) vlabEl.value=p.variantLabel||'';
-  if(vcolEl) vcolEl.value=p.variantColor||'';
   if(venEl) venEl.checked=p.variantEnabled!==false;
+  // Colores (modelo un solo producto)
+  editGroupColorsState=Array.isArray(p.groupColors)?p.groupColors.map(c=>({
+    label:c.label||'',
+    color:normalizeHexColor(c.color)||'',
+    imageUrl:c.imageUrl||'',
+    enabled:c.enabled!==false
+  })).filter(c=>c.label&&c.color):[];
+  onEditGroupKindChange();
   // Mostrar preview si hay imagen
   const prev=document.getElementById('edit-imgpreview');
   const thumb=document.getElementById('edit-imgthumb');
@@ -4157,22 +4244,31 @@ async function saveEdit(){
   const groupName=((document.getElementById('edit-group-name')||{}).value||'').trim();
   const groupKind=((document.getElementById('edit-group-kind')||{}).value||'').trim();
   const variantLabel=((document.getElementById('edit-variant-label')||{}).value||'').trim();
-  const variantColorRaw=((document.getElementById('edit-variant-color')||{}).value||'').trim();
   const variantEnabled=(document.getElementById('edit-variant-enabled')||{checked:true}).checked;
   const DEL=firebase.firestore.FieldValue.delete();
   if(groupId&&(groupKind==='valor'||groupKind==='color')){
-    if(groupKind==='color'){
-      const hex=normalizeHexColor(variantColorRaw);
-      if(!hex){err.textContent='variantColor inválido: usa un hex (#rrggbb) para grupos por color.';return;}
-      updateData.variantColor=hex;
-    } else {
-      updateData.variantColor=DEL;
-    }
     updateData.groupId=groupId;
     updateData.groupName=groupName||name;
     updateData.groupKind=groupKind;
-    updateData.variantLabel=variantLabel;
-    updateData.variantEnabled=!!variantEnabled;
+    if(groupKind==='color'){
+      const cols=(editGroupColorsState||[]).map(c=>{
+        const hex=normalizeHexColor(c.color);
+        const row={label:(c.label||'').trim(),color:hex,enabled:c.enabled!==false};
+        const img=(c.imageUrl||'').trim();
+        if(img) row.imageUrl=img;
+        return row;
+      }).filter(c=>c.label&&c.color);
+      if(!cols.length){err.textContent='Agrega al menos un color válido, o quita el grupo.';return;}
+      updateData.groupColors=cols;
+      updateData.variantLabel=DEL;
+      updateData.variantColor=DEL;
+      updateData.variantEnabled=DEL;
+    } else {
+      updateData.variantLabel=variantLabel;
+      updateData.variantEnabled=!!variantEnabled;
+      updateData.variantColor=DEL;
+      updateData.groupColors=DEL;
+    }
   } else {
     updateData.groupId=DEL;
     updateData.groupName=DEL;
@@ -4180,6 +4276,7 @@ async function saveEdit(){
     updateData.variantLabel=DEL;
     updateData.variantColor=DEL;
     updateData.variantEnabled=DEL;
+    updateData.groupColors=DEL;
   }
   try{
     const batch=db.batch();
