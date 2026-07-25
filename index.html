@@ -1928,7 +1928,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
           <button type="button" class="btn-mini-group" style="margin-top:6px" onclick="savePmGroupDesc()"><i class="ti ti-device-floppy"></i> Guardar descripción</button>
         </div>
         <div id="pm-group-manage-list"></div>
-        <button type="button" class="btn-mini-group danger" style="width:100%;padding:9px;margin-top:10px" onclick="confirmDeleteEntireGroup()"><i class="ti ti-trash"></i> Eliminar grupo completo</button>
+        <button type="button" class="btn-mini-group" style="width:100%;padding:9px;margin-top:10px" onclick="confirmUngroupEntireGroup()"><i class="ti ti-unlink"></i> Desagrupar grupo completo</button>
       </div>
       <div class="pm-footer">
         <button class="btn-danger" id="pm-btn-delete" onclick="confirmDeleteFromModal()"><i class="ti ti-trash"></i>Eliminar</button>
@@ -3823,7 +3823,7 @@ function renderPmGroupManage(pid){
 
   if(isSharedColorGroup(p)){
     const cols=Array.isArray(p.groupColors)?p.groupColors:[];
-    sub.textContent='Producto único con varios colores (mismo stock). Quita un color sin borrar el producto. “Eliminar grupo completo” borra este producto y todos sus colores.';
+    sub.textContent='Producto único con varios colores (mismo stock). Quita un color sin borrar el producto. “Desagrupar grupo completo” quita todos los colores; el producto se queda.';
     if(!cols.length){
       list.innerHTML='<div class="group-empty-msg">Sin colores. Usa Editar para añadir.</div>';
       return;
@@ -3847,9 +3847,9 @@ function renderPmGroupManage(pid){
   const siblings=products.filter(x=>x.groupId===p.groupId)
     .sort((a,b)=>String(a.variantLabel||a.name).localeCompare(String(b.variantLabel||b.name),'es',{numeric:true}));
   if(isMultiColorGroup(p)){
-    sub.textContent='Cada fila es un producto-color con su propio stock. Puedes verlo, sacarlo o eliminarlo solo a él. “Eliminar grupo completo” borra TODAS las fichas.';
+    sub.textContent='Cada fila es un producto-color con su propio stock. Puedes verlo, sacarlo o eliminarlo solo a él. “Desagrupar grupo completo” deja todas las fichas sin grupo (no las borra).';
   } else {
-    sub.textContent='Cada fila es un producto del grupo. Puedes editarlo, sacarlo o eliminarlo solo a él. “Eliminar grupo completo” borra TODAS las opciones.';
+    sub.textContent='Cada fila es un producto del grupo. Puedes editarlo, sacarlo o eliminarlo solo a él. “Desagrupar grupo completo” deja todas las fichas sin grupo (no las borra).';
   }
   list.innerHTML=siblings.map(s=>{
     const isSelf=s.id===pid;
@@ -3895,35 +3895,44 @@ async function savePmGroupDesc(){
   }catch(e){console.error(e);showToast('Error al guardar descripción','ti-alert-circle');}
 }
 
-function confirmDeleteEntireGroup(){
+function confirmUngroupEntireGroup(){
   const p=products.find(x=>x.id===activePid);if(!p||!p.groupId)return;
   const gName=p.groupName||p.name||'este grupo';
   let msg;
   if(isSharedColorGroup(p)){
-    msg='¿Eliminar el grupo "'+gName+'"?\n\nSe elimina el producto y TODOS sus colores. Esta acción manda el producto a la papelera.';
+    msg='¿Desagrupar "'+gName+'"?\n\nSe quitan todos los colores del producto. El producto NO se elimina.';
   } else {
     const n=products.filter(x=>x.groupId===p.groupId).length;
-    msg='¿Eliminar el grupo "'+gName+'" completo?\n\nSe eliminarán las '+n+' fichas del grupo (papelera). No se pueden deshacer en bloque desde aquí.';
+    msg='¿Desagrupar el grupo "'+gName+'" completo?\n\nLas '+n+' fichas quedan como productos sueltos. Ninguno se elimina.';
   }
   if(!confirm(msg)) return;
-  deleteEntireGroup(p.groupId, p.groupKind);
+  ungroupEntireGroup(p.groupId);
 }
 
-async function deleteEntireGroup(groupId, kind){
+async function ungroupEntireGroup(groupId){
   if(!groupId)return;
   try{
-    const now=Date.now();
     const siblings=products.filter(x=>x.groupId===groupId);
     if(!siblings.length){showToast('Grupo no encontrado','ti-alert-circle');return;}
-    // Shared color suele ser 1 doc; multi/valor son varios. Soft-delete de todos.
     const batch=db.batch();
+    const DEL=firebase.firestore.FieldValue.delete();
+    const now=Date.now();
     siblings.forEach(s=>{
-      batch.update(db.collection('productos').doc(s.id),{eliminado:true,updatedAt:now});
+      batch.update(db.collection('productos').doc(s.id),{
+        groupId:DEL,groupName:DEL,groupKind:DEL,groupDesc:DEL,
+        variantLabel:DEL,variantColor:DEL,variantEnabled:DEL,
+        groupColors:DEL,updatedAt:now
+      });
     });
     await batch.commit();
+    // Actualiza caché local
+    siblings.forEach(s=>{
+      delete s.groupId; delete s.groupName; delete s.groupKind; delete s.groupDesc;
+      delete s.variantLabel; delete s.variantColor; delete s.variantEnabled; delete s.groupColors;
+    });
     closePM();
-    showToast('Grupo eliminado','ti-trash');
-  }catch(e){console.error(e);showToast('Error al eliminar el grupo','ti-alert-circle');}
+    showToast('Grupo desagrupado · productos intactos','ti-unlink');
+  }catch(e){console.error(e);showToast('Error al desagrupar el grupo','ti-alert-circle');}
 }
 
 // ── MODAL PRODUCTO ──
