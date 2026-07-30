@@ -500,6 +500,17 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .qr-link{font-size:12px;color:var(--ts);word-break:break-all;text-align:center;max-width:100%}
 .form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:640px){.form-row-2{grid-template-columns:1fr}}
+.credito-card{background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rmd);padding:14px 15px;display:flex;flex-direction:column;gap:8px;animation:fadeIn .22s ease;transition:border-color var(--tr),box-shadow var(--tr)}
+.credito-card:hover{border-color:var(--b300);box-shadow:0 3px 14px rgba(74,168,232,.13)}
+.credito-card.expired{opacity:.72;background:#f7fafc}
+.credito-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.credito-email{font-size:14px;font-weight:700;color:var(--tp);word-break:break-all}
+.credito-saldo{font-size:18px;font-weight:800;color:var(--g600);white-space:nowrap}
+.credito-meta{display:flex;flex-wrap:wrap;gap:8px 12px;font-size:11px;color:var(--tm)}
+.credito-meta span{display:inline-flex;align-items:center;gap:4px}
+.credito-proy{font-size:12px;color:var(--ts);line-height:1.4}
+.credito-proy b{color:var(--tp);font-weight:700}
+@media(max-width:900px){#creditos-kpi-grid{grid-template-columns:1fr !important}}
 
 /* ── PIN OVERLAY ── */
 .pin-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:150;background:rgba(15,63,99,.52);backdrop-filter:blur(7px);padding:20px;display:none}
@@ -742,6 +753,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       <button class="tab-btn" onclick="switchTab('inv-descuentos',this)"><i class="ti ti-ticket-off"></i>Descuentos</button>
       <button class="tab-btn" onclick="switchTab('inv-codigos',this)"><i class="ti ti-discount-2"></i>Códigos promo</button>
       <button class="tab-btn" onclick="switchTab('inv-tarjetas',this)"><i class="ti ti-stamp"></i>Tarjetas sellos</button>
+      <button class="tab-btn" onclick="switchTab('inv-creditos',this)"><i class="ti ti-coin"></i>Créditos</button>
     </div>
   </div>
 
@@ -1422,6 +1434,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       <div class="fin-card"><div class="fin-label">Ganancia Real (ventas + ingresos − costos)</div><div class="fin-value fv-green" id="exsal-stat-ganancia">$0.00</div></div>
       <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Unidades vendidas</div><div class="fin-value fv-blue" id="exsal-stat-units">0</div></div>
       <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Número de ventas</div><div class="fin-value fv-blue" id="exsal-stat-numventas">0</div></div>
+      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Vendidas con créditos</div><div class="fin-value fv-blue" id="exsal-stat-ventascreditos">$0.00</div></div>
     </div>
 
     <!-- Top 10 bajo demanda -->
@@ -1517,6 +1530,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       <div class="fin-card"><div class="fin-label">Ganancia Real (ventas + ingresos − costos)</div><div class="fin-value fv-green" id="cdb-stat-ganancia">$0.00</div></div>
       <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Unidades vendidas</div><div class="fin-value fv-blue" id="cdb-stat-units">0</div></div>
       <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Número de ventas</div><div class="fin-value fv-blue" id="cdb-stat-numventas">0</div></div>
+      <div class="fin-card" style="grid-column:span 2"><div class="fin-label">Vendidas con créditos</div><div class="fin-value fv-blue" id="cdb-stat-ventascreditos">$0.00</div></div>
     </div>
 
     <!-- Top 10 bajo demanda -->
@@ -1871,6 +1885,39 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     </div>
   </div>
 
+  <!-- ═══ CRÉDITOS ═══ -->
+  <div class="tab-content" id="tab-inv-creditos">
+    <div class="fin-grid" id="creditos-kpi-grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="fin-card"><div class="fin-label">Cuentas con crédito</div><div class="fin-value fv-blue" id="cred-kpi-cuentas">0</div></div>
+      <div class="fin-card"><div class="fin-label">Saldo total activo</div><div class="fin-value fv-green" id="cred-kpi-saldo">$0.00</div></div>
+      <div class="fin-card fin-card-gasto"><div class="fin-label">Costo invertido (promo)</div><div class="fin-value" id="cred-kpi-costo">$0.00</div></div>
+    </div>
+    <div class="descuentos-layout">
+      <div class="panel">
+        <div class="panel-hd"><div class="phd-icon" style="background:linear-gradient(135deg,var(--w600),#f59e0b)"><i class="ti ti-coin"></i></div><div><div class="ptitle">Otorgar créditos</div><div class="psub">Saldo promocional por correo · PIN requerido</div></div></div>
+        <div class="form-body">
+          <div class="field"><label>Correo</label><input type="email" id="cred-f-email" placeholder="cliente@correo.com" maxlength="120" autocomplete="off"></div>
+          <div class="form-row-2">
+            <div class="field"><label>Monto ($)</label><input type="number" id="cred-f-monto" placeholder="0.00" min="0.01" step="0.01"></div>
+            <div class="field"><label>Caduca en días</label><input type="number" id="cred-f-dias" placeholder="0 = sin caducar" min="0" step="1" value="0"></div>
+          </div>
+          <div class="field"><label>Nombre del proyecto <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tm)">(opcional)</span></label><input type="text" id="cred-f-proyecto" placeholder="Ej. Robot sumo CREAJ" maxlength="80" autocomplete="off"></div>
+          <div class="field"><label>Integrantes <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tm)">(coma)</span></label><input type="text" id="cred-f-integrantes" placeholder="Ana, Luis, María" maxlength="200" autocomplete="off"></div>
+          <div class="field"><label>Institución / feria <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tm)">(nota)</span></label><input type="text" id="cred-f-nota" placeholder="Ej. Colegio Don Bosco · Feria 2026" maxlength="120" autocomplete="off"></div>
+          <button class="btn-add" style="background:linear-gradient(135deg,var(--w600),#f59e0b);box-shadow:0 4px 14px rgba(181,106,0,.3)" onclick="otorgarCredito()"><i class="ti ti-plus"></i>Otorgar créditos</button>
+          <div class="form-error" id="cred-form-error"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="list-meta" style="padding:13px 15px 10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+          <span class="list-count" id="cred-list-count"></span>
+          <div class="search-wrap" style="max-width:240px;margin:0"><i class="ti ti-search"></i><input type="text" id="cred-search" placeholder="Buscar correo, proyecto…" oninput="renderCreditos()"></div>
+        </div>
+        <div class="list-area" id="cred-list-area" style="max-height:620px"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- ═══ PAPELERA ═══ -->
   <div class="tab-content" id="tab-inv-papelera">
     <div class="panel">
@@ -2193,7 +2240,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     <div class="pin-header">
       <div class="pin-logo"><i class="ti ti-lock-access"></i></div>
       <div class="pin-title">Área Restringida</div>
-      <div class="pin-sub">Estadísticas y Ventas · Ingresa el PIN de 4 dígitos</div>
+      <div class="pin-sub">Estadísticas, Ventas y Créditos · Ingresa el PIN de 4 dígitos</div>
     </div>
     <div class="pin-body">
       <div class="pin-dots">
@@ -2277,10 +2324,10 @@ db.enablePersistence({ synchronizeTabs: true }).catch(e=>{
 });
 
 // ── ESTADO ──
-let products=[], sales=[], deletedSales=[], orders=[], descuentos=[], gastos=[], categorias=[], discountCodes=[], stampCards=[];
+let products=[], sales=[], deletedSales=[], orders=[], descuentos=[], gastos=[], categorias=[], discountCodes=[], stampCards=[], creditos=[];
 let sortAsc={exsal:false,cdb:false,total:false};
 let activePid=null, activeSucursal=null;
-let unsubProd=null, unsubSales=null, unsubDeleted=null, unsubOrders=null, unsubRestock=null, unsubDescuentos=null, unsubGastos=null, unsubEstadisticas=null, unsubCategorias=null, unsubDiscountCodes=null, unsubStampCards=null;
+let unsubProd=null, unsubSales=null, unsubDeleted=null, unsubOrders=null, unsubRestock=null, unsubDescuentos=null, unsubGastos=null, unsubEstadisticas=null, unsubCategorias=null, unsubDiscountCodes=null, unsubStampCards=null, unsubCreditos=null;
 let restockHistory=[];
 let restockPendingData=null;
 // Estado de carga de ventas por mes (nuevo apartado ventas)
@@ -2337,7 +2384,7 @@ let facCursor=null;
 let facAllLoaded=false;
 const FACTURAS_PAGE_SIZE=10;
 // Estadisticas desde colección (acumulados)
-let estadisticasData={exsal:{ventas:0,costos:0,ingresos:0,unidadesVendidas:0,numeroVentas:0,pedidosEntregados:0,pedidosCancelados:0,pedidosPendientes:0,ingresosPedidos:0,costosPedidos:0,costosEnvio:0,comisionesStripe:0},cdb:{ventas:0,costos:0,ingresos:0,unidadesVendidas:0,numeroVentas:0,pedidosEntregados:0,pedidosCancelados:0,pedidosPendientes:0,ingresosPedidos:0,costosPedidos:0,costosEnvio:0,comisionesStripe:0}};
+let estadisticasData={exsal:{ventas:0,costos:0,ingresos:0,unidadesVendidas:0,numeroVentas:0,ventasCreditos:0,pedidosEntregados:0,pedidosCancelados:0,pedidosPendientes:0,ingresosPedidos:0,costosPedidos:0,costosEnvio:0,comisionesStripe:0},cdb:{ventas:0,costos:0,ingresos:0,unidadesVendidas:0,numeroVentas:0,ventasCreditos:0,pedidosEntregados:0,pedidosCancelados:0,pedidosPendientes:0,ingresosPedidos:0,costosPedidos:0,costosEnvio:0,comisionesStripe:0}};
 
 // ── PAGINACIÓN ──
 const PROD_PAGE_SIZE=20;
@@ -2387,12 +2434,12 @@ function lockStats(){
   statsUnlocked=false;
   document.getElementById('btn-lock-stats').classList.remove('visible');
   const vb=document.getElementById('ventas-pin-badge');if(vb)vb.classList.remove('hidden');
-  const activeProtected=document.querySelector('.tab-content.active[id^="tab-stats-"],.tab-content.active[id^="tab-ventas-"],.tab-content.active#tab-facturas');
+  const activeProtected=document.querySelector('.tab-content.active[id^="tab-stats-"],.tab-content.active[id^="tab-ventas-"],.tab-content.active#tab-facturas,.tab-content.active#tab-inv-creditos');
   if(activeProtected){
     const firstInvBtn=document.querySelector('.tab-btn');
     doSwitchTab('inv-cdb',firstInvBtn);
   }
-  showToast('Estadísticas y ventas bloqueadas','ti-lock');
+  showToast('Estadísticas, ventas y créditos bloqueados','ti-lock');
 }
 
 // Auto-avance en PIN inputs
@@ -2455,8 +2502,8 @@ auth.onAuthStateChanged(async user=>{
     startListeners();
   }else{
     overlay.style.display='flex';
-    if(unsubProd){unsubProd();unsubProd=null;}if(unsubSales){unsubSales();unsubSales=null;}if(unsubDeleted){unsubDeleted();unsubDeleted=null;}if(unsubOrders){unsubOrders();unsubOrders=null;}if(unsubRestock){unsubRestock();unsubRestock=null;}if(unsubDescuentos){unsubDescuentos();unsubDescuentos=null;}if(unsubGastos){unsubGastos();unsubGastos=null;}if(unsubEstadisticas){unsubEstadisticas();unsubEstadisticas=null;}if(unsubCategorias){unsubCategorias();unsubCategorias=null;}if(unsubDiscountCodes){unsubDiscountCodes();unsubDiscountCodes=null;}if(unsubStampCards){unsubStampCards();unsubStampCards=null;}
-    products=[];sales=[];deletedSales=[];orders=[];descuentos=[];categorias=[];discountCodes=[];stampCards=[];
+    if(unsubProd){unsubProd();unsubProd=null;}if(unsubSales){unsubSales();unsubSales=null;}if(unsubDeleted){unsubDeleted();unsubDeleted=null;}if(unsubOrders){unsubOrders();unsubOrders=null;}if(unsubRestock){unsubRestock();unsubRestock=null;}if(unsubDescuentos){unsubDescuentos();unsubDescuentos=null;}if(unsubGastos){unsubGastos();unsubGastos=null;}if(unsubEstadisticas){unsubEstadisticas();unsubEstadisticas=null;}if(unsubCategorias){unsubCategorias();unsubCategorias=null;}if(unsubDiscountCodes){unsubDiscountCodes();unsubDiscountCodes=null;}if(unsubStampCards){unsubStampCards();unsubStampCards=null;}if(unsubCreditos){unsubCreditos();unsubCreditos=null;}
+    products=[];sales=[];deletedSales=[];orders=[];descuentos=[];categorias=[];discountCodes=[];stampCards=[];creditos=[];
     salesExtra=[];ordersExtra=[];restockExtra=[];
     salesLastVisible=null;ordersLastVisible=null;restockLastVisible=null;
     salesAllLoaded=false;ordersAllLoaded=false;restockAllLoaded=false;
@@ -2565,6 +2612,7 @@ async function checkMonthlyReset(){
           costosTotal:+(((data.costos||0)+(data.costosEnvio||0)+(data.comisionesStripe||0)).toFixed(2)),
           'unidades vendidas':data['unidades vendidas']||0,
           'numero de ventas':data['numero de ventas']||0,
+          ventasCreditos:data.ventasCreditos||0,
           pedidosEntregados:data.pedidosEntregados||0,
           pedidosCancelados:data.pedidosCancelados||0,
           ingresosPedidos:data.ingresosPedidos||0,
@@ -2586,6 +2634,7 @@ async function checkMonthlyReset(){
         'ingresos':0,
         'unidades vendidas':0,
         'numero de ventas':0,
+        'ventasCreditos':0,
         // Contadores de pedidos: se reinician cada mes (pedidosPendientes NO, sigue acumulado real)
         'pedidosEntregados':0,
         'pedidosCancelados':0,
@@ -2727,6 +2776,7 @@ function startListeners(){
         ingresos:d.ingresos||0,
         unidadesVendidas:d['unidades vendidas']||0,
         numeroVentas:d['numero de ventas']||0,
+        ventasCreditos:d.ventasCreditos||0,
         pedidosEntregados:d.pedidosEntregados||0,
         pedidosCancelados:d.pedidosCancelados||0,
         pedidosPendientes:d.pedidosPendientes||0,
@@ -2794,6 +2844,7 @@ function doSwitchTab(name,btn){
   if(name.startsWith('stats-'))renderAllStats();
   if(name==='ventas-domicilio'&&!domLoaded) loadVentasDomicilio(true);
   if(name==='inv-restock'&&!restockLoaded) loadRestockHistory(true);
+  if(name==='inv-creditos') startCreditosListener();
   // En móvil, cerrar el menú lateral al elegir una pestaña
   if(window.matchMedia('(max-width:900px)').matches) closeSidebar();
 }
@@ -2813,7 +2864,7 @@ function toggleSidebar(){
   document.getElementById('sidebar').classList.contains('open')?closeSidebar():openSidebar();
 }
 function switchTab(name,btn){
-  if((name.startsWith('stats-')||name.startsWith('ventas-')||name==='facturas')&&!statsUnlocked){
+  if((name.startsWith('stats-')||name.startsWith('ventas-')||name==='facturas'||name==='inv-creditos')&&!statsUnlocked){
     pendingStatsTab={name,btn};
     const ov=document.getElementById('pin-overlay');
     ov.style.cssText='display:flex;align-items:center;justify-content:center;position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;background:rgba(15,63,99,.52);backdrop-filter:blur(7px);padding:20px;';
@@ -5145,6 +5196,8 @@ function renderEstadisticasKpis(suc){
   gEl.style.color=ganancia>=0?'var(--g600)':'var(--r600)';
   document.getElementById(suc+'-stat-units').textContent=d.unidadesVendidas.toLocaleString('es');
   document.getElementById(suc+'-stat-numventas').textContent=d.numeroVentas.toLocaleString('es');
+  const vcEl=document.getElementById(suc+'-stat-ventascreditos');
+  if(vcEl) vcEl.textContent=fmt(d.ventasCreditos||0);
 }
 
 function renderAllStats(){
@@ -8051,6 +8104,180 @@ async function clearRestockHistory(){
     await batch.commit();
     showToast('Historial de restock borrado','ti-trash');
   }catch(e){showToast('Error al borrar historial','ti-alert-circle');}
+}
+
+// ════════════════════════════════════════════════════════════════
+//  CRÉDITOS (colección creditos · doc id = email lowercase)
+//  costoInvertido es inversión promo por cuenta; NO suma a estadisticas.costos
+// ════════════════════════════════════════════════════════════════
+function startCreditosListener(){
+  if(unsubCreditos){ renderCreditos(); return; }
+  unsubCreditos=db.collection('creditos').onSnapshot(snap=>{
+    creditos=[];
+    snap.forEach(doc=>creditos.push({id:doc.id,...doc.data()}));
+    creditos.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+    renderCreditos();
+  },err=>console.warn('creditos listener:',err));
+}
+
+function creditoEstaVencido(c){
+  return !!(c.venceAt && c.venceAt < Date.now());
+}
+
+function creditoFmtVence(venceAt){
+  if(!venceAt) return 'Sin caducar';
+  const d=new Date(venceAt);
+  const label=d.toLocaleDateString('es-SV',{day:'2-digit',month:'short',year:'numeric'});
+  return (venceAt < Date.now() ? 'Venció ' : 'Vence ')+label;
+}
+
+function renderCreditosKpis(){
+  const now=Date.now();
+  let cuentas=0, saldoActivo=0, costo=0;
+  creditos.forEach(c=>{
+    const saldo=+(c.saldo||0);
+    const vencido=!!(c.venceAt && c.venceAt < now);
+    if(saldo>0 && !vencido){
+      cuentas++;
+      saldoActivo+=saldo;
+    }
+    costo+=+(c.costoInvertido||0);
+  });
+  const elC=document.getElementById('cred-kpi-cuentas');
+  const elS=document.getElementById('cred-kpi-saldo');
+  const elK=document.getElementById('cred-kpi-costo');
+  if(elC) elC.textContent=cuentas.toLocaleString('es');
+  if(elS) elS.textContent=fmt(saldoActivo);
+  if(elK) elK.textContent=fmt(costo);
+}
+
+function renderCreditos(){
+  renderCreditosKpis();
+  const area=document.getElementById('cred-list-area');
+  const cnt=document.getElementById('cred-list-count');
+  if(!area)return;
+  const q=((document.getElementById('cred-search')||{}).value||'').trim().toLowerCase();
+  let list=creditos.slice();
+  if(q){
+    list=list.filter(c=>{
+      const proy=c.proyecto||{};
+      const ints=Array.isArray(proy.integrantes)?proy.integrantes.join(' '):'';
+      return ((c.email||'')+' '+(proy.nombre||'')+' '+(proy.nota||'')+' '+ints).toLowerCase().includes(q);
+    });
+  }
+  if(cnt) cnt.textContent=list.length+' cuenta'+(list.length!==1?'s':'')+(creditos.length!==list.length?' (filtradas)':'');
+  if(!list.length){
+    area.innerHTML=`<div class="empty-state"><div class="empty-icon"><i class="ti ti-coin"></i></div><p>No hay cuentas de crédito.</p></div>`;
+    return;
+  }
+  area.innerHTML=list.map(c=>{
+    const vencido=creditoEstaVencido(c);
+    const proy=c.proyecto||null;
+    const ints=proy&&Array.isArray(proy.integrantes)&&proy.integrantes.length?proy.integrantes.join(', '):'';
+    const movs=Array.isArray(c.movimientos)?c.movimientos:[];
+    const lastGrant=movs.find(m=>m&&m.tipo==='grant');
+    return `<div class="credito-card ${vencido?'expired':''}">
+      <div class="credito-top">
+        <div>
+          <div class="credito-email">${esc(c.email||c.emailLower||c.id)}</div>
+          <div class="credito-meta" style="margin-top:4px">
+            <span><i class="ti ti-calendar"></i> ${esc(creditoFmtVence(c.venceAt))}</span>
+            <span><i class="ti ti-arrow-up-circle"></i> Otorgado ${fmt(c.totalOtorgado||0)}</span>
+            <span><i class="ti ti-arrow-down-circle"></i> Usado ${fmt(c.totalUsado||0)}</span>
+            <span><i class="ti ti-coin-off"></i> Costo promo ${fmt(c.costoInvertido||0)}</span>
+          </div>
+        </div>
+        <div class="credito-saldo">${fmt(c.saldo||0)}</div>
+      </div>
+      ${proy&&(proy.nombre||ints||proy.nota)?`<div class="credito-proy">
+        ${proy.nombre?`<div><b>${esc(proy.nombre)}</b></div>`:''}
+        ${ints?`<div><i class="ti ti-users" style="font-size:12px"></i> ${esc(ints)}</div>`:''}
+        ${proy.nota?`<div style="color:var(--tm)">${esc(proy.nota)}</div>`:''}
+      </div>`:''}
+      ${lastGrant?`<div style="font-size:11px;color:var(--tm)">Último grant: ${fmt(lastGrant.monto||0)}${lastGrant.by?' · '+esc(lastGrant.by):''}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+async function otorgarCredito(){
+  const errEl=document.getElementById('cred-form-error');
+  const setErr=msg=>{ if(errEl){ errEl.textContent=msg||''; errEl.classList.toggle('show',!!msg); } };
+  setErr('');
+  const emailRaw=(document.getElementById('cred-f-email').value||'').trim();
+  const emailLower=emailRaw.toLowerCase();
+  const monto=parseFloat(document.getElementById('cred-f-monto').value);
+  const dias=parseInt(document.getElementById('cred-f-dias').value,10);
+  const diasN=isNaN(dias)||dias<0?0:dias;
+  const proyNombre=(document.getElementById('cred-f-proyecto').value||'').trim();
+  const integrantesRaw=(document.getElementById('cred-f-integrantes').value||'').trim();
+  const nota=(document.getElementById('cred-f-nota').value||'').trim();
+
+  if(!emailLower||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailLower)){
+    setErr('Ingresa un correo válido.'); return;
+  }
+  if(isNaN(monto)||monto<=0){
+    setErr('Ingresa un monto mayor a 0.'); return;
+  }
+
+  const integrantes=integrantesRaw
+    ? integrantesRaw.split(',').map(s=>s.trim()).filter(Boolean)
+    : [];
+  const proyecto=(proyNombre||integrantes.length||nota)
+    ? { nombre:proyNombre||'', integrantes, nota:nota||'' }
+    : null;
+
+  const now=Date.now();
+  const by=(auth.currentUser&&auth.currentUser.email)||'admin';
+  const mov={ tipo:'grant', monto:+monto.toFixed(2), at:now, by };
+  const ref=db.collection('creditos').doc(emailLower);
+
+  try{
+    await db.runTransaction(async tx=>{
+      const snap=await tx.get(ref);
+      if(snap.exists){
+        const d=snap.data()||{};
+        const prevMovs=Array.isArray(d.movimientos)?d.movimientos:[];
+        const movimientos=[mov,...prevMovs].slice(0,40);
+        const update={
+          email:emailRaw,
+          emailLower,
+          saldo:+(((d.saldo||0)+monto).toFixed(2)),
+          totalOtorgado:+(((d.totalOtorgado||0)+monto).toFixed(2)),
+          updatedAt:now,
+          movimientos
+        };
+        if(diasN>0) update.venceAt=now+diasN*86400000;
+        else update.venceAt=null;
+        if(proyecto) update.proyecto=proyecto;
+        tx.update(ref, update);
+      } else {
+        tx.set(ref, {
+          email:emailRaw,
+          emailLower,
+          saldo:+monto.toFixed(2),
+          totalOtorgado:+monto.toFixed(2),
+          totalUsado:0,
+          costoInvertido:0,
+          venceAt:diasN>0?now+diasN*86400000:null,
+          proyecto,
+          movimientos:[mov],
+          createdAt:now,
+          updatedAt:now
+        });
+      }
+    });
+    document.getElementById('cred-f-email').value='';
+    document.getElementById('cred-f-monto').value='';
+    document.getElementById('cred-f-dias').value='0';
+    document.getElementById('cred-f-proyecto').value='';
+    document.getElementById('cred-f-integrantes').value='';
+    document.getElementById('cred-f-nota').value='';
+    showToast('Créditos otorgados a '+emailLower,'ti-coin');
+  }catch(e){
+    console.error(e);
+    setErr('No se pudo otorgar el crédito. Revisa permisos o conexión.');
+    showToast('Error al otorgar créditos','ti-alert-circle');
+  }
 }
 
 </script>
