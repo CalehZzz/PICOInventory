@@ -797,7 +797,8 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       <span class="ventas-pin-badge"><i class="ti ti-lock" style="font-size:11px"></i>PIN requerido</span>
     </div>
     <div class="tabs">
-      <button class="tab-btn" onclick="switchTab('facturas',this)"><i class="ti ti-file-invoice"></i>Facturas</button>
+      <button class="tab-btn" onclick="switchTab('facturas',this);setFacSede('cdb')"><i class="ti ti-file-invoice"></i>Facturas</button>
+      <button class="tab-btn" onclick="switchTab('facturas',this);setFacSede('domicilio')"><i class="ti ti-truck-delivery"></i>Facturas domicilio</button>
     </div>
   </div>
     </nav>
@@ -1712,6 +1713,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       <div class="fac-toggle" id="fac-sede-toggle">
         <button data-sede="exsal" onclick="setFacSede('exsal')">EXSAL</button>
         <button class="active" data-sede="cdb" onclick="setFacSede('cdb')">CDB</button>
+        <button data-sede="domicilio" onclick="setFacSede('domicilio')"><i class="ti ti-truck-delivery" style="font-size:13px"></i> Domicilio</button>
       </div>
       <label>Mes</label>
       <div class="smb-select-wrap">
@@ -1720,11 +1722,13 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       </div>
       <button class="btn-smb-load" onclick="loadFacturasMes()"><i class="ti ti-refresh"></i>Cargar</button>
       <button class="btn-fac-month" id="fac-download-month-btn" onclick="downloadAllFacturasMes()" disabled><i class="ti ti-file-download"></i>Descargar mes (PDF)</button>
+      <button class="btn-smb-load" id="fac-sync-dom-btn" onclick="syncFacturasDomicilioMes()" style="display:none;background:linear-gradient(135deg,var(--w600),#f59e0b);box-shadow:0 3px 10px rgba(181,106,0,.28)" title="Crea facturas faltantes de pedidos a domicilio entregados en el mes"><i class="ti ti-refresh-dot"></i>Generar faltantes</button>
       <div class="smb-status" id="fac-smb-status"><div class="smb-dot" id="fac-smb-dot"></div><span id="fac-smb-txt">Selecciona un mes</span></div>
     </div>
     <div class="sales-wrap">
       <div class="sales-hd">
-        <div class="shd-title"><i class="ti ti-file-invoice"></i>Facturas · <span id="fac-sede-label">CDB</span></div>
+        <div class="shd-title"><i class="ti ti-file-invoice" id="fac-title-icon"></i><span id="fac-title-text">Facturas</span> · <span id="fac-sede-label">CDB</span></div>
+        <span class="list-count" id="fac-dom-hint" style="display:none;font-size:11.5px;color:var(--tm);font-weight:600">Pedidos con envío · se generan al entregar o con «Generar faltantes»</span>
       </div>
       <div style="padding:14px" id="fac-list-body"><div class="fac-empty">Selecciona una sede y un mes, luego presiona <b>Cargar</b>.</div></div>
       <div id="fac-load-more-row" class="load-more-row" style="display:none">
@@ -2854,6 +2858,7 @@ function doSwitchTab(name,btn){
   if(name==='ventas-domicilio'&&!domLoaded) loadVentasDomicilio(true);
   if(name==='inv-restock'&&!restockLoaded) loadRestockHistory(true);
   if(name==='inv-creditos') startCreditosListener();
+  if(name==='facturas') updateFacSedeChrome();
   // En móvil, cerrar el menú lateral al elegir una pestaña
   if(window.matchMedia('(max-width:900px)').matches) closeSidebar();
 }
@@ -4574,12 +4579,45 @@ async function confirmarVenta(){
 
 // ══════════════════════════════════════════════
 //  FACTURAS  (apartado bajo demanda · sin onSnapshot · botón Cargar obligatorio)
+//  Sedes: exsal | cdb | domicilio (envío a domicilio)
 // ══════════════════════════════════════════════
+function facSedeLabel(suc){
+  if(suc==='exsal') return 'EXSAL';
+  if(suc==='cdb') return 'CDB';
+  if(suc==='domicilio') return 'Domicilio';
+  return '—';
+}
+
+function updateFacSedeChrome(){
+  const isDom=facSede==='domicilio';
+  document.querySelectorAll('#fac-sede-toggle button').forEach(b=>b.classList.toggle('active',b.dataset.sede===facSede));
+  const lbl=document.getElementById('fac-sede-label');
+  if(lbl) lbl.textContent=facSedeLabel(facSede);
+  const syncBtn=document.getElementById('fac-sync-dom-btn');
+  if(syncBtn) syncBtn.style.display=isDom?'':'none';
+  const hint=document.getElementById('fac-dom-hint');
+  if(hint) hint.style.display=isDom?'':'none';
+  const titleIcon=document.getElementById('fac-title-icon');
+  if(titleIcon) titleIcon.className='ti '+(isDom?'ti-truck-delivery':'ti-file-invoice');
+  const titleText=document.getElementById('fac-title-text');
+  if(titleText) titleText.textContent=isDom?'Facturas domicilio':'Facturas';
+  // Resaltar botón del menú lateral correspondiente
+  document.querySelectorAll('.tab-btn').forEach(b=>{
+    const oc=b.getAttribute('onclick')||'';
+    if(!oc.includes("switchTab('facturas'")) return;
+    const wantsDom=oc.includes("setFacSede('domicilio')");
+    b.classList.toggle('active', (document.getElementById('tab-facturas')||{}).classList.contains('active') && wantsDom===isDom);
+  });
+}
+
 function setFacSede(suc){
-  if(suc===facSede)return;
+  if(suc!=='exsal'&&suc!=='cdb'&&suc!=='domicilio') return;
+  if(suc===facSede){
+    updateFacSedeChrome();
+    return;
+  }
   facSede=suc;
-  document.querySelectorAll('#fac-sede-toggle button').forEach(b=>b.classList.toggle('active',b.dataset.sede===suc));
-  document.getElementById('fac-sede-label').textContent=suc==='exsal'?'EXSAL':'CDB';
+  updateFacSedeChrome();
   facLoaded=false;
   document.getElementById('fac-list-body').innerHTML='<div class="fac-empty">Sede cambiada. Presiona <b>Cargar</b> para ver las facturas.</div>';
   document.getElementById('fac-load-more-row').style.display='none';
@@ -4638,7 +4676,9 @@ function renderFacturasList(){
   const body=document.getElementById('fac-list-body');
   const row=document.getElementById('fac-load-more-row');
   if(!facPaginadas.length){
-    body.innerHTML='<div class="fac-empty">Sin facturas en este período.</div>';
+    body.innerHTML=facSede==='domicilio'
+      ?`<div class="fac-empty">Sin facturas de domicilio en este período.<br><span style="font-size:12px">Entrega un pedido a domicilio o usa <b>Generar faltantes</b>.</span></div>`
+      :`<div class="fac-empty">Sin facturas en este período.</div>`;
     row.style.display='none';
     return;
   }
@@ -4726,7 +4766,7 @@ async function downloadAllFacturasMes(){
     const { jsPDF }=window.jspdf;
     const doc=new jsPDF({orientation:'p',unit:'mm',format:'a4'});
     all.forEach((fac,i)=>{if(i>0)doc.addPage();buildFacturaPDF(doc,fac);});
-    const sedeLbl=facSede==='exsal'?'EXSAL':'CDB';
+    const sedeLbl=facSedeLabel(facSede);
     doc.save('Facturas-'+sedeLbl+'-'+facMesActual+'.pdf');
     showToast('✓ '+all.length+' factura'+(all.length!==1?'s':'')+' exportada'+(all.length!==1?'s':''),'ti-file-download');
   }catch(e){
@@ -4738,6 +4778,187 @@ async function downloadAllFacturasMes(){
   }
 }
 
+/** Construye ítems de factura a partir de un pedido (domicilio o no). */
+function buildFacturaItemsFromPedido(order, discFactor){
+  const factor=(typeof discFactor==='number')?discFactor:1;
+  const pct=order.discountPct||0;
+  const descNombre=order.discountName||'';
+  return (order.items||[]).map(item=>{
+    const qty=item.qty||1;
+    const unitPrice=typeof item.price==='number'?item.price:0;
+    const lineSub=+(unitPrice*qty).toFixed(2);
+    return {
+      productName:item.name||'Producto',
+      qty,
+      precioUnit:unitPrice,
+      descPct:pct||0,
+      descNombre:descNombre||'',
+      subtotal:lineSub,
+      total:+(lineSub*factor).toFixed(2)
+    };
+  });
+}
+
+/**
+ * Asegura factura con sucursal 'domicilio' para un pedido a domicilio.
+ * Si ya existe (facturaId / fromOrder), la mueve a domicilio y actualiza totales.
+ * Si no, crea una nueva con secuencia FAC-#####.
+ * @returns {{facturaId:string,facturaNum:string,numero:number}}
+ */
+async function ensurePedidoFacturaDomicilio(orderId, order, opts){
+  const sellerEmail=(opts&&opts.sellerEmail)||(auth.currentUser&&auth.currentUser.email)||'admin';
+  const ts=(opts&&opts.ts)||Date.now();
+  const mes=(opts&&opts.mes)||getMonthKey(ts);
+  const date=(opts&&opts.date)||new Date(ts).toLocaleDateString('es');
+  const discFactor=order.discountPct?((100-order.discountPct)/100):1;
+  const items=buildFacturaItemsFromPedido(order, discFactor);
+  const subtotal=+(items.reduce((s,it)=>s+(it.subtotal||0),0)).toFixed(2);
+  const totalProductos=typeof order.totalConDescuento==='number'
+    ? +order.totalConDescuento
+    : +(items.reduce((s,it)=>s+(it.total||0),0)).toFixed(2);
+  const envioCosto=typeof order.envioCosto==='number'?order.envioCosto:0;
+  const total=+(totalProductos+envioCosto).toFixed(2);
+  const unidades=items.reduce((s,it)=>s+(it.qty||0),0);
+  const cliente=order.name||order.cliente||'';
+  const clienteEmail=order.email||order.clienteEmail||'';
+
+  let facRef=null, facData=null;
+  if(order.facturaId){
+    const snap=await db.collection('facturas').doc(order.facturaId).get();
+    if(snap.exists){ facRef=snap.ref; facData=snap.data()||{}; }
+  }
+  if(!facRef){
+    const snap=await db.collection('facturas').where('fromOrder','==',orderId).limit(1).get();
+    if(!snap.empty){ facRef=snap.docs[0].ref; facData=snap.docs[0].data()||{}; }
+  }
+
+  const patch={
+    sucursal:'domicilio',
+    tipoEntrega:'domicilio',
+    fromOrder:orderId,
+    cliente,
+    clienteEmail,
+    seller:facData&&facData.seller?facData.seller:sellerEmail,
+    date:facData&&facData.date?facData.date:date,
+    timestamp:facData&&facData.timestamp?facData.timestamp:ts,
+    mes:facData&&facData.mes?facData.mes:mes,
+    subtotal,
+    totalProductos,
+    envioCosto:+envioCosto.toFixed(2),
+    total,
+    unidades,
+    items,
+    pedidoCode:order.code||null
+  };
+  if(order.discountPct){
+    patch.descuentoAplicado={nombre:order.discountName||'',porcentaje:order.discountPct};
+  }
+
+  if(facRef){
+    await facRef.update(patch);
+    return {
+      facturaId:facRef.id,
+      facturaNum:facData.numFactura||('FAC-'+String(facData.numero||'').padStart(5,'0')),
+      numero:facData.numero||0
+    };
+  }
+
+  const metaRef=db.collection('estadisticas').doc('_meta');
+  const newRef=db.collection('facturas').doc();
+  let seq=0, numFactura='';
+  await db.runTransaction(async t=>{
+    const metaSnap=await t.get(metaRef);
+    seq=((metaSnap.exists&&metaSnap.data().facturaSeq)||0)+1;
+    numFactura='FAC-'+String(seq).padStart(5,'0');
+    t.set(newRef, Object.assign({}, patch, {
+      numero:seq,
+      numFactura,
+      seller:sellerEmail,
+      date,
+      timestamp:ts,
+      mes,
+      ventaId:null,
+      createdAt:ts
+    }));
+    t.set(metaRef,{facturaSeq:seq,updatedAt:ts},{merge:true});
+  });
+  return {facturaId:newRef.id, facturaNum:numFactura, numero:seq};
+}
+
+/** Crea/actualiza facturas domicilio faltantes a partir de pedidos entregados del mes. */
+async function syncFacturasDomicilioMes(){
+  if(facSede!=='domicilio'){ showToast('Solo disponible en Facturas domicilio','ti-info-circle'); return; }
+  const sel=document.getElementById('fac-month-select');
+  const monthKey=facMesActual||(sel?sel.value:getMonthKey());
+  if(!monthKey){ showToast('Selecciona un mes','ti-alert-circle'); return; }
+  if(!confirm('¿Generar facturas faltantes de pedidos a domicilio entregados en '+monthKeyToLabel(monthKey)+'?\n\nNo duplica si ya existe factura vinculada.')) return;
+
+  const btn=document.getElementById('fac-sync-dom-btn');
+  const original=btn?btn.innerHTML:'';
+  if(btn){ btn.disabled=true; btn.innerHTML='<i class="ti ti-loader" style="animation:spin .7s linear infinite"></i>Generando...'; }
+  setFacStatus('loading');
+  try{
+    let created=0, updated=0, skipped=0;
+    let cursor=null, done=false;
+    const sellerEmail=(auth.currentUser&&auth.currentUser.email)||'admin';
+    while(!done){
+      let q=db.collection('pedidos')
+        .where('tipoEntrega','==','domicilio')
+        .where('status','==','delivered')
+        .orderBy('deliveredAt','desc')
+        .limit(40);
+      if(cursor) q=q.startAfter(cursor);
+      const snap=await q.get();
+      if(snap.empty){ done=true; break; }
+      for(const doc of snap.docs){
+        const o={id:doc.id,...doc.data()};
+        let mesPed=null;
+        if(o.deliveredAt){
+          const dd=o.deliveredAt.toDate?o.deliveredAt.toDate():new Date(o.deliveredAt);
+          mesPed=getMonthKey(dd.getTime());
+        } else if(o.mes){
+          mesPed=o.mes;
+        }
+        if(!mesPed){ skipped++; continue; }
+        if(mesPed!==monthKey){
+          // Orden desc por deliveredAt: si ya es un mes anterior, no hay más del mes pedido
+          if(mesPed < monthKey){ done=true; break; }
+          skipped++;
+          continue;
+        }
+        const beforeId=o.facturaId||null;
+        const res=await ensurePedidoFacturaDomicilio(doc.id, o, {
+          sellerEmail,
+          ts:o.timestamp||Date.now(),
+          mes:monthKey,
+          date:o.date||new Date().toLocaleDateString('es')
+        });
+        const needPedidoUpdate=o.facturaId!==res.facturaId||o.facturaNum!==res.facturaNum;
+        if(needPedidoUpdate){
+          await db.collection('pedidos').doc(doc.id).update({
+            facturaId:res.facturaId,
+            facturaNum:res.facturaNum
+          });
+        }
+        if(beforeId) updated++; else created++;
+      }
+      cursor=snap.docs[snap.docs.length-1]||null;
+      if(snap.docs.length<40) done=true;
+    }
+    showToast('Domicilio · nuevas '+created+' · actualizadas '+updated,'ti-truck-delivery');
+    await loadFacturasMes();
+  }catch(e){
+    console.error('syncFacturasDomicilioMes',e);
+    showToast('Error al generar facturas de domicilio','ti-alert-circle');
+    setFacStatus('error');
+    if(String(e&&e.message||'').toLowerCase().includes('index')){
+      document.getElementById('fac-list-body').innerHTML='<div class="fac-empty">Falta un índice de Firestore para pedidos domicilio. Abre el enlace de la consola (F12) para crearlo y reintenta.</div>';
+    }
+  }finally{
+    if(btn){ btn.disabled=false; btn.innerHTML=original; }
+  }
+}
+
 // ── CONSTRUCTOR DE PDF (reutilizado por descarga individual y mensual) ──
 function buildFacturaPDF(doc,fac){
   const W=210, pad=18;
@@ -4746,7 +4967,7 @@ function buildFacturaPDF(doc,fac){
   const items=fac.items||[];
   const numFactura=fac.numFactura||('FAC-'+(fac.numero||''));
   const fechaHoy=fac.date||new Date().toLocaleDateString('es');
-  const sucursalLabel=fac.sucursal==='exsal'?'EXSAL':fac.sucursal==='cdb'?'CDB':'—';
+  const sucursalLabel=facSedeLabel(fac.sucursal);
   const vendedor=fac.seller||'—';
 
   // Header
@@ -6255,7 +6476,7 @@ async function generarFactura(){
       const fac=facPaginadas.find(f=>f.id===facId);
       if(!fac) throw new Error('Factura no encontrada');
       numFactura=fac.numFactura||('FAC-'+(fac.numero||''));
-      sucursalLabel=fac.sucursal==='exsal'?'EXSAL':fac.sucursal==='cdb'?'CDB':'—';
+      sucursalLabel=facSedeLabel(fac.sucursal);
       lineasSel=(fac.items||[]).map(it=>({
         productName:it.productName, qty:it.qty||1, total:+(it.total||0),
         orderNumber:numFactura, numFactura
@@ -6618,6 +6839,23 @@ async function deliverOrder(orderId){
 
     // ¿La venta (productos) ya se contabilizó al pagar con tarjeta?
     const alreadyCounted=freshData.statsRecorded===true;
+    const esDom=freshData.tipoEntrega==='domicilio';
+    const envioCobrado=esDom?(typeof freshData.envioCosto==='number'?freshData.envioCosto:0):0;
+    const envioReal=esDom?(typeof freshData.costoEnvioReal==='number'?freshData.costoEnvioReal:0):0;
+
+    // Factura domicilio: crear o mover a sucursal 'domicilio' (espacio Facturas domicilio)
+    let facInfo={facturaId:freshData.facturaId||null, facturaNum:freshData.facturaNum||null};
+    if(esDom){
+      try{
+        facInfo=await ensurePedidoFacturaDomicilio(orderId, Object.assign({},freshData,{
+          totalConDescuento: typeof freshData.totalConDescuento==='number'
+            ? freshData.totalConDescuento
+            : +(priceTotal*discFactor).toFixed(2)
+        }),{sellerEmail, ts:Date.now(), mes:mesKey});
+      }catch(eFac){
+        console.warn('No se pudo asegurar factura domicilio:',eFac);
+      }
+    }
 
     const batch=db.batch();
 
@@ -6630,7 +6868,7 @@ async function deliverOrder(orderId){
         seller:sellerEmail, sucursal:ventaSuc,
         date:new Date().toLocaleDateString('es'), timestamp:Date.now(), mes:mesKey,
         fromOrder:orderId,
-        facturaId:freshData.facturaId||null, facturaNum:freshData.facturaNum||null
+        facturaId:facInfo.facturaId||null, facturaNum:facInfo.facturaNum||null
       };
       if(freshData.discountPct){ventaPedido.descuentoAplicado={nombre:freshData.discountName,porcentaje:freshData.discountPct};}
       batch.set(db.collection('ventas').doc(),ventaPedido);
@@ -6643,9 +6881,6 @@ async function deliverOrder(orderId){
     //   • El envío cobrado al cliente entra a INGRESOS y a 'ventas'.
     //   • El envío real ya se registró al ASIGNARLO (confirmar en la tienda) → aquí no se repite.
     //   • La comisión Stripe ya se sumó al PAGAR → aquí no se repite.
-    const esDom=freshData.tipoEntrega==='domicilio';
-    const envioCobrado=esDom?(typeof freshData.envioCosto==='number'?freshData.envioCosto:0):0;
-    const envioReal=esDom?(typeof freshData.costoEnvioReal==='number'?freshData.costoEnvioReal:0):0;
     const ingresoEnvioYa=freshData.ingresoEnvioRegistrado===true;
     const addIngresoEnvio=(esDom&&!ingresoEnvioYa)?envioCobrado:0;
     const costoEnvioYa=freshData.costoEnvioRegistrado===true;
@@ -6653,7 +6888,7 @@ async function deliverOrder(orderId){
     // Comisión de Stripe: si la venta ya se contabilizó al pagar, allí ya se sumó → aquí no se repite.
     const comisionStripe=(!alreadyCounted && typeof freshData.comisionStripe==='number')?freshData.comisionStripe:0;
 
-    batch.update(db.collection('pedidos').doc(orderId),{
+    const pedidoUpdate={
       status:'delivered',
       stockDeducted:true,
       saleRecorded:true,
@@ -6667,7 +6902,12 @@ async function deliverOrder(orderId){
       ...(comisionStripe>0?{comisionCostoRegistrada:true}:{}),
       deliveredAt:firebase.firestore.FieldValue.serverTimestamp(),
       deliveredBy:sellerEmail
-    });
+    };
+    if(facInfo.facturaId){
+      pedidoUpdate.facturaId=facInfo.facturaId;
+      pedidoUpdate.facturaNum=facInfo.facturaNum||null;
+    }
+    batch.update(db.collection('pedidos').doc(orderId),pedidoUpdate);
 
     const statPayload={
       'pedidosEntregados':firebase.firestore.FieldValue.increment(1),
