@@ -483,6 +483,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .dcode-actions,.stamp-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .btn-mini{padding:6px 10px;border-radius:8px;border:1.5px solid var(--b100);background:#fff;font-size:12px;font-weight:700;font-family:inherit;color:var(--tp);cursor:pointer;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
 .btn-mini:hover{border-color:var(--b300);background:var(--b50)}
+.btn-mini:disabled{opacity:.45;cursor:not-allowed;pointer-events:none}
 .btn-mini.warn{border-color:var(--w100);background:var(--w50);color:var(--w600)}
 .btn-mini.danger{border-color:var(--r100);background:var(--r50);color:var(--r600)}
 .btn-mini.ok{border-color:var(--g100);background:var(--g50);color:var(--g600)}
@@ -502,7 +503,9 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 @media(max-width:640px){.form-row-2{grid-template-columns:1fr}}
 .credito-card{background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rmd);padding:14px 15px;display:flex;flex-direction:column;gap:8px;animation:fadeIn .22s ease;transition:border-color var(--tr),box-shadow var(--tr)}
 .credito-card:hover{border-color:var(--b300);box-shadow:0 3px 14px rgba(74,168,232,.13)}
-.credito-card.expired{opacity:.72;background:#f7fafc}
+.credito-card.expired,.credito-card.frozen,.credito-card.blocked{opacity:.78;background:#f7fafc}
+.credito-card.blocked{border-color:var(--r100)}
+.credito-card.frozen{border-color:var(--b200)}
 .credito-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 .credito-email{font-size:14px;font-weight:700;color:var(--tp);word-break:break-all}
 .credito-saldo{font-size:18px;font-weight:800;color:var(--g600);white-space:nowrap}
@@ -510,6 +513,12 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .credito-meta span{display:inline-flex;align-items:center;gap:4px}
 .credito-proy{font-size:12px;color:var(--ts);line-height:1.4}
 .credito-proy b{color:var(--tp);font-weight:700}
+.credito-status-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:4px}
+.badge-cred-activo{background:var(--g50);color:var(--g600);border:1px solid var(--g100)}
+.badge-cred-congelado{background:var(--b50);color:var(--b600);border:1px solid var(--b200)}
+.badge-cred-bloqueado{background:var(--r50);color:var(--r600);border:1px solid var(--r100)}
+.badge-cred-vencido{background:var(--w50);color:var(--w600);border:1px solid var(--w100)}
+.credito-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:2px}
 @media(max-width:900px){#creditos-kpi-grid{grid-template-columns:1fr !important}}
 
 /* ── PIN OVERLAY ── */
@@ -8109,6 +8118,7 @@ async function clearRestockHistory(){
 // ════════════════════════════════════════════════════════════════
 //  CRÉDITOS (colección creditos · doc id = email lowercase)
 //  costoInvertido es inversión promo por cuenta; NO suma a estadisticas.costos
+//  Flags de uso (respetados por la tienda): congelado, bloqueado, activo, usoPermitido, estado
 // ════════════════════════════════════════════════════════════════
 function startCreditosListener(){
   if(unsubCreditos){ renderCreditos(); return; }
@@ -8124,6 +8134,37 @@ function creditoEstaVencido(c){
   return !!(c.venceAt && c.venceAt < Date.now());
 }
 
+function creditoEstaBloqueado(c){
+  if(!c) return false;
+  if(c.bloqueado===true) return true;
+  if(c.activo===false) return true;
+  if(c.usoPermitido===false) return true;
+  const est=String(c.estado||'').toLowerCase();
+  return est==='bloqueado';
+}
+
+function creditoEstaCongelado(c){
+  if(!c) return false;
+  if(c.congelado===true) return true;
+  const est=String(c.estado||'').toLowerCase();
+  return est==='congelado';
+}
+
+/** Saldo usable en tienda: 0 si congelado/bloqueado/vencido */
+function creditoSaldoUsable(c){
+  if(!c) return 0;
+  if(creditoEstaBloqueado(c)||creditoEstaCongelado(c)||creditoEstaVencido(c)) return 0;
+  return Math.max(0,+(c.saldo||0));
+}
+
+/** Prioridad badge: Bloqueado > Congelado > Vencido > Activo */
+function creditoEstadoInfo(c){
+  if(creditoEstaBloqueado(c)) return {key:'bloqueado',label:'Bloqueado',badge:'badge-cred-bloqueado',icon:'ti-ban',cardClass:'blocked'};
+  if(creditoEstaCongelado(c)) return {key:'congelado',label:'Congelado',badge:'badge-cred-congelado',icon:'ti-snowflake',cardClass:'frozen'};
+  if(creditoEstaVencido(c)) return {key:'vencido',label:'Vencido',badge:'badge-cred-vencido',icon:'ti-calendar-off',cardClass:'expired'};
+  return {key:'activo',label:'Activo',badge:'badge-cred-activo',icon:'ti-circle-check',cardClass:''};
+}
+
 function creditoFmtVence(venceAt){
   if(!venceAt) return 'Sin caducar';
   const d=new Date(venceAt);
@@ -8131,15 +8172,37 @@ function creditoFmtVence(venceAt){
   return (venceAt < Date.now() ? 'Venció ' : 'Vence ')+label;
 }
 
+function creditoActor(){
+  return (auth.currentUser&&auth.currentUser.email)||'admin';
+}
+
+function creditoPushMov(prevMovs, mov){
+  const arr=Array.isArray(prevMovs)?prevMovs:[];
+  return [mov,...arr].slice(0,40);
+}
+
+async function creditoUpdateConMov(emailId, buildUpdate){
+  const id=String(emailId||'').trim().toLowerCase();
+  if(!id) throw new Error('id vacío');
+  const ref=db.collection('creditos').doc(id);
+  await db.runTransaction(async tx=>{
+    const snap=await tx.get(ref);
+    if(!snap.exists) throw new Error('Cuenta no encontrada');
+    const d=snap.data()||{};
+    const now=Date.now();
+    const by=creditoActor();
+    const patch=buildUpdate(d, now, by)||{};
+    tx.update(ref, Object.assign({updatedAt:now}, patch));
+  });
+}
+
 function renderCreditosKpis(){
-  const now=Date.now();
   let cuentas=0, saldoActivo=0, costo=0;
   creditos.forEach(c=>{
-    const saldo=+(c.saldo||0);
-    const vencido=!!(c.venceAt && c.venceAt < now);
-    if(saldo>0 && !vencido){
+    const usable=creditoSaldoUsable(c);
+    if(usable>0){
       cuentas++;
-      saldoActivo+=saldo;
+      saldoActivo+=usable;
     }
     costo+=+(c.costoInvertido||0);
   });
@@ -8171,15 +8234,23 @@ function renderCreditos(){
     return;
   }
   area.innerHTML=list.map(c=>{
-    const vencido=creditoEstaVencido(c);
+    const id=c.id||c.emailLower||'';
+    const idEsc=esc(id);
+    const st=creditoEstadoInfo(c);
+    const congelado=creditoEstaCongelado(c);
+    const bloqueado=creditoEstaBloqueado(c);
     const proy=c.proyecto||null;
     const ints=proy&&Array.isArray(proy.integrantes)&&proy.integrantes.length?proy.integrantes.join(', '):'';
     const movs=Array.isArray(c.movimientos)?c.movimientos:[];
     const lastGrant=movs.find(m=>m&&m.tipo==='grant');
-    return `<div class="credito-card ${vencido?'expired':''}">
+    const saldo=+(c.saldo||0);
+    return `<div class="credito-card ${st.cardClass}">
       <div class="credito-top">
         <div>
           <div class="credito-email">${esc(c.email||c.emailLower||c.id)}</div>
+          <div class="credito-status-row">
+            <span class="badge ${st.badge}"><i class="ti ${st.icon}" style="font-size:12px"></i> ${st.label}</span>
+          </div>
           <div class="credito-meta" style="margin-top:4px">
             <span><i class="ti ti-calendar"></i> ${esc(creditoFmtVence(c.venceAt))}</span>
             <span><i class="ti ti-arrow-up-circle"></i> Otorgado ${fmt(c.totalOtorgado||0)}</span>
@@ -8187,7 +8258,7 @@ function renderCreditos(){
             <span><i class="ti ti-coin-off"></i> Costo promo ${fmt(c.costoInvertido||0)}</span>
           </div>
         </div>
-        <div class="credito-saldo">${fmt(c.saldo||0)}</div>
+        <div class="credito-saldo">${fmt(saldo)}</div>
       </div>
       ${proy&&(proy.nombre||ints||proy.nota)?`<div class="credito-proy">
         ${proy.nombre?`<div><b>${esc(proy.nombre)}</b></div>`:''}
@@ -8195,8 +8266,127 @@ function renderCreditos(){
         ${proy.nota?`<div style="color:var(--tm)">${esc(proy.nota)}</div>`:''}
       </div>`:''}
       ${lastGrant?`<div style="font-size:11px;color:var(--tm)">Último grant: ${fmt(lastGrant.monto||0)}${lastGrant.by?' · '+esc(lastGrant.by):''}</div>`:''}
+      <div class="credito-actions">
+        ${congelado
+          ?`<button type="button" class="btn-mini ok" onclick="descongelarCredito('${idEsc}')"><i class="ti ti-player-play"></i>Reactivar</button>`
+          :`<button type="button" class="btn-mini warn" onclick="congelarCredito('${idEsc}')" ${bloqueado?'disabled title="Desbloqueá primero"':''}><i class="ti ti-snowflake"></i>Congelar</button>`}
+        ${bloqueado
+          ?`<button type="button" class="btn-mini ok" onclick="desbloquearCredito('${idEsc}')"><i class="ti ti-lock-open"></i>Desbloquear uso</button>`
+          :`<button type="button" class="btn-mini danger" onclick="bloquearCredito('${idEsc}')"><i class="ti ti-ban"></i>Bloquear uso</button>`}
+        <button type="button" class="btn-mini danger" onclick="quitarSaldoCredito('${idEsc}')" ${saldo<=0?'disabled title="Saldo ya en $0"':''}><i class="ti ti-trash"></i>Poner saldo en $0</button>
+      </div>
     </div>`;
   }).join('');
+}
+
+async function congelarCredito(emailId){
+  const c=creditos.find(x=>(x.id||x.emailLower)===emailId);
+  if(c&&creditoEstaBloqueado(c)){
+    showToast('La cuenta está bloqueada; desbloqueá primero','ti-alert-circle');
+    return;
+  }
+  if(!confirm('¿Congelar el uso de créditos de "'+emailId+'"?\n\nNo podrá gastar en la tienda, pero el saldo se conserva.')) return;
+  try{
+    await creditoUpdateConMov(emailId,(d,now,by)=>({
+      congelado:true,
+      estado:'congelado',
+      movimientos:creditoPushMov(d.movimientos,{tipo:'congelar',at:now,by,nota:'Congelado desde inventario'})
+    }));
+    showToast('Cuenta congelada','ti-snowflake');
+  }catch(e){
+    console.error(e);
+    showToast('No se pudo congelar','ti-alert-circle');
+  }
+}
+
+async function descongelarCredito(emailId){
+  if(!confirm('¿Reactivar el uso de créditos de "'+emailId+'"?')) return;
+  try{
+    await creditoUpdateConMov(emailId,(d,now,by)=>{
+      const bloqueado=creditoEstaBloqueado({...d,congelado:false,estado:'activo'});
+      return {
+        congelado:false,
+        estado:bloqueado?'bloqueado':'activo',
+        movimientos:creditoPushMov(d.movimientos,{tipo:'descongelar',at:now,by,nota:'Descongelado desde inventario'})
+      };
+    });
+    showToast('Cuenta reactivada','ti-player-play');
+  }catch(e){
+    console.error(e);
+    showToast('No se pudo reactivar','ti-alert-circle');
+  }
+}
+
+async function bloquearCredito(emailId){
+  if(!confirm('¿Bloquear el uso de créditos de "'+emailId+'"?\n\nNo podrá gastar en la tienda. El saldo queda visible para auditoría.')) return;
+  try{
+    await creditoUpdateConMov(emailId,(d,now,by)=>({
+      bloqueado:true,
+      activo:false,
+      usoPermitido:false,
+      estado:'bloqueado',
+      movimientos:creditoPushMov(d.movimientos,{tipo:'bloquear',at:now,by,nota:'Bloqueo de uso desde inventario'})
+    }));
+    showToast('Uso bloqueado','ti-ban');
+  }catch(e){
+    console.error(e);
+    showToast('No se pudo bloquear','ti-alert-circle');
+  }
+}
+
+async function desbloquearCredito(emailId){
+  if(!confirm('¿Desbloquear el uso de créditos de "'+emailId+'"?')) return;
+  try{
+    await creditoUpdateConMov(emailId,(d,now,by)=>{
+      const congelado=d.congelado===true;
+      return {
+        bloqueado:false,
+        activo:true,
+        usoPermitido:true,
+        estado:congelado?'congelado':'activo',
+        movimientos:creditoPushMov(d.movimientos,{tipo:'desbloquear',at:now,by,nota:'Desbloqueo de uso desde inventario'})
+      };
+    });
+    showToast('Uso desbloqueado','ti-lock-open');
+  }catch(e){
+    console.error(e);
+    showToast('No se pudo desbloquear','ti-alert-circle');
+  }
+}
+
+async function quitarSaldoCredito(emailId){
+  const c=creditos.find(x=>(x.id||x.emailLower)===emailId);
+  const saldoActual=c?+(c.saldo||0):0;
+  if(saldoActual<=0){
+    showToast('El saldo ya está en $0','ti-info-circle');
+    return;
+  }
+  const notaExtra=prompt(
+    'Poner saldo en $0 de "'+emailId+'" (saldo actual '+fmt(saldoActual)+').\n\nMotivo / nota (opcional):',
+    ''
+  );
+  if(notaExtra===null) return; // canceló
+  if(!confirm('¿Confirmás poner el saldo de "'+emailId+'" en $0?\n\nLa cuenta NO se borra (historial y costoInvertido se conservan).')) return;
+  try{
+    await creditoUpdateConMov(emailId,(d,now,by)=>{
+      const prev=+(d.saldo||0);
+      const nota=['Poner saldo en $0 desde inventario',notaExtra&&String(notaExtra).trim()].filter(Boolean).join(' · ');
+      return {
+        saldo:0,
+        movimientos:creditoPushMov(d.movimientos,{
+          tipo:'ajuste',
+          monto:-prev,
+          at:now,
+          by,
+          nota
+        })
+      };
+    });
+    showToast('Saldo puesto en $0','ti-trash');
+  }catch(e){
+    console.error(e);
+    showToast('No se pudo actualizar el saldo','ti-alert-circle');
+  }
 }
 
 async function otorgarCredito(){
@@ -8227,7 +8417,7 @@ async function otorgarCredito(){
     : null;
 
   const now=Date.now();
-  const by=(auth.currentUser&&auth.currentUser.email)||'admin';
+  const by=creditoActor();
   const mov={ tipo:'grant', monto:+monto.toFixed(2), at:now, by };
   const ref=db.collection('creditos').doc(emailLower);
 
@@ -8236,8 +8426,7 @@ async function otorgarCredito(){
       const snap=await tx.get(ref);
       if(snap.exists){
         const d=snap.data()||{};
-        const prevMovs=Array.isArray(d.movimientos)?d.movimientos:[];
-        const movimientos=[mov,...prevMovs].slice(0,40);
+        const movimientos=creditoPushMov(d.movimientos, mov);
         const update={
           email:emailRaw,
           emailLower,
@@ -8258,6 +8447,11 @@ async function otorgarCredito(){
           totalOtorgado:+monto.toFixed(2),
           totalUsado:0,
           costoInvertido:0,
+          congelado:false,
+          bloqueado:false,
+          activo:true,
+          usoPermitido:true,
+          estado:'activo',
           venceAt:diasN>0?now+diasN*86400000:null,
           proyecto,
           movimientos:[mov],
