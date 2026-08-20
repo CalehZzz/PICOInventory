@@ -152,6 +152,40 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .btn-add{width:100%;padding:12px;background:linear-gradient(135deg,var(--b400),var(--s400));color:#fff;border:none;border-radius:var(--rp);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 14px rgba(74,168,232,.35)}
 .btn-add:hover{opacity:.9}.btn-add:active{transform:scale(.97)}
 .form-error{font-size:12px;color:var(--r600);text-align:center;min-height:15px;font-weight:500}
+
+/* ═══════════ CALENDARIO DE EVENTOS ═══════════ */
+.cal-hd{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:16px 18px}
+.cal-nav{display:flex;align-items:center;gap:10px}
+.cal-nav-btn{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--b100);background:var(--wh);color:var(--b600);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:var(--tr)}
+.cal-nav-btn:hover{background:var(--b50)}
+.cal-month-label{font-size:16px;font-weight:700;color:var(--tp);letter-spacing:-.2px;min-width:160px;text-align:center;text-transform:capitalize}
+.cal-legend{display:flex;gap:14px;flex-wrap:wrap;padding:0 18px 14px;font-size:11.5px;color:var(--tm);font-weight:600}
+.cal-legend span{display:inline-flex;align-items:center;gap:6px}
+.cal-legend i{width:11px;height:11px;border-radius:4px;display:inline-block}
+.cal-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;padding:0 18px;margin-bottom:6px}
+.cal-dow div{text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tm)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;padding:0 18px 18px}
+.cal-cell{position:relative;aspect-ratio:1/.85;border-radius:11px;border:1.5px solid var(--b50);background:var(--wh);padding:6px 6px 5px;cursor:pointer;transition:var(--tr);display:flex;flex-direction:column;overflow:hidden}
+.cal-cell:hover{border-color:var(--b300);transform:translateY(-1px)}
+.cal-cell.other-month{opacity:.35;pointer-events:none}
+.cal-cell.is-today{border-color:var(--b400);box-shadow:0 0 0 2px rgba(74,168,232,.18) inset}
+.cal-cell.warn-period{background:var(--w50);border-color:var(--w100)}
+.cal-cell.has-event{background:var(--r50);border-color:var(--r100)}
+.cal-daynum{font-size:12.5px;font-weight:700;color:var(--tp)}
+.cal-cell.warn-period .cal-daynum{color:var(--w600)}
+.cal-cell.has-event .cal-daynum{color:var(--r600)}
+.cal-dots{display:flex;gap:3px;flex-wrap:wrap;margin-top:auto}
+.cal-dot{width:6px;height:6px;border-radius:50%;background:var(--r600);flex-shrink:0}
+.cal-evt-name{font-size:9.5px;font-weight:700;color:var(--r600);line-height:1.15;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cal-upcoming{padding:4px 18px 20px}
+.cal-upcoming-item{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:1.5px solid var(--b50);border-radius:var(--rmd);margin-bottom:8px;background:var(--wh);cursor:pointer;transition:var(--tr)}
+.cal-upcoming-item:hover{border-color:var(--b200)}
+.cal-upcoming-dot{width:9px;height:9px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.cal-upcoming-body{flex:1;min-width:0}
+.cal-upcoming-name{font-size:13.5px;font-weight:700;color:var(--tp)}
+.cal-upcoming-date{font-size:11.5px;color:var(--tm);font-weight:600;margin-top:1px}
+.cal-upcoming-comps{font-size:11.5px;color:var(--ts);margin-top:5px;line-height:1.5}
+.cal-empty{text-align:center;padding:30px 20px;color:var(--tm);font-size:13px}
 .list-controls{padding:13px 15px 11px;border-bottom:1px solid var(--b50)}
 .search-wrap{position:relative}
 .search-wrap i{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--b300);pointer-events:none}
@@ -752,6 +786,14 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       <button class="tab-btn" onclick="switchTab('inv-restock',this)"><i class="ti ti-package-import"></i>Restock</button>
       <button class="tab-btn" onclick="switchTab('inv-categorias',this)"><i class="ti ti-category"></i>Categorías</button>
       <button class="tab-btn" onclick="switchTab('inv-papelera',this)"><i class="ti ti-trash"></i>Papelera</button>
+    </div>
+  </div>
+
+  <!-- GRUPO TABS: CALENDARIO -->
+  <div class="tabs-group">
+    <div class="tabs-label">Calendario</div>
+    <div class="tabs">
+      <button class="tab-btn" onclick="switchTab('inv-calendario',this)"><i class="ti ti-calendar-event"></i>Eventos</button>
     </div>
   </div>
 
@@ -1940,10 +1982,62 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
     </div>
   </div>
 
+  <!-- ═══ CALENDARIO DE EVENTOS ═══ -->
+  <div class="tab-content" id="tab-inv-calendario">
+    <div class="panel">
+      <div class="panel-hd">
+        <div class="phd-icon"><i class="ti ti-calendar-event"></i></div>
+        <div><div class="ptitle">Calendario de eventos</div><div class="psub">Ferias, exposiciones y fechas donde se necesitan componentes listos</div></div>
+      </div>
+      <div class="cal-hd">
+        <div class="cal-nav">
+          <button class="cal-nav-btn" onclick="calShiftMonth(-1)"><i class="ti ti-chevron-left"></i></button>
+          <div class="cal-month-label" id="cal-month-label">—</div>
+          <button class="cal-nav-btn" onclick="calShiftMonth(1)"><i class="ti ti-chevron-right"></i></button>
+        </div>
+        <button class="btn-add" style="width:auto;padding:10px 18px" onclick="openEventModal()"><i class="ti ti-plus"></i>Nuevo evento</button>
+      </div>
+      <div class="cal-legend">
+        <span><i style="background:var(--r100);border:1.5px solid var(--r600)"></i>Día del evento</span>
+        <span><i style="background:var(--w100);border:1.5px solid var(--w600)"></i>3 semanas antes · a comprar</span>
+      </div>
+      <div class="cal-dow">
+        <div>Dom</div><div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
+
+    <div class="panel" style="margin-top:16px">
+      <div class="panel-hd"><div class="phd-icon"><i class="ti ti-list-details"></i></div><div><div class="ptitle">Próximos eventos</div><div class="psub">Ordenados por fecha</div></div></div>
+      <div class="cal-upcoming" id="cal-upcoming-list"></div>
+    </div>
+  </div>
+
 
     </div><!-- /.main-content -->
   </div><!-- /.main-col -->
 </div><!-- /.app -->
+
+<!-- MODAL: EVENTO DE CALENDARIO -->
+<div class="overlay" id="cal-event-overlay">
+  <div class="modal-box" style="max-width:420px">
+    <div class="panel-hd">
+      <div class="phd-icon"><i class="ti ti-calendar-event"></i></div>
+      <div><div class="ptitle" id="cal-event-modal-title">Nuevo evento</div><div class="psub">Nombre, fecha y componentes a comprar</div></div>
+    </div>
+    <div class="form-body">
+      <div class="field"><label>Nombre del evento</label><input type="text" id="cal-f-name" placeholder="Ej. Feria de ciencias CDB" maxlength="80" autocomplete="off"></div>
+      <div class="field"><label>Fecha</label><input type="date" id="cal-f-date"></div>
+      <div class="field">
+        <label>Componentes a comprar</label>
+        <textarea id="cal-f-comps" placeholder="Uno por línea, ej.&#10;10x Resistencia 330Ω&#10;5x LED rojo 5mm&#10;2x Arduino Uno" style="height:110px"></textarea>
+      </div>
+      <button class="btn-add" onclick="saveEvent()"><i class="ti ti-device-floppy"></i>Guardar evento</button>
+      <button class="btn-add" id="cal-f-delete-btn" style="display:none;background:linear-gradient(135deg,#f87171,var(--r600));margin-top:8px" onclick="deleteEventFromModal()"><i class="ti ti-trash"></i>Eliminar evento</button>
+      <div class="form-error" id="cal-f-error"></div>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL: PRODUCTO -->
 <div class="overlay" id="pm-overlay">
@@ -2337,12 +2431,15 @@ db.enablePersistence({ synchronizeTabs: true }).catch(e=>{
 });
 
 // ── ESTADO ──
-let products=[], sales=[], deletedSales=[], orders=[], descuentos=[], gastos=[], categorias=[], discountCodes=[], stampCards=[], creditos=[];
+let products=[], sales=[], deletedSales=[], orders=[], descuentos=[], gastos=[], categorias=[], discountCodes=[], stampCards=[], creditos=[], calendarEvents=[];
 let sortAsc={exsal:false,cdb:false,total:false};
 let activePid=null, activeSucursal=null;
-let unsubProd=null, unsubSales=null, unsubDeleted=null, unsubOrders=null, unsubRestock=null, unsubDescuentos=null, unsubGastos=null, unsubEstadisticas=null, unsubCategorias=null, unsubDiscountCodes=null, unsubStampCards=null, unsubCreditos=null;
+let unsubProd=null, unsubSales=null, unsubDeleted=null, unsubOrders=null, unsubRestock=null, unsubDescuentos=null, unsubGastos=null, unsubEstadisticas=null, unsubCategorias=null, unsubDiscountCodes=null, unsubStampCards=null, unsubCreditos=null, unsubCalendario=null;
 let restockHistory=[];
 let restockPendingData=null;
+const today0=new Date();
+let calViewYear=today0.getFullYear(), calViewMonth=today0.getMonth(); // 0-indexado
+let calEditingId=null;
 // Estado de carga de ventas por mes (nuevo apartado ventas)
 let ventasLoaded={exsal:false,cdb:false};
 let ventasMesActual={exsal:'',cdb:''};
@@ -2858,6 +2955,7 @@ function doSwitchTab(name,btn){
   if(name==='ventas-domicilio'&&!domLoaded) loadVentasDomicilio(true);
   if(name==='inv-restock'&&!restockLoaded) loadRestockHistory(true);
   if(name==='inv-creditos') startCreditosListener();
+  if(name==='inv-calendario') startCalendarioListener();
   if(name==='facturas') updateFacSedeChrome();
   // En móvil, cerrar el menú lateral al elegir una pestaña
   if(window.matchMedia('(max-width:900px)').matches) closeSidebar();
@@ -8277,6 +8375,7 @@ async function tryAwardStampForSale(ventaId, stampCardCode, totalProd){
 document.getElementById('dcode-edit-overlay').addEventListener('click',e=>{if(e.target.id==='dcode-edit-overlay')closeDiscountCodeEdit();});
 document.getElementById('stamp-edit-overlay').addEventListener('click',e=>{if(e.target.id==='stamp-edit-overlay')closeStampEdit();});
 document.getElementById('stamp-qr-overlay').addEventListener('click',e=>{if(e.target.id==='stamp-qr-overlay')closeStampQr();});
+document.getElementById('cal-event-overlay').addEventListener('click',e=>{if(e.target.id==='cal-event-overlay')closeEventModal();});
 
 // ── CATEGORÍAS (lista maestra en config/categorias.lista) ──
 const CATEGORIAS_REF=()=>db.collection('config').doc('categorias');
@@ -8368,6 +8467,192 @@ function startCreditosListener(){
     creditos.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
     renderCreditos();
   },err=>console.warn('creditos listener:',err));
+}
+
+// ═══════════════════════════════════════════════════
+//  CALENDARIO DE EVENTOS
+//  Cada evento: { name, date:'YYYY-MM-DD', components:[str,...], createdAt }
+//  El día del evento se pinta de un color; los 21 días previos (3 semanas)
+//  se pintan de otro color para avisar que hay que empezar a comprar.
+// ═══════════════════════════════════════════════════
+const CAL_WARN_DAYS=21;
+
+function startCalendarioListener(){
+  if(unsubCalendario){ renderCalendar(); renderUpcomingEvents(); return; }
+  unsubCalendario=db.collection('eventos-calendario').onSnapshot(snap=>{
+    calendarEvents=[];
+    snap.forEach(doc=>calendarEvents.push({id:doc.id,...doc.data()}));
+    calendarEvents.sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+    renderCalendar();
+    renderUpcomingEvents();
+  },err=>console.warn('calendario listener:',err));
+}
+
+function calDateStr(y,m,d){ // m es 0-indexado
+  return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+}
+function calParseDate(str){ // 'YYYY-MM-DD' -> Date local (sin desfase de zona horaria)
+  const [y,m,d]=str.split('-').map(Number);
+  return new Date(y,m-1,d);
+}
+function calDaysBetween(fromStr,toStr){
+  const a=calParseDate(fromStr), b=calParseDate(toStr);
+  return Math.round((b-a)/86400000);
+}
+const CAL_MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const CAL_DIAS_LARGOS=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+
+function calShiftMonth(delta){
+  calViewMonth+=delta;
+  if(calViewMonth<0){calViewMonth=11;calViewYear--;}
+  if(calViewMonth>11){calViewMonth=0;calViewYear++;}
+  renderCalendar();
+}
+
+function renderCalendar(){
+  const grid=document.getElementById('cal-grid');
+  const label=document.getElementById('cal-month-label');
+  if(!grid||!label) return;
+  label.textContent=`${CAL_MESES[calViewMonth]} ${calViewYear}`;
+
+  const firstOfMonth=new Date(calViewYear,calViewMonth,1);
+  const startWeekday=firstOfMonth.getDay(); // 0=Dom
+  const daysInMonth=new Date(calViewYear,calViewMonth+1,0).getDate();
+  const daysInPrevMonth=new Date(calViewYear,calViewMonth,0).getDate();
+  const totalCells=Math.ceil((startWeekday+daysInMonth)/7)*7;
+  const todayStr=calDateStr(today0.getFullYear(),today0.getMonth(),today0.getDate());
+
+  let html='';
+  for(let i=0;i<totalCells;i++){
+    const dayOffset=i-startWeekday;
+    let y=calViewYear,m=calViewMonth,d,otherMonth=false;
+    if(dayOffset<0){ d=daysInPrevMonth+dayOffset+1; m=calViewMonth-1; if(m<0){m=11;y--;} otherMonth=true; }
+    else if(dayOffset>=daysInMonth){ d=dayOffset-daysInMonth+1; m=calViewMonth+1; if(m>11){m=0;y++;} otherMonth=true; }
+    else{ d=dayOffset+1; }
+    const dateStr=calDateStr(y,m,d);
+
+    const dayEvents=otherMonth?[]:calendarEvents.filter(e=>e.date===dateStr);
+    const isEventDay=dayEvents.length>0;
+    const isWarn=!isEventDay && !otherMonth && calendarEvents.some(e=>{
+      const diff=calDaysBetween(dateStr,e.date);
+      return diff>0 && diff<=CAL_WARN_DAYS;
+    });
+
+    let cls='cal-cell';
+    if(otherMonth) cls+=' other-month';
+    if(dateStr===todayStr) cls+=' is-today';
+    if(isEventDay) cls+=' has-event';
+    else if(isWarn) cls+=' warn-period';
+
+    const firstName=isEventDay ? _calEsc(dayEvents[0].name||'') : '';
+    const dots=dayEvents.length>1 ? `<div class="cal-dots">${dayEvents.slice(1).map(()=>'<span class="cal-dot"></span>').join('')}</div>` : '';
+
+    html+=`<div class="${cls}" ${otherMonth?'':`onclick="calCellClick('${dateStr}')"`}>
+      <div class="cal-daynum">${d}</div>
+      ${isEventDay?`<div class="cal-evt-name">${firstName}</div>${dots}`:''}
+    </div>`;
+  }
+  grid.innerHTML=html;
+}
+
+function calCellClick(dateStr){
+  const dayEvents=calendarEvents.filter(e=>e.date===dateStr);
+  if(dayEvents.length) openEventModal(null,dayEvents[0].id);
+  else openEventModal(dateStr);
+}
+
+function renderUpcomingEvents(){
+  const wrap=document.getElementById('cal-upcoming-list');
+  if(!wrap) return;
+  const todayStr=calDateStr(today0.getFullYear(),today0.getMonth(),today0.getDate());
+  const upcoming=calendarEvents.filter(e=>e.date>=todayStr);
+  if(!upcoming.length){ wrap.innerHTML='<div class="cal-empty"><i class="ti ti-calendar-off" style="font-size:26px;display:block;margin-bottom:6px"></i>No hay eventos próximos.</div>'; return; }
+
+  wrap.innerHTML=upcoming.map(e=>{
+    const diff=calDaysBetween(todayStr,e.date);
+    const d=calParseDate(e.date);
+    const fecha=`${CAL_DIAS_LARGOS[d.getDay()]} ${d.getDate()} de ${CAL_MESES[d.getMonth()]}`;
+    const cuando = diff===0?'Hoy':diff===1?'Mañana':`En ${diff} días`;
+    const dotColor = diff<=CAL_WARN_DAYS ? 'var(--r600)' : 'var(--b300)';
+    const comps=(e.components||[]).filter(Boolean);
+    const compsHtml=comps.length?`<div class="cal-upcoming-comps"><i class="ti ti-list-check" style="margin-right:4px"></i>${comps.map(_calEsc).join(' · ')}</div>`:'';
+    return `<div class="cal-upcoming-item" onclick="openEventModal(null,'${e.id}')">
+      <div class="cal-upcoming-dot" style="background:${dotColor}"></div>
+      <div class="cal-upcoming-body">
+        <div class="cal-upcoming-name">${_calEsc(e.name||'')}</div>
+        <div class="cal-upcoming-date">${fecha} · ${cuando}</div>
+        ${compsHtml}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function _calEsc(s){
+  return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function openEventModal(prefillDateStr,editId){
+  document.getElementById('cal-f-error').textContent='';
+  const delBtn=document.getElementById('cal-f-delete-btn');
+  if(editId){
+    const ev=calendarEvents.find(e=>e.id===editId);
+    if(!ev) return;
+    calEditingId=editId;
+    document.getElementById('cal-event-modal-title').textContent='Editar evento';
+    document.getElementById('cal-f-name').value=ev.name||'';
+    document.getElementById('cal-f-date').value=ev.date||'';
+    document.getElementById('cal-f-comps').value=(ev.components||[]).join('\n');
+    delBtn.style.display='';
+  } else {
+    calEditingId=null;
+    document.getElementById('cal-event-modal-title').textContent='Nuevo evento';
+    document.getElementById('cal-f-name').value='';
+    document.getElementById('cal-f-date').value=prefillDateStr||calDateStr(today0.getFullYear(),today0.getMonth(),today0.getDate());
+    document.getElementById('cal-f-comps').value='';
+    delBtn.style.display='none';
+  }
+  document.getElementById('cal-event-overlay').classList.add('open');
+}
+
+function closeEventModal(){
+  document.getElementById('cal-event-overlay').classList.remove('open');
+  calEditingId=null;
+}
+
+async function saveEvent(){
+  const errEl=document.getElementById('cal-f-error');
+  errEl.textContent='';
+  const name=document.getElementById('cal-f-name').value.trim();
+  const date=document.getElementById('cal-f-date').value;
+  const comps=document.getElementById('cal-f-comps').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  if(!name){ errEl.textContent='Ponle un nombre al evento.'; return; }
+  if(!date){ errEl.textContent='Elige una fecha.'; return; }
+
+  const payload={ name, date, components:comps, updatedAt:Date.now() };
+  try{
+    if(calEditingId){
+      await db.collection('eventos-calendario').doc(calEditingId).update(payload);
+    } else {
+      payload.createdAt=Date.now();
+      await db.collection('eventos-calendario').add(payload);
+    }
+    closeEventModal();
+  }catch(e){
+    errEl.textContent='No se pudo guardar el evento. Intenta de nuevo.';
+    console.warn('saveEvent:',e);
+  }
+}
+
+async function deleteEventFromModal(){
+  if(!calEditingId) return;
+  if(!confirm('¿Eliminar este evento del calendario?')) return;
+  try{
+    await db.collection('eventos-calendario').doc(calEditingId).delete();
+    closeEventModal();
+  }catch(e){
+    document.getElementById('cal-f-error').textContent='No se pudo eliminar. Intenta de nuevo.';
+    console.warn('deleteEvent:',e);
+  }
 }
 
 function creditoEstaVencido(c){
