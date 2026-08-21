@@ -171,12 +171,15 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .cal-cell.is-today{border-color:var(--b400);box-shadow:0 0 0 2px rgba(74,168,232,.18) inset}
 .cal-cell.warn-period{background:var(--w50);border-color:var(--w100)}
 .cal-cell.has-event{background:var(--r50);border-color:var(--r100)}
-.cal-daynum{font-size:12.5px;font-weight:700;color:var(--tp)}
+.cal-cell.has-event-dual{border-color:var(--b200)}
+.cal-cell.has-event-dual .cal-daynum,
+.cal-cell.has-event-dual .cal-evt-name{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.cal-daynum{font-size:12.5px;font-weight:700;color:var(--tp);position:relative;z-index:1}
 .cal-cell.warn-period .cal-daynum{color:var(--w600)}
 .cal-cell.has-event .cal-daynum{color:var(--r600)}
-.cal-dots{display:flex;gap:3px;flex-wrap:wrap;margin-top:auto}
-.cal-dot{width:6px;height:6px;border-radius:50%;background:var(--r600);flex-shrink:0}
-.cal-evt-name{font-size:9.5px;font-weight:700;color:var(--r600);line-height:1.15;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cal-dots{display:flex;gap:3px;flex-wrap:wrap;margin-top:auto;position:relative;z-index:1}
+.cal-dot{width:6px;height:6px;border-radius:50%;background:var(--r600);flex-shrink:0;border:1px solid rgba(255,255,255,.55)}
+.cal-evt-name{font-size:9.5px;font-weight:700;color:var(--r600);line-height:1.15;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;position:relative;z-index:1}
 .cal-upcoming{padding:4px 18px 20px}
 .cal-upcoming-item{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:1.5px solid var(--b50);border-radius:var(--rmd);margin-bottom:8px;background:var(--wh);cursor:pointer;transition:var(--tr)}
 .cal-upcoming-item:hover{border-color:var(--b200)}
@@ -185,7 +188,23 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .cal-upcoming-name{font-size:13.5px;font-weight:700;color:var(--tp)}
 .cal-upcoming-date{font-size:11.5px;color:var(--tm);font-weight:600;margin-top:1px}
 .cal-upcoming-comps{font-size:11.5px;color:var(--ts);margin-top:5px;line-height:1.5}
+.cal-upcoming-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--b50);color:var(--b600);margin-left:6px;vertical-align:middle}
 .cal-empty{text-align:center;padding:30px 20px;color:var(--tm);font-size:13px}
+.cal-repeat-row{display:flex;gap:8px}
+.cal-repeat-opt{flex:1;display:flex;align-items:flex-start;gap:8px;background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rsm);padding:10px 11px;cursor:pointer;user-select:none}
+.cal-repeat-opt.active{border-color:var(--b300);background:linear-gradient(135deg,var(--b50),#dbeafe)}
+.cal-repeat-opt input{margin-top:2px;accent-color:var(--b400);width:15px;height:15px;flex-shrink:0;cursor:pointer}
+.cal-repeat-opt .cal-ro-txt{font-size:12.5px;font-weight:700;color:var(--tp);line-height:1.25}
+.cal-repeat-opt .cal-ro-sub{font-size:10.5px;font-weight:500;color:var(--tm);margin-top:2px}
+.cal-color-chips{display:flex;flex-wrap:wrap;gap:7px}
+.cal-color-chip{width:28px;height:28px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12);transition:transform var(--tr),box-shadow var(--tr)}
+.cal-color-chip:hover{transform:scale(1.08)}
+.cal-color-chip.on{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--b400);transform:scale(1.06)}
+.cal-day-pick-item{display:flex;align-items:center;gap:10px;padding:11px 12px;border:1.5px solid var(--b50);border-radius:var(--rsm);margin-bottom:8px;cursor:pointer;background:var(--wh);transition:var(--tr);width:100%;font-family:inherit;text-align:left}
+.cal-day-pick-item:hover{border-color:var(--b200)}
+.cal-day-pick-swatch{width:14px;height:14px;border-radius:50%;flex-shrink:0;border:1px solid rgba(0,0,0,.12)}
+.cal-day-pick-name{font-size:13.5px;font-weight:700;color:var(--tp);flex:1}
+.cal-day-pick-meta{font-size:11px;color:var(--tm);font-weight:600}
 .list-controls{padding:13px 15px 11px;border-bottom:1px solid var(--b50)}
 .search-wrap{position:relative}
 .search-wrap i{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--b300);pointer-events:none}
@@ -1999,6 +2018,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       </div>
       <div class="cal-legend">
         <span><i style="background:var(--r100);border:1.5px solid var(--r600)"></i>Día del evento</span>
+        <span><i style="background:linear-gradient(135deg,#e74c3c 50%,#4aa8e8 50%);border:1.5px solid var(--b200)"></i>Dos eventos el mismo día</span>
         <span><i style="background:var(--w100);border:1.5px solid var(--w600)"></i>3 semanas antes · a comprar</span>
       </div>
       <div class="cal-dow">
@@ -2029,12 +2049,43 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
       <div class="field"><label>Nombre del evento</label><input type="text" id="cal-f-name" placeholder="Ej. Feria de ciencias CDB" maxlength="80" autocomplete="off"></div>
       <div class="field"><label>Fecha</label><input type="date" id="cal-f-date"></div>
       <div class="field">
+        <label>Repetición</label>
+        <div class="cal-repeat-row">
+          <label class="cal-repeat-opt active" id="cal-repeat-once-lab">
+            <input type="radio" name="cal-f-repeat" value="once" checked onchange="calSyncRepeatUI()">
+            <span><div class="cal-ro-txt">Una sola vez</div><div class="cal-ro-sub">Solo en esa fecha</div></span>
+          </label>
+          <label class="cal-repeat-opt" id="cal-repeat-yearly-lab">
+            <input type="radio" name="cal-f-repeat" value="yearly" onchange="calSyncRepeatUI()">
+            <span><div class="cal-ro-txt">Todos los años</div><div class="cal-ro-sub">Misma fecha cada año</div></span>
+          </label>
+        </div>
+      </div>
+      <div class="field">
+        <label>Color</label>
+        <div class="cal-color-chips" id="cal-f-colors"></div>
+      </div>
+      <div class="field">
         <label>Componentes a comprar</label>
         <textarea id="cal-f-comps" placeholder="Uno por línea, ej.&#10;10x Resistencia 330Ω&#10;5x LED rojo 5mm&#10;2x Arduino Uno" style="height:110px"></textarea>
       </div>
       <button class="btn-add" onclick="saveEvent()"><i class="ti ti-device-floppy"></i>Guardar evento</button>
       <button class="btn-add" id="cal-f-delete-btn" style="display:none;background:linear-gradient(135deg,#f87171,var(--r600));margin-top:8px" onclick="deleteEventFromModal()"><i class="ti ti-trash"></i>Eliminar evento</button>
       <div class="form-error" id="cal-f-error"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ELEGIR EVENTO DEL DÍA -->
+<div class="overlay" id="cal-day-pick-overlay">
+  <div class="modal-box" style="max-width:380px">
+    <div class="panel-hd">
+      <div class="phd-icon"><i class="ti ti-calendar-stats"></i></div>
+      <div><div class="ptitle">Eventos del día</div><div class="psub" id="cal-day-pick-sub">Elige cuál editar</div></div>
+    </div>
+    <div class="form-body">
+      <div id="cal-day-pick-list"></div>
+      <button class="btn-add" style="margin-top:4px" onclick="calDayPickNew()"><i class="ti ti-plus"></i>Agregar otro evento</button>
     </div>
   </div>
 </div>
@@ -2440,6 +2491,8 @@ let restockPendingData=null;
 const today0=new Date();
 let calViewYear=today0.getFullYear(), calViewMonth=today0.getMonth(); // 0-indexado
 let calEditingId=null;
+let calSelectedColor='rojo';
+let calDayPickDate=null;
 // Estado de carga de ventas por mes (nuevo apartado ventas)
 let ventasLoaded={exsal:false,cdb:false};
 let ventasMesActual={exsal:'',cdb:''};
@@ -8376,6 +8429,7 @@ document.getElementById('dcode-edit-overlay').addEventListener('click',e=>{if(e.
 document.getElementById('stamp-edit-overlay').addEventListener('click',e=>{if(e.target.id==='stamp-edit-overlay')closeStampEdit();});
 document.getElementById('stamp-qr-overlay').addEventListener('click',e=>{if(e.target.id==='stamp-qr-overlay')closeStampQr();});
 document.getElementById('cal-event-overlay').addEventListener('click',e=>{if(e.target.id==='cal-event-overlay')closeEventModal();});
+document.getElementById('cal-day-pick-overlay').addEventListener('click',e=>{if(e.target.id==='cal-day-pick-overlay')closeDayPickModal();});
 
 // ── CATEGORÍAS (lista maestra en config/categorias.lista) ──
 const CATEGORIAS_REF=()=>db.collection('config').doc('categorias');
@@ -8471,11 +8525,61 @@ function startCreditosListener(){
 
 // ═══════════════════════════════════════════════════
 //  CALENDARIO DE EVENTOS
-//  Cada evento: { name, date:'YYYY-MM-DD', components:[str,...], createdAt }
-//  El día del evento se pinta de un color; los 21 días previos (3 semanas)
-//  se pintan de otro color para avisar que hay que empezar a comprar.
+//  Cada evento: { name, date:'YYYY-MM-DD', yearly:bool, color:str,
+//                 components:[str,...], createdAt }
+//  yearly=true → se repite todos los años (misma MM-DD).
+//  El día del evento se pinta del color del evento; si hay dos el
+//  mismo día, el cuadrito se divide en diagonal (un color por evento).
+//  Los 21 días previos se pintan de aviso para empezar a comprar.
 // ═══════════════════════════════════════════════════
 const CAL_WARN_DAYS=21;
+const CAL_COLORS=[
+  {id:'rojo',    bg:'#fff0f0', border:'#ffcdd0', text:'#c0392b', solid:'#e74c3c', label:'Rojo'},
+  {id:'azul',    bg:'#e8f4fd', border:'#c5e3f9', text:'#1776b0', solid:'#4aa8e8', label:'Azul'},
+  {id:'verde',   bg:'#e8faf2', border:'#b8edcf', text:'#1b7a4a', solid:'#2ecc71', label:'Verde'},
+  {id:'naranja', bg:'#fff8e8', border:'#fde8b0', text:'#b56a00', solid:'#f39c12', label:'Naranja'},
+  {id:'morado',  bg:'#f5f0ff', border:'#ddd0ff', text:'#6c3483', solid:'#9b59b6', label:'Morado'},
+  {id:'teal',    bg:'#e6faf8', border:'#b2ebe4', text:'#0e6655', solid:'#1abc9c', label:'Teal'},
+];
+
+function calColorOf(e){
+  const id=(e&&e.color)||'rojo';
+  return CAL_COLORS.find(c=>c.id===id)||CAL_COLORS[0];
+}
+
+function calEventOnDate(e, dateStr){
+  if(!e||!e.date||!dateStr) return false;
+  if(e.yearly) return e.date.slice(5)===dateStr.slice(5);
+  return e.date===dateStr;
+}
+
+function calEventsOnDate(dateStr){
+  return calendarEvents.filter(e=>calEventOnDate(e,dateStr));
+}
+
+function calNextOccurrence(e, fromStr){
+  if(!e||!e.date) return null;
+  if(!e.yearly) return e.date>=fromStr ? e.date : null;
+  const md=e.date.slice(5);
+  const y=parseInt(fromStr.slice(0,4),10);
+  const thisYear=`${y}-${md}`;
+  if(thisYear>=fromStr) return thisYear;
+  return `${y+1}-${md}`;
+}
+
+function calIsWarnDay(dateStr){
+  const y=parseInt(dateStr.slice(0,4),10);
+  return calendarEvents.some(e=>{
+    if(!e.date) return false;
+    const candidates=e.yearly
+      ? [`${y-1}-${e.date.slice(5)}`,`${y}-${e.date.slice(5)}`,`${y+1}-${e.date.slice(5)}`]
+      : [e.date];
+    return candidates.some(evDate=>{
+      const diff=calDaysBetween(dateStr,evDate);
+      return diff>0 && diff<=CAL_WARN_DAYS;
+    });
+  });
+}
 
 function startCalendarioListener(){
   if(unsubCalendario){ renderCalendar(); renderUpcomingEvents(); return; }
@@ -8531,55 +8635,110 @@ function renderCalendar(){
     else{ d=dayOffset+1; }
     const dateStr=calDateStr(y,m,d);
 
-    const dayEvents=otherMonth?[]:calendarEvents.filter(e=>e.date===dateStr);
+    const dayEvents=otherMonth?[]:calEventsOnDate(dateStr);
     const isEventDay=dayEvents.length>0;
-    const isWarn=!isEventDay && !otherMonth && calendarEvents.some(e=>{
-      const diff=calDaysBetween(dateStr,e.date);
-      return diff>0 && diff<=CAL_WARN_DAYS;
-    });
+    const isWarn=!isEventDay && !otherMonth && calIsWarnDay(dateStr);
 
     let cls='cal-cell';
     if(otherMonth) cls+=' other-month';
     if(dateStr===todayStr) cls+=' is-today';
-    if(isEventDay) cls+=' has-event';
+    if(isEventDay) cls+= dayEvents.length>=2 ? ' has-event has-event-dual' : ' has-event';
     else if(isWarn) cls+=' warn-period';
 
-    const firstName=isEventDay ? _calEsc(dayEvents[0].name||'') : '';
-    const dots=dayEvents.length>1 ? `<div class="cal-dots">${dayEvents.slice(1).map(()=>'<span class="cal-dot"></span>').join('')}</div>` : '';
+    let style='';
+    if(isEventDay && dayEvents.length>=2){
+      const c1=calColorOf(dayEvents[0]).solid;
+      const c2=calColorOf(dayEvents[1]).solid;
+      style=`background:linear-gradient(135deg,${c1} 50%,${c2} 50%);border-color:${c1}`;
+    } else if(isEventDay){
+      const c=calColorOf(dayEvents[0]);
+      style=`background:${c.bg};border-color:${c.border}`;
+    }
 
-    html+=`<div class="${cls}" ${otherMonth?'':`onclick="calCellClick('${dateStr}')"`}>
-      <div class="cal-daynum">${d}</div>
-      ${isEventDay?`<div class="cal-evt-name">${firstName}</div>${dots}`:''}
+    const firstName=isEventDay ? _calEsc(dayEvents[0].name||'') : '';
+    const nameStyle=isEventDay && dayEvents.length===1
+      ? `style="color:${calColorOf(dayEvents[0]).text}"`
+      : '';
+    const daynumStyle=isEventDay && dayEvents.length===1
+      ? `style="color:${calColorOf(dayEvents[0]).text}"`
+      : '';
+    const dots=dayEvents.length>1
+      ? `<div class="cal-dots">${dayEvents.slice(1).map(ev=>`<span class="cal-dot" style="background:${calColorOf(ev).solid}"></span>`).join('')}</div>`
+      : '';
+
+    html+=`<div class="${cls}" ${style?`style="${style}"`:''} ${otherMonth?'':`onclick="calCellClick('${dateStr}')"`}>
+      <div class="cal-daynum" ${daynumStyle}>${d}</div>
+      ${isEventDay?`<div class="cal-evt-name" ${nameStyle}>${firstName}</div>${dots}`:''}
     </div>`;
   }
   grid.innerHTML=html;
 }
 
 function calCellClick(dateStr){
-  const dayEvents=calendarEvents.filter(e=>e.date===dateStr);
-  if(dayEvents.length) openEventModal(null,dayEvents[0].id);
+  const dayEvents=calEventsOnDate(dateStr);
+  if(dayEvents.length>1) openDayPickModal(dateStr, dayEvents);
+  else if(dayEvents.length===1) openEventModal(null, dayEvents[0].id);
   else openEventModal(dateStr);
+}
+
+function openDayPickModal(dateStr, dayEvents){
+  calDayPickDate=dateStr;
+  const d=calParseDate(dateStr);
+  document.getElementById('cal-day-pick-sub').textContent=
+    `${CAL_DIAS_LARGOS[d.getDay()]} ${d.getDate()} de ${CAL_MESES[d.getMonth()]} · elige cuál editar`;
+  const list=document.getElementById('cal-day-pick-list');
+  list.innerHTML=dayEvents.map(e=>{
+    const c=calColorOf(e);
+    const yearly=e.yearly?' · todos los años':'';
+    return `<button type="button" class="cal-day-pick-item" onclick="calDayPickEdit('${e.id}')">
+      <span class="cal-day-pick-swatch" style="background:${c.solid}"></span>
+      <span class="cal-day-pick-name">${_calEsc(e.name||'Sin nombre')}</span>
+      <span class="cal-day-pick-meta">Editar${yearly}</span>
+    </button>`;
+  }).join('');
+  document.getElementById('cal-day-pick-overlay').classList.add('open');
+}
+
+function closeDayPickModal(){
+  document.getElementById('cal-day-pick-overlay').classList.remove('open');
+  calDayPickDate=null;
+}
+
+function calDayPickEdit(id){
+  closeDayPickModal();
+  openEventModal(null, id);
+}
+
+function calDayPickNew(){
+  const dateStr=calDayPickDate;
+  closeDayPickModal();
+  openEventModal(dateStr);
 }
 
 function renderUpcomingEvents(){
   const wrap=document.getElementById('cal-upcoming-list');
   if(!wrap) return;
   const todayStr=calDateStr(today0.getFullYear(),today0.getMonth(),today0.getDate());
-  const upcoming=calendarEvents.filter(e=>e.date>=todayStr);
+  const upcoming=calendarEvents.map(e=>{
+    const next=calNextOccurrence(e, todayStr);
+    return next ? {...e, _next:next} : null;
+  }).filter(Boolean).sort((a,b)=>a._next.localeCompare(b._next));
+
   if(!upcoming.length){ wrap.innerHTML='<div class="cal-empty"><i class="ti ti-calendar-off" style="font-size:26px;display:block;margin-bottom:6px"></i>No hay eventos próximos.</div>'; return; }
 
   wrap.innerHTML=upcoming.map(e=>{
-    const diff=calDaysBetween(todayStr,e.date);
-    const d=calParseDate(e.date);
+    const diff=calDaysBetween(todayStr,e._next);
+    const d=calParseDate(e._next);
     const fecha=`${CAL_DIAS_LARGOS[d.getDay()]} ${d.getDate()} de ${CAL_MESES[d.getMonth()]}`;
     const cuando = diff===0?'Hoy':diff===1?'Mañana':`En ${diff} días`;
-    const dotColor = diff<=CAL_WARN_DAYS ? 'var(--r600)' : 'var(--b300)';
+    const c=calColorOf(e);
     const comps=(e.components||[]).filter(Boolean);
     const compsHtml=comps.length?`<div class="cal-upcoming-comps"><i class="ti ti-list-check" style="margin-right:4px"></i>${comps.map(_calEsc).join(' · ')}</div>`:'';
+    const yearlyBadge=e.yearly?'<span class="cal-upcoming-badge">Todos los años</span>':'';
     return `<div class="cal-upcoming-item" onclick="openEventModal(null,'${e.id}')">
-      <div class="cal-upcoming-dot" style="background:${dotColor}"></div>
+      <div class="cal-upcoming-dot" style="background:${c.solid}"></div>
       <div class="cal-upcoming-body">
-        <div class="cal-upcoming-name">${_calEsc(e.name||'')}</div>
+        <div class="cal-upcoming-name">${_calEsc(e.name||'')}${yearlyBadge}</div>
         <div class="cal-upcoming-date">${fecha} · ${cuando}</div>
         ${compsHtml}
       </div>
@@ -8589,6 +8748,26 @@ function renderUpcomingEvents(){
 
 function _calEsc(s){
   return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function calSyncRepeatUI(){
+  const yearly=document.querySelector('input[name="cal-f-repeat"]:checked')?.value==='yearly';
+  document.getElementById('cal-repeat-once-lab').classList.toggle('active', !yearly);
+  document.getElementById('cal-repeat-yearly-lab').classList.toggle('active', !!yearly);
+}
+
+function calRenderColorChips(selectedId){
+  calSelectedColor=selectedId||'rojo';
+  const wrap=document.getElementById('cal-f-colors');
+  if(!wrap) return;
+  wrap.innerHTML=CAL_COLORS.map(c=>
+    `<button type="button" class="cal-color-chip${c.id===calSelectedColor?' on':''}" style="background:${c.solid}" title="${c.label}" onclick="calSelectColor('${c.id}')"></button>`
+  ).join('');
+}
+
+function calSelectColor(id){
+  calSelectedColor=id;
+  calRenderColorChips(id);
 }
 
 function openEventModal(prefillDateStr,editId){
@@ -8602,6 +8781,11 @@ function openEventModal(prefillDateStr,editId){
     document.getElementById('cal-f-name').value=ev.name||'';
     document.getElementById('cal-f-date').value=ev.date||'';
     document.getElementById('cal-f-comps').value=(ev.components||[]).join('\n');
+    const yearly=!!ev.yearly;
+    document.querySelector('input[name="cal-f-repeat"][value="once"]').checked=!yearly;
+    document.querySelector('input[name="cal-f-repeat"][value="yearly"]').checked=yearly;
+    calSyncRepeatUI();
+    calRenderColorChips(ev.color||'rojo');
     delBtn.style.display='';
   } else {
     calEditingId=null;
@@ -8609,6 +8793,13 @@ function openEventModal(prefillDateStr,editId){
     document.getElementById('cal-f-name').value='';
     document.getElementById('cal-f-date').value=prefillDateStr||calDateStr(today0.getFullYear(),today0.getMonth(),today0.getDate());
     document.getElementById('cal-f-comps').value='';
+    document.querySelector('input[name="cal-f-repeat"][value="once"]').checked=true;
+    document.querySelector('input[name="cal-f-repeat"][value="yearly"]').checked=false;
+    calSyncRepeatUI();
+    // Color por defecto: el menos usado, o el siguiente distinto al del día si ya hay eventos
+    const used=new Set(calEventsOnDate(prefillDateStr||'').map(e=>e.color||'rojo'));
+    const pick=CAL_COLORS.find(c=>!used.has(c.id))||CAL_COLORS[0];
+    calRenderColorChips(pick.id);
     delBtn.style.display='none';
   }
   document.getElementById('cal-event-overlay').classList.add('open');
@@ -8625,10 +8816,12 @@ async function saveEvent(){
   const name=document.getElementById('cal-f-name').value.trim();
   const date=document.getElementById('cal-f-date').value;
   const comps=document.getElementById('cal-f-comps').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  const yearly=document.querySelector('input[name="cal-f-repeat"]:checked')?.value==='yearly';
+  const color=calSelectedColor||'rojo';
   if(!name){ errEl.textContent='Ponle un nombre al evento.'; return; }
   if(!date){ errEl.textContent='Elige una fecha.'; return; }
 
-  const payload={ name, date, components:comps, updatedAt:Date.now() };
+  const payload={ name, date, yearly:!!yearly, color, components:comps, updatedAt:Date.now() };
   try{
     if(calEditingId){
       await db.collection('eventos-calendario').doc(calEditingId).update(payload);
