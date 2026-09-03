@@ -783,7 +783,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .pos-seller-role{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--tm);line-height:1}
 .pos-seller-name{font-size:11.5px;font-weight:700;color:var(--tp);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px}
 .pos-catalog{display:grid;grid-template-rows:auto minmax(0,1fr);min-width:0;min-height:0;overflow:hidden;border-right:1.5px solid var(--b50);background:linear-gradient(180deg,#f3f9fd 0%,#fff 120px)}
-.pos-cat-hd{padding:14px 16px 10px;padding-right:200px;display:flex;flex-direction:column;gap:10px}
+.pos-cat-hd{padding:14px 16px 10px;display:flex;flex-direction:column;gap:10px}
 .pos-cat-title{font-size:17px;font-weight:800;color:var(--tp);display:flex;align-items:center;gap:8px}
 .pos-cat-title span{font-size:11px;font-weight:700;color:var(--b600);background:var(--b50);border:1px solid var(--b100);border-radius:999px;padding:2px 9px}
 .pos-cat-tools{display:flex;gap:8px;flex-wrap:wrap}
@@ -804,14 +804,27 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .pos-card-price{font-size:13px;font-weight:800;color:var(--g600)}
 .pos-card-stock{font-size:10px;font-weight:700;color:var(--tm)}
 .pos-card-actions{display:flex;flex-direction:column;gap:6px;margin-top:2px;flex-shrink:0}
-.pos-card-stepper{display:flex;align-items:center;border:1.5px solid var(--b100);border-radius:10px;overflow:hidden;background:var(--b50)}
-.pos-card-stepper button{width:34px;height:34px;border:none;background:transparent;color:var(--b600);font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;flex-shrink:0}
+.pos-card-stepper{display:flex;align-items:center;border:1.5px solid var(--b300);border-radius:10px;overflow:hidden;background:linear-gradient(135deg,var(--b400),var(--s400));box-shadow:0 2px 10px rgba(74,168,232,.25)}
+.pos-card-stepper button{width:36px;height:36px;border:none;background:transparent;color:#fff;font-size:18px;font-weight:800;cursor:pointer;font-family:inherit;flex-shrink:0}
 .pos-card-stepper button:disabled{opacity:.35;cursor:not-allowed}
-.pos-card-stepper input{flex:1;min-width:0;width:100%;border:none;background:#fff;text-align:center;font-size:14px;font-weight:800;color:var(--tp);font-family:inherit;padding:6px 2px;outline:none;-moz-appearance:textfield}
-.pos-card-stepper input::-webkit-outer-spin-button,.pos-card-stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
-.pos-card-add{width:100%;padding:9px 6px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--b400),var(--s400));color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px}
+.pos-card-stepper .pos-card-qty-val,.pos-card-stepper input.pos-qty-input{flex:1;min-width:0;width:100%;border:none;background:rgba(255,255,255,.95);text-align:center;font-size:15px;font-weight:800;color:var(--tp);font-family:inherit;padding:7px 2px;outline:none;-moz-appearance:textfield}
+.pos-card-stepper input.pos-qty-input::-webkit-outer-spin-button,.pos-card-stepper input.pos-qty-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.pos-card-add{width:100%;padding:10px 6px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--b400),var(--s400));color:#fff;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px}
 .pos-card-add:disabled{opacity:.45;cursor:not-allowed}
-.pos-card-add .pos-add-qty{background:rgba(255,255,255,.22);border-radius:999px;padding:1px 8px;font-weight:800;font-variant-numeric:tabular-nums}
+.pos-chrome{display:flex;align-items:center;gap:6px;margin-left:auto}
+.pos-chrome-btn{width:34px;height:34px;border:1.5px solid var(--b100);border-radius:10px;background:#fff;color:var(--b600);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.pos-chrome-btn:hover{background:var(--b50);border-color:var(--b300)}
+.pos-cat-title-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sidebar-toggle-desk{display:none;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);color:#fff;width:38px;height:38px;border-radius:10px;cursor:pointer;font-size:20px;align-items:center;justify-content:center;flex-shrink:0}
+.app.sidebar-collapsed .sidebar-toggle-desk{display:flex}
+.app.sidebar-collapsed .sidebar{width:0;min-width:0;padding:0;border:none;overflow:hidden;opacity:0;pointer-events:none}
+.app.sidebar-collapsed{max-width:none}
+.app.sidebar-collapsed .main-content{max-width:none}
+body.pos-mode .app.has-sidebar{max-width:none}
+body.pos-mode .main-content{max-width:none;padding-left:14px;padding-right:14px}
+.pos-shell:fullscreen,.pos-shell:-webkit-full-screen{width:100vw;height:100vh;max-height:100vh;border-radius:0;border:none}
+.pos-shell:fullscreen .pos-catalog,.pos-shell:-webkit-full-screen .pos-catalog{background:linear-gradient(180deg,#f3f9fd 0%,#fff 120px)}
+body.pos-fs .pos-chrome-btn.pos-fs-btn{border-color:var(--b300);background:var(--b50)}
 .pos-ticket{display:flex;flex-direction:column;background:#fff;min-height:0;overflow:hidden}
 .pos-ticket-hd{padding:12px 14px 8px;background:linear-gradient(135deg,var(--b400),var(--s400));color:#fff;flex-shrink:0}
 .pos-ticket-title{font-size:14px;font-weight:800;display:flex;align-items:center;gap:7px;margin-bottom:8px}
@@ -860,6 +873,7 @@ body.pos-mode .topbar{margin-bottom:10px;flex-shrink:0}
 body.pos-mode .main-content{padding-bottom:10px;padding-top:0;flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column}
 body.pos-mode .main-content > .tab-content.active{flex:1;min-height:0;display:flex!important;flex-direction:column;overflow:hidden}
 body.pos-mode .pos-shell{flex:1;min-height:0;height:100%;max-height:none;overflow:hidden}
+body.pos-mode .sidebar-toggle-desk{display:flex}
 @media(max-width:900px){
   .pos-shell{display:flex;flex-direction:column;height:100%;min-height:0;overflow:hidden}
   .pos-catalog{display:flex;flex-direction:column;flex:1 1 0;min-height:0;overflow:hidden;border-right:none;border-bottom:none}
@@ -870,9 +884,13 @@ body.pos-mode .pos-shell{flex:1;min-height:0;height:100%;max-height:none;overflo
   .pos-card-stepper button{width:30px;height:30px;font-size:14px}
   .pos-card-add{padding:8px 4px;font-size:11px}
   .pos-ticket{flex:0 0 auto;max-height:min(42vh,300px);min-height:200px;overflow:hidden;border-top:1.5px solid var(--b100);box-shadow:0 -6px 20px rgba(15,63,99,.08)}
-  .pos-cat-hd{padding-right:16px;flex-shrink:0}
-  .pos-seller-chip{top:8px;right:8px}
+  .pos-cat-hd{padding-right:16px;flex-shrink:0;padding-top:48px}
+  .pos-seller-chip{top:8px;left:8px;right:auto}
+  .pos-chrome{gap:4px}
+  .pos-chrome-btn{width:32px;height:32px}
   body.pos-mode .main-col{height:100dvh}
+  .app.sidebar-collapsed .sidebar-toggle-desk{display:none}
+  body.pos-mode .sidebar-toggle-desk{display:none}
 }
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -1005,6 +1023,7 @@ body.pos-mode .pos-shell{flex:1;min-height:0;height:100%;max-height:none;overflo
   <div class="main-col">
     <div class="topbar">
       <button class="hamburger" onclick="openSidebar()" aria-label="Abrir menú"><i class="ti ti-menu-2"></i></button>
+      <button class="sidebar-toggle-desk" id="btn-sidebar-toggle" onclick="toggleSidebarCollapsed()" aria-label="Mostrar u ocultar menú" title="Menú lateral"><i class="ti ti-layout-sidebar-left-expand" id="btn-sidebar-toggle-ico"></i></button>
       <div class="topbar-title"><i class="ti ti-package"></i><span>Control de Inventario</span></div>
       <div class="header-right">
         <div class="save-pill" id="save-pill"><div class="save-dot" id="save-dot"></div><span id="save-text">Conectando...</span></div>
@@ -2037,7 +2056,13 @@ body.pos-mode .pos-shell{flex:1;min-height:0;height:100%;max-height:none;overflo
       </div>
       <div class="pos-catalog">
         <div class="pos-cat-hd">
-          <div class="pos-cat-title"><i class="ti ti-shopping-bag"></i>Caja CDB <span>tablet</span></div>
+          <div class="pos-cat-title-row">
+            <div class="pos-cat-title"><i class="ti ti-shopping-bag"></i>Caja CDB <span>tablet</span></div>
+            <div class="pos-chrome">
+              <button type="button" class="pos-chrome-btn" onclick="toggleSidebarCollapsed()" title="Minimizar menú"><i class="ti ti-layout-sidebar-left-collapse" id="pos-sb-ico-cdb"></i></button>
+              <button type="button" class="pos-chrome-btn pos-fs-btn" onclick="togglePosFullscreen('cdb')" title="Pantalla completa"><i class="ti ti-maximize" id="pos-fs-ico-cdb"></i></button>
+            </div>
+          </div>
           <div class="pos-cat-tools">
             <div class="search-wrap"><i class="ti ti-search"></i><input type="text" id="pos-search-cdb" placeholder="Buscar…" oninput="renderPosCatalog('cdb')"></div>
             <select class="pos-cat-filter" id="pos-cat-cdb" onchange="renderPosCatalog('cdb')"><option value="">Todas</option></select>
@@ -2098,7 +2123,13 @@ body.pos-mode .pos-shell{flex:1;min-height:0;height:100%;max-height:none;overflo
       </div>
       <div class="pos-catalog">
         <div class="pos-cat-hd">
-          <div class="pos-cat-title"><i class="ti ti-shopping-bag"></i>Caja EXSAL <span>tablet</span></div>
+          <div class="pos-cat-title-row">
+            <div class="pos-cat-title"><i class="ti ti-shopping-bag"></i>Caja EXSAL <span>tablet</span></div>
+            <div class="pos-chrome">
+              <button type="button" class="pos-chrome-btn" onclick="toggleSidebarCollapsed()" title="Minimizar menú"><i class="ti ti-layout-sidebar-left-collapse" id="pos-sb-ico-exsal"></i></button>
+              <button type="button" class="pos-chrome-btn pos-fs-btn" onclick="togglePosFullscreen('exsal')" title="Pantalla completa"><i class="ti ti-maximize" id="pos-fs-ico-exsal"></i></button>
+            </div>
+          </div>
           <div class="pos-cat-tools">
             <div class="search-wrap"><i class="ti ti-search"></i><input type="text" id="pos-search-exsal" placeholder="Buscar…" oninput="renderPosCatalog('exsal')"></div>
             <select class="pos-cat-filter" id="pos-cat-exsal" onchange="renderPosCatalog('exsal')"><option value="">Todas</option></select>
@@ -3331,6 +3362,63 @@ function closeSidebar(){
   document.getElementById('sidebar-backdrop').classList.remove('open');
   document.body.style.overflow='';
 }
+function toggleSidebarCollapsed(){
+  if(window.matchMedia('(max-width:900px)').matches){
+    const sb=document.getElementById('sidebar');
+    if(sb.classList.contains('open')) closeSidebar();
+    else openSidebar();
+    return;
+  }
+  const app=document.querySelector('.app.has-sidebar');
+  if(!app) return;
+  const collapsed=app.classList.toggle('sidebar-collapsed');
+  try{ localStorage.setItem('pico_sidebar_collapsed', collapsed?'1':'0'); }catch(_){}
+  syncPosChromeIcons();
+}
+function applySidebarCollapsedPref(){
+  try{
+    if(localStorage.getItem('pico_sidebar_collapsed')==='1'){
+      const app=document.querySelector('.app.has-sidebar');
+      if(app) app.classList.add('sidebar-collapsed');
+    }
+  }catch(_){}
+  syncPosChromeIcons();
+}
+function syncPosChromeIcons(){
+  const collapsed=!!document.querySelector('.app.sidebar-collapsed');
+  const topIco=document.getElementById('btn-sidebar-toggle-ico');
+  if(topIco){
+    topIco.className=collapsed?'ti ti-layout-sidebar-left-expand':'ti ti-layout-sidebar-left-collapse';
+  }
+  ['cdb','exsal'].forEach(suc=>{
+    const ico=document.getElementById('pos-sb-ico-'+suc);
+    if(ico) ico.className=collapsed?'ti ti-layout-sidebar-left-expand':'ti ti-layout-sidebar-left-collapse';
+  });
+  const fs=!!document.fullscreenElement;
+  ['cdb','exsal'].forEach(suc=>{
+    const ico=document.getElementById('pos-fs-ico-'+suc);
+    if(ico) ico.className=fs?'ti ti-minimize':'ti ti-maximize';
+  });
+}
+async function togglePosFullscreen(suc){
+  const shell=document.getElementById('pos-shell-'+(suc||posActiveSuc||'cdb'));
+  if(!shell) return;
+  try{
+    if(!document.fullscreenElement){
+      await (shell.requestFullscreen||shell.webkitRequestFullscreen).call(shell);
+    } else {
+      await document.exitFullscreen();
+    }
+  }catch(e){
+    showToast('No se pudo activar pantalla completa','ti-alert-circle');
+  }
+  syncPosChromeIcons();
+}
+document.addEventListener('fullscreenchange',()=>{
+  document.body.classList.toggle('pos-fs', !!document.fullscreenElement);
+  syncPosChromeIcons();
+});
+applySidebarCollapsedPref();
 function toggleSidebar(){
   document.getElementById('sidebar').classList.contains('open')?closeSidebar():openSidebar();
 }
@@ -5204,11 +5292,15 @@ function enterPosMode(suc){
   populatePosCategoryFilter(suc);
   renderPosCatalog(suc);
   renderPosTicket(suc);
+  syncPosChromeIcons();
   toggleCartPanel(false);
 }
 function exitPosMode(){
   posActiveSuc=null;
   document.body.classList.remove('pos-mode');
+  if(document.fullscreenElement){
+    document.exitFullscreen().catch(()=>{});
+  }
 }
 function refreshPosIfActive(){
   if(!posActiveSuc) return;
@@ -5244,16 +5336,18 @@ function populatePosCategoryFilter(suc){
   sel.innerHTML='<option value="">Todas</option>'+cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
   if(cats.includes(cur)) sel.value=cur;
 }
+function posCartQtyForPid(pid){
+  try{
+    return (activeCart().items||[]).filter(it=>it.pid===pid).reduce((s,it)=>s+(it.qty||0),0);
+  }catch(_){ return 0; }
+}
 function renderPosCatalog(suc){
   const grid=document.getElementById('pos-grid-'+suc);
   if(!grid) return;
+  const wrap=grid.parentElement;
+  const scrollTop=wrap?wrap.scrollTop:0;
   const q=((document.getElementById('pos-search-'+suc)||{}).value||'').trim().toLowerCase();
   const cat=((document.getElementById('pos-cat-'+suc)||{}).value||'');
-  // preservar cantidades tipadas al re-render
-  const prevQty={};
-  grid.querySelectorAll('input.pos-qty-input').forEach(inp=>{
-    if(inp.dataset.pid) prevQty[inp.dataset.pid]=inp.value;
-  });
   let list=[...products];
   list.sort((a,b)=>{
     const oa=productOrdenValue(a), ob=productOrdenValue(b);
@@ -5269,102 +5363,95 @@ function renderPosCatalog(suc){
   });
   if(!list.length){
     grid.innerHTML=`<div class="empty-state" style="grid-column:1/-1;padding:40px"><div class="empty-icon"><i class="ti ti-search-off"></i></div><p>Sin productos</p></div>`;
+    if(wrap) wrap.scrollTop=scrollTop;
     return;
   }
+  ensureCarts();
   grid.innerHTML=list.map(p=>{
     const stock=getStock(p,suc);
     const out=stock<=0;
-    const qtyKeep=Math.max(1, parseInt(prevQty[p.id])||1);
-    const qtyShow=out?1:Math.min(qtyKeep, stock||1);
+    const inCart=posCartQtyForPid(p.id);
     const img=p.imageUrl
       ? `<img class="pos-card-img" src="${esc(p.imageUrl)}" alt="" loading="lazy" onerror="this.onerror=null;this.replaceWith(Object.assign(document.createElement('div'),{className:'pos-card-img-ph',innerHTML:'<i class=\\'ti ti-box\\'></i>'}))">`
       : `<div class="pos-card-img-ph"><i class="ti ti-box"></i></div>`;
-    return `<div class="pos-card${out?' out':''}" data-pid="${p.id}">
+    const actions=inCart>0
+      ? `<div class="pos-card-stepper" data-pid="${p.id}">
+          <button type="button" onclick="event.stopPropagation();posCardBump('${p.id}','${suc}',-1)" title="Quitar uno">−</button>
+          <input class="pos-qty-input" type="number" min="0" max="${Math.max(1,stock)}" step="1" value="${inCart}" data-pid="${p.id}" data-suc="${suc}"
+            onclick="event.stopPropagation()" onfocus="this.select()"
+            onchange="posCardSetQtyFromInput('${p.id}','${suc}',this)">
+          <button type="button" ${inCart>=stock?'disabled':''} onclick="event.stopPropagation();posCardBump('${p.id}','${suc}',1)" title="Agregar uno">+</button>
+        </div>`
+      : `<button type="button" class="pos-card-add" ${out?'disabled':''} onclick="event.stopPropagation();posAddOne('${p.id}','${suc}')">
+          <i class="ti ti-plus"></i>Agregar
+        </button>`;
+    return `<div class="pos-card${out?' out':''}${inCart>0?' in-cart':''}" data-pid="${p.id}">
       <div class="pos-card-img-wrap">
         ${img}
         <button type="button" class="pos-card-info" title="Ver descripción" onclick="event.stopPropagation();openPosDesc('${p.id}','${suc}')"><i class="ti ti-info-circle"></i></button>
       </div>
       <div class="pos-card-name">${esc(p.name||'Sin nombre')}</div>
       <div class="pos-card-row"><span class="pos-card-price">${fmt(p.price)}</span><span class="pos-card-stock">${out?'Sin stock':stock+' uds'}</span></div>
-      <div class="pos-card-actions">
-        <div class="pos-card-stepper">
-          <button type="button" ${out?'disabled':''} onclick="event.stopPropagation();posBumpCardQty('${p.id}','${suc}',-1)">−</button>
-          <input class="pos-qty-input" type="number" min="1" max="${Math.max(1,stock)}" step="1" value="${qtyShow}" data-pid="${p.id}" data-suc="${suc}" ${out?'disabled':''}
-            onclick="event.stopPropagation()" onfocus="this.select()"
-            oninput="posSyncAddBtnQty('${p.id}')" onchange="posClampCardQty('${p.id}','${suc}')">
-          <button type="button" ${out?'disabled':''} onclick="event.stopPropagation();posBumpCardQty('${p.id}','${suc}',1)">+</button>
-        </div>
-        <button type="button" class="pos-card-add" id="pos-add-btn-${suc}-${p.id}" ${out?'disabled':''} onclick="event.stopPropagation();posAddWithQty('${p.id}','${suc}')">
-          <i class="ti ti-plus"></i>Agregar <span class="pos-add-qty">${qtyShow}</span>
-        </button>
-      </div>
+      <div class="pos-card-actions">${actions}</div>
     </div>`;
   }).join('');
+  if(wrap) wrap.scrollTop=scrollTop;
 }
-function posGetCardQtyInput(pid){
-  return document.querySelector('input.pos-qty-input[data-pid="'+pid+'"]');
+function posAddOne(pid,suc){
+  posCardSetQty(pid,suc,posCartQtyForPid(pid)+1);
 }
-function posSyncAddBtnQty(pid){
-  const inp=posGetCardQtyInput(pid); if(!inp) return;
-  const suc=inp.dataset.suc;
-  const btn=document.getElementById('pos-add-btn-'+suc+'-'+pid);
-  if(!btn) return;
-  const span=btn.querySelector('.pos-add-qty');
-  if(span) span.textContent=inp.value||'1';
+function posCardBump(pid,suc,delta){
+  posCardSetQty(pid,suc,posCartQtyForPid(pid)+delta);
 }
-function posClampCardQty(pid,suc){
-  const inp=posGetCardQtyInput(pid); if(!inp) return;
-  const p=products.find(x=>x.id===pid);
-  const stock=p?getStock(p,suc):0;
-  let v=parseInt(inp.value);
-  if(isNaN(v)||v<1) v=1;
-  if(stock>0 && v>stock) v=stock;
-  inp.value=v;
-  posSyncAddBtnQty(pid);
+function posCardSetQtyFromInput(pid,suc,el){
+  let v=parseInt(el&&el.value);
+  if(isNaN(v)) v=0;
+  posCardSetQty(pid,suc,v);
 }
-function posBumpCardQty(pid,suc,delta){
-  const inp=posGetCardQtyInput(pid); if(!inp||inp.disabled) return;
-  const p=products.find(x=>x.id===pid);
-  const stock=p?getStock(p,suc):0;
-  let v=(parseInt(inp.value)||1)+delta;
-  if(v<1) v=1;
-  if(stock>0 && v>stock) v=stock;
-  inp.value=v;
-  posSyncAddBtnQty(pid);
-}
-function posAddWithQty(pid,suc){
+function posCardSetQty(pid,suc,newQty){
   ensureCartForPos(suc);
   const c=activeCart();
   const p=products.find(x=>x.id===pid); if(!p) return;
   if(c.sede && c.sede!==suc){
     showToast('Esta venta es de '+(c.sede==='exsal'?'EXSAL':'CDB'),'ti-alert-circle');
+    renderPosCatalog(suc);
     return;
   }
   const stock=getStock(p,suc);
-  if(stock<=0){ showToast('Sin stock','ti-alert-circle'); return; }
-  posClampCardQty(pid,suc);
-  const inp=posGetCardQtyInput(pid);
-  let qty=parseInt(inp&&inp.value)||1;
-  if(qty<1) qty=1;
-  const ya=c.items.filter(it=>it.pid===p.id).reduce((s,it)=>s+it.qty,0);
-  if(ya+qty>stock){ showToast('Stock insuficiente'+(ya?' (ya hay '+ya+' en esta venta)':''),'ti-alert-circle'); return; }
+  let qty=Math.max(0, parseInt(newQty)||0);
+  if(stock>0 && qty>stock){ qty=stock; showToast('Stock insuficiente','ti-alert-circle'); }
+  if(qty<=0){
+    const before=posCartQtyForPid(pid);
+    c.items=c.items.filter(it=>it.pid!==pid);
+    if(!c.items.length) c.sede=null;
+    renderCart();
+    renderPosTicket(suc);
+    renderPosCatalog(suc);
+    if(before>0) showToast('Quitado · '+p.name,'ti-trash');
+    return;
+  }
+  if(stock<=0){ showToast('Sin stock','ti-alert-circle'); renderPosCatalog(suc); return; }
   let discPct=0, discId='', discNombre='';
   if(c.saleDiscPct>0){
     discPct=c.saleDiscPct; discId=SALE_DISC_MARK; discNombre=c.saleDiscNombre||'';
   }
   c.sede=suc;
-  const existing=c.items.find(it=>it.pid===p.id&&it.discId===discId);
-  if(existing){ existing.qty+=qty; recalcCartItem(existing); }
-  else {
+  const own=c.items.find(it=>it.pid===pid && isItemOwnDiscount(it));
+  const match=own||c.items.find(it=>it.pid===pid&&it.discId===discId)||c.items.find(it=>it.pid===pid);
+  const prev=posCartQtyForPid(pid);
+  c.items=c.items.filter(it=>it.pid!==pid);
+  if(match && isItemOwnDiscount(match)){
+    match.qty=qty; recalcCartItem(match); c.items.push(match);
+  } else {
     const item={pid:p.id,productName:p.name,qty,price:p.price,cost:p.cost,discPct,discId,discNombre};
     recalcCartItem(item); c.items.push(item);
   }
-  if(inp){ inp.value=1; posSyncAddBtnQty(pid); }
   renderCart();
   renderPosTicket(suc);
-  showToast('+' + qty + ' · ' + p.name, 'ti-cart-plus');
+  renderPosCatalog(suc);
+  if(prev===0) showToast('+1 · '+p.name,'ti-cart-plus');
 }
-function posQuickAdd(pid,suc){ posAddWithQty(pid,suc); }
+function posQuickAdd(pid,suc){ posAddOne(pid,suc); }
 function openPosDesc(pid,suc){
   const p=products.find(x=>x.id===pid); if(!p) return;
   document.getElementById('pos-desc-name').textContent=p.name||'Producto';
@@ -5453,6 +5540,7 @@ function switchPosCart(id,suc){
   if(prev&&cliEl) prev.cliente=cliEl.value||'';
   activeCartId=id;
   renderPosTicket(suc);
+  renderPosCatalog(suc);
 }
 function addNewPosCart(suc){
   if(carts.length>=6){ showToast('Máximo 6 ventas abiertas','ti-alert-circle'); return; }
@@ -5464,6 +5552,7 @@ function addNewPosCart(suc){
   carts.push(c);
   activeCartId=c.id;
   renderPosTicket(suc);
+  renderPosCatalog(suc);
   showToast('Nueva venta abierta','ti-shopping-cart');
 }
 function onPosClienteInput(suc){
@@ -5555,6 +5644,7 @@ function posChangeQty(i,delta,suc){
   else { it.qty=next; recalcCartItem(it); }
   renderCart();
   renderPosTicket(suc);
+  renderPosCatalog(suc);
 }
 function posSetLineDiscount(i,discId,suc){
   const c=activeCart();
@@ -5581,6 +5671,7 @@ function posRemoveLine(i,suc){
   if(!c.items.length) c.sede=null;
   renderCart();
   renderPosTicket(suc);
+  renderPosCatalog(suc);
 }
 function vaciarCarritoPos(suc){
   const c=activeCart();
@@ -5589,6 +5680,7 @@ function vaciarCarritoPos(suc){
   ensureCartForPos(suc);
   renderCart();
   renderPosTicket(suc);
+  renderPosCatalog(suc);
 }
 async function confirmarVentaPos(suc){
   ensureCartForPos(suc);
