@@ -295,6 +295,8 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 /* MODALS */
 .overlay{display:none;position:fixed;inset:0;background:rgba(15,63,99,.4);backdrop-filter:blur(5px);z-index:100;padding:20px;overflow-y:auto}
 .overlay.open{display:flex;align-items:flex-start;justify-content:center}
+#pos-desc-overlay{z-index:10050}
+#pos-desc-overlay.open{z-index:10050}
 .modal-box{background:#fff;border-radius:var(--rlg);width:100%;max-width:460px;box-shadow:0 18px 60px rgba(15,63,99,.22);animation:mIn .22s ease;overflow:hidden;max-height:calc(100vh - 40px);overflow-y:auto;margin:auto}
 @keyframes mIn{from{opacity:0;transform:scale(.95) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
 .pm-header{background:linear-gradient(135deg,var(--b400),var(--s400));padding:22px 24px 20px}
@@ -829,11 +831,20 @@ body.pos-mode .main-content{max-width:none;padding-left:14px;padding-right:14px}
   width:100vw;height:100vh;max-width:none;background:#eaf5fc;overflow:auto
 }
 .pos-shell:fullscreen,.pos-shell:-webkit-full-screen{width:100vw;height:100vh;max-height:100vh;border-radius:0;border:none}
-.pos-phone-block{display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;padding:48px 28px;min-height:58vh;background:var(--wh);border:1.5px solid var(--b100);border-radius:18px;box-shadow:var(--sc)}
+.pos-phone-block{display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;padding:48px 28px;min-height:58vh;background:var(--wh);border:1.5px solid var(--b100);border-radius:18px;box-shadow:var(--sc);width:100%;box-sizing:border-box}
 .pos-phone-block .pos-phone-ico{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,var(--b400),var(--s400));color:#fff;display:flex;align-items:center;justify-content:center;font-size:30px;margin-bottom:4px}
 .pos-phone-block h3{font-size:20px;font-weight:800;color:var(--tp);letter-spacing:-.3px}
 .pos-phone-block p{font-size:14px;color:var(--ts);line-height:1.5;max-width:320px}
 .pos-phone-block .pos-phone-hint{font-size:12.5px;color:var(--tm);font-weight:600}
+/* Bloqueo Caja: controlado por JS (sirve también en horizontal) */
+body.pos-phone-blocked #tab-pos-cdb .pos-shell,
+body.pos-phone-blocked #tab-pos-exsal .pos-shell{display:none!important}
+body.pos-phone-blocked #tab-pos-cdb .pos-phone-block,
+body.pos-phone-blocked #tab-pos-exsal .pos-phone-block{display:flex}
+body.pos-phone-blocked .main-col{height:auto!important;max-height:none!important;overflow:auto!important}
+body.pos-phone-blocked .main-content{overflow:auto!important;display:block!important}
+body.pos-phone-blocked{overflow:auto!important}
+body.pos-phone-blocked .cart-fab,body.pos-phone-blocked #cart-panel{display:none!important}
 .pos-ticket{display:flex;flex-direction:column;background:#fff;min-height:0;overflow:hidden}
 .pos-ticket-hd{padding:12px 14px 8px;background:linear-gradient(135deg,var(--b400),var(--s400));color:#fff;flex-shrink:0}
 .pos-ticket-title{font-size:14px;font-weight:800;display:flex;align-items:center;gap:7px;margin-bottom:8px}
@@ -896,8 +907,8 @@ body.pos-mode .pos-shell{flex:1;min-height:0;height:100%;max-height:none;overflo
   .pos-seller-chip{top:8px;left:8px;right:auto}
   body.pos-mode .main-col{height:100dvh}
 }
-/* Teléfono: Caja no disponible */
-@media(max-width:700px){
+/* Teléfono (backup CSS): portrait angosto o landscape bajo */
+@media(max-width:700px),(max-width:950px) and (max-height:520px){
   #tab-pos-cdb .pos-shell,#tab-pos-exsal .pos-shell{display:none!important}
   #tab-pos-cdb .pos-phone-block,#tab-pos-exsal .pos-phone-block{display:flex}
   body.pos-mode .main-col{height:auto;max-height:none;overflow:auto}
@@ -3427,9 +3438,11 @@ function syncPosChromeIcons(){ syncChromeIcons(); }
 async function toggleAppFullscreen(){
   try{
     if(!document.fullscreenElement){
-      const el=document.querySelector('.main-col')||document.documentElement;
+      // documentElement: modales/toasts del body siguen visibles
+      const el=document.documentElement;
       const req=el.requestFullscreen||el.webkitRequestFullscreen;
       if(req) await req.call(el);
+      else showToast('Tu navegador no soporta pantalla completa','ti-alert-circle');
     } else {
       await document.exitFullscreen();
     }
@@ -3442,28 +3455,69 @@ async function togglePosFullscreen(){ return toggleAppFullscreen(); }
 document.addEventListener('fullscreenchange',()=>{
   document.body.classList.toggle('app-fs', !!document.fullscreenElement);
   syncChromeIcons();
-});
-function isPhoneViewport(){
-  return window.matchMedia('(max-width:700px)').matches;
-}
-applySidebarCollapsedPref();
-window.addEventListener('resize',()=>{
-  if(typeof posActiveSuc==='undefined') return;
-  const onPos=document.body.classList.contains('pos-mode')||document.querySelector('#tab-pos-cdb.active,#tab-pos-exsal.active');
-  if(!onPos) return;
-  const suc=posActiveSuc||(document.getElementById('tab-pos-cdb')?.classList.contains('active')?'cdb':'exsal');
-  if(isPhoneViewport()){
-    if(document.body.classList.contains('pos-mode')){
-      document.body.classList.remove('pos-mode');
-      document.body.classList.add('pos-phone-blocked');
-    }
-  } else if(document.body.classList.contains('pos-phone-blocked')||document.querySelector('#tab-pos-cdb.active,#tab-pos-exsal.active')){
-    document.body.classList.remove('pos-phone-blocked');
-    if(document.querySelector('#tab-pos-cdb.active,#tab-pos-exsal.active') && typeof enterPosMode==='function'){
-      enterPosMode(suc);
-    }
+  if(!document.fullscreenElement){
+    document.querySelectorAll('.overlay').forEach(el=>restoreOverlayFromFullscreen(el));
+    const toast=document.getElementById('toast');
+    if(toast) restoreOverlayFromFullscreen(toast);
   }
 });
+function ensureOverlayVisibleInFullscreen(overlayEl){
+  if(!overlayEl) return;
+  const fs=document.fullscreenElement;
+  if(!fs) return;
+  // Si el fullscreen no es todo el documento, mover el modal dentro
+  if(fs===document.documentElement || fs===document.body){
+    // ya debería verse; subir z-index por si acaso
+    overlayEl.style.zIndex='10050';
+    return;
+  }
+  if(fs.contains(overlayEl)) return;
+  if(!overlayEl._fsHome){
+    overlayEl._fsHome={parent:overlayEl.parentNode, next:overlayEl.nextSibling};
+  }
+  fs.appendChild(overlayEl);
+  overlayEl.style.zIndex='10050';
+}
+function restoreOverlayFromFullscreen(overlayEl){
+  if(!overlayEl) return;
+  const home=overlayEl._fsHome;
+  if(!home||!home.parent) return;
+  if(home.next && home.next.parentNode===home.parent) home.parent.insertBefore(overlayEl, home.next);
+  else home.parent.appendChild(overlayEl);
+  overlayEl._fsHome=null;
+}
+function isPhoneViewport(){
+  const w=window.innerWidth||document.documentElement.clientWidth||0;
+  const h=window.innerHeight||document.documentElement.clientHeight||0;
+  if(!w||!h) return window.matchMedia('(max-width:700px)').matches;
+  // Lado corto: cubre teléfonos en vertical y horizontal (tablets suelen ser ≥600)
+  return Math.min(w,h) <= 580;
+}
+function refreshPosPhoneGate(){
+  const onPosTab=!!document.querySelector('#tab-pos-cdb.active,#tab-pos-exsal.active');
+  if(!onPosTab){
+    document.body.classList.remove('pos-phone-blocked');
+    return;
+  }
+  const phone=isPhoneViewport();
+  const blocked=document.body.classList.contains('pos-phone-blocked');
+  const inPos=document.body.classList.contains('pos-mode');
+  const suc=document.getElementById('tab-pos-cdb')?.classList.contains('active')?'cdb':'exsal';
+  if(phone){
+    if(inPos || !blocked){
+      try{ posActiveSuc=null; }catch(_){}
+      document.body.classList.remove('pos-mode');
+      document.body.classList.add('pos-phone-blocked');
+      if(typeof toggleCartPanel==='function') toggleCartPanel(false);
+    }
+  } else if(blocked || !inPos){
+    document.body.classList.remove('pos-phone-blocked');
+    if(typeof enterPosMode==='function') enterPosMode(suc);
+  }
+}
+applySidebarCollapsedPref();
+window.addEventListener('resize',()=>{ try{ refreshPosPhoneGate(); }catch(_){ } });
+window.addEventListener('orientationchange',()=>{ setTimeout(()=>{ try{ refreshPosPhoneGate(); }catch(_){ } },150); });
 function toggleSidebar(){
   document.getElementById('sidebar').classList.contains('open')?closeSidebar():openSidebar();
 }
@@ -5518,10 +5572,16 @@ function openPosDesc(pid,suc){
   } else media.innerHTML='';
   const desc=(p.desc||'').trim();
   document.getElementById('pos-desc-body').textContent=desc||'Sin descripción.';
-  document.getElementById('pos-desc-overlay').classList.add('open');
+  const ov=document.getElementById('pos-desc-overlay');
+  if(!ov) return;
+  // Asegurar que el modal esté en body (visible en fullscreen del documento)
+  if(ov.parentElement!==document.body) document.body.appendChild(ov);
+  ensureOverlayVisibleInFullscreen(ov);
+  ov.classList.add('open');
 }
 function closePosDesc(){
-  document.getElementById('pos-desc-overlay').classList.remove('open');
+  const ov=document.getElementById('pos-desc-overlay');
+  if(ov){ ov.classList.remove('open'); restoreOverlayFromFullscreen(ov); }
 }
 function onPosStampSearch(suc){
   const box=document.getElementById('pos-stamp-results-'+suc);
