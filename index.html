@@ -103,6 +103,12 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .hamburger{display:none;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);
   color:#fff;width:38px;height:38px;border-radius:10px;cursor:pointer;font-size:20px;
   align-items:center;justify-content:center;flex-shrink:0}
+.topbar-chrome{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.topbar-chrome-btn{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);
+  color:#fff;width:38px;height:38px;border-radius:10px;cursor:pointer;font-size:18px;
+  display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.topbar-chrome-btn:hover{background:rgba(255,255,255,.28)}
+.topbar-chrome-btn.is-active{background:rgba(255,255,255,.32);border-color:rgba(255,255,255,.55)}
 .sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(15,63,99,.45);z-index:110}
 
 @media(max-width:900px){
@@ -114,6 +120,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
   .sidebar-close{display:block}
   .sidebar-backdrop.open{display:block}
   .hamburger{display:flex}
+  .topbar-chrome .topbar-sb-btn{display:none}
   .main-content{padding:0 14px 50px;max-width:100%}
   .topbar{padding:11px 14px;margin-bottom:18px}
   .topbar-title{font-size:15px}
@@ -288,6 +295,8 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 /* MODALS */
 .overlay{display:none;position:fixed;inset:0;background:rgba(15,63,99,.4);backdrop-filter:blur(5px);z-index:100;padding:20px;overflow-y:auto}
 .overlay.open{display:flex;align-items:flex-start;justify-content:center}
+#pos-desc-overlay{z-index:10050}
+#pos-desc-overlay.open{z-index:10050}
 .modal-box{background:#fff;border-radius:var(--rlg);width:100%;max-width:460px;box-shadow:0 18px 60px rgba(15,63,99,.22);animation:mIn .22s ease;overflow:hidden;max-height:calc(100vh - 40px);overflow-y:auto;margin:auto}
 @keyframes mIn{from{opacity:0;transform:scale(.95) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
 .pm-header{background:linear-gradient(135deg,var(--b400),var(--s400));padding:22px 24px 20px}
@@ -811,20 +820,31 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .pos-card-stepper input.pos-qty-input::-webkit-outer-spin-button,.pos-card-stepper input.pos-qty-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .pos-card-add{width:100%;padding:10px 6px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--b400),var(--s400));color:#fff;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px}
 .pos-card-add:disabled{opacity:.45;cursor:not-allowed}
-.pos-chrome{display:flex;align-items:center;gap:6px;margin-left:auto}
-.pos-chrome-btn{width:34px;height:34px;border:1.5px solid var(--b100);border-radius:10px;background:#fff;color:var(--b600);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.pos-chrome-btn:hover{background:var(--b50);border-color:var(--b300)}
 .pos-cat-title-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.sidebar-toggle-desk{display:none;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);color:#fff;width:38px;height:38px;border-radius:10px;cursor:pointer;font-size:20px;align-items:center;justify-content:center;flex-shrink:0}
-.app.sidebar-collapsed .sidebar-toggle-desk{display:flex}
 .app.sidebar-collapsed .sidebar{width:0;min-width:0;padding:0;border:none;overflow:hidden;opacity:0;pointer-events:none}
 .app.sidebar-collapsed{max-width:none}
 .app.sidebar-collapsed .main-content{max-width:none}
 body.pos-mode .app.has-sidebar{max-width:none}
 body.pos-mode .main-content{max-width:none;padding-left:14px;padding-right:14px}
+.main-col:fullscreen,.main-col:-webkit-full-screen,
+.app.has-sidebar:fullscreen,.app.has-sidebar:-webkit-full-screen{
+  width:100vw;height:100vh;max-width:none;background:#eaf5fc;overflow:auto
+}
 .pos-shell:fullscreen,.pos-shell:-webkit-full-screen{width:100vw;height:100vh;max-height:100vh;border-radius:0;border:none}
-.pos-shell:fullscreen .pos-catalog,.pos-shell:-webkit-full-screen .pos-catalog{background:linear-gradient(180deg,#f3f9fd 0%,#fff 120px)}
-body.pos-fs .pos-chrome-btn.pos-fs-btn{border-color:var(--b300);background:var(--b50)}
+.pos-phone-block{display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;padding:48px 28px;min-height:58vh;background:var(--wh);border:1.5px solid var(--b100);border-radius:18px;box-shadow:var(--sc);width:100%;box-sizing:border-box}
+.pos-phone-block .pos-phone-ico{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,var(--b400),var(--s400));color:#fff;display:flex;align-items:center;justify-content:center;font-size:30px;margin-bottom:4px}
+.pos-phone-block h3{font-size:20px;font-weight:800;color:var(--tp);letter-spacing:-.3px}
+.pos-phone-block p{font-size:14px;color:var(--ts);line-height:1.5;max-width:320px}
+.pos-phone-block .pos-phone-hint{font-size:12.5px;color:var(--tm);font-weight:600}
+/* Bloqueo Caja: controlado por JS (sirve también en horizontal) */
+body.pos-phone-blocked #tab-pos-cdb .pos-shell,
+body.pos-phone-blocked #tab-pos-exsal .pos-shell{display:none!important}
+body.pos-phone-blocked #tab-pos-cdb .pos-phone-block,
+body.pos-phone-blocked #tab-pos-exsal .pos-phone-block{display:flex}
+body.pos-phone-blocked .main-col{height:auto!important;max-height:none!important;overflow:auto!important}
+body.pos-phone-blocked .main-content{overflow:auto!important;display:block!important}
+body.pos-phone-blocked{overflow:auto!important}
+body.pos-phone-blocked .cart-fab,body.pos-phone-blocked #cart-panel{display:none!important}
 .pos-ticket{display:flex;flex-direction:column;background:#fff;min-height:0;overflow:hidden}
 .pos-ticket-hd{padding:12px 14px 8px;background:linear-gradient(135deg,var(--b400),var(--s400));color:#fff;flex-shrink:0}
 .pos-ticket-title{font-size:14px;font-weight:800;display:flex;align-items:center;gap:7px;margin-bottom:8px}
@@ -873,7 +893,6 @@ body.pos-mode .topbar{margin-bottom:10px;flex-shrink:0}
 body.pos-mode .main-content{padding-bottom:10px;padding-top:0;flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column}
 body.pos-mode .main-content > .tab-content.active{flex:1;min-height:0;display:flex!important;flex-direction:column;overflow:hidden}
 body.pos-mode .pos-shell{flex:1;min-height:0;height:100%;max-height:none;overflow:hidden}
-body.pos-mode .sidebar-toggle-desk{display:flex}
 @media(max-width:900px){
   .pos-shell{display:flex;flex-direction:column;height:100%;min-height:0;overflow:hidden}
   .pos-catalog{display:flex;flex-direction:column;flex:1 1 0;min-height:0;overflow:hidden;border-right:none;border-bottom:none}
@@ -886,11 +905,15 @@ body.pos-mode .sidebar-toggle-desk{display:flex}
   .pos-ticket{flex:0 0 auto;max-height:min(42vh,300px);min-height:200px;overflow:hidden;border-top:1.5px solid var(--b100);box-shadow:0 -6px 20px rgba(15,63,99,.08)}
   .pos-cat-hd{padding-right:16px;flex-shrink:0;padding-top:48px}
   .pos-seller-chip{top:8px;left:8px;right:auto}
-  .pos-chrome{gap:4px}
-  .pos-chrome-btn{width:32px;height:32px}
   body.pos-mode .main-col{height:100dvh}
-  .app.sidebar-collapsed .sidebar-toggle-desk{display:none}
-  body.pos-mode .sidebar-toggle-desk{display:none}
+}
+/* Teléfono (backup CSS): portrait angosto o landscape bajo */
+@media(max-width:700px),(max-width:950px) and (max-height:520px){
+  #tab-pos-cdb .pos-shell,#tab-pos-exsal .pos-shell{display:none!important}
+  #tab-pos-cdb .pos-phone-block,#tab-pos-exsal .pos-phone-block{display:flex}
+  body.pos-mode .main-col{height:auto;max-height:none;overflow:auto}
+  body.pos-mode .main-content{overflow:auto}
+  body.pos-mode{overflow:auto}
 }
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -1023,7 +1046,10 @@ body.pos-mode .sidebar-toggle-desk{display:flex}
   <div class="main-col">
     <div class="topbar">
       <button class="hamburger" onclick="openSidebar()" aria-label="Abrir menú"><i class="ti ti-menu-2"></i></button>
-      <button class="sidebar-toggle-desk" id="btn-sidebar-toggle" onclick="toggleSidebarCollapsed()" aria-label="Mostrar u ocultar menú" title="Menú lateral"><i class="ti ti-layout-sidebar-left-expand" id="btn-sidebar-toggle-ico"></i></button>
+      <div class="topbar-chrome">
+        <button class="topbar-chrome-btn topbar-sb-btn" id="btn-sidebar-toggle" onclick="toggleSidebarCollapsed()" aria-label="Minimizar menú" title="Minimizar menú"><i class="ti ti-layout-sidebar-left-collapse" id="btn-sidebar-toggle-ico"></i></button>
+        <button class="topbar-chrome-btn topbar-fs-btn" id="btn-app-fullscreen" onclick="toggleAppFullscreen()" aria-label="Pantalla completa" title="Pantalla completa"><i class="ti ti-maximize" id="btn-app-fullscreen-ico"></i></button>
+      </div>
       <div class="topbar-title"><i class="ti ti-package"></i><span>Control de Inventario</span></div>
       <div class="header-right">
         <div class="save-pill" id="save-pill"><div class="save-dot" id="save-dot"></div><span id="save-text">Conectando...</span></div>
@@ -2049,6 +2075,12 @@ body.pos-mode .sidebar-toggle-desk{display:flex}
 
   <!-- ═══ POS CDB ═══ -->
   <div class="tab-content" id="tab-pos-cdb">
+    <div class="pos-phone-block" id="pos-phone-block-cdb">
+      <div class="pos-phone-ico"><i class="ti ti-device-mobile"></i></div>
+      <h3>No disponible en teléfono</h3>
+      <p>Caja CDB está diseñada para tablet o computadora. Ábrela desde un dispositivo más grande para vender.</p>
+      <div class="pos-phone-hint"><i class="ti ti-device-tablet"></i> Usa tablet o escritorio</div>
+    </div>
     <div class="pos-shell" id="pos-shell-cdb">
       <div class="pos-seller-chip" id="pos-seller-cdb">
         <div class="pos-seller-ava"><i class="ti ti-user"></i></div>
@@ -2058,10 +2090,6 @@ body.pos-mode .sidebar-toggle-desk{display:flex}
         <div class="pos-cat-hd">
           <div class="pos-cat-title-row">
             <div class="pos-cat-title"><i class="ti ti-shopping-bag"></i>Caja CDB <span>tablet</span></div>
-            <div class="pos-chrome">
-              <button type="button" class="pos-chrome-btn" onclick="toggleSidebarCollapsed()" title="Minimizar menú"><i class="ti ti-layout-sidebar-left-collapse" id="pos-sb-ico-cdb"></i></button>
-              <button type="button" class="pos-chrome-btn pos-fs-btn" onclick="togglePosFullscreen('cdb')" title="Pantalla completa"><i class="ti ti-maximize" id="pos-fs-ico-cdb"></i></button>
-            </div>
           </div>
           <div class="pos-cat-tools">
             <div class="search-wrap"><i class="ti ti-search"></i><input type="text" id="pos-search-cdb" placeholder="Buscar…" oninput="renderPosCatalog('cdb')"></div>
@@ -2116,6 +2144,12 @@ body.pos-mode .sidebar-toggle-desk{display:flex}
 
   <!-- ═══ POS EXSAL ═══ -->
   <div class="tab-content" id="tab-pos-exsal">
+    <div class="pos-phone-block" id="pos-phone-block-exsal">
+      <div class="pos-phone-ico"><i class="ti ti-device-mobile"></i></div>
+      <h3>No disponible en teléfono</h3>
+      <p>Caja EXSAL está diseñada para tablet o computadora. Ábrela desde un dispositivo más grande para vender.</p>
+      <div class="pos-phone-hint"><i class="ti ti-device-tablet"></i> Usa tablet o escritorio</div>
+    </div>
     <div class="pos-shell" id="pos-shell-exsal">
       <div class="pos-seller-chip" id="pos-seller-exsal">
         <div class="pos-seller-ava"><i class="ti ti-user"></i></div>
@@ -2125,10 +2159,6 @@ body.pos-mode .sidebar-toggle-desk{display:flex}
         <div class="pos-cat-hd">
           <div class="pos-cat-title-row">
             <div class="pos-cat-title"><i class="ti ti-shopping-bag"></i>Caja EXSAL <span>tablet</span></div>
-            <div class="pos-chrome">
-              <button type="button" class="pos-chrome-btn" onclick="toggleSidebarCollapsed()" title="Minimizar menú"><i class="ti ti-layout-sidebar-left-collapse" id="pos-sb-ico-exsal"></i></button>
-              <button type="button" class="pos-chrome-btn pos-fs-btn" onclick="togglePosFullscreen('exsal')" title="Pantalla completa"><i class="ti ti-maximize" id="pos-fs-ico-exsal"></i></button>
-            </div>
           </div>
           <div class="pos-cat-tools">
             <div class="search-wrap"><i class="ti ti-search"></i><input type="text" id="pos-search-exsal" placeholder="Buscar…" oninput="renderPosCatalog('exsal')"></div>
@@ -3373,7 +3403,7 @@ function toggleSidebarCollapsed(){
   if(!app) return;
   const collapsed=app.classList.toggle('sidebar-collapsed');
   try{ localStorage.setItem('pico_sidebar_collapsed', collapsed?'1':'0'); }catch(_){}
-  syncPosChromeIcons();
+  syncChromeIcons();
 }
 function applySidebarCollapsedPref(){
   try{
@@ -3382,43 +3412,112 @@ function applySidebarCollapsedPref(){
       if(app) app.classList.add('sidebar-collapsed');
     }
   }catch(_){}
-  syncPosChromeIcons();
+  syncChromeIcons();
 }
-function syncPosChromeIcons(){
+function syncChromeIcons(){
   const collapsed=!!document.querySelector('.app.sidebar-collapsed');
   const topIco=document.getElementById('btn-sidebar-toggle-ico');
   if(topIco){
     topIco.className=collapsed?'ti ti-layout-sidebar-left-expand':'ti ti-layout-sidebar-left-collapse';
   }
-  ['cdb','exsal'].forEach(suc=>{
-    const ico=document.getElementById('pos-sb-ico-'+suc);
-    if(ico) ico.className=collapsed?'ti ti-layout-sidebar-left-expand':'ti ti-layout-sidebar-left-collapse';
-  });
+  const sbBtn=document.getElementById('btn-sidebar-toggle');
+  if(sbBtn){
+    sbBtn.title=collapsed?'Mostrar menú':'Minimizar menú';
+    sbBtn.classList.toggle('is-active', collapsed);
+  }
   const fs=!!document.fullscreenElement;
-  ['cdb','exsal'].forEach(suc=>{
-    const ico=document.getElementById('pos-fs-ico-'+suc);
-    if(ico) ico.className=fs?'ti ti-minimize':'ti ti-maximize';
-  });
+  const fsIco=document.getElementById('btn-app-fullscreen-ico');
+  if(fsIco) fsIco.className=fs?'ti ti-minimize':'ti ti-maximize';
+  const fsBtn=document.getElementById('btn-app-fullscreen');
+  if(fsBtn){
+    fsBtn.title=fs?'Salir de pantalla completa':'Pantalla completa';
+    fsBtn.classList.toggle('is-active', fs);
+  }
 }
-async function togglePosFullscreen(suc){
-  const shell=document.getElementById('pos-shell-'+(suc||posActiveSuc||'cdb'));
-  if(!shell) return;
+function syncPosChromeIcons(){ syncChromeIcons(); }
+async function toggleAppFullscreen(){
   try{
     if(!document.fullscreenElement){
-      await (shell.requestFullscreen||shell.webkitRequestFullscreen).call(shell);
+      // documentElement: modales/toasts del body siguen visibles
+      const el=document.documentElement;
+      const req=el.requestFullscreen||el.webkitRequestFullscreen;
+      if(req) await req.call(el);
+      else showToast('Tu navegador no soporta pantalla completa','ti-alert-circle');
     } else {
       await document.exitFullscreen();
     }
   }catch(e){
     showToast('No se pudo activar pantalla completa','ti-alert-circle');
   }
-  syncPosChromeIcons();
+  syncChromeIcons();
 }
+async function togglePosFullscreen(){ return toggleAppFullscreen(); }
 document.addEventListener('fullscreenchange',()=>{
-  document.body.classList.toggle('pos-fs', !!document.fullscreenElement);
-  syncPosChromeIcons();
+  document.body.classList.toggle('app-fs', !!document.fullscreenElement);
+  syncChromeIcons();
+  if(!document.fullscreenElement){
+    document.querySelectorAll('.overlay').forEach(el=>restoreOverlayFromFullscreen(el));
+    const toast=document.getElementById('toast');
+    if(toast) restoreOverlayFromFullscreen(toast);
+  }
 });
+function ensureOverlayVisibleInFullscreen(overlayEl){
+  if(!overlayEl) return;
+  const fs=document.fullscreenElement;
+  if(!fs) return;
+  // Si el fullscreen no es todo el documento, mover el modal dentro
+  if(fs===document.documentElement || fs===document.body){
+    // ya debería verse; subir z-index por si acaso
+    overlayEl.style.zIndex='10050';
+    return;
+  }
+  if(fs.contains(overlayEl)) return;
+  if(!overlayEl._fsHome){
+    overlayEl._fsHome={parent:overlayEl.parentNode, next:overlayEl.nextSibling};
+  }
+  fs.appendChild(overlayEl);
+  overlayEl.style.zIndex='10050';
+}
+function restoreOverlayFromFullscreen(overlayEl){
+  if(!overlayEl) return;
+  const home=overlayEl._fsHome;
+  if(!home||!home.parent) return;
+  if(home.next && home.next.parentNode===home.parent) home.parent.insertBefore(overlayEl, home.next);
+  else home.parent.appendChild(overlayEl);
+  overlayEl._fsHome=null;
+}
+function isPhoneViewport(){
+  const w=window.innerWidth||document.documentElement.clientWidth||0;
+  const h=window.innerHeight||document.documentElement.clientHeight||0;
+  if(!w||!h) return window.matchMedia('(max-width:700px)').matches;
+  // Lado corto: cubre teléfonos en vertical y horizontal (tablets suelen ser ≥600)
+  return Math.min(w,h) <= 580;
+}
+function refreshPosPhoneGate(){
+  const onPosTab=!!document.querySelector('#tab-pos-cdb.active,#tab-pos-exsal.active');
+  if(!onPosTab){
+    document.body.classList.remove('pos-phone-blocked');
+    return;
+  }
+  const phone=isPhoneViewport();
+  const blocked=document.body.classList.contains('pos-phone-blocked');
+  const inPos=document.body.classList.contains('pos-mode');
+  const suc=document.getElementById('tab-pos-cdb')?.classList.contains('active')?'cdb':'exsal';
+  if(phone){
+    if(inPos || !blocked){
+      try{ posActiveSuc=null; }catch(_){}
+      document.body.classList.remove('pos-mode');
+      document.body.classList.add('pos-phone-blocked');
+      if(typeof toggleCartPanel==='function') toggleCartPanel(false);
+    }
+  } else if(blocked || !inPos){
+    document.body.classList.remove('pos-phone-blocked');
+    if(typeof enterPosMode==='function') enterPosMode(suc);
+  }
+}
 applySidebarCollapsedPref();
+window.addEventListener('resize',()=>{ try{ refreshPosPhoneGate(); }catch(_){ } });
+window.addEventListener('orientationchange',()=>{ setTimeout(()=>{ try{ refreshPosPhoneGate(); }catch(_){ } },150); });
 function toggleSidebar(){
   document.getElementById('sidebar').classList.contains('open')?closeSidebar():openSidebar();
 }
@@ -5285,6 +5384,14 @@ function updatePosSellerChips(){
   });
 }
 function enterPosMode(suc){
+  if(isPhoneViewport()){
+    posActiveSuc=null;
+    document.body.classList.remove('pos-mode');
+    document.body.classList.add('pos-phone-blocked');
+    toggleCartPanel(false);
+    return;
+  }
+  document.body.classList.remove('pos-phone-blocked');
   posActiveSuc=suc;
   document.body.classList.add('pos-mode');
   updatePosSellerChips();
@@ -5292,12 +5399,13 @@ function enterPosMode(suc){
   populatePosCategoryFilter(suc);
   renderPosCatalog(suc);
   renderPosTicket(suc);
-  syncPosChromeIcons();
+  syncChromeIcons();
   toggleCartPanel(false);
 }
 function exitPosMode(){
   posActiveSuc=null;
   document.body.classList.remove('pos-mode');
+  document.body.classList.remove('pos-phone-blocked');
   if(document.fullscreenElement){
     document.exitFullscreen().catch(()=>{});
   }
@@ -5464,10 +5572,16 @@ function openPosDesc(pid,suc){
   } else media.innerHTML='';
   const desc=(p.desc||'').trim();
   document.getElementById('pos-desc-body').textContent=desc||'Sin descripción.';
-  document.getElementById('pos-desc-overlay').classList.add('open');
+  const ov=document.getElementById('pos-desc-overlay');
+  if(!ov) return;
+  // Asegurar que el modal esté en body (visible en fullscreen del documento)
+  if(ov.parentElement!==document.body) document.body.appendChild(ov);
+  ensureOverlayVisibleInFullscreen(ov);
+  ov.classList.add('open');
 }
 function closePosDesc(){
-  document.getElementById('pos-desc-overlay').classList.remove('open');
+  const ov=document.getElementById('pos-desc-overlay');
+  if(ov){ ov.classList.remove('open'); restoreOverlayFromFullscreen(ov); }
 }
 function onPosStampSearch(suc){
   const box=document.getElementById('pos-stamp-results-'+suc);
