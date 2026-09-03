@@ -789,7 +789,8 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .pos-cat-tools{display:flex;gap:8px;flex-wrap:wrap}
 .pos-cat-tools .search-wrap{flex:1;min-width:160px}
 .pos-cat-filter{background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rp);padding:8px 12px;font-size:12.5px;font-family:inherit;color:var(--tp);outline:none;min-width:130px}
-.pos-grid{min-height:0;overflow-y:auto;overflow-x:hidden;padding:8px 12px 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,156px));gap:9px;align-content:start;align-items:start;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.pos-grid-scroll{min-height:0;overflow-y:auto;overflow-x:hidden;flex:1 1 0;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.pos-grid{padding:8px 12px 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,156px));gap:9px;align-content:start;align-items:start}
 .pos-card{background:#fff;border:1.5px solid var(--b100);border-radius:14px;padding:8px;display:flex;flex-direction:column;gap:6px;transition:border-color .15s,box-shadow .15s;touch-action:manipulation;width:100%;box-sizing:border-box;position:relative}
 .pos-card:hover,.pos-card:focus-within{border-color:var(--b300);box-shadow:0 4px 16px rgba(74,168,232,.14)}
 .pos-card.out{opacity:.45;filter:grayscale(.25)}
@@ -861,9 +862,15 @@ body.pos-mode .main-content > .tab-content.active{flex:1;min-height:0;display:fl
 body.pos-mode .pos-shell{flex:1;min-height:0;height:100%;max-height:none;overflow:hidden}
 @media(max-width:900px){
   .pos-shell{display:flex;flex-direction:column;height:100%;min-height:0;overflow:hidden}
-  .pos-catalog{flex:1 1 0;min-height:0;overflow:hidden;border-right:none;border-bottom:1.5px solid var(--b50)}
-  .pos-ticket{flex:0 0 auto;max-height:42vh;min-height:220px;overflow:hidden;position:relative;z-index:2;background:#fff}
-  .pos-cat-hd{padding-right:16px}
+  .pos-catalog{display:flex;flex-direction:column;flex:1 1 0;min-height:0;overflow:hidden;border-right:none;border-bottom:none}
+  .pos-grid{grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:8px;padding:6px 10px 10px}
+  .pos-card{padding:7px;gap:5px}
+  .pos-card-img,.pos-card-img-ph{max-height:72px}
+  .pos-card-name{font-size:11px;min-height:2.4em}
+  .pos-card-stepper button{width:30px;height:30px;font-size:14px}
+  .pos-card-add{padding:8px 4px;font-size:11px}
+  .pos-ticket{flex:0 0 auto;max-height:min(42vh,300px);min-height:200px;overflow:hidden;border-top:1.5px solid var(--b100);box-shadow:0 -6px 20px rgba(15,63,99,.08)}
+  .pos-cat-hd{padding-right:16px;flex-shrink:0}
   .pos-seller-chip{top:8px;right:8px}
   body.pos-mode .main-col{height:100dvh}
 }
@@ -2036,7 +2043,9 @@ body.pos-mode .pos-shell{flex:1;min-height:0;height:100%;max-height:none;overflo
             <select class="pos-cat-filter" id="pos-cat-cdb" onchange="renderPosCatalog('cdb')"><option value="">Todas</option></select>
           </div>
         </div>
-        <div class="pos-grid" id="pos-grid-cdb"></div>
+        <div class="pos-grid-scroll">
+          <div class="pos-grid" id="pos-grid-cdb"></div>
+        </div>
       </div>
       <div class="pos-ticket" id="pos-ticket-cdb">
         <div class="pos-ticket-hd">
@@ -2095,7 +2104,9 @@ body.pos-mode .pos-shell{flex:1;min-height:0;height:100%;max-height:none;overflo
             <select class="pos-cat-filter" id="pos-cat-exsal" onchange="renderPosCatalog('exsal')"><option value="">Todas</option></select>
           </div>
         </div>
-        <div class="pos-grid" id="pos-grid-exsal"></div>
+        <div class="pos-grid-scroll">
+          <div class="pos-grid" id="pos-grid-exsal"></div>
+        </div>
       </div>
       <div class="pos-ticket" id="pos-ticket-exsal">
         <div class="pos-ticket-hd">
