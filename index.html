@@ -776,42 +776,56 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .btn-orden-save:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
 
 /* ── POS / VENDER (tablet) ── */
-.pos-shell{display:grid;grid-template-columns:1fr minmax(300px,380px);gap:0;min-height:calc(100vh - 88px);min-height:calc(100dvh - 88px);background:var(--wh);border:1.5px solid var(--b100);border-radius:18px;overflow:hidden;box-shadow:var(--sc);position:relative}
+.pos-shell{display:grid;grid-template-columns:1fr minmax(300px,380px);gap:0;height:100%;max-height:100%;min-height:0;background:var(--wh);border:1.5px solid var(--b100);border-radius:18px;overflow:hidden;box-shadow:var(--sc);position:relative}
 .pos-seller-chip{position:absolute;top:10px;right:10px;z-index:5;display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.92);border:1.5px solid var(--b100);border-radius:999px;padding:5px 10px 5px 6px;box-shadow:0 4px 14px rgba(15,63,99,.12);max-width:220px}
 .pos-seller-ava{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--b400),var(--s400));color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
 .pos-seller-txt{min-width:0}
 .pos-seller-role{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--tm);line-height:1}
 .pos-seller-name{font-size:11.5px;font-weight:700;color:var(--tp);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px}
-.pos-catalog{display:flex;flex-direction:column;min-width:0;border-right:1.5px solid var(--b50);background:linear-gradient(180deg,#f3f9fd 0%,#fff 120px)}
-.pos-cat-hd{padding:14px 16px 10px;padding-right:200px;display:flex;flex-direction:column;gap:10px}
+.pos-catalog{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;border-right:1.5px solid var(--b50);background:linear-gradient(180deg,#f3f9fd 0%,#fff 120px)}
+.pos-cat-hd{padding:14px 16px 10px;padding-right:200px;display:flex;flex-direction:column;gap:10px;flex-shrink:0}
 .pos-cat-title{font-size:17px;font-weight:800;color:var(--tp);display:flex;align-items:center;gap:8px}
 .pos-cat-title span{font-size:11px;font-weight:700;color:var(--b600);background:var(--b50);border:1px solid var(--b100);border-radius:999px;padding:2px 9px}
 .pos-cat-tools{display:flex;gap:8px;flex-wrap:wrap}
 .pos-cat-tools .search-wrap{flex:1;min-width:160px}
 .pos-cat-filter{background:var(--b50);border:1.5px solid var(--b100);border-radius:var(--rp);padding:8px 12px;font-size:12.5px;font-family:inherit;color:var(--tp);outline:none;min-width:130px}
-.pos-grid{flex:1;overflow-y:auto;padding:8px 12px 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:9px;align-content:start;-webkit-overflow-scrolling:touch}
-.pos-card{background:#fff;border:1.5px solid var(--b100);border-radius:14px;padding:8px;display:flex;flex-direction:column;gap:6px;cursor:pointer;transition:border-color .15s,transform .15s,box-shadow .15s;touch-action:manipulation;min-height:0}
-.pos-card:hover,.pos-card:focus-visible{border-color:var(--b300);box-shadow:0 4px 16px rgba(74,168,232,.14);outline:none}
-.pos-card:active{transform:scale(.97)}
+.pos-grid{flex:1;min-height:0;overflow-y:auto;padding:8px 12px 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:9px;align-content:start;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.pos-card{background:#fff;border:1.5px solid var(--b100);border-radius:14px;padding:8px;display:flex;flex-direction:column;gap:6px;transition:border-color .15s,box-shadow .15s;touch-action:manipulation;min-height:0;position:relative}
+.pos-card:hover,.pos-card:focus-within{border-color:var(--b300);box-shadow:0 4px 16px rgba(74,168,232,.14)}
 .pos-card.out{opacity:.45;filter:grayscale(.25)}
+.pos-card-img-wrap{position:relative}
 .pos-card-img{width:100%;aspect-ratio:1;border-radius:10px;background:var(--b50);border:1px solid var(--b100);object-fit:contain;display:block}
 .pos-card-img-ph{width:100%;aspect-ratio:1;border-radius:10px;background:var(--b50);border:1px dashed var(--b100);display:flex;align-items:center;justify-content:center;color:var(--b300);font-size:28px}
+.pos-card-info{position:absolute;top:6px;right:6px;width:26px;height:26px;border:none;border-radius:50%;background:rgba(255,255,255,.92);color:var(--b600);box-shadow:0 2px 8px rgba(15,63,99,.15);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;z-index:2}
+.pos-card-info:hover{background:#fff;color:var(--b700)}
 .pos-card-name{font-size:12px;font-weight:700;color:var(--tp);line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.5em}
 .pos-card-row{display:flex;align-items:center;justify-content:space-between;gap:4px}
 .pos-card-price{font-size:13px;font-weight:800;color:var(--g600)}
 .pos-card-stock{font-size:10px;font-weight:700;color:var(--tm)}
-.pos-card-add{width:100%;margin-top:2px;padding:8px 6px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--b400),var(--s400));color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px}
+.pos-card-actions{display:flex;flex-direction:column;gap:6px;margin-top:2px}
+.pos-card-stepper{display:flex;align-items:center;border:1.5px solid var(--b100);border-radius:10px;overflow:hidden;background:var(--b50)}
+.pos-card-stepper button{width:34px;height:34px;border:none;background:transparent;color:var(--b600);font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;flex-shrink:0}
+.pos-card-stepper button:disabled{opacity:.35;cursor:not-allowed}
+.pos-card-stepper input{flex:1;min-width:0;width:100%;border:none;background:#fff;text-align:center;font-size:14px;font-weight:800;color:var(--tp);font-family:inherit;padding:6px 2px;outline:none;-moz-appearance:textfield}
+.pos-card-stepper input::-webkit-outer-spin-button,.pos-card-stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.pos-card-add{width:100%;padding:9px 6px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--b400),var(--s400));color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px}
 .pos-card-add:disabled{opacity:.45;cursor:not-allowed}
-.pos-ticket{display:flex;flex-direction:column;background:#fff;min-height:0}
-.pos-ticket-hd{padding:12px 14px 8px;background:linear-gradient(135deg,var(--b400),var(--s400));color:#fff}
+.pos-card-add .pos-add-qty{background:rgba(255,255,255,.22);border-radius:999px;padding:1px 8px;font-weight:800;font-variant-numeric:tabular-nums}
+.pos-ticket{display:flex;flex-direction:column;background:#fff;min-height:0;overflow:hidden}
+.pos-ticket-hd{padding:12px 14px 8px;background:linear-gradient(135deg,var(--b400),var(--s400));color:#fff;flex-shrink:0}
 .pos-ticket-title{font-size:14px;font-weight:800;display:flex;align-items:center;gap:7px;margin-bottom:8px}
 .pos-ticket-tabs{display:flex;gap:5px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch}
 .pos-ticket-tab{flex-shrink:0;border:1.5px solid rgba(255,255,255,.28);background:rgba(255,255,255,.12);color:#fff;border-radius:999px;padding:5px 11px;font-size:11.5px;font-weight:700;font-family:inherit;cursor:pointer}
 .pos-ticket-tab.active{background:#fff;color:var(--b600);border-color:#fff}
 .pos-ticket-tab-add{width:30px;height:30px;padding:0;border-radius:50%;display:inline-flex;align-items:center;justify-content:center}
-.pos-ticket-body{flex:1;overflow-y:auto;padding:10px 12px;min-height:120px}
+.pos-ticket-body{flex:1;min-height:0;overflow-y:auto;padding:10px 12px;overscroll-behavior:contain}
 .pos-ticket-client input,.pos-ticket-disc select{width:100%;padding:9px 11px;border:1.5px solid var(--b100);border-radius:10px;font-size:13px;font-family:inherit;background:var(--b50);color:var(--tp);margin-bottom:8px}
 .pos-ticket-disc label{display:block;font-size:11px;font-weight:700;color:var(--w600);margin-bottom:4px}
+.pos-stamp{margin-bottom:10px;background:var(--b50);border:1.5px solid var(--b100);border-radius:10px;padding:9px 10px}
+.pos-stamp-label{font-size:11px;font-weight:700;color:var(--ts);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.pos-stamp-search{position:relative}
+.pos-stamp-search input{width:100%;padding:7px 10px;border:1.5px solid var(--b100);border-radius:8px;font-size:12.5px;font-family:inherit;background:#fff;color:var(--tp)}
+.pos-stamp-search input:focus{outline:none;border-color:var(--b400)}
 .pos-line{display:grid;grid-template-columns:1fr auto;gap:6px 8px;padding:9px 0;border-bottom:1px solid var(--b50);align-items:center}
 .pos-line:last-child{border-bottom:none}
 .pos-line-name{font-size:13px;font-weight:700;color:var(--tp);line-height:1.2}
@@ -824,7 +838,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .pos-line-disc{flex:1;min-width:0;padding:6px 8px;border:1.5px solid var(--b100);border-radius:8px;font-size:11.5px;font-family:inherit;background:var(--b50);color:var(--tp)}
 .pos-line-del{width:32px;height:30px;border:none;background:var(--r50);color:var(--r600);border-radius:8px;cursor:pointer;font-size:15px}
 .pos-ticket-empty{text-align:center;color:var(--tm);font-size:13px;padding:28px 10px}
-.pos-ticket-ft{border-top:1.5px solid var(--b50);padding:12px 14px;background:var(--b50)}
+.pos-ticket-ft{border-top:1.5px solid var(--b50);padding:12px 14px;background:var(--b50);flex-shrink:0}
 .pos-sums{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
 .pos-sum-row{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--ts)}
 .pos-sum-row.total{font-size:15px;font-weight:800;color:var(--tp);margin-top:2px}
@@ -833,14 +847,23 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .pos-confirm{flex:1;padding:13px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--g500,#2fb380),var(--g600,#1d9268));color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:7px;box-shadow:0 4px 14px rgba(45,179,128,.35)}
 .pos-confirm:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
 .pos-clear{padding:13px 14px;background:#fff;border:1.5px solid var(--b100);border-radius:12px;color:var(--ts);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+#pos-desc-overlay .modal-box{max-width:380px}
+.pos-desc-img{width:100%;max-height:160px;object-fit:contain;background:var(--b50);border:1.5px solid var(--b100);border-radius:12px;margin-bottom:12px}
+.pos-desc-price{font-size:18px;font-weight:800;color:var(--g600);margin-bottom:6px}
+.pos-desc-stock{font-size:12px;font-weight:700;color:var(--tm);margin-bottom:10px}
+.pos-desc-body{font-size:13.5px;color:var(--ts);line-height:1.55;white-space:pre-wrap}
+body.pos-mode{overflow:hidden}
 body.pos-mode .cart-fab,body.pos-mode #cart-panel{display:none!important}
-body.pos-mode .main-content{padding-bottom:8px}
+body.pos-mode .main-col{height:100dvh;max-height:100dvh;overflow:hidden}
+body.pos-mode .topbar{margin-bottom:10px;flex-shrink:0}
+body.pos-mode .main-content{padding-bottom:10px;padding-top:0;flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column}
+body.pos-mode .main-content > .tab-content.active{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
 @media(max-width:900px){
-  .pos-shell{grid-template-columns:1fr;min-height:auto}
-  .pos-catalog{border-right:none;border-bottom:1.5px solid var(--b50);max-height:52vh}
-  .pos-ticket{min-height:48vh}
+  .pos-shell{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) minmax(260px,.95fr)}
+  .pos-catalog{border-right:none;border-bottom:1.5px solid var(--b50)}
   .pos-cat-hd{padding-right:16px}
-  .pos-seller-chip{top:auto;bottom:10px;right:10px;left:auto}
+  .pos-seller-chip{top:8px;right:8px}
+  body.pos-mode .main-col{height:100dvh}
 }
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -2024,6 +2047,20 @@ body.pos-mode .main-content{padding-bottom:8px}
             <label><i class="ti ti-discount-2"></i> Descuento de la venta</label>
             <select id="pos-sale-disc-cdb" onchange="onPosSaleDiscountChange('cdb')"><option value="">Sin descuento</option></select>
           </div>
+          <div class="pos-stamp">
+            <div class="pos-stamp-label"><i class="ti ti-stamp"></i>Sumar sello a un cliente</div>
+            <div class="pos-stamp-search">
+              <input type="text" id="pos-stamp-q-cdb" placeholder="Buscar por nombre o correo…" autocomplete="off" oninput="onPosStampSearch('cdb')" onfocus="onPosStampSearch('cdb')">
+              <div class="cart-stamp-results" id="pos-stamp-results-cdb"></div>
+            </div>
+            <div class="cart-stamp-chip" id="pos-stamp-chip-cdb">
+              <div class="cart-stamp-chip-info">
+                <div class="cart-stamp-chip-name" id="pos-stamp-chip-name-cdb">—</div>
+                <div class="cart-stamp-chip-meta" id="pos-stamp-chip-meta-cdb">—</div>
+              </div>
+              <button type="button" class="cart-stamp-chip-clear" onclick="clearPosStamp('cdb')" title="Quitar"><i class="ti ti-x"></i></button>
+            </div>
+          </div>
           <div id="pos-lines-cdb"></div>
         </div>
         <div class="pos-ticket-ft">
@@ -2068,6 +2105,20 @@ body.pos-mode .main-content{padding-bottom:8px}
           <div class="pos-ticket-disc">
             <label><i class="ti ti-discount-2"></i> Descuento de la venta</label>
             <select id="pos-sale-disc-exsal" onchange="onPosSaleDiscountChange('exsal')"><option value="">Sin descuento</option></select>
+          </div>
+          <div class="pos-stamp">
+            <div class="pos-stamp-label"><i class="ti ti-stamp"></i>Sumar sello a un cliente</div>
+            <div class="pos-stamp-search">
+              <input type="text" id="pos-stamp-q-exsal" placeholder="Buscar por nombre o correo…" autocomplete="off" oninput="onPosStampSearch('exsal')" onfocus="onPosStampSearch('exsal')">
+              <div class="cart-stamp-results" id="pos-stamp-results-exsal"></div>
+            </div>
+            <div class="cart-stamp-chip" id="pos-stamp-chip-exsal">
+              <div class="cart-stamp-chip-info">
+                <div class="cart-stamp-chip-name" id="pos-stamp-chip-name-exsal">—</div>
+                <div class="cart-stamp-chip-meta" id="pos-stamp-chip-meta-exsal">—</div>
+              </div>
+              <button type="button" class="cart-stamp-chip-clear" onclick="clearPosStamp('exsal')" title="Quitar"><i class="ti ti-x"></i></button>
+            </div>
           </div>
           <div id="pos-lines-exsal"></div>
         </div>
@@ -2298,6 +2349,25 @@ body.pos-mode .main-content{padding-bottom:8px}
     <div class="form-body">
       <div id="cal-day-pick-list"></div>
       <button class="btn-add" style="margin-top:4px" onclick="calDayPickNew()"><i class="ti ti-plus"></i>Agregar otro evento</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: descripción producto (POS) -->
+<div class="overlay" id="pos-desc-overlay" onclick="if(event.target===this)closePosDesc()">
+  <div class="modal-box">
+    <div class="pm-header">
+      <div class="pm-name" id="pos-desc-name">Producto</div>
+      <div class="pm-desc">Detalle rápido</div>
+    </div>
+    <div class="pm-body">
+      <div id="pos-desc-media"></div>
+      <div class="pos-desc-price" id="pos-desc-price">$0.00</div>
+      <div class="pos-desc-stock" id="pos-desc-stock">—</div>
+      <div class="pos-desc-body" id="pos-desc-body">Sin descripción.</div>
+      <div class="pm-footer" style="margin-top:16px">
+        <button class="btn-secondary" onclick="closePosDesc()">Cerrar</button>
+      </div>
     </div>
   </div>
 </div>
@@ -4835,6 +4905,12 @@ document.addEventListener('click',e=>{
     const box=document.getElementById('cart-stamp-results');
     if(box) box.classList.remove('show');
   }
+  document.querySelectorAll('.pos-stamp-search').forEach(w=>{
+    if(!w.contains(e.target)){
+      const box=w.querySelector('.cart-stamp-results');
+      if(box) box.classList.remove('show');
+    }
+  });
 });
 
 // ── CONFIRMAR VENTA: transacción atómica con contador secuencial de facturas ──
@@ -5160,6 +5236,11 @@ function renderPosCatalog(suc){
   if(!grid) return;
   const q=((document.getElementById('pos-search-'+suc)||{}).value||'').trim().toLowerCase();
   const cat=((document.getElementById('pos-cat-'+suc)||{}).value||'');
+  // preservar cantidades tipadas al re-render
+  const prevQty={};
+  grid.querySelectorAll('input.pos-qty-input').forEach(inp=>{
+    if(inp.dataset.pid) prevQty[inp.dataset.pid]=inp.value;
+  });
   let list=[...products];
   list.sort((a,b)=>{
     const oa=productOrdenValue(a), ob=productOrdenValue(b);
@@ -5168,7 +5249,6 @@ function renderPosCatalog(suc){
   });
   if(cat) list=list.filter(p=>(p.categoria||'')===cat);
   if(q) list=list.filter(p=>(p.name||'').toLowerCase().includes(q)||(p.desc||'').toLowerCase().includes(q));
-  // en caja priorizamos con stock, pero mostramos todos
   list.sort((a,b)=>{
     const sa=getStock(a,suc)>0?0:1, sb=getStock(b,suc)>0?0:1;
     if(sa!==sb) return sa-sb;
@@ -5181,18 +5261,65 @@ function renderPosCatalog(suc){
   grid.innerHTML=list.map(p=>{
     const stock=getStock(p,suc);
     const out=stock<=0;
+    const qtyKeep=Math.max(1, parseInt(prevQty[p.id])||1);
+    const qtyShow=out?1:Math.min(qtyKeep, stock||1);
     const img=p.imageUrl
       ? `<img class="pos-card-img" src="${esc(p.imageUrl)}" alt="" loading="lazy" onerror="this.outerHTML='<div class=\\'pos-card-img-ph\\'><i class=\\'ti ti-box\\'></i></div>'">`
       : `<div class="pos-card-img-ph"><i class="ti ti-box"></i></div>`;
-    return `<div class="pos-card${out?' out':''}" tabindex="0" onclick="posQuickAdd('${p.id}','${suc}')">
-      ${img}
+    return `<div class="pos-card${out?' out':''}" data-pid="${p.id}">
+      <div class="pos-card-img-wrap">
+        ${img}
+        <button type="button" class="pos-card-info" title="Ver descripción" onclick="event.stopPropagation();openPosDesc('${p.id}','${suc}')"><i class="ti ti-info-circle"></i></button>
+      </div>
       <div class="pos-card-name">${esc(p.name||'Sin nombre')}</div>
       <div class="pos-card-row"><span class="pos-card-price">${fmt(p.price)}</span><span class="pos-card-stock">${out?'Sin stock':stock+' uds'}</span></div>
-      <button type="button" class="pos-card-add" ${out?'disabled':''} onclick="event.stopPropagation();posQuickAdd('${p.id}','${suc}')"><i class="ti ti-plus"></i>Vender</button>
+      <div class="pos-card-actions">
+        <div class="pos-card-stepper">
+          <button type="button" ${out?'disabled':''} onclick="event.stopPropagation();posBumpCardQty('${p.id}','${suc}',-1)">−</button>
+          <input class="pos-qty-input" type="number" min="1" max="${Math.max(1,stock)}" step="1" value="${qtyShow}" data-pid="${p.id}" data-suc="${suc}" ${out?'disabled':''}
+            onclick="event.stopPropagation()" onfocus="this.select()"
+            oninput="posSyncAddBtnQty('${p.id}')" onchange="posClampCardQty('${p.id}','${suc}')">
+          <button type="button" ${out?'disabled':''} onclick="event.stopPropagation();posBumpCardQty('${p.id}','${suc}',1)">+</button>
+        </div>
+        <button type="button" class="pos-card-add" id="pos-add-btn-${suc}-${p.id}" ${out?'disabled':''} onclick="event.stopPropagation();posAddWithQty('${p.id}','${suc}')">
+          <i class="ti ti-plus"></i>Agregar <span class="pos-add-qty">${qtyShow}</span>
+        </button>
+      </div>
     </div>`;
   }).join('');
 }
-function posQuickAdd(pid,suc){
+function posGetCardQtyInput(pid){
+  return document.querySelector('input.pos-qty-input[data-pid="'+pid+'"]');
+}
+function posSyncAddBtnQty(pid){
+  const inp=posGetCardQtyInput(pid); if(!inp) return;
+  const suc=inp.dataset.suc;
+  const btn=document.getElementById('pos-add-btn-'+suc+'-'+pid);
+  if(!btn) return;
+  const span=btn.querySelector('.pos-add-qty');
+  if(span) span.textContent=inp.value||'1';
+}
+function posClampCardQty(pid,suc){
+  const inp=posGetCardQtyInput(pid); if(!inp) return;
+  const p=products.find(x=>x.id===pid);
+  const stock=p?getStock(p,suc):0;
+  let v=parseInt(inp.value);
+  if(isNaN(v)||v<1) v=1;
+  if(stock>0 && v>stock) v=stock;
+  inp.value=v;
+  posSyncAddBtnQty(pid);
+}
+function posBumpCardQty(pid,suc,delta){
+  const inp=posGetCardQtyInput(pid); if(!inp||inp.disabled) return;
+  const p=products.find(x=>x.id===pid);
+  const stock=p?getStock(p,suc):0;
+  let v=(parseInt(inp.value)||1)+delta;
+  if(v<1) v=1;
+  if(stock>0 && v>stock) v=stock;
+  inp.value=v;
+  posSyncAddBtnQty(pid);
+}
+function posAddWithQty(pid,suc){
   ensureCartForPos(suc);
   const c=activeCart();
   const p=products.find(x=>x.id===pid); if(!p) return;
@@ -5202,21 +5329,97 @@ function posQuickAdd(pid,suc){
   }
   const stock=getStock(p,suc);
   if(stock<=0){ showToast('Sin stock','ti-alert-circle'); return; }
+  posClampCardQty(pid,suc);
+  const inp=posGetCardQtyInput(pid);
+  let qty=parseInt(inp&&inp.value)||1;
+  if(qty<1) qty=1;
   const ya=c.items.filter(it=>it.pid===p.id).reduce((s,it)=>s+it.qty,0);
-  if(ya+1>stock){ showToast('Stock insuficiente','ti-alert-circle'); return; }
+  if(ya+qty>stock){ showToast('Stock insuficiente'+(ya?' (ya hay '+ya+' en esta venta)':''),'ti-alert-circle'); return; }
   let discPct=0, discId='', discNombre='';
   if(c.saleDiscPct>0){
     discPct=c.saleDiscPct; discId=SALE_DISC_MARK; discNombre=c.saleDiscNombre||'';
   }
   c.sede=suc;
   const existing=c.items.find(it=>it.pid===p.id&&it.discId===discId);
-  if(existing){ existing.qty+=1; recalcCartItem(existing); }
+  if(existing){ existing.qty+=qty; recalcCartItem(existing); }
   else {
-    const item={pid:p.id,productName:p.name,qty:1,price:p.price,cost:p.cost,discPct,discId,discNombre};
+    const item={pid:p.id,productName:p.name,qty,price:p.price,cost:p.cost,discPct,discId,discNombre};
     recalcCartItem(item); c.items.push(item);
   }
+  if(inp){ inp.value=1; posSyncAddBtnQty(pid); }
   renderCart();
   renderPosTicket(suc);
+  showToast('+' + qty + ' · ' + p.name, 'ti-cart-plus');
+}
+function posQuickAdd(pid,suc){ posAddWithQty(pid,suc); }
+function openPosDesc(pid,suc){
+  const p=products.find(x=>x.id===pid); if(!p) return;
+  document.getElementById('pos-desc-name').textContent=p.name||'Producto';
+  document.getElementById('pos-desc-price').textContent=fmt(p.price);
+  const stock=getStock(p,suc);
+  document.getElementById('pos-desc-stock').textContent=stock>0?(stock+' en stock · '+(suc==='exsal'?'EXSAL':'CDB')):'Sin stock en '+(suc==='exsal'?'EXSAL':'CDB');
+  const media=document.getElementById('pos-desc-media');
+  if(p.imageUrl){
+    media.innerHTML=`<img class="pos-desc-img" src="${esc(p.imageUrl)}" alt="" onerror="this.style.display='none'">`;
+  } else media.innerHTML='';
+  const desc=(p.desc||'').trim();
+  document.getElementById('pos-desc-body').textContent=desc||'Sin descripción.';
+  document.getElementById('pos-desc-overlay').classList.add('open');
+}
+function closePosDesc(){
+  document.getElementById('pos-desc-overlay').classList.remove('open');
+}
+function onPosStampSearch(suc){
+  const box=document.getElementById('pos-stamp-results-'+suc);
+  const q=((document.getElementById('pos-stamp-q-'+suc)||{}).value||'').trim().toLowerCase();
+  if(!box) return;
+  let list=getActiveStampCardsWithEmail();
+  if(q) list=list.filter(c=>((c.nombre||'')+(c.email||'')+(c.code||'')).toLowerCase().includes(q));
+  list=list.slice(0,8);
+  if(!list.length){ box.classList.remove('show'); box.innerHTML=''; return; }
+  box.innerHTML=list.map(c=>{
+    const code=c.code||c.id;
+    const name=c.nombre||'Sin nombre';
+    return `<button type="button" class="cart-stamp-opt" onclick="selectPosStamp('${esc(code)}','${suc}')">
+      <div class="cart-stamp-opt-name">${esc(name)}</div>
+      <div class="cart-stamp-opt-meta">${esc(c.email||'')} · ${c.sellos||0}/8 · ${esc(code)}</div>
+    </button>`;
+  }).join('');
+  box.classList.add('show');
+}
+function selectPosStamp(code,suc){
+  const card=stampCards.find(c=>(c.code||c.id)===code && (c.status||'')==='active');
+  if(!card||!(card.emailLower||card.email)){showToast('Esa tarjeta no tiene correo asignado','ti-alert-circle');return;}
+  const c=activeCart();
+  c.stampCode=card.code||card.id;
+  syncPosStampChip(suc);
+  const qEl=document.getElementById('pos-stamp-q-'+suc);
+  if(qEl) qEl.value='';
+  const box=document.getElementById('pos-stamp-results-'+suc);
+  if(box){box.classList.remove('show');box.innerHTML='';}
+  // espejo en carrito flotante
+  selectCartStamp(c.stampCode);
+  showToast('Sello listo para '+ (card.nombre||'cliente'),'ti-stamp');
+}
+function clearPosStamp(suc){
+  activeCart().stampCode=null;
+  syncPosStampChip(suc);
+  clearCartStamp();
+}
+function syncPosStampChip(suc){
+  const c=activeCart();
+  const chip=document.getElementById('pos-stamp-chip-'+suc);
+  if(!chip) return;
+  if(c.stampCode){
+    const card=stampCards.find(x=>(x.code||x.id)===c.stampCode);
+    if(card){
+      document.getElementById('pos-stamp-chip-name-'+suc).textContent=card.nombre||'Sin nombre';
+      document.getElementById('pos-stamp-chip-meta-'+suc).textContent=(card.email||'')+' · '+(card.sellos||0)+'/8';
+      chip.classList.add('show');
+      return;
+    }
+  }
+  chip.classList.remove('show');
 }
 function renderPosTabs(suc){
   const el=document.getElementById('pos-tabs-'+suc);
@@ -5280,8 +5483,11 @@ function renderPosTicket(suc){
   const c=activeCart();
   renderPosTabs(suc);
   populatePosSaleDiscount(suc);
+  syncPosStampChip(suc);
   const cli=document.getElementById('pos-cliente-'+suc);
   if(cli && document.activeElement!==cli) cli.value=c.cliente||'';
+  const stampQ=document.getElementById('pos-stamp-q-'+suc);
+  if(stampQ && document.activeElement!==stampQ && !c.stampCode) stampQ.value='';
   const linesEl=document.getElementById('pos-lines-'+suc);
   const subEl=document.getElementById('pos-sub-'+suc);
   const discEl=document.getElementById('pos-disc-'+suc);
