@@ -674,6 +674,8 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .pedido-items{display:flex;flex-direction:column;gap:3px}
 .pedido-item-row{font-size:12px;color:var(--ts)}
 .pedido-code{font-size:11px;font-weight:700;color:var(--b600);background:var(--b50);border:1px solid var(--b100);border-radius:6px;padding:2px 8px;display:inline-block}
+.pedido-factura-num{display:block;margin-top:4px;font-size:10.5px;font-weight:700;color:var(--b600);letter-spacing:.2px}
+.pedido-factura-wait{display:inline-flex;align-items:center;gap:4px;margin-top:4px;font-size:11px;font-weight:700;color:var(--ts);background:var(--b50);border:1px solid var(--b100);border-radius:8px;padding:3px 8px;white-space:nowrap;line-height:1.3}
 @media(max-width:900px){.pedidos-stats-row{grid-template-columns:1fr 1fr}.pedidos-filter-bar{flex-direction:column;align-items:stretch}}
 /* ── CARRITO DE VENTA ── */
 #cart-panel{position:fixed;right:20px;bottom:20px;width:360px;max-width:calc(100vw - 32px);background:#fff;border:1.5px solid var(--b100);border-radius:16px;box-shadow:0 18px 50px rgba(15,63,99,.28);z-index:8000;display:none;flex-direction:column;overflow:hidden;font-family:inherit}
@@ -6019,6 +6021,64 @@ async function downloadAllFacturasMes(){
   }
 }
 
+/* PICO_FACTURA_RULES_START
+   Misma regla que la tienda (js/cart.js + Cloud Functions):
+   · Efectivo / contra entrega → factura al crear el pedido
+   · Tarjeta aún sin pagar → no crear factura ni correos
+   · paymentStatus paid, credits, creditsFullyPaid o totalConEnvio <= 0 → sí
+   · Si ya hay facturaId o facturaNum → no acuñar otro FAC
+   · Correos de pedidos web: no repetir si mailNotifySent / facturaClienteMailSent
+   · Facturas nunca se borran: al cancelar solo anulada:true
+   · Stats: tarjeta al pagar (statsRecorded), efectivo al entregar
+*/
+function pedidoEsperaPagoTarjeta(order){
+  if(!order||order.metodoPago!=='tarjeta') return false;
+  if(order.paymentStatus==='paid'||order.paymentStatus==='credits') return false;
+  if(order.creditsFullyPaid===true) return false;
+  if(typeof order.totalConEnvio==='number'&&order.totalConEnvio<=0) return false;
+  return true;
+}
+function etiquetaFacturaPedido(order){
+  if(order&&order.facturaNum) return {kind:'num', text:String(order.facturaNum)};
+  if(pedidoEsperaPagoTarjeta(order)) return {kind:'wait', text:'Factura al confirmar pago'};
+  return {kind:'none', text:''};
+}
+/** Qué hace el inventario con la factura de un pedido web. No toca stats. */
+function planAccionFacturaPedido(order){
+  const tiene=!!(order&&(order.facturaId||order.facturaNum));
+  if(tiene){
+    return {crear:false, actualizar:true, mailEquipo:false, mailCliente:false, ui:(order.facturaNum||'')};
+  }
+  if(pedidoEsperaPagoTarjeta(order)){
+    return {crear:false, actualizar:false, mailEquipo:false, mailCliente:false, ui:'Factura al confirmar pago'};
+  }
+  return {
+    crear:true,
+    actualizar:false,
+    mailEquipo:!(order&&order.mailNotifySent===true),
+    mailCliente:!(order&&order.facturaClienteMailSent===true)&&!!(order&&(order.email||order.clienteEmail)),
+    ui:''
+  };
+}
+/** true si al ENTREGAR hay que sumar productos/venta. Tarjeta pagada ya trae statsRecorded. */
+function entregaCuentaProductos(order){
+  return !(order&&order.statsRecorded===true);
+}
+/** Ids de facturas existentes a marcar anulada. Nunca inventa un id. */
+function facturasParaAnular(order, docs){
+  const ids=new Set();
+  (docs||[]).forEach(d=>{ if(d&&d.id) ids.add(d.id); });
+  return [...ids];
+}
+/* PICO_FACTURA_RULES_END */
+
+function nombreItemPedido(item){
+  if(!item) return 'Producto';
+  const label=item.colorLabel||item.colorName||'';
+  const name=item.name||item.productName||'Producto';
+  return label?(name+' · '+label):(name||'Producto');
+}
+
 /** Construye ítems de factura a partir de un pedido (domicilio o no). */
 function buildFacturaItemsFromPedido(order, discFactor){
   const factor=(typeof discFactor==='number')?discFactor:1;
@@ -6029,39 +6089,204 @@ function buildFacturaItemsFromPedido(order, discFactor){
     const unitPrice=typeof item.price==='number'?item.price:0;
     const lineSub=+(unitPrice*qty).toFixed(2);
     return {
-      productName:item.name||'Producto',
+      productName:nombreItemPedido(item),
       qty,
       precioUnit:unitPrice,
       descPct:pct||0,
       descNombre:descNombre||'',
       subtotal:lineSub,
-      total:+(lineSub*factor).toFixed(2)
+      total:+(lineSub*factor).toFixed(2),
+      colorId:item.colorId||null,
+      colorLabel:item.colorLabel||null,
+      color:item.color||null
     };
   });
 }
 
-/**
- * Asegura factura con sucursal 'domicilio' para un pedido a domicilio.
- * Si ya existe (facturaId / fromOrder), la mueve a domicilio y actualiza totales.
- * Si no, crea una nueva con secuencia FAC-#####.
- * @returns {{facturaId:string,facturaNum:string,numero:number}}
- */
-async function ensurePedidoFacturaDomicilio(orderId, order, opts){
-  const sellerEmail=(opts&&opts.sellerEmail)||(auth.currentUser&&auth.currentUser.email)||'admin';
-  const ts=(opts&&opts.ts)||Date.now();
-  const mes=(opts&&opts.mes)||getMonthKey(ts);
-  const date=(opts&&opts.date)||new Date(ts).toLocaleDateString('es');
+const PICO_NOTIFY_EMAIL='picosvsupport@gmail.com';
+
+function totalesFacturaPedido(order){
   const discFactor=order.discountPct?((100-order.discountPct)/100):1;
   const items=buildFacturaItemsFromPedido(order, discFactor);
   const subtotal=+(items.reduce((s,it)=>s+(it.subtotal||0),0)).toFixed(2);
   const totalProductos=typeof order.totalConDescuento==='number'
     ? +order.totalConDescuento
     : +(items.reduce((s,it)=>s+(it.total||0),0)).toFixed(2);
-  const envioCosto=typeof order.envioCosto==='number'?order.envioCosto:0;
-  const total=+(totalProductos+envioCosto).toFixed(2);
+  const creditsUsed=Math.max(0, Number(order.creditsUsed)||0);
+  const totalTrasCreditos=+Math.max(0, totalProductos-creditsUsed).toFixed(2);
+  const envioCosto=(order.tipoEntrega==='domicilio'&&typeof order.envioCosto==='number')?order.envioCosto:0;
+  const total=+(totalTrasCreditos+envioCosto).toFixed(2);
   const unidades=items.reduce((s,it)=>s+(it.qty||0),0);
-  const cliente=order.name||order.cliente||'';
-  const clienteEmail=order.email||order.clienteEmail||'';
+  return {items, subtotal, totalProductos, creditsUsed, envioCosto:+(+envioCosto).toFixed(2), total, unidades};
+}
+
+function patchFacturaDomicilio(orderId, order, facData, opts){
+  const ts=(opts&&opts.ts)||Date.now();
+  const mes=(opts&&opts.mes)||getMonthKey(ts);
+  const date=(opts&&opts.date)||new Date(ts).toLocaleDateString('es');
+  const sellerEmail=(opts&&opts.sellerEmail)||'tienda-online';
+  const tot=totalesFacturaPedido(order);
+  const patch={
+    sucursal:'domicilio',
+    tipoEntrega:'domicilio',
+    fromOrder:orderId,
+    cliente:order.name||order.cliente||'',
+    clienteEmail:order.email||order.clienteEmail||'',
+    seller:(facData&&facData.seller)?facData.seller:sellerEmail,
+    date:(facData&&facData.date)?facData.date:date,
+    timestamp:(facData&&facData.timestamp)?facData.timestamp:ts,
+    mes:(facData&&facData.mes)?facData.mes:mes,
+    subtotal:tot.subtotal,
+    totalProductos:tot.totalProductos,
+    creditsUsed:tot.creditsUsed,
+    envioCosto:tot.envioCosto,
+    total:tot.total,
+    unidades:tot.unidades,
+    items:tot.items,
+    pedidoCode:order.code||null
+  };
+  if(order.discountPct){
+    patch.descuentoAplicado={nombre:order.discountName||'',porcentaje:order.discountPct};
+  }
+  return patch;
+}
+
+function htmlAvisoEquipoPedido(order, orderId){
+  const o=order||{};
+  const sucLabel=o.tipoEntrega==='domicilio'
+    ? 'Envío a domicilio'
+    : (o.sucursal==='cdb'?'Colegio Don Bosco':o.sucursal==='udb'?'Universidad Don Bosco':o.sucursal==='exsal'?'EXSAL':'Retiro en sucursal');
+  const finalTotal=o.totalConDescuento!=null?o.totalConDescuento:(o.total||0);
+  const pagadoTarjeta=o.metodoPago==='tarjeta';
+  const rows=(o.items||[]).map(i=>{
+    const price=Number(i.price)||0;
+    const qty=i.qty||0;
+    return `<tr>
+      <td style="padding:6px 10px;border-bottom:1px solid #eee">${esc(nombreItemPedido(i))}</td>
+      <td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:center">${qty}</td>
+      <td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:right">$${price.toFixed(2)}</td>
+      <td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:right">$${(qty*price).toFixed(2)}</td>
+    </tr>`;
+  }).join('');
+  const e=o.envio||{};
+  const titulo=pagadoTarjeta?('Pedido pagado · '+(o.code||orderId)):('Nuevo pedido · '+(o.code||orderId));
+  const pagoLabel=pagadoTarjeta?'Tarjeta (pagado)':(o.creditsFullyPaid?'Créditos PICO (100%)':'Efectivo');
+  const totalMostrar=(typeof o.totalConEnvio==='number'?o.totalConEnvio:finalTotal);
+  return {
+    subject:(pagadoTarjeta?'Pedido pagado ':'Nuevo pedido ')+(o.code||'')+' — '+(o.name||'')+' ('+sucLabel+')',
+    text:(pagadoTarjeta?'Pedido pagado ':'Nuevo pedido ')+(o.code||orderId)+' — '+(o.name||''),
+    html:`<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#0f172a">
+      <h2 style="margin:0 0 4px">${esc(titulo)}</h2>
+      <p style="margin:0 0 16px;color:#64748b">${esc(new Date().toLocaleString('es-SV'))}${pagadoTarjeta?' · pago con tarjeta confirmado':''}</p>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:16px">
+        <tr><td style="padding:4px 0;color:#64748b">Cliente</td><td style="padding:4px 0;font-weight:600">${esc(o.name||'')}</td></tr>
+        <tr><td style="padding:4px 0;color:#64748b">Entrega</td><td style="padding:4px 0;font-weight:600">${esc(sucLabel)}</td></tr>
+        ${o.tipoEntrega==='domicilio'?`<tr><td style="padding:4px 0;color:#64748b">Dirección</td><td style="padding:4px 0;font-weight:600">${esc(e.direccion||'')}</td></tr>
+        <tr><td style="padding:4px 0;color:#64748b">Teléfono</td><td style="padding:4px 0;font-weight:600">${esc(e.telefono||'')}</td></tr>`:''}
+        <tr><td style="padding:4px 0;color:#64748b">Método de pago</td><td style="padding:4px 0;font-weight:600">${esc(pagoLabel)}</td></tr>
+        ${o.email?`<tr><td style="padding:4px 0;color:#64748b">Correo cliente</td><td style="padding:4px 0;font-weight:600">${esc(o.email)}</td></tr>`:''}
+      </table>
+      <table style="width:100%;border-collapse:collapse;font-size:14px">
+        <tr style="background:#f1f5f9"><th style="padding:8px 10px;text-align:left">Producto</th><th style="padding:8px 10px;text-align:center">Cant.</th><th style="padding:8px 10px;text-align:right">Precio</th><th style="padding:8px 10px;text-align:right">Subtotal</th></tr>
+        ${rows}
+        ${(o.tipoEntrega==='domicilio'&&o.envioCosto)?`<tr><td colspan="3" style="padding:6px 10px;text-align:right">Envío a domicilio</td><td style="padding:6px 10px;text-align:right">$${Number(o.envioCosto).toFixed(2)}</td></tr>`:''}
+        <tr><td colspan="3" style="padding:10px;text-align:right;font-weight:700;font-size:16px;border-top:2px solid #0f172a">TOTAL</td><td style="padding:10px;text-align:right;font-weight:700;font-size:16px;border-top:2px solid #0f172a">$${Number(totalMostrar).toFixed(2)}</td></tr>
+      </table>
+      <p style="margin-top:16px;color:#94a3b8;font-size:12px">ID del pedido: ${esc(orderId)}</p>
+    </div>`
+  };
+}
+
+function htmlFacturaClientePedido(order, facturaNum){
+  const o=order||{};
+  const tot=totalesFacturaPedido(o);
+  const fecha=new Date().toLocaleDateString('es');
+  const filas=tot.items.map(i=>`<tr>
+      <td style="padding:7px 0;border-bottom:1px solid #eef5fb">${esc(i.productName)}</td>
+      <td style="padding:7px 0;border-bottom:1px solid #eef5fb;text-align:center">${i.qty}</td>
+      <td style="padding:7px 0;border-bottom:1px solid #eef5fb;text-align:right">$${Number(i.total||0).toFixed(2)}</td>
+    </tr>`).join('');
+  return {
+    subject:'Factura '+facturaNum+' — PICO Electrónica',
+    text:'Factura '+facturaNum+' — Pedido '+(o.code||'')+' — Total $'+tot.total.toFixed(2),
+    html:`<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:auto;color:#0f3f63">
+  <div style="background:#4aa8e8;color:#fff;padding:18px 20px;border-radius:10px 10px 0 0">
+    <div style="font-size:20px;font-weight:700">PICO Electrónica</div>
+    <div style="font-size:13px;opacity:.92">Factura ${esc(facturaNum)}</div>
+  </div>
+  <div style="border:1px solid #e2eef7;border-top:none;border-radius:0 0 10px 10px;padding:18px 20px">
+    <p style="margin:0 0 4px">¡Gracias por tu compra, <b>${esc(o.name||'')}</b>!</p>
+    <p style="margin:0 0 14px;color:#4a89b0;font-size:13px">Pedido <b>${esc(o.code||'')}</b> &middot; ${esc(fecha)}</p>
+    <table style="width:100%;border-collapse:collapse;font-size:14px">
+      <thead><tr style="color:#4a89b0;font-size:12px">
+        <th style="padding:6px 0;border-bottom:2px solid #e2eef7;text-align:left">Producto</th>
+        <th style="padding:6px 0;border-bottom:2px solid #e2eef7;text-align:center">Cant.</th>
+        <th style="padding:6px 0;border-bottom:2px solid #e2eef7;text-align:right">Total</th>
+      </tr></thead>
+      <tbody>${filas}</tbody>
+    </table>
+    ${tot.envioCosto?`<p style="margin:6px 0 0;text-align:right;color:#4a89b0;font-size:13px">Envío a domicilio: $${tot.envioCosto.toFixed(2)}</p>`:''}
+    ${tot.creditsUsed?`<p style="margin:6px 0 0;text-align:right;color:#0d9488;font-size:13px">Créditos PICO: -$${tot.creditsUsed.toFixed(2)}</p>`:''}
+    <p style="margin:8px 0 0;text-align:right;font-size:17px;font-weight:700">TOTAL: $${tot.total.toFixed(2)}</p>
+    <p style="margin:18px 0 0;color:#94a3b8;font-size:12px">Este es un correo automático, por favor no respondas a esta dirección.</p>
+  </div>
+</div>`
+  };
+}
+
+/** Correos del pedido web solo si esta llamada ACABA de crear la factura y el flag no está puesto. */
+async function encolarCorreosPedidoWeb(orderId, order, facturaNum){
+  const ref=db.collection('pedidos').doc(orderId);
+  let fresh=order||{};
+  try{
+    const snap=await ref.get();
+    if(snap.exists) fresh=Object.assign({}, order||{}, snap.data()||{});
+  }catch(_){}
+  if(pedidoEsperaPagoTarjeta(fresh)) return;
+  const patch={};
+  if(fresh.mailNotifySent!==true){
+    try{
+      const msg=htmlAvisoEquipoPedido(fresh, orderId);
+      await db.collection('mail').add({to:PICO_NOTIFY_EMAIL, message:{subject:msg.subject, html:msg.html, text:msg.text}});
+      patch.mailNotifySent=true;
+      patch.mailNotifyPendientePago=false;
+    }catch(e){ console.warn('No se pudo encolar el aviso al equipo:', e); }
+  }
+  if(fresh.facturaClienteMailSent!==true){
+    const correo=fresh.email||fresh.clienteEmail||'';
+    if(correo&&facturaNum){
+      try{
+        const msg=htmlFacturaClientePedido(fresh, facturaNum);
+        await db.collection('mail').add({to:correo, message:{subject:msg.subject, html:msg.html, text:msg.text}});
+        patch.facturaClienteMailSent=true;
+        patch.facturaPendientePago=false;
+      }catch(e){ console.warn('No se pudo encolar la factura al cliente:', e); }
+    } else {
+      patch.facturaClienteMailSent=true;
+      patch.facturaPendientePago=false;
+    }
+  }
+  if(Object.keys(patch).length){
+    try{ await ref.update(patch); }catch(e){ console.warn('No se pudieron marcar los flags de correo:', e); }
+  }
+}
+
+/**
+ * Asegura factura con sucursal 'domicilio' para un pedido a domicilio.
+ * No crea si es tarjeta aún sin pagar/créditos. Si ya hay facturaId/facturaNum, no acuñá otra.
+ * El correo al equipo y al cliente sale solo cuando ESTA llamada crea la factura y el flag no está.
+ * @returns {{facturaId:?string,facturaNum:?string,numero:number,created:boolean,skipped:boolean}}
+ */
+async function ensurePedidoFacturaDomicilio(orderId, order, opts){
+  const sellerEmail=(opts&&opts.sellerEmail)||(auth.currentUser&&auth.currentUser.email)||'tienda-online';
+  const ts=(opts&&opts.ts)||Date.now();
+  const mes=(opts&&opts.mes)||getMonthKey(ts);
+  const date=(opts&&opts.date)||new Date(ts).toLocaleDateString('es');
+  const baseOpts={sellerEmail, ts, mes, date};
+  const plan=planAccionFacturaPedido(order);
+  if(!plan.crear&&!plan.actualizar){
+    return {skipped:true, created:false, facturaId:null, facturaNum:null, numero:0};
+  }
 
   let facRef=null, facData=null;
   if(order.facturaId){
@@ -6072,58 +6297,99 @@ async function ensurePedidoFacturaDomicilio(orderId, order, opts){
     const snap=await db.collection('facturas').where('fromOrder','==',orderId).limit(1).get();
     if(!snap.empty){ facRef=snap.docs[0].ref; facData=snap.docs[0].data()||{}; }
   }
-
-  const patch={
-    sucursal:'domicilio',
-    tipoEntrega:'domicilio',
-    fromOrder:orderId,
-    cliente,
-    clienteEmail,
-    seller:facData&&facData.seller?facData.seller:sellerEmail,
-    date:facData&&facData.date?facData.date:date,
-    timestamp:facData&&facData.timestamp?facData.timestamp:ts,
-    mes:facData&&facData.mes?facData.mes:mes,
-    subtotal,
-    totalProductos,
-    envioCosto:+envioCosto.toFixed(2),
-    total,
-    unidades,
-    items,
-    pedidoCode:order.code||null
-  };
-  if(order.discountPct){
-    patch.descuentoAplicado={nombre:order.discountName||'',porcentaje:order.discountPct};
+  if(!facRef&&order.facturaNum){
+    const snap=await db.collection('facturas').where('numFactura','==',order.facturaNum).limit(1).get();
+    if(!snap.empty){ facRef=snap.docs[0].ref; facData=snap.docs[0].data()||{}; }
   }
 
   if(facRef){
-    await facRef.update(patch);
+    await facRef.update(patchFacturaDomicilio(orderId, order, facData, baseOpts));
     return {
       facturaId:facRef.id,
-      facturaNum:facData.numFactura||('FAC-'+String(facData.numero||'').padStart(5,'0')),
-      numero:facData.numero||0
+      facturaNum:facData.numFactura||order.facturaNum||('FAC-'+String(facData.numero||'').padStart(5,'0')),
+      numero:facData.numero||0,
+      created:false,
+      skipped:false,
+      already:true
+    };
+  }
+
+  // Hay puntero pero no documento: no acuñar otro consecutivo.
+  if(order.facturaId||order.facturaNum){
+    return {
+      facturaId:order.facturaId||null,
+      facturaNum:order.facturaNum||null,
+      numero:0,
+      created:false,
+      skipped:false,
+      already:true
     };
   }
 
   const metaRef=db.collection('estadisticas').doc('_meta');
+  const orderRef=db.collection('pedidos').doc(orderId);
   const newRef=db.collection('facturas').doc();
-  let seq=0, numFactura='';
+  let seq=0, numFactura='', created=false, skippedTx=false, alreadyId=null, alreadyNum=null;
   await db.runTransaction(async t=>{
+    created=false; skippedTx=false; alreadyId=null; alreadyNum=null; seq=0; numFactura='';
+    const orderSnap=await t.get(orderRef);
     const metaSnap=await t.get(metaRef);
+    const cur=orderSnap.exists?(orderSnap.data()||{}):{};
+    if((cur.facturaId&&cur.facturaNum)||cur.facturaId||cur.facturaNum){
+      alreadyId=cur.facturaId||null;
+      alreadyNum=cur.facturaNum||null;
+      return;
+    }
+    if(pedidoEsperaPagoTarjeta(cur)){ skippedTx=true; return; }
     seq=((metaSnap.exists&&metaSnap.data().facturaSeq)||0)+1;
     numFactura='FAC-'+String(seq).padStart(5,'0');
+    const patch=patchFacturaDomicilio(orderId, Object.assign({}, order, cur), null, baseOpts);
     t.set(newRef, Object.assign({}, patch, {
       numero:seq,
       numFactura,
-      seller:sellerEmail,
+      seller:'tienda-online',
       date,
       timestamp:ts,
       mes,
       ventaId:null,
+      origen:'tienda',
+      anulada:false,
       createdAt:ts
     }));
-    t.set(metaRef,{facturaSeq:seq,updatedAt:ts},{merge:true});
+    t.set(metaRef,{facturaSeq:seq, updatedAt:ts},{merge:true});
+    if(orderSnap.exists){
+      t.update(orderRef,{facturaId:newRef.id, facturaNum:numFactura, facturaPendientePago:false});
+    }
+    created=true;
   });
-  return {facturaId:newRef.id, facturaNum:numFactura, numero:seq};
+
+  if(skippedTx){
+    return {skipped:true, created:false, facturaId:null, facturaNum:null, numero:0};
+  }
+  if(!created){
+    if(alreadyId){
+      try{
+        const snap=await db.collection('facturas').doc(alreadyId).get();
+        if(snap.exists){
+          await snap.ref.update(patchFacturaDomicilio(orderId, order, snap.data()||{}, baseOpts));
+          const d=snap.data()||{};
+          return {
+            facturaId:alreadyId,
+            facturaNum:alreadyNum||d.numFactura||null,
+            numero:d.numero||0,
+            created:false,
+            skipped:false,
+            already:true
+          };
+        }
+      }catch(e){ console.warn('Factura existente no actualizada:', e); }
+    }
+    return {facturaId:alreadyId, facturaNum:alreadyNum, numero:0, created:false, skipped:false, already:true};
+  }
+
+  try{ await encolarCorreosPedidoWeb(orderId, order, numFactura); }
+  catch(e){ console.warn('Correos de factura no encolados:', e); }
+  return {facturaId:newRef.id, facturaNum:numFactura, numero:seq, created:true, skipped:false};
 }
 
 /** Crea/actualiza facturas domicilio faltantes a partir de pedidos entregados del mes. */
@@ -6132,14 +6398,14 @@ async function syncFacturasDomicilioMes(){
   const sel=document.getElementById('fac-month-select');
   const monthKey=facMesActual||(sel?sel.value:getMonthKey());
   if(!monthKey){ showToast('Selecciona un mes','ti-alert-circle'); return; }
-  if(!confirm('¿Generar facturas faltantes de pedidos a domicilio entregados en '+monthKeyToLabel(monthKey)+'?\n\nNo duplica si ya existe factura vinculada.')) return;
+  if(!confirm('¿Generar facturas faltantes de pedidos a domicilio entregados en '+monthKeyToLabel(monthKey)+'?\n\nNo duplica si ya existe factura. Tarjeta sin pago confirmado no genera factura ni correo.')) return;
 
   const btn=document.getElementById('fac-sync-dom-btn');
   const original=btn?btn.innerHTML:'';
   if(btn){ btn.disabled=true; btn.innerHTML='<i class="ti ti-loader" style="animation:spin .7s linear infinite"></i>Generando...'; }
   setFacStatus('loading');
   try{
-    let created=0, updated=0, skipped=0;
+    let created=0, updated=0, skipped=0, skippedPago=0;
     let cursor=null, done=false;
     const sellerEmail=(auth.currentUser&&auth.currentUser.email)||'admin';
     while(!done){
@@ -6167,26 +6433,35 @@ async function syncFacturasDomicilioMes(){
           skipped++;
           continue;
         }
-        const beforeId=o.facturaId||null;
+        const plan=planAccionFacturaPedido(o);
+        if(!plan.crear&&!plan.actualizar){
+          skipped++;
+          skippedPago++;
+          continue;
+        }
+        const beforeId=o.facturaId||o.facturaNum||null;
         const res=await ensurePedidoFacturaDomicilio(doc.id, o, {
           sellerEmail,
           ts:o.timestamp||Date.now(),
           mes:monthKey,
           date:o.date||new Date().toLocaleDateString('es')
         });
-        const needPedidoUpdate=o.facturaId!==res.facturaId||o.facturaNum!==res.facturaNum;
+        if(res.skipped){ skipped++; skippedPago++; continue; }
+        const needPedidoUpdate=res.facturaId&&(o.facturaId!==res.facturaId||o.facturaNum!==res.facturaNum);
         if(needPedidoUpdate){
           await db.collection('pedidos').doc(doc.id).update({
             facturaId:res.facturaId,
             facturaNum:res.facturaNum
           });
         }
-        if(beforeId) updated++; else created++;
+        if(res.created) created++;
+        else if(beforeId||res.already) updated++;
+        else skipped++;
       }
       cursor=snap.docs[snap.docs.length-1]||null;
       if(snap.docs.length<40) done=true;
     }
-    showToast('Domicilio · nuevas '+created+' · actualizadas '+updated,'ti-truck-delivery');
+    showToast('Domicilio · nuevas '+created+' · actualizadas '+updated+(skippedPago?(' · sin pago '+skippedPago):''),'ti-truck-delivery');
     await loadFacturasMes();
   }catch(e){
     console.error('syncFacturasDomicilioMes',e);
@@ -7256,9 +7531,18 @@ function renderVentasDomicilio(){
     const cost=typeof o.costTotal==='number'?o.costTotal:getOrderCost(o);
     // Ganancia = (productos + envío cobrado) − (costo productos + comisión + envío real)
     const ganancia=+(((totalProd+envioCobrado))-(cost+comision+envioReal)).toFixed(2);
-    const pago=o.metodoPago==='tarjeta'
+    const creditos100=(Number(o.creditsUsed)||0)>0&&(o.creditsFullyPaid===true||o.paymentStatus==='credits');
+    const pago=creditos100
+      ?'<span class="badge badge-exsal"><i class="ti ti-coin" style="font-size:11px"></i> Créditos</span>'
+      :o.metodoPago==='tarjeta'
       ?'<span class="badge badge-cdb"><i class="ti ti-credit-card" style="font-size:11px"></i> Tarjeta</span>'
       :'<span class="badge badge-exsal"><i class="ti ti-cash" style="font-size:11px"></i> Efectivo</span>';
+    const facEt=etiquetaFacturaPedido(o);
+    const facLine=facEt.kind==='num'
+      ?`<div class="pedido-factura-num">${esc(facEt.text)}</div>`
+      :facEt.kind==='wait'
+        ?`<div class="pedido-factura-wait"><i class="ti ti-clock"></i> ${esc(facEt.text)}</div>`
+        :'';
     return `<tr>
       <td><span class="pedido-code">${esc(o.code||'—')}</span></td>
       <td style="font-size:12px;color:var(--tm);white-space:nowrap">${fecha}</td>
@@ -7268,7 +7552,7 @@ function renderVentasDomicilio(){
       <td style="color:var(--g600);font-weight:600">${fmt(envioCobrado)}</td>
       <td style="color:var(--w600)">${o.costoEnvioReal!=null?fmt(envioReal):'<span style="color:var(--tm)">—</span>'}</td>
       <td style="color:var(--w600)">${comision>0?fmt(comision):'<span style="color:var(--tm)">—</span>'}</td>
-      <td>${pago}</td>
+      <td>${pago}${facLine}</td>
       <td style="font-weight:700;color:${ganancia>=0?'var(--g600)':'var(--r600)'}">${fmt(ganancia)}</td>
     </tr>`;
   }).join('');
@@ -7386,7 +7670,7 @@ function renderDeletedSales(suc){
 
 // ── VENTAS: ELIMINAR / RESTAURAR / LIMPIAR ──
 async function deleteSale(id){
-  if(!confirm('¿Eliminar esta venta? Se reintegrará el stock y se borrará su factura.'))return;
+  if(!confirm('¿Eliminar esta venta? Se reintegrará el stock y se anulará su factura.'))return;
   try{
     const doc=await db.collection("ventas").doc(id).get();
     if(!doc.exists){showToast('Venta no encontrada','ti-alert-circle');return;}
@@ -8041,6 +8325,7 @@ async function applyOrderDiscount(orderId, selectEl){
 async function deliverOrder(orderId){
   const order=orders.find(o=>o.id===orderId);
   if(!order||order.status==='delivered'){showToast('Pedido ya entregado','ti-alert-circle');return;}
+  if(pedidoEsperaPagoTarjeta(order)){showToast('Factura al confirmar pago','ti-clock');return;}
   if(!order.sucursal){showToast('Asigna una sucursal antes de entregar','ti-alert-circle');return;}
   if(!confirm('¿Marcar este pedido como entregado?'))return;
 
@@ -8049,6 +8334,7 @@ async function deliverOrder(orderId){
     const freshSnap=await db.collection('pedidos').doc(orderId).get();
     const freshData=freshSnap.data()||{};
     if(freshData.saleRecorded){showToast('Pedido ya entregado','ti-alert-circle');return;}
+    if(pedidoEsperaPagoTarjeta(freshData)){showToast('Factura al confirmar pago','ti-clock');return;}
 
     const user=firebase.auth().currentUser;
     const sellerEmail=user?user.email:'admin';
@@ -8079,22 +8365,31 @@ async function deliverOrder(orderId){
     }
 
     // ¿La venta (productos) ya se contabilizó al pagar con tarjeta?
-    const alreadyCounted=freshData.statsRecorded===true;
+    // Efectivo: se cuenta aquí. Tarjeta pagada: statsRecorded ya es true → una sola vez.
+    const alreadyCounted=!entregaCuentaProductos(freshData);
     const esDom=freshData.tipoEntrega==='domicilio';
     const envioCobrado=esDom?(typeof freshData.envioCosto==='number'?freshData.envioCosto:0):0;
     const envioReal=esDom?(typeof freshData.costoEnvioReal==='number'?freshData.costoEnvioReal:0):0;
 
-    // Factura domicilio: crear o mover a sucursal 'domicilio' (espacio Facturas domicilio)
+    // Factura domicilio: crear o mover a sucursal 'domicilio'.
+    // Tarjeta sin pago confirmado no crea factura (la tienda la crea al pagar).
     let facInfo={facturaId:freshData.facturaId||null, facturaNum:freshData.facturaNum||null};
     if(esDom){
-      try{
-        facInfo=await ensurePedidoFacturaDomicilio(orderId, Object.assign({},freshData,{
-          totalConDescuento: typeof freshData.totalConDescuento==='number'
-            ? freshData.totalConDescuento
-            : +(priceTotal*discFactor).toFixed(2)
-        }),{sellerEmail, ts:Date.now(), mes:mesKey});
-      }catch(eFac){
-        console.warn('No se pudo asegurar factura domicilio:',eFac);
+      const pedidoFac=Object.assign({},freshData,{
+        totalConDescuento: typeof freshData.totalConDescuento==='number'
+          ? freshData.totalConDescuento
+          : +(priceTotal*discFactor).toFixed(2)
+      });
+      const planFac=planAccionFacturaPedido(pedidoFac);
+      if(planFac.crear||planFac.actualizar){
+        try{
+          const resFac=await ensurePedidoFacturaDomicilio(orderId, pedidoFac,{sellerEmail, ts:Date.now(), mes:mesKey});
+          if(resFac&&!resFac.skipped&&resFac.facturaId){
+            facInfo={facturaId:resFac.facturaId, facturaNum:resFac.facturaNum||facInfo.facturaNum};
+          }
+        }catch(eFac){
+          console.warn('No se pudo asegurar factura domicilio:',eFac);
+        }
       }
     }
 
@@ -8305,13 +8600,26 @@ async function cancelOrder(orderId){
     const batch=db.batch();
 
     // Las facturas NUNCA se borran: se marcan como ANULADAS.
+    // Si el pedido no tenía factura (tarjeta sin pagar), no se inventa una.
     try{
+      const existentes=[];
+      if(order.facturaId){
+        const directa=await db.collection('facturas').doc(order.facturaId).get();
+        if(directa.exists) existentes.push({id:directa.id, ref:directa.ref});
+      }
       const facSnap=await db.collection('facturas').where('fromOrder','==',orderId).get();
-      facSnap.forEach(d=>batch.update(d.ref,{
-        anulada:true,
-        anuladaAt:firebase.firestore.FieldValue.serverTimestamp(),
-        anuladaBy:(firebase.auth().currentUser?.email||'admin')
-      }));
+      facSnap.forEach(d=>existentes.push({id:d.id, ref:d.ref}));
+      const anularIds=new Set(facturasParaAnular(order, existentes));
+      const ya=new Set();
+      existentes.forEach(d=>{
+        if(!anularIds.has(d.id)||ya.has(d.id)) return;
+        ya.add(d.id);
+        batch.update(d.ref,{
+          anulada:true,
+          anuladaAt:firebase.firestore.FieldValue.serverTimestamp(),
+          anuladaBy:(firebase.auth().currentUser?.email||'admin')
+        });
+      });
     }catch(e){console.warn('No se pudo marcar la factura del pedido como anulada:',e);}
 
     batch.update(db.collection('pedidos').doc(orderId),{
@@ -8463,8 +8771,11 @@ function buildPedidoRow(o){
   }
   const gananciaCell=ganancia!==null?`<span style="color:${ganancia>=0?'var(--g600)':'var(--r600)'}">${fmt(ganancia)}</span>`:`<span style="color:var(--tm);font-size:11px">—</span>`;
   const createdAt=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate().toLocaleDateString('es'):o.createdAt||'—';
-  const deliverBtn=(st==='pending'||st==='confirmado')?`<button onclick="deliverOrder('${o.id}')" title="Marcar como entregado" style="background:var(--g50);border:1.5px solid var(--g100);color:var(--g600);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:700;display:flex;align-items:center;gap:4px;white-space:nowrap"><i class="ti ti-check"></i>Entregar</button>
-<button onclick="cancelOrder('${o.id}')" title="Cancelar pedido" style="background:var(--w50);border:1.5px solid var(--w100);color:var(--w600);border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;font-weight:700;display:flex;align-items:center;gap:4px;white-space:nowrap"><i class="ti ti-ban"></i>Cancelar</button>`
+  const esperaPago=pedidoEsperaPagoTarjeta(o);
+  const facEt=etiquetaFacturaPedido(o);
+  const deliverBtn=(st==='pending'||st==='confirmado')?(
+    (esperaPago?'':`<button onclick="deliverOrder('${o.id}')" title="Marcar como entregado" style="background:var(--g50);border:1.5px solid var(--g100);color:var(--g600);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:700;display:flex;align-items:center;gap:4px;white-space:nowrap"><i class="ti ti-check"></i>Entregar</button>`)
+    +`<button onclick="cancelOrder('${o.id}')" title="Cancelar pedido" style="background:var(--w50);border:1.5px solid var(--w100);color:var(--w600);border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;font-weight:700;display:flex;align-items:center;gap:4px;white-space:nowrap"><i class="ti ti-ban"></i>Cancelar</button>`)
   :st==='delivered'?`<button onclick="undeliverOrder('${o.id}')" title="Volver a pendiente (revierte stock y ventas)" style="background:var(--w50);border:1.5px solid var(--w100);color:var(--w600);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:700;display:flex;align-items:center;gap:4px;white-space:nowrap"><i class="ti ti-rotate"></i>Volver a pendiente</button>`
   :'';
   const discOpts=descuentos.map(d=>`<option value="${d.id}" data-pct="${d.porcentaje}" ${o.discountId===d.id?'selected':''}>${esc(d.nombre)} (${d.porcentaje}%)</option>`).join('');
@@ -8481,8 +8792,13 @@ function buildPedidoRow(o){
     :o.discountId
       ?`<span class="badge badge-descuento"><i class="ti ti-ticket-off"></i>${esc(o.discountName||'')} −${selectedPct}%</span>`
       :`<span style="color:var(--tm);font-size:11px">—</span>`;
+  const facBajoCodigo=facEt.kind==='num'
+    ? `<span class="pedido-factura-num">${esc(facEt.text)}</span>`
+    : facEt.kind==='wait'
+      ? `<span class="pedido-factura-wait"><i class="ti ti-clock"></i> Factura al confirmar pago</span>`
+      : '';
   return `<tr>
-    <td><span class="pedido-code">${esc(o.code||'—')}</span></td>
+    <td><span class="pedido-code">${esc(o.code||'—')}</span>${facBajoCodigo}</td>
     <td><div style="font-weight:600">${esc(o.name||'—')}</div><div style="font-size:11px;color:var(--tm)">${esc(o.email||'')}</div></td>
     <td><div class="pedido-items">${items||'<span style="color:var(--tm);font-size:11px">Sin items</span>'}</div></td>
     <td style="font-weight:700">
