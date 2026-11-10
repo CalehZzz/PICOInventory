@@ -236,6 +236,15 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .badge-low{background:var(--w50);color:var(--w600)}
 .badge-empty{background:var(--r50);color:var(--r600)}
 .badge-descuento-pct{background:var(--r50);color:var(--r600);border:1px solid var(--r100)}
+.badge-pines{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa}
+.pm-pines{margin:0 0 12px;border-radius:var(--rmd);padding:10px 12px;font-size:12.5px;font-weight:600;line-height:1.35;display:flex;align-items:flex-start;gap:8px}
+.pm-pines i{font-size:16px;margin-top:1px;flex-shrink:0}
+.pm-pines-ya{background:#fff7ed;border:1.5px solid #fed7aa;color:#9a3412}
+.pm-pines-no{background:var(--b50);border:1.5px solid var(--b100);color:var(--ts)}
+.pedido-pines{display:inline-block;margin-top:2px;font-size:10.5px;font-weight:700;border-radius:6px;padding:1px 6px}
+.pedido-pines-ya{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa}
+.pedido-pines-pedir{background:#ecfdf5;color:#047857;border:1px solid #a7f3d0}
+.pos-card-pines{font-size:10px;font-weight:800;color:#c2410c;letter-spacing:.2px}
 .badge-exsal{background:#e8f0fe;color:#1a56c4;border:1px solid #b8d0f8}
 .badge-cdb{background:#fce8ff;color:#8b1ac4;border:1px solid #e0b8f8}
 .badge-group{background:var(--b50);color:var(--b600);border:1px solid var(--b200)}
@@ -1094,6 +1103,13 @@ body.pos-mode .pos-shell{flex:1;min-height:0;height:100%;max-height:none;overflo
             <input type="number" id="exsal-f-descuento" placeholder="0" min="0" max="100" step="1">
             <div style="font-size:10.5px;color:var(--tm);margin-top:3px">Si es &gt; 0, aparece en Descuentos de la tienda. No se combina con códigos/asignados/sellos.</div>
           </div>
+          <label style="display:flex;align-items:flex-start;gap:10px;background:#fff7ed;border:1.5px solid #fed7aa;border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none;margin-bottom:10px">
+            <input type="checkbox" id="exsal-f-pines" style="margin-top:2px;width:15px;height:15px;accent-color:#c2410c;flex-shrink:0;cursor:pointer">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--tp)">Viene con pines soldados</div>
+              <div style="font-size:11px;color:var(--tm);margin-top:1px">Si está marcado, la tienda avisa que ya vienen soldados y no cobra extra. Si no, el cliente puede pedir que se suelden (+$0.25 por unidad).</div>
+            </div>
+          </label>
           <label style="display:flex;align-items:flex-start;gap:10px;background:var(--g50);border:1.5px solid var(--g100);border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none;margin-bottom:10px">
             <input type="checkbox" id="exsal-f-affect-costos" style="margin-top:2px;width:15px;height:15px;accent-color:var(--g600);flex-shrink:0;cursor:pointer">
             <div>
@@ -1263,6 +1279,13 @@ body.pos-mode .pos-shell{flex:1;min-height:0;height:100%;max-height:none;overflo
             <input type="number" id="cdb-f-descuento" placeholder="0" min="0" max="100" step="1">
             <div style="font-size:10.5px;color:var(--tm);margin-top:3px">Si es &gt; 0, aparece en Descuentos de la tienda. No se combina con códigos/asignados/sellos.</div>
           </div>
+          <label style="display:flex;align-items:flex-start;gap:10px;background:#fff7ed;border:1.5px solid #fed7aa;border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none;margin-bottom:10px">
+            <input type="checkbox" id="cdb-f-pines" style="margin-top:2px;width:15px;height:15px;accent-color:#c2410c;flex-shrink:0;cursor:pointer">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--tp)">Viene con pines soldados</div>
+              <div style="font-size:11px;color:var(--tm);margin-top:1px">Si está marcado, la tienda avisa que ya vienen soldados y no cobra extra. Si no, el cliente puede pedir que se suelden (+$0.25 por unidad).</div>
+            </div>
+          </label>
           <label style="display:flex;align-items:flex-start;gap:10px;background:var(--g50);border:1.5px solid var(--g100);border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none;margin-bottom:10px">
             <input type="checkbox" id="cdb-f-affect-costos" style="margin-top:2px;width:15px;height:15px;accent-color:var(--g600);flex-shrink:0;cursor:pointer">
             <div>
@@ -1439,6 +1462,13 @@ body.pos-mode .pos-shell{flex:1;min-height:0;height:100%;max-height:none;overflo
             <input type="number" id="total-f-descuento" placeholder="0" min="0" max="100" step="1">
             <div style="font-size:10.5px;color:var(--tm);margin-top:3px">Si es &gt; 0, aparece en Descuentos de la tienda. No se combina con códigos/asignados/sellos.</div>
           </div>
+          <label style="display:flex;align-items:flex-start;gap:10px;background:#fff7ed;border:1.5px solid #fed7aa;border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none;margin-bottom:10px">
+            <input type="checkbox" id="total-f-pines" style="margin-top:2px;width:15px;height:15px;accent-color:#c2410c;flex-shrink:0;cursor:pointer">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--tp)">Viene con pines soldados</div>
+              <div style="font-size:11px;color:var(--tm);margin-top:1px">Si está marcado, la tienda avisa que ya vienen soldados y no cobra extra. Si no, el cliente puede pedir que se suelden (+$0.25 por unidad).</div>
+            </div>
+          </label>
           <label style="display:flex;align-items:flex-start;gap:10px;background:var(--g50);border:1.5px solid var(--g100);border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none;margin-bottom:10px">
             <input type="checkbox" id="total-f-affect-costos" style="margin-top:2px;width:15px;height:15px;accent-color:var(--g600);flex-shrink:0;cursor:pointer">
             <div>
@@ -2453,6 +2483,7 @@ body.pos-mode .pos-shell{flex:1;min-height:0;height:100%;max-height:none;overflo
   <div class="modal-box">
     <div class="pm-header"><div class="pm-name" id="pm-name"></div><div class="pm-desc" id="pm-desc"></div></div>
     <div class="pm-body">
+      <div id="pm-pines" class="pm-pines pm-pines-no" style="display:none"></div>
       <div class="pm-prices">
         <div class="pm-price-card" style="display:none"><div class="pm-price-label">Costo</div><div class="pm-price-val" id="pm-cost-val"></div></div>
         <div class="pm-price-card" style="grid-column:span 2"><div class="pm-price-label">Precio venta</div><div class="pm-price-val" style="color:var(--g600)" id="pm-price-val"></div></div>
@@ -2561,6 +2592,13 @@ body.pos-mode .pos-shell{flex:1;min-height:0;height:100%;max-height:none;overflo
         <input type="number" id="edit-descuento" placeholder="0" min="0" max="100" step="1">
         <div style="font-size:10.5px;color:var(--tm);margin-top:3px">Si es &gt; 0, aparece en Descuentos de la tienda. No se combina con códigos/asignados/sellos.</div>
       </div>
+      <label style="display:flex;align-items:flex-start;gap:10px;background:#fff7ed;border:1.5px solid #fed7aa;border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none;margin-top:4px">
+        <input type="checkbox" id="edit-pines" style="margin-top:2px;width:15px;height:15px;accent-color:#c2410c;flex-shrink:0;cursor:pointer">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--tp)">Viene con pines soldados</div>
+          <div style="font-size:11px;color:var(--tm);margin-top:1px">Si está marcado, la tienda avisa que ya vienen soldados y no cobra extra. Si no, el cliente puede pedir que se suelden (+$0.25 por unidad).</div>
+        </div>
+      </label>
       <!-- Grupo en tienda (variantes PICO) -->
       <div style="margin-top:8px;background:var(--b50);border:1.5px solid var(--b200);border-radius:var(--rsm);padding:12px 13px;display:flex;flex-direction:column;gap:9px">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--b500)"><i class="ti ti-layers-linked" style="margin-right:4px"></i>Grupo en tienda</div>
@@ -3218,6 +3256,7 @@ function startListeners(){
       const ap=products.find(x=>x.id===activePid);
       if(ap){
         document.getElementById('pm-stock-num').textContent=getStock(ap,activeSucursal);
+        if(typeof renderPmPines==='function') renderPmPines(ap);
         if(typeof renderPmGroupManage==='function') renderPmGroupManage(activePid);
       } else {
         // Producto eliminado mientras el modal estaba abierto
@@ -3641,6 +3680,7 @@ function renderList(suc){
     }
     const descPct=parseDescuentoPct(p.descuentoPct);
     const descBadge=descPct>0?`<span class="badge badge-descuento-pct">−${descPct}%</span>`:'';
+    const pinesBadge=productoVieneConPines(p)?'<span class="badge badge-pines"><i class="ti ti-plug"></i>Pines soldados</span>':'';
     // Color compartido: varios dots. Color multi: un dot de esta ficha
     let colorDots='';
     if(isSharedColorGroup(p)){
@@ -3662,7 +3702,7 @@ function renderList(suc){
       <div class="card-top">${p.imageUrl?`<img src="${esc(p.imageUrl)}" alt="" style="width:42px;height:42px;object-fit:contain;border-radius:6px;border:1px solid var(--b100);background:var(--b50);flex-shrink:0;margin-right:2px" onerror="this.style.display='none'">`:''}
       <div style="flex:1"><div class="card-name">${esc(p.name)}</div>${colorDots}</div>
       <div class="card-actions"><button class="btn-icon btn-del-sm" onclick="event.stopPropagation();confirmDeleteDirect('${p.id}')"><i class="ti ti-trash"></i></button></div></div>
-      <div class="card-badges"><span class="badge ${sc}">${sl}</span><span class="badge badge-price">Precio ${fmt(p.price)}</span>${descBadge}${sucBadges}</div>
+      <div class="card-badges"><span class="badge ${sc}">${sl}</span><span class="badge badge-price">Precio ${fmt(p.price)}</span>${descBadge}${pinesBadge}${sucBadges}</div>
     </div>`;
   }).join('');
 
@@ -4268,6 +4308,7 @@ async function addProduct(suc){
   if(categoria) data.categoria=categoria;
   if(suc==='exsal') data.stockExsal=stock;
   else data.stockCdb=stock;
+  data.pinesSoldados=(document.getElementById(pre+'pines')||{checked:false}).checked===true;
   if(descuentoPct>0) applyDescuentoPctToData(data,descuentoPct);
   try{
     const affectCostos=(document.getElementById(pre+'affect-costos')||{checked:false}).checked;
@@ -4283,6 +4324,7 @@ async function addProduct(suc){
     await batch.commit();
     [pre+'name',pre+'desc',pre+'imageurl',pre+'cat',pre+'cost',pre+'price',pre+'stock',pre+'descuento'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
     const acb=document.getElementById(pre+'affect-costos');if(acb)acb.checked=false;
+    const pinesCb=document.getElementById(pre+'pines');if(pinesCb)pinesCb.checked=false;
     previewImg(suc);
     document.getElementById(pre+'name').focus();
     showToast('Producto agregado a '+suc.toUpperCase()+(stock>0&&!affectCostos?' (sin afectar costos)':''),'ti-circle-check');
@@ -4311,6 +4353,7 @@ async function addProductTotal(){
   if(imageUrl) data.imageUrl=imageUrl;
   if(categoria) data.categoria=categoria;
   if(suc==='exsal'){data.stockExsal=stock;}else{data.stockCdb=stock;}
+  data.pinesSoldados=(document.getElementById('total-f-pines')||{checked:false}).checked===true;
   if(descuentoPct>0) applyDescuentoPctToData(data,descuentoPct);
   try{
     const affectCostos=(document.getElementById('total-f-affect-costos')||{checked:false}).checked;
@@ -4326,6 +4369,7 @@ async function addProductTotal(){
     await batch.commit();
     ['total-f-name','total-f-desc','total-f-imageurl','total-f-cat','total-f-cost','total-f-price','total-f-stock','total-f-descuento'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
     const acb=document.getElementById('total-f-affect-costos');if(acb)acb.checked=false;
+    const pinesCb=document.getElementById('total-f-pines');if(pinesCb)pinesCb.checked=false;
     previewImg('total');
     document.getElementById('total-f-name').focus();
     showToast('Producto agregado a '+suc.toUpperCase()+(stock>0&&!affectCostos?' (sin afectar costos)':''),'ti-circle-check');
@@ -4403,7 +4447,7 @@ function renderTrash(){
         <button class="btn-icon" title="Restaurar" onclick="restoreProduct('${p.id}')"><i class="ti ti-arrow-back-up"></i></button>
         <button class="btn-icon btn-del-sm" title="Borrar definitivamente" onclick="purgeProduct('${p.id}')"><i class="ti ti-trash-x"></i></button>
       </div></div>
-      <div class="card-badges"><span class="badge badge-exsal">EXSAL: ${ex}</span><span class="badge badge-cdb">CDB: ${cd}</span><span class="badge badge-price">Precio ${fmt(p.price)}</span></div>
+      <div class="card-badges"><span class="badge badge-exsal">EXSAL: ${ex}</span><span class="badge badge-cdb">CDB: ${cd}</span><span class="badge badge-price">Precio ${fmt(p.price)}</span>${productoVieneConPines(p)?'<span class="badge badge-pines"><i class="ti ti-plug"></i>Pines soldados</span>':''}</div>
     </div>`;
   }).join('');
 }
@@ -4762,7 +4806,19 @@ function openPM(id,suc){
   if(dprev) dprev.classList.remove('show');
   // Grupo: gestionar opciones individuales
   renderPmGroupManage(id);
+  renderPmPines(p);
   document.getElementById('pm-overlay').classList.add('open');
+}
+function renderPmPines(p){
+  const el=document.getElementById('pm-pines');
+  if(!el) return;
+  if(!p){el.style.display='none';el.innerHTML='';return;}
+  const ya=productoVieneConPines(p);
+  el.style.display='flex';
+  el.className=ya?'pm-pines pm-pines-ya':'pm-pines pm-pines-no';
+  el.innerHTML=ya
+    ? '<i class="ti ti-plug"></i><span>Ya viene con pines soldados. En la tienda se muestra ese aviso y no se cobra extra.</span>'
+    : '<i class="ti ti-plug"></i><span>Sin pines soldados. En la tienda el cliente puede pedir que se suelden (+$0.25 por unidad).</span>';
 }
 function closePM(){document.getElementById('pm-overlay').classList.remove('open');activePid=null;activeSucursal=null;}
 
@@ -5501,6 +5557,7 @@ function renderPosCatalog(suc){
         <button type="button" class="pos-card-info" title="Ver descripción" onclick="event.stopPropagation();openPosDesc('${p.id}','${suc}')"><i class="ti ti-info-circle"></i></button>
       </div>
       <div class="pos-card-name">${esc(p.name||'Sin nombre')}</div>
+      ${productoVieneConPines(p)?'<div class="pos-card-pines">Pines soldados</div>':''}
       <div class="pos-card-row"><span class="pos-card-price">${fmt(p.price)}</span><span class="pos-card-stock">${out?'Sin stock':stock+' uds'}</span></div>
       <div class="pos-card-actions">${actions}</div>
     </div>`;
@@ -5573,7 +5630,10 @@ function openPosDesc(pid,suc){
     media.innerHTML=`<img class="pos-desc-img" src="${esc(p.imageUrl)}" alt="" onerror="this.style.display='none'">`;
   } else media.innerHTML='';
   const desc=(p.desc||'').trim();
-  document.getElementById('pos-desc-body').textContent=desc||'Sin descripción.';
+  const pinesNota=productoVieneConPines(p)
+    ? 'Ya viene con pines soldados.'
+    : 'Sin pines soldados. En la tienda se puede pedir soldarlos (+$0.25 por unidad).';
+  document.getElementById('pos-desc-body').textContent=(desc?desc+'\n\n':'')+pinesNota;
   const ov=document.getElementById('pos-desc-overlay');
   if(!ov) return;
   // Asegurar que el modal esté en body (visible en fullscreen del documento)
@@ -6072,11 +6132,115 @@ function facturasParaAnular(order, docs){
 }
 /* PICO_FACTURA_RULES_END */
 
+/* PICO_PINES_RULES_START
+ * Contrato con la tienda (colección productos / pedidos).
+ *
+ * productos/{id}.pinesSoldados (boolean)
+ *   true  → el producto YA viene con pines soldados.
+ *           La tienda muestra “Ya viene con pines soldados” y NO ofrece el extra.
+ *   false o ausente → no vienen soldados.
+ *           La tienda muestra una casilla. Si el cliente la marca, +$0.25 por unidad.
+ *
+ * pedidos.items[]
+ *   price          precio unitario del producto, SIN el extra de soldar
+ *   qty            cantidad
+ *   pinesSoldados  copia del producto al armar el pedido
+ *   soldarPines    true solo si el cliente pidió soldarlos (y pinesSoldados !== true)
+ *   extraPines     opcional, dólares de esa línea (0.25 × qty). Si falta, se calcula.
+ *
+ * pedidos/{id}
+ *   total               suma(price × qty) SIN extra y SIN descuento
+ *   extraPines          opcional, suma de los extras
+ *   totalConDescuento   total × (1 − descuento) + extra. El extra NO se descuenta.
+ *   totalConEnvio       total cobrado de productos (con extra) + envío
+ */
+function extraPinesUnidad(){ return 0.25; }
+function productoVieneConPines(p){
+  return !!(p && p.pinesSoldados===true);
+}
+function itemPidePinesSoldados(item){
+  if(!item || item.pinesSoldados===true) return false;
+  return item.soldarPines===true;
+}
+function extraPinesLinea(item){
+  if(!itemPidePinesSoldados(item)) return 0;
+  const qty=item.qty||1;
+  if(typeof item.extraPines==='number' && isFinite(item.extraPines) && item.extraPines>=0){
+    return +item.extraPines.toFixed(2);
+  }
+  return +(extraPinesUnidad()*qty).toFixed(2);
+}
+function sumaExtraPinesPedido(order){
+  if(!order) return 0;
+  if(typeof order.extraPines==='number' && isFinite(order.extraPines) && order.extraPines>=0){
+    return +order.extraPines.toFixed(2);
+  }
+  const sum=(order.items||[]).reduce((s,it)=>s+extraPinesLinea(it),0);
+  return +sum.toFixed(2);
+}
+function notaPinesItem(item){
+  if(!item) return '';
+  if(item.pinesSoldados===true) return 'Ya viene con pines soldados';
+  if(item.soldarPines===true) return 'Soldar pines (+$0.25 c/u)';
+  return '';
+}
+/** Total de productos que se cobra. Sin extra, igual que antes. Con extra, el recargo no entra al descuento. */
+function totalProductosPedido(order){
+  if(!order) return 0;
+  const extra=sumaExtraPinesPedido(order);
+  const base=+((Number(order.total)||0).toFixed(2));
+  if(typeof order.totalConDescuento==='number' && isFinite(order.totalConDescuento)){
+    const given=+(order.totalConDescuento.toFixed(2));
+    if(extra<=0) return given;
+    const pct=Number(order.discountPct)||0;
+    const factor=pct?((100-pct)/100):1;
+    const sinExtra=+((base*factor).toFixed(2));
+    const computed=+((sinExtra+extra).toFixed(2));
+    if(Math.abs(given-sinExtra)<0.001 && Math.abs(given-computed)>=0.001) return computed;
+    return given;
+  }
+  if(extra<=0) return base;
+  const pct=Number(order.discountPct)||0;
+  const factor=pct?((100-pct)/100):1;
+  return +((base*factor+extra).toFixed(2));
+}
+/** Total con envío. Sin extra, respeta totalConEnvio tal como está guardado. */
+function totalConEnvioPedido(order){
+  if(!order) return 0;
+  const extra=sumaExtraPinesPedido(order);
+  const stored=(typeof order.totalConEnvio==='number' && isFinite(order.totalConEnvio))
+    ? +(order.totalConEnvio.toFixed(2)) : null;
+  if(extra<=0){
+    if(stored!==null) return stored;
+    return totalProductosPedido(order);
+  }
+  const productos=totalProductosPedido(order);
+  const envio=(order.tipoEntrega==='domicilio' && typeof order.envioCosto==='number')
+    ? +(order.envioCosto.toFixed(2)) : 0;
+  const computed=+((productos+envio).toFixed(2));
+  if(stored===null) return computed;
+  const sinExtra=+((computed-extra).toFixed(2));
+  if(Math.abs(stored-sinExtra)<0.001 && Math.abs(stored-computed)>=0.001) return computed;
+  return stored;
+}
+/* PICO_PINES_RULES_END */
+
 function nombreItemPedido(item){
   if(!item) return 'Producto';
   const label=item.colorLabel||item.colorName||'';
   const name=item.name||item.productName||'Producto';
   return label?(name+' · '+label):(name||'Producto');
+}
+function nombreItemConPines(item){
+  const base=nombreItemPedido(item);
+  const nota=notaPinesItem(item);
+  return nota?(base+' · '+nota):base;
+}
+function htmlNotaPines(item){
+  const nota=notaPinesItem(item);
+  if(!nota) return '';
+  const ya=item&&item.pinesSoldados===true;
+  return `<div class="pedido-pines ${ya?'pedido-pines-ya':'pedido-pines-pedir'}">${esc(nota)}</div>`;
 }
 
 /** Construye ítems de factura a partir de un pedido (domicilio o no). */
@@ -6087,15 +6251,18 @@ function buildFacturaItemsFromPedido(order, discFactor){
   return (order.items||[]).map(item=>{
     const qty=item.qty||1;
     const unitPrice=typeof item.price==='number'?item.price:0;
-    const lineSub=+(unitPrice*qty).toFixed(2);
+    const extra=extraPinesLinea(item);
+    const productSub=+(unitPrice*qty).toFixed(2);
+    const lineSub=+(productSub+extra).toFixed(2);
     return {
-      productName:nombreItemPedido(item),
+      productName:nombreItemConPines(item),
       qty,
       precioUnit:unitPrice,
+      extraPines:extra,
       descPct:pct||0,
       descNombre:descNombre||'',
       subtotal:lineSub,
-      total:+(lineSub*factor).toFixed(2),
+      total:+((productSub*factor)+extra).toFixed(2),
       colorId:item.colorId||null,
       colorLabel:item.colorLabel||null,
       color:item.color||null
@@ -6109,9 +6276,10 @@ function totalesFacturaPedido(order){
   const discFactor=order.discountPct?((100-order.discountPct)/100):1;
   const items=buildFacturaItemsFromPedido(order, discFactor);
   const subtotal=+(items.reduce((s,it)=>s+(it.subtotal||0),0)).toFixed(2);
+  const totalDesdeItems=+(items.reduce((s,it)=>s+(it.total||0),0)).toFixed(2);
   const totalProductos=typeof order.totalConDescuento==='number'
-    ? +order.totalConDescuento
-    : +(items.reduce((s,it)=>s+(it.total||0),0)).toFixed(2);
+    ? totalProductosPedido(order)
+    : totalDesdeItems;
   const creditsUsed=Math.max(0, Number(order.creditsUsed)||0);
   const totalTrasCreditos=+Math.max(0, totalProductos-creditsUsed).toFixed(2);
   const envioCosto=(order.tipoEntrega==='domicilio'&&typeof order.envioCosto==='number')?order.envioCosto:0;
@@ -6156,22 +6324,22 @@ function htmlAvisoEquipoPedido(order, orderId){
   const sucLabel=o.tipoEntrega==='domicilio'
     ? 'Envío a domicilio'
     : (o.sucursal==='cdb'?'Colegio Don Bosco':o.sucursal==='udb'?'Universidad Don Bosco':o.sucursal==='exsal'?'EXSAL':'Retiro en sucursal');
-  const finalTotal=o.totalConDescuento!=null?o.totalConDescuento:(o.total||0);
   const pagadoTarjeta=o.metodoPago==='tarjeta';
   const rows=(o.items||[]).map(i=>{
     const price=Number(i.price)||0;
     const qty=i.qty||0;
+    const extra=extraPinesLinea(i);
     return `<tr>
-      <td style="padding:6px 10px;border-bottom:1px solid #eee">${esc(nombreItemPedido(i))}</td>
+      <td style="padding:6px 10px;border-bottom:1px solid #eee">${esc(nombreItemConPines(i))}</td>
       <td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:center">${qty}</td>
       <td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:right">$${price.toFixed(2)}</td>
-      <td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:right">$${(qty*price).toFixed(2)}</td>
+      <td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:right">$${(qty*price+extra).toFixed(2)}</td>
     </tr>`;
   }).join('');
   const e=o.envio||{};
   const titulo=pagadoTarjeta?('Pedido pagado · '+(o.code||orderId)):('Nuevo pedido · '+(o.code||orderId));
   const pagoLabel=pagadoTarjeta?'Tarjeta (pagado)':(o.creditsFullyPaid?'Créditos PICO (100%)':'Efectivo');
-  const totalMostrar=(typeof o.totalConEnvio==='number'?o.totalConEnvio:finalTotal);
+  const totalMostrar=totalConEnvioPedido(o);
   return {
     subject:(pagadoTarjeta?'Pedido pagado ':'Nuevo pedido ')+(o.code||'')+' — '+(o.name||'')+' ('+sucLabel+')',
     text:(pagadoTarjeta?'Pedido pagado ':'Nuevo pedido ')+(o.code||orderId)+' — '+(o.name||''),
@@ -6705,6 +6873,8 @@ function openEditModal(){
     const pct=parseDescuentoPct(p.descuentoPct);
     editDescEl.value=(pct&&pct>0)?pct:'';
   }
+  const editPines=document.getElementById('edit-pines');
+  if(editPines) editPines.checked=p.pinesSoldados===true;
   // Categoría y orden en tienda
   populateCategorySelects();
   const catSel=document.getElementById('edit-cat');
@@ -6785,6 +6955,7 @@ async function saveEdit(){
   const oldCost=oldProd?oldProd.cost:cost;
 
   const updateData={name,desc,cost,price,stockExsal,stockCdb,updatedAt:Date.now()};
+  updateData.pinesSoldados=(document.getElementById('edit-pines')||{checked:false}).checked===true;
   if(imageUrl) updateData.imageUrl=imageUrl;
   else updateData.imageUrl=firebase.firestore.FieldValue.delete();
   // Categoría: guardar la elegida, o borrar el campo si quedó "— Sin categoría —"
@@ -6905,6 +7076,7 @@ async function saveEdit(){
     document.getElementById('pm-price-val').innerHTML=fmtPriceWithDescuento(price,descuentoPct);
     const s=activeSucursal==='exsal'?stockExsal:activeSucursal==='cdb'?stockCdb:stockExsal+stockCdb;
     document.getElementById('pm-stock-num').textContent=s;
+    renderPmPines(Object.assign({}, oldProd||{}, updateData, {id:activePid}));
     // Reset checkbox
     const cb=document.getElementById('edit-affect-costos');
     if(cb) cb.checked=false;
@@ -7523,8 +7695,11 @@ function renderVentasDomicilio(){
   }
   const rows=domVentas.map(o=>{
     const fecha=o.deliveredAt&&o.deliveredAt.toDate?o.deliveredAt.toDate().toLocaleDateString('es'):'—';
-    const items=(o.items||[]).map(i=>`${esc(i.name)} ×${i.qty||1}`).join(', ');
-    const totalProd=typeof o.totalConDescuento==='number'?o.totalConDescuento:(o.total||0);
+    const items=(o.items||[]).map(i=>{
+      const nota=notaPinesItem(i);
+      return `${esc(nombreItemPedido(i))} ×${i.qty||1}${nota?(' · '+esc(nota)):''}`;
+    }).join(', ');
+    const totalProd=totalProductosPedido(o);
     const envioCobrado=typeof o.envioCosto==='number'?o.envioCosto:0;
     const envioReal=typeof o.costoEnvioReal==='number'?o.costoEnvioReal:0;
     const comision=typeof o.comisionStripe==='number'?o.comisionStripe:0;
@@ -8241,25 +8416,31 @@ async function applyOrderDiscount(orderId, selectEl){
   const esDom=order.tipoEntrega==='domicilio';
   const envio=esDom?(typeof order.envioCosto==='number'?order.envioCosto:0):0;
   const totalOriginal=+(order.total||0).toFixed(2);
+  const extraPines=sumaExtraPinesPedido(order);
   let update={};
   let pct=0, descNombre='';
   if(!discountId){
-    // Quitar descuento — el total con envío vuelve a productos + envío
-    update={discountId:null,discountName:null,discountPct:null,totalConDescuento:null,
-            totalConEnvio:+(totalOriginal+envio).toFixed(2)};
+    // Quitar descuento — el total con envío vuelve a productos + extra + envío.
+    // El extra de pines no se descuenta; si no hay extra, el documento queda como antes.
+    const productos=+(totalOriginal+extraPines).toFixed(2);
+    update={discountId:null,discountName:null,discountPct:null,
+            totalConDescuento:extraPines>0?productos:null,
+            totalConEnvio:+(productos+envio).toFixed(2)};
+    if(extraPines>0) update.extraPines=extraPines;
   } else {
     const desc=descuentos.find(d=>d.id===discountId);
     if(!desc)return;
     pct=desc.porcentaje;
     descNombre=desc.nombre||'';
-    const totalConDescuento=+(totalOriginal*(1-pct/100)).toFixed(2);
+    const totalConDescuento=+(totalOriginal*(1-pct/100)+extraPines).toFixed(2);
     update={discountId,discountName:descNombre,discountPct:pct,totalConDescuento,
             totalConEnvio:+(totalConDescuento+envio).toFixed(2)};
+    if(extraPines>0) update.extraPines=extraPines;
   }
   try{
     const discFactor=pct?((100-pct)/100):1;
-    const totalProductos=discountId
-      ? +(totalOriginal*(1-pct/100)).toFixed(2)
+    const totalProductos=typeof update.totalConDescuento==='number'
+      ? update.totalConDescuento
       : totalOriginal;
 
     // Localizar factura: facturaId del pedido, o fromOrder == orderId
@@ -8280,13 +8461,21 @@ async function applyOrderDiscount(orderId, selectEl){
       const facData=facDoc.data()||{};
       if(facData.anulada) continue;
       const envioFac=typeof facData.envioCosto==='number'?facData.envioCosto:envio;
-      const items=(facData.items||[]).map(it=>{
-        const lineSub=typeof it.subtotal==='number'
-          ? +it.subtotal
+      const items=(facData.items||[]).map((it,idx)=>{
+        const src=(order.items||[])[idx]||{};
+        const extra=extraPinesLinea(Object.assign({}, src, {extraPines: typeof it.extraPines==='number'?it.extraPines:src.extraPines}));
+        const yaCargado=typeof it.extraPines==='number'?it.extraPines:0;
+        const baseSub=typeof it.subtotal==='number'
+          ? +(it.subtotal-yaCargado).toFixed(2)
           : +((+(it.precioUnit||0))*(+(it.qty||1))).toFixed(2);
+        const productSub=baseSub>0?baseSub:+((+(it.precioUnit||src.price||0))*(+(it.qty||src.qty||1))).toFixed(2);
+        const lineSub=+(productSub+extra).toFixed(2);
+        const nombre=it.productName||nombreItemConPines(src);
         return Object.assign({},it,{
+          productName:notaPinesItem(src)&&String(nombre).indexOf(notaPinesItem(src))<0?nombreItemConPines(src):nombre,
           subtotal:lineSub,
-          total:+(lineSub*discFactor).toFixed(2),
+          extraPines:extra,
+          total:+((productSub*discFactor)+extra).toFixed(2),
           descPct:pct||0,
           descNombre:descNombre||''
         });
@@ -8354,12 +8543,13 @@ async function deliverOrder(orderId){
       const unitPrice=typeof item.price==='number'?item.price:0;
       costTotal+=unitCost*qty;
       priceTotal+=unitPrice*qty;
-      const itemTotal=+(unitPrice*qty*discFactor).toFixed(2);
+      const extra=extraPinesLinea(item);
+      const itemTotal=+((unitPrice*qty*discFactor)+extra).toFixed(2);
       totalUnidades+=qty;
       totalVentasEfectivo+=itemTotal;
       ventaItems.push({
-        pid:item.id||null, productName:item.name, qty,
-        precioUnit:unitPrice, costTotal:+(unitCost*qty).toFixed(2), total:itemTotal,
+        pid:item.id||null, productName:nombreItemConPines(item), qty,
+        precioUnit:unitPrice, extraPines:extra, costTotal:+(unitCost*qty).toFixed(2), total:itemTotal,
         descPct:freshData.discountPct||0, descNombre:freshData.discountName||''
       });
     }
@@ -8411,7 +8601,7 @@ async function deliverOrder(orderId){
     }
 
     const totalEfectivo=typeof freshData.totalConDescuento==='number'
-      ? freshData.totalConDescuento : +(priceTotal*discFactor).toFixed(2);
+      ? totalProductosPedido(freshData) : +((priceTotal*discFactor)+sumaExtraPinesPedido(freshData)).toFixed(2);
 
     // Margen de envío (solo domicilio) · modelo MEZCLADO con CDB:
     //   • El envío cobrado al cliente entra a INGRESOS y a 'ventas'.
@@ -8508,10 +8698,10 @@ async function undeliverOrder(orderId){
       const unitCost=typeof item.cost==='number'?item.cost:0;
       const unitPrice=typeof item.price==='number'?item.price:0;
       totalUnidades+=qty;
-      totalVentasEfectivo+=+(unitPrice*qty*discFactor).toFixed(2);
+      totalVentasEfectivo+=+((unitPrice*qty*discFactor)+extraPinesLinea(item)).toFixed(2);
       costTotal+=unitCost*qty;
     }
-    const totalEfectivo=typeof data.totalConDescuento==='number'?data.totalConDescuento:totalVentasEfectivo;
+    const totalEfectivo=typeof data.totalConDescuento==='number'?totalProductosPedido(data):totalVentasEfectivo;
 
     // En tarjeta la venta se registró al PAGAR (no al entregar): no se revierte aquí.
     const statsAtPayment=data.metodoPago==='tarjeta'&&data.statsRecorded===true;
@@ -8649,9 +8839,9 @@ async function cancelOrder(orderId){
         productCost+=unitCost*qty;
         priceTotal+=unitPrice*qty;
         totalUnidades+=qty;
-        totalVentasEfectivo+=+(unitPrice*qty*discFactor).toFixed(2);
+        totalVentasEfectivo+=+((unitPrice*qty*discFactor)+extraPinesLinea(item)).toFixed(2);
       }
-      const totalEfectivo=typeof order.totalConDescuento==='number'?order.totalConDescuento:+(priceTotal*discFactor).toFixed(2);
+      const totalEfectivo=typeof order.totalConDescuento==='number'?totalProductosPedido(order):+(priceTotal*discFactor+sumaExtraPinesPedido(order)).toFixed(2);
       const comision=typeof order.comisionStripe==='number'?order.comisionStripe:0;
       const envioCobrado=(order.ingresoEnvioRegistrado===true)?(typeof order.envioCosto==='number'?order.envioCosto:0):0;
 
@@ -8740,7 +8930,11 @@ function buildPedidoRow(o){
   const sucLabel=sucRaw.toUpperCase();
   const sucClass=sucRaw==='cdb'?'badge-cdb':'badge-exsal';
   const st=o.status||'pending';
-  const items=(o.items||[]).map(i=>`<div class="pedido-item-row"><i class="ti ti-point" style="font-size:10px"></i> ${esc(i.name)} ×${i.qty||1} — ${fmt(i.price*(i.qty||1))}</div>`).join('');
+  const items=(o.items||[]).map(i=>{
+    const qty=i.qty||1;
+    const monto=+(((Number(i.price)||0)*qty)+extraPinesLinea(i)).toFixed(2);
+    return `<div class="pedido-item-row"><i class="ti ti-point" style="font-size:10px"></i> ${esc(nombreItemPedido(i))} ×${qty} — ${fmt(monto)}${htmlNotaPines(i)}</div>`;
+  }).join('');
   const cost=getOrderCost(o);
   // ── Desglose de costos del pedido ──
   // El costo de PRODUCTOS no se muestra ni se resta aquí: ya está contabilizado en los
@@ -8753,7 +8947,7 @@ function buildPedidoRow(o){
   if(comisionVal>0) costBreak.push(`<div style="font-size:11px;color:var(--ts)"><i class="ti ti-credit-card" style="font-size:10px"></i> Comisión: ${fmt(comisionVal)}</div>`);
   if(esDomCost) costBreak.push(`<div style="font-size:11px;color:var(--ts)"><i class="ti ti-truck" style="font-size:10px"></i> Envío real: ${o.costoEnvioReal!=null?fmt(envioRealVal):'<span style="color:var(--tm)">pendiente</span>'}</div>`);
   const costosCell=`<div style="font-weight:700;color:var(--w600)">${fmt(totalCostos)}</div>${costBreak.join('')}`;
-  const totalEfectivo=typeof o.totalConDescuento==='number'?o.totalConDescuento:(o.total||0);
+  const totalEfectivo=totalProductosPedido(o);
   // Ganancia del pedido (entregado), coherente con la KPI "Ganancia por pedidos":
   //   ingresos = productos (con descuento) + ahorro de envío
   //   costos   = costo productos + comisión Stripe (tarjeta) + exceso de envío
@@ -8804,7 +8998,7 @@ function buildPedidoRow(o){
     <td style="font-weight:700">
       ${o.discountId&&typeof o.totalConDescuento==='number'
         ?`<div style="font-size:11px;color:var(--tm);text-decoration:line-through">${fmt(totalOriginal)}</div><div style="color:var(--g600);font-weight:700">${fmt(totalEfectivo)}</div>`
-        :fmt(totalOriginal)}
+        :fmt(totalEfectivo)}
     </td>
     <td>${discountCell}</td>
     <td>${costosCell}</td>
@@ -9777,7 +9971,7 @@ function renderStampCards(){
 async function tryAwardStampForOrder(orderId, order){
   const email=(order.email||'').trim().toLowerCase();
   if(!email) return;
-  const totalProd=typeof order.totalConDescuento==='number'?order.totalConDescuento:(order.total||0);
+  const totalProd=totalProductosPedido(order);
   if(!(totalProd>=1)) return;
 
   const snap=await db.collection('stamp-cards').where('emailLower','==',email).get();
