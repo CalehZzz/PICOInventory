@@ -20,6 +20,7 @@ vm.runInContext(src, ctx);
 const {
   extraPinesUnidad,
   productoVieneConPines,
+  productoOfrecePines,
   itemPidePinesSoldados,
   extraPinesLinea,
   sumaExtraPinesPedido,
@@ -30,39 +31,47 @@ const {
 
 assert.strictEqual(extraPinesUnidad(), 0.25);
 assert.strictEqual(productoVieneConPines({ pinesSoldados: true }), true);
-assert.strictEqual(productoVieneConPines({ pinesSoldados: false }), false);
+assert.strictEqual(productoVieneConPines({ tienePines: true, pinesSoldados: false }), false);
 assert.strictEqual(productoVieneConPines({}), false);
-assert.strictEqual(productoVieneConPines(null), false);
+assert.strictEqual(productoOfrecePines({ tienePines: true }), true);
+assert.strictEqual(productoOfrecePines({ tienePines: true, pinesSoldados: true }), false);
+assert.strictEqual(productoOfrecePines({ pinesSoldados: false }), false);
+assert.strictEqual(productoOfrecePines({}), false);
 
-// Ya viene soldado: aunque el ítem traiga soldarPines, no se cobra ni se ofrece.
+// Breadboard / Arduino: no tiene pines. Aunque llegue soldarPines, no hay etiqueta ni cobro.
 {
-  const item = { name: 'Arduino', price: 5, qty: 2, pinesSoldados: true, soldarPines: true };
+  const item = { name: 'Arduino', price: 8, qty: 2, soldarPines: true, extraPines: 0.5 };
+  assert.strictEqual(itemPidePinesSoldados(item), false);
+  assert.strictEqual(extraPinesLinea(item), 0);
+  assert.strictEqual(notaPinesItem(item), '');
+}
+
+// Tiene pines y ya vienen soldados.
+{
+  const item = { name: 'Header', price: 0.4, qty: 2, tienePines: true, pinesSoldados: true, soldarPines: true };
   assert.strictEqual(itemPidePinesSoldados(item), false);
   assert.strictEqual(extraPinesLinea(item), 0);
   assert.strictEqual(notaPinesItem(item), 'Ya viene con pines soldados');
 }
 
-// Sin pines y el cliente no pidió soldar.
+// Tiene pines, no soldados, y el cliente no pidió soldar.
 {
-  const item = { name: 'Header', price: 0.4, qty: 3, pinesSoldados: false, soldarPines: false };
+  const item = { name: 'Header', price: 0.4, qty: 3, tienePines: true, pinesSoldados: false, soldarPines: false };
   assert.strictEqual(extraPinesLinea(item), 0);
   assert.strictEqual(notaPinesItem(item), '');
 }
 
-// Campo viejo ausente = no viene soldado, y sin pedido del cliente no hay cargo.
-assert.strictEqual(extraPinesLinea({ name: 'LED', price: 0.15, qty: 1 }), 0);
-
-// Cliente pide soldar: $0.25 por unidad.
+// Cliente pide soldar un producto que sí tiene pines: $0.25 por unidad.
 {
-  const item = { name: 'Nano', price: 4, qty: 3, pinesSoldados: false, soldarPines: true };
+  const item = { name: 'Nano', price: 4, qty: 3, tienePines: true, pinesSoldados: false, soldarPines: true };
   assert.strictEqual(itemPidePinesSoldados(item), true);
   assert.strictEqual(extraPinesLinea(item), 0.75);
   assert.strictEqual(notaPinesItem(item), 'Soldar pines (+$0.25 c/u)');
 }
 
 // La tienda puede mandar el monto ya calculado.
-assert.strictEqual(extraPinesLinea({ qty: 4, soldarPines: true, extraPines: 1 }), 1);
-assert.strictEqual(extraPinesLinea({ qty: 2, soldarPines: true, pinesSoldados: true, extraPines: 5 }), 0);
+assert.strictEqual(extraPinesLinea({ qty: 4, tienePines: true, soldarPines: true, extraPines: 1 }), 1);
+assert.strictEqual(extraPinesLinea({ qty: 2, tienePines: true, soldarPines: true, pinesSoldados: true, extraPines: 5 }), 0);
 
 // Pedido sin la opción: el total no cambia.
 {
@@ -78,8 +87,8 @@ assert.strictEqual(extraPinesLinea({ qty: 2, soldarPines: true, pinesSoldados: t
     total: 10,
     discountPct: 10,
     items: [
-      { price: 6, qty: 1, soldarPines: false },
-      { price: 2, qty: 2, soldarPines: true }
+      { price: 6, qty: 1, tienePines: true, soldarPines: false },
+      { price: 2, qty: 2, tienePines: true, soldarPines: true }
     ]
   };
   assert.strictEqual(sumaExtraPinesPedido(order), 0.5);
@@ -93,7 +102,7 @@ assert.strictEqual(extraPinesLinea({ qty: 2, soldarPines: true, pinesSoldados: t
     discountPct: 10,
     extraPines: 0.5,
     totalConDescuento: 9.5,
-    items: [{ qty: 2, soldarPines: true }]
+    items: [{ qty: 2, tienePines: true, soldarPines: true }]
   };
   assert.strictEqual(totalProductosPedido(order), 9.5);
 }
@@ -104,14 +113,14 @@ assert.strictEqual(extraPinesLinea({ qty: 2, soldarPines: true, pinesSoldados: t
     total: 10,
     discountPct: 10,
     totalConDescuento: 9,
-    items: [{ qty: 2, soldarPines: true }]
+    items: [{ qty: 2, tienePines: true, soldarPines: true }]
   };
   assert.strictEqual(totalProductosPedido(order), 9.5);
 }
 
 // Sin descuento y sin totalConDescuento: total + extra.
 {
-  const order = { total: 8, items: [{ qty: 1, soldarPines: true }] };
+  const order = { total: 8, items: [{ qty: 1, tienePines: true, soldarPines: true }] };
   assert.strictEqual(totalProductosPedido(order), 8.25);
 }
 
@@ -121,7 +130,7 @@ assert.strictEqual(extraPinesLinea({ qty: 2, soldarPines: true, pinesSoldados: t
     total: 8,
     tipoEntrega: 'domicilio',
     envioCosto: 2,
-    items: [{ qty: 1, soldarPines: true }]
+    items: [{ qty: 1, tienePines: true, soldarPines: true }]
   };
   assert.strictEqual(totalConEnvioPedido(Object.assign({ totalConEnvio: 10 }, base)), 10.25);
   assert.strictEqual(totalConEnvioPedido(Object.assign({ totalConEnvio: 10.25 }, base)), 10.25);
