@@ -237,6 +237,7 @@ html,body{min-height:100vh;font-family:'Plus Jakarta Sans',-apple-system,BlinkMa
 .badge-empty{background:var(--r50);color:var(--r600)}
 .badge-descuento-pct{background:var(--r50);color:var(--r600);border:1px solid var(--r100)}
 .badge-pines{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa}
+.badge-pines-off{background:var(--b50);color:var(--b600);border:1px solid var(--b200)}
 .pm-pines{margin:0 0 12px;border-radius:var(--rmd);padding:10px 12px;font-size:12.5px;font-weight:600;line-height:1.35;display:flex;align-items:flex-start;gap:8px}
 .pm-pines i{font-size:16px;margin-top:1px;flex-shrink:0}
 .pm-pines-ya{background:#fff7ed;border:1.5px solid #fed7aa;color:#9a3412}
@@ -1103,13 +1104,26 @@ body.pos-mode .pos-shell{flex:1;min-height:0;height:100%;max-height:none;overflo
             <input type="number" id="exsal-f-descuento" placeholder="0" min="0" max="100" step="1">
             <div style="font-size:10.5px;color:var(--tm);margin-top:3px">Si es &gt; 0, aparece en Descuentos de la tienda. No se combina con códigos/asignados/sellos.</div>
           </div>
-          <label style="display:flex;align-items:flex-start;gap:10px;background:#fff7ed;border:1.5px solid #fed7aa;border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none;margin-bottom:10px">
-            <input type="checkbox" id="exsal-f-pines" style="margin-top:2px;width:15px;height:15px;accent-color:#c2410c;flex-shrink:0;cursor:pointer">
-            <div>
-              <div style="font-size:13px;font-weight:600;color:var(--tp)">Viene con pines soldados</div>
-              <div style="font-size:11px;color:var(--tm);margin-top:1px">Si está marcado, la tienda avisa que ya vienen soldados y no cobra extra. Si no, el cliente puede pedir que se suelden (+$0.25 por unidad).</div>
+          <div style="background:#fff7ed;border:1.5px solid #fed7aa;border-radius:var(--rsm);padding:10px 13px;margin-bottom:10px">
+            <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;user-select:none">
+              <input type="checkbox" id="exsal-f-tiene-pines" onchange="togglePinesOpcion('exsal-f')" style="margin-top:2px;width:15px;height:15px;accent-color:#c2410c;flex-shrink:0;cursor:pointer">
+              <div>
+                <div style="font-size:13px;font-weight:600;color:var(--tp)">Este producto tiene pines</div>
+                <div style="font-size:11px;color:var(--tm);margin-top:1px">Déjalo apagado en breadboard, Arduino y todo lo que no trae pines. En la tienda no sale ni sí ni no.</div>
+              </div>
+            </label>
+            <div id="exsal-f-pines-opcion" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #fed7aa">
+              <div style="font-size:12px;font-weight:700;color:var(--tp);margin-bottom:6px">¿Viene con los pines soldados?</div>
+              <label style="display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--tp);margin-bottom:6px;cursor:pointer">
+                <input type="radio" name="exsal-f-pines-estado" value="si" style="margin-top:2px;accent-color:#c2410c">
+                <span>Sí. En la tienda solo se avisa que ya vienen soldados.</span>
+              </label>
+              <label style="display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--tp);cursor:pointer">
+                <input type="radio" name="exsal-f-pines-estado" value="no" checked style="margin-top:2px;accent-color:#c2410c">
+                <span>No. El cliente puede pedir que se suelden (+$0.25 por unidad).</span>
+              </label>
             </div>
-          </label>
+          </div>
           <label style="display:flex;align-items:flex-start;gap:10px;background:var(--g50);border:1.5px solid var(--g100);border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none;margin-bottom:10px">
             <input type="checkbox" id="exsal-f-affect-costos" style="margin-top:2px;width:15px;height:15px;accent-color:var(--g600);flex-shrink:0;cursor:pointer">
             <div>
@@ -1279,13 +1293,26 @@ body.pos-mode .pos-shell{flex:1;min-height:0;height:100%;max-height:none;overflo
             <input type="number" id="cdb-f-descuento" placeholder="0" min="0" max="100" step="1">
             <div style="font-size:10.5px;color:var(--tm);margin-top:3px">Si es &gt; 0, aparece en Descuentos de la tienda. No se combina con códigos/asignados/sellos.</div>
           </div>
-          <label style="display:flex;align-items:flex-start;gap:10px;background:#fff7ed;border:1.5px solid #fed7aa;border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none;margin-bottom:10px">
-            <input type="checkbox" id="cdb-f-pines" style="margin-top:2px;width:15px;height:15px;accent-color:#c2410c;flex-shrink:0;cursor:pointer">
-            <div>
-              <div style="font-size:13px;font-weight:600;color:var(--tp)">Viene con pines soldados</div>
-              <div style="font-size:11px;color:var(--tm);margin-top:1px">Si está marcado, la tienda avisa que ya vienen soldados y no cobra extra. Si no, el cliente puede pedir que se suelden (+$0.25 por unidad).</div>
+          <div style="background:#fff7ed;border:1.5px solid #fed7aa;border-radius:var(--rsm);padding:10px 13px;margin-bottom:10px">
+            <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;user-select:none">
+              <input type="checkbox" id="cdb-f-tiene-pines" onchange="togglePinesOpcion('cdb-f')" style="margin-top:2px;width:15px;height:15px;accent-color:#c2410c;flex-shrink:0;cursor:pointer">
+              <div>
+                <div style="font-size:13px;font-weight:600;color:var(--tp)">Este producto tiene pines</div>
+                <div style="font-size:11px;color:var(--tm);margin-top:1px">Déjalo apagado en breadboard, Arduino y todo lo que no trae pines. En la tienda no sale ni sí ni no.</div>
+              </div>
+            </label>
+            <div id="cdb-f-pines-opcion" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #fed7aa">
+              <div style="font-size:12px;font-weight:700;color:var(--tp);margin-bottom:6px">¿Viene con los pines soldados?</div>
+              <label style="display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--tp);margin-bottom:6px;cursor:pointer">
+                <input type="radio" name="cdb-f-pines-estado" value="si" style="margin-top:2px;accent-color:#c2410c">
+                <span>Sí. En la tienda solo se avisa que ya vienen soldados.</span>
+              </label>
+              <label style="display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--tp);cursor:pointer">
+                <input type="radio" name="cdb-f-pines-estado" value="no" checked style="margin-top:2px;accent-color:#c2410c">
+                <span>No. El cliente puede pedir que se suelden (+$0.25 por unidad).</span>
+              </label>
             </div>
-          </label>
+          </div>
           <label style="display:flex;align-items:flex-start;gap:10px;background:var(--g50);border:1.5px solid var(--g100);border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none;margin-bottom:10px">
             <input type="checkbox" id="cdb-f-affect-costos" style="margin-top:2px;width:15px;height:15px;accent-color:var(--g600);flex-shrink:0;cursor:pointer">
             <div>
@@ -1462,13 +1489,26 @@ body.pos-mode .pos-shell{flex:1;min-height:0;height:100%;max-height:none;overflo
             <input type="number" id="total-f-descuento" placeholder="0" min="0" max="100" step="1">
             <div style="font-size:10.5px;color:var(--tm);margin-top:3px">Si es &gt; 0, aparece en Descuentos de la tienda. No se combina con códigos/asignados/sellos.</div>
           </div>
-          <label style="display:flex;align-items:flex-start;gap:10px;background:#fff7ed;border:1.5px solid #fed7aa;border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none;margin-bottom:10px">
-            <input type="checkbox" id="total-f-pines" style="margin-top:2px;width:15px;height:15px;accent-color:#c2410c;flex-shrink:0;cursor:pointer">
-            <div>
-              <div style="font-size:13px;font-weight:600;color:var(--tp)">Viene con pines soldados</div>
-              <div style="font-size:11px;color:var(--tm);margin-top:1px">Si está marcado, la tienda avisa que ya vienen soldados y no cobra extra. Si no, el cliente puede pedir que se suelden (+$0.25 por unidad).</div>
+          <div style="background:#fff7ed;border:1.5px solid #fed7aa;border-radius:var(--rsm);padding:10px 13px;margin-bottom:10px">
+            <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;user-select:none">
+              <input type="checkbox" id="total-f-tiene-pines" onchange="togglePinesOpcion('total-f')" style="margin-top:2px;width:15px;height:15px;accent-color:#c2410c;flex-shrink:0;cursor:pointer">
+              <div>
+                <div style="font-size:13px;font-weight:600;color:var(--tp)">Este producto tiene pines</div>
+                <div style="font-size:11px;color:var(--tm);margin-top:1px">Déjalo apagado en breadboard, Arduino y todo lo que no trae pines. En la tienda no sale ni sí ni no.</div>
+              </div>
+            </label>
+            <div id="total-f-pines-opcion" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #fed7aa">
+              <div style="font-size:12px;font-weight:700;color:var(--tp);margin-bottom:6px">¿Viene con los pines soldados?</div>
+              <label style="display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--tp);margin-bottom:6px;cursor:pointer">
+                <input type="radio" name="total-f-pines-estado" value="si" style="margin-top:2px;accent-color:#c2410c">
+                <span>Sí. En la tienda solo se avisa que ya vienen soldados.</span>
+              </label>
+              <label style="display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--tp);cursor:pointer">
+                <input type="radio" name="total-f-pines-estado" value="no" checked style="margin-top:2px;accent-color:#c2410c">
+                <span>No. El cliente puede pedir que se suelden (+$0.25 por unidad).</span>
+              </label>
             </div>
-          </label>
+          </div>
           <label style="display:flex;align-items:flex-start;gap:10px;background:var(--g50);border:1.5px solid var(--g100);border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none;margin-bottom:10px">
             <input type="checkbox" id="total-f-affect-costos" style="margin-top:2px;width:15px;height:15px;accent-color:var(--g600);flex-shrink:0;cursor:pointer">
             <div>
@@ -2592,13 +2632,26 @@ body.pos-mode .pos-shell{flex:1;min-height:0;height:100%;max-height:none;overflo
         <input type="number" id="edit-descuento" placeholder="0" min="0" max="100" step="1">
         <div style="font-size:10.5px;color:var(--tm);margin-top:3px">Si es &gt; 0, aparece en Descuentos de la tienda. No se combina con códigos/asignados/sellos.</div>
       </div>
-      <label style="display:flex;align-items:flex-start;gap:10px;background:#fff7ed;border:1.5px solid #fed7aa;border-radius:var(--rsm);padding:10px 13px;cursor:pointer;user-select:none;margin-top:4px">
-        <input type="checkbox" id="edit-pines" style="margin-top:2px;width:15px;height:15px;accent-color:#c2410c;flex-shrink:0;cursor:pointer">
-        <div>
-          <div style="font-size:13px;font-weight:600;color:var(--tp)">Viene con pines soldados</div>
-          <div style="font-size:11px;color:var(--tm);margin-top:1px">Si está marcado, la tienda avisa que ya vienen soldados y no cobra extra. Si no, el cliente puede pedir que se suelden (+$0.25 por unidad).</div>
+      <div style="background:#fff7ed;border:1.5px solid #fed7aa;border-radius:var(--rsm);padding:10px 13px;margin-top:4px">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;user-select:none">
+          <input type="checkbox" id="edit-tiene-pines" onchange="togglePinesOpcion('edit')" style="margin-top:2px;width:15px;height:15px;accent-color:#c2410c;flex-shrink:0;cursor:pointer">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--tp)">Este producto tiene pines</div>
+            <div style="font-size:11px;color:var(--tm);margin-top:1px">Déjalo apagado en breadboard, Arduino y todo lo que no trae pines. En la tienda no sale ni sí ni no.</div>
+          </div>
+        </label>
+        <div id="edit-pines-opcion" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #fed7aa">
+          <div style="font-size:12px;font-weight:700;color:var(--tp);margin-bottom:6px">¿Viene con los pines soldados?</div>
+          <label style="display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--tp);margin-bottom:6px;cursor:pointer">
+            <input type="radio" name="edit-pines-estado" value="si" style="margin-top:2px;accent-color:#c2410c">
+            <span>Sí. En la tienda solo se avisa que ya vienen soldados.</span>
+          </label>
+          <label style="display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--tp);cursor:pointer">
+            <input type="radio" name="edit-pines-estado" value="no" checked style="margin-top:2px;accent-color:#c2410c">
+            <span>No. El cliente puede pedir que se suelden (+$0.25 por unidad).</span>
+          </label>
         </div>
-      </label>
+      </div>
       <!-- Grupo en tienda (variantes PICO) -->
       <div style="margin-top:8px;background:var(--b50);border:1.5px solid var(--b200);border-radius:var(--rsm);padding:12px 13px;display:flex;flex-direction:column;gap:9px">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--b500)"><i class="ti ti-layers-linked" style="margin-right:4px"></i>Grupo en tienda</div>
@@ -3680,7 +3733,7 @@ function renderList(suc){
     }
     const descPct=parseDescuentoPct(p.descuentoPct);
     const descBadge=descPct>0?`<span class="badge badge-descuento-pct">−${descPct}%</span>`:'';
-    const pinesBadge=productoVieneConPines(p)?'<span class="badge badge-pines"><i class="ti ti-plug"></i>Pines soldados</span>':'';
+    const pinesBadge=badgePinesHtml(p);
     // Color compartido: varios dots. Color multi: un dot de esta ficha
     let colorDots='';
     if(isSharedColorGroup(p)){
@@ -4308,7 +4361,9 @@ async function addProduct(suc){
   if(categoria) data.categoria=categoria;
   if(suc==='exsal') data.stockExsal=stock;
   else data.stockCdb=stock;
-  data.pinesSoldados=(document.getElementById(pre+'pines')||{checked:false}).checked===true;
+  const pines=leerPinesForm(suc+'-f');
+  data.tienePines=pines.tienePines;
+  data.pinesSoldados=pines.pinesSoldados;
   if(descuentoPct>0) applyDescuentoPctToData(data,descuentoPct);
   try{
     const affectCostos=(document.getElementById(pre+'affect-costos')||{checked:false}).checked;
@@ -4324,7 +4379,7 @@ async function addProduct(suc){
     await batch.commit();
     [pre+'name',pre+'desc',pre+'imageurl',pre+'cat',pre+'cost',pre+'price',pre+'stock',pre+'descuento'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
     const acb=document.getElementById(pre+'affect-costos');if(acb)acb.checked=false;
-    const pinesCb=document.getElementById(pre+'pines');if(pinesCb)pinesCb.checked=false;
+    resetPinesForm(suc+'-f');
     previewImg(suc);
     document.getElementById(pre+'name').focus();
     showToast('Producto agregado a '+suc.toUpperCase()+(stock>0&&!affectCostos?' (sin afectar costos)':''),'ti-circle-check');
@@ -4353,7 +4408,9 @@ async function addProductTotal(){
   if(imageUrl) data.imageUrl=imageUrl;
   if(categoria) data.categoria=categoria;
   if(suc==='exsal'){data.stockExsal=stock;}else{data.stockCdb=stock;}
-  data.pinesSoldados=(document.getElementById('total-f-pines')||{checked:false}).checked===true;
+  const pines=leerPinesForm('total-f');
+  data.tienePines=pines.tienePines;
+  data.pinesSoldados=pines.pinesSoldados;
   if(descuentoPct>0) applyDescuentoPctToData(data,descuentoPct);
   try{
     const affectCostos=(document.getElementById('total-f-affect-costos')||{checked:false}).checked;
@@ -4369,7 +4426,7 @@ async function addProductTotal(){
     await batch.commit();
     ['total-f-name','total-f-desc','total-f-imageurl','total-f-cat','total-f-cost','total-f-price','total-f-stock','total-f-descuento'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
     const acb=document.getElementById('total-f-affect-costos');if(acb)acb.checked=false;
-    const pinesCb=document.getElementById('total-f-pines');if(pinesCb)pinesCb.checked=false;
+    resetPinesForm('total-f');
     previewImg('total');
     document.getElementById('total-f-name').focus();
     showToast('Producto agregado a '+suc.toUpperCase()+(stock>0&&!affectCostos?' (sin afectar costos)':''),'ti-circle-check');
@@ -4447,7 +4504,7 @@ function renderTrash(){
         <button class="btn-icon" title="Restaurar" onclick="restoreProduct('${p.id}')"><i class="ti ti-arrow-back-up"></i></button>
         <button class="btn-icon btn-del-sm" title="Borrar definitivamente" onclick="purgeProduct('${p.id}')"><i class="ti ti-trash-x"></i></button>
       </div></div>
-      <div class="card-badges"><span class="badge badge-exsal">EXSAL: ${ex}</span><span class="badge badge-cdb">CDB: ${cd}</span><span class="badge badge-price">Precio ${fmt(p.price)}</span>${productoVieneConPines(p)?'<span class="badge badge-pines"><i class="ti ti-plug"></i>Pines soldados</span>':''}</div>
+      <div class="card-badges"><span class="badge badge-exsal">EXSAL: ${ex}</span><span class="badge badge-cdb">CDB: ${cd}</span><span class="badge badge-price">Precio ${fmt(p.price)}</span>${badgePinesHtml(p)}</div>
     </div>`;
   }).join('');
 }
@@ -4812,13 +4869,14 @@ function openPM(id,suc){
 function renderPmPines(p){
   const el=document.getElementById('pm-pines');
   if(!el) return;
-  if(!p){el.style.display='none';el.innerHTML='';return;}
+  const aplica=!!(p&&(p.tienePines===true||p.pinesSoldados===true));
+  if(!aplica){el.style.display='none';el.innerHTML='';return;}
   const ya=productoVieneConPines(p);
   el.style.display='flex';
   el.className=ya?'pm-pines pm-pines-ya':'pm-pines pm-pines-no';
   el.innerHTML=ya
     ? '<i class="ti ti-plug"></i><span>Ya viene con pines soldados. En la tienda se muestra ese aviso y no se cobra extra.</span>'
-    : '<i class="ti ti-plug"></i><span>Sin pines soldados. En la tienda el cliente puede pedir que se suelden (+$0.25 por unidad).</span>';
+    : '<i class="ti ti-plug"></i><span>Tiene pines, sin soldar. En la tienda el cliente puede pedir que se suelden (+$0.25 por unidad).</span>';
 }
 function closePM(){document.getElementById('pm-overlay').classList.remove('open');activePid=null;activeSucursal=null;}
 
@@ -5557,7 +5615,7 @@ function renderPosCatalog(suc){
         <button type="button" class="pos-card-info" title="Ver descripción" onclick="event.stopPropagation();openPosDesc('${p.id}','${suc}')"><i class="ti ti-info-circle"></i></button>
       </div>
       <div class="pos-card-name">${esc(p.name||'Sin nombre')}</div>
-      ${productoVieneConPines(p)?'<div class="pos-card-pines">Pines soldados</div>':''}
+      ${badgePinesHtml(p)?`<div class="pos-card-pines">${productoVieneConPines(p)?'Pines soldados':'Pines sin soldar'}</div>`:''}
       <div class="pos-card-row"><span class="pos-card-price">${fmt(p.price)}</span><span class="pos-card-stock">${out?'Sin stock':stock+' uds'}</span></div>
       <div class="pos-card-actions">${actions}</div>
     </div>`;
@@ -5632,8 +5690,8 @@ function openPosDesc(pid,suc){
   const desc=(p.desc||'').trim();
   const pinesNota=productoVieneConPines(p)
     ? 'Ya viene con pines soldados.'
-    : 'Sin pines soldados. En la tienda se puede pedir soldarlos (+$0.25 por unidad).';
-  document.getElementById('pos-desc-body').textContent=(desc?desc+'\n\n':'')+pinesNota;
+    : (productoOfrecePines(p)?'Tiene pines, sin soldar. En la tienda se puede pedir soldarlos (+$0.25 por unidad).':'');
+  document.getElementById('pos-desc-body').textContent=pinesNota?(desc?desc+'\n\n'+pinesNota:pinesNota):(desc||'Sin descripción.');
   const ov=document.getElementById('pos-desc-overlay');
   if(!ov) return;
   // Asegurar que el modal esté en body (visible en fullscreen del documento)
@@ -6135,17 +6193,20 @@ function facturasParaAnular(order, docs){
 /* PICO_PINES_RULES_START
  * Contrato con la tienda (colección productos / pedidos).
  *
- * productos/{id}.pinesSoldados (boolean)
- *   true  → el producto YA viene con pines soldados.
- *           La tienda muestra “Ya viene con pines soldados” y NO ofrece el extra.
- *   false o ausente → no vienen soldados.
- *           La tienda muestra una casilla. Si el cliente la marca, +$0.25 por unidad.
+ * productos/{id}
+ *   tienePines     true solo si el producto lleva pines. Si es false o no existe
+ *                  (breadboard, Arduino, etc.) la tienda no muestra nada de pines.
+ *   pinesSoldados  solo importa si tienePines === true.
+ *                  true  → “Ya viene con pines soldados”, sin casilla y sin cobro.
+ *                  false → el cliente puede pedir que se suelden (+$0.25 por unidad).
  *
  * pedidos.items[]
  *   price          precio unitario del producto, SIN el extra de soldar
  *   qty            cantidad
- *   pinesSoldados  copia del producto al armar el pedido
- *   soldarPines    true solo si el cliente pidió soldarlos (y pinesSoldados !== true)
+ *   tienePines     copia del producto
+ *   pinesSoldados  copia del producto
+ *   soldarPines    true solo si tienePines === true, pinesSoldados !== true
+ *                  y el cliente marcó la casilla
  *   extraPines     opcional, dólares de esa línea (0.25 × qty). Si falta, se calcula.
  *
  * pedidos/{id}
@@ -6158,9 +6219,12 @@ function extraPinesUnidad(){ return 0.25; }
 function productoVieneConPines(p){
   return !!(p && p.pinesSoldados===true);
 }
+function productoOfrecePines(p){
+  return !!(p && p.tienePines===true && p.pinesSoldados!==true);
+}
 function itemPidePinesSoldados(item){
-  if(!item || item.pinesSoldados===true) return false;
-  return item.soldarPines===true;
+  if(!item || item.soldarPines!==true || item.pinesSoldados===true) return false;
+  return item.tienePines===true;
 }
 function extraPinesLinea(item){
   if(!itemPidePinesSoldados(item)) return 0;
@@ -6181,7 +6245,7 @@ function sumaExtraPinesPedido(order){
 function notaPinesItem(item){
   if(!item) return '';
   if(item.pinesSoldados===true) return 'Ya viene con pines soldados';
-  if(item.soldarPines===true) return 'Soldar pines (+$0.25 c/u)';
+  if(itemPidePinesSoldados(item)) return 'Soldar pines (+$0.25 c/u)';
   return '';
 }
 /** Total de productos que se cobra. Sin extra, igual que antes. Con extra, el recargo no entra al descuento. */
@@ -6235,6 +6299,39 @@ function nombreItemConPines(item){
   const base=nombreItemPedido(item);
   const nota=notaPinesItem(item);
   return nota?(base+' · '+nota):base;
+}
+function badgePinesHtml(p){
+  if(productoVieneConPines(p)) return '<span class="badge badge-pines"><i class="ti ti-plug"></i>Pines soldados</span>';
+  if(productoOfrecePines(p)) return '<span class="badge badge-pines-off"><i class="ti ti-plug"></i>Pines sin soldar</span>';
+  return '';
+}
+function togglePinesOpcion(prefix){
+  const on=document.getElementById(prefix+'-tiene-pines');
+  const box=document.getElementById(prefix+'-pines-opcion');
+  if(box) box.style.display=(on&&on.checked)?'block':'none';
+}
+function leerPinesForm(prefix){
+  const on=(document.getElementById(prefix+'-tiene-pines')||{checked:false}).checked===true;
+  if(!on) return {tienePines:false,pinesSoldados:false};
+  const sel=document.querySelector('input[name="'+prefix+'-pines-estado"]:checked');
+  return {tienePines:true,pinesSoldados:!!(sel&&sel.value==='si')};
+}
+function resetPinesForm(prefix){
+  const on=document.getElementById(prefix+'-tiene-pines');
+  if(on) on.checked=false;
+  const no=document.querySelector('input[name="'+prefix+'-pines-estado"][value="no"]');
+  if(no) no.checked=true;
+  togglePinesOpcion(prefix);
+}
+function llenarPinesForm(prefix,p){
+  const on=document.getElementById(prefix+'-tiene-pines');
+  const activo=!!(p&&(p.tienePines===true||p.pinesSoldados===true));
+  if(on) on.checked=activo;
+  const si=document.querySelector('input[name="'+prefix+'-pines-estado"][value="si"]');
+  const no=document.querySelector('input[name="'+prefix+'-pines-estado"][value="no"]');
+  if(p&&p.pinesSoldados===true){ if(si) si.checked=true; }
+  else if(no) no.checked=true;
+  togglePinesOpcion(prefix);
 }
 function htmlNotaPines(item){
   const nota=notaPinesItem(item);
@@ -6873,8 +6970,7 @@ function openEditModal(){
     const pct=parseDescuentoPct(p.descuentoPct);
     editDescEl.value=(pct&&pct>0)?pct:'';
   }
-  const editPines=document.getElementById('edit-pines');
-  if(editPines) editPines.checked=p.pinesSoldados===true;
+  llenarPinesForm('edit', p);
   // Categoría y orden en tienda
   populateCategorySelects();
   const catSel=document.getElementById('edit-cat');
@@ -6955,7 +7051,9 @@ async function saveEdit(){
   const oldCost=oldProd?oldProd.cost:cost;
 
   const updateData={name,desc,cost,price,stockExsal,stockCdb,updatedAt:Date.now()};
-  updateData.pinesSoldados=(document.getElementById('edit-pines')||{checked:false}).checked===true;
+  const pinesEdit=leerPinesForm('edit');
+  updateData.tienePines=pinesEdit.tienePines;
+  updateData.pinesSoldados=pinesEdit.pinesSoldados;
   if(imageUrl) updateData.imageUrl=imageUrl;
   else updateData.imageUrl=firebase.firestore.FieldValue.delete();
   // Categoría: guardar la elegida, o borrar el campo si quedó "— Sin categoría —"
